@@ -81,7 +81,7 @@ async def test_agency_identification_task(
     # Confirm meets prerequisites
     assert await operator.meets_task_prerequisites()
     # Run task
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
     # Confirm tasks are piped into the correct subtasks

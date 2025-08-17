@@ -41,7 +41,7 @@ async def test_data_sources_sync_no_new_results(
     )
 
     with patch_sync_data_sources(first_response):
-        run_info = await test_operator.run_task(1)
+        run_info = await test_operator.run_task()
         assert_task_run_success(run_info)
         mock_func: MagicMock = test_operator.pdap_client.sync_data_sources
 

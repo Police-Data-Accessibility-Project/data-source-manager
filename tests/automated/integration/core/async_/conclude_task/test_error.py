@@ -27,4 +27,3 @@ async def test_conclude_task_error(
 
     assert task_info.task_status == BatchStatus.ERROR
     assert task_info.error_info == "test error"
-    assert len(task_info.urls) == 3

@@ -1,6 +1,6 @@
 import pytest
 
-from src.core.tasks.url.operators.internet_archives.core import URLInternetArchivesTaskOperator
+from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
@@ -11,7 +11,7 @@ from tests.automated.integration.tasks.url.impl.ia_metadata.setup import add_url
 
 
 @pytest.mark.asyncio
-async def test_error(operator: URLInternetArchivesTaskOperator) -> None:
+async def test_error(operator: InternetArchivesProbeTaskOperator) -> None:
     """
     If URLs are present in the database and have not been processed yet,
     They should be processed, and flagged as checked for
@@ -36,8 +36,7 @@ async def test_error(operator: URLInternetArchivesTaskOperator) -> None:
     ]
 
     # Run task
-    task_id: int = await adb_client.initiate_task(task_type=TaskType.INTERNET_ARCHIVES)
-    run_info = await operator.run_task(task_id)
+    run_info = await operator.run_task()
 
     # Confirm task ran without error
     assert_task_ran_without_error(run_info)

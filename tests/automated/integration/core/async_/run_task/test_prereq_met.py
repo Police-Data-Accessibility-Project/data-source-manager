@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, call, create_autospec
 import pytest
 
 from src.core.enums import BatchStatus
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
+from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
@@ -21,12 +21,11 @@ async def test_run_task_prereq_met(db_data_creator: DBDataCreator):
     And a task entry should be created in the database
     """
 
-    async def run_task(self, task_id: int) -> URLTaskOperatorRunInfo:
-        return URLTaskOperatorRunInfo(
+    async def run_task(self, task_id: int) -> TaskOperatorRunInfo:
+        return TaskOperatorRunInfo(
             task_id=task_id,
             task_type=TaskType.HTML,
             outcome=TaskOperatorOutcome.SUCCESS,
-            linked_url_ids=[1, 2, 3]
         )
 
     core = setup_async_core(db_data_creator.adb_client)

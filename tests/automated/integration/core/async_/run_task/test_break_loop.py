@@ -3,10 +3,10 @@ from unittest.mock import AsyncMock, create_autospec
 
 import pytest
 
+from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.enums import TaskType
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from tests.automated.integration.core.async_.helpers import setup_async_core
 from tests.helpers.data_creator.core import DBDataCreator
@@ -21,11 +21,10 @@ async def test_run_task_break_loop(db_data_creator: DBDataCreator):
     and an alert should be sent to discord
     """
 
-    async def run_task(self, task_id: int) -> URLTaskOperatorRunInfo:
-        return URLTaskOperatorRunInfo(
+    async def run_task(self, task_id: int) -> TaskOperatorRunInfo:
+        return TaskOperatorRunInfo(
             task_id=task_id,
             outcome=TaskOperatorOutcome.SUCCESS,
-            linked_url_ids=[1, 2, 3],
             task_type=TaskType.HTML
         )
 

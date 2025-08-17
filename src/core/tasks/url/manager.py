@@ -1,10 +1,10 @@
 import logging
 
+from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.db.enums import TaskType
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.function_trigger import FunctionTrigger
 
@@ -57,7 +57,7 @@ class TaskManager:
                 await self.handler.post_to_discord(message=message)
                 break
             task_id = await self.handler.initiate_task_in_db(task_type=operator.task_type)
-            run_info: URLTaskOperatorRunInfo = await operator.run_task(task_id)
+            run_info: TaskOperatorRunInfo = await operator.run_task(task_id)
             await self.conclude_task(run_info)
             if run_info.outcome == TaskOperatorOutcome.ERROR:
                 break
@@ -68,11 +68,7 @@ class TaskManager:
         await self.task_trigger.trigger_or_rerun()
 
 
-    async def conclude_task(self, run_info: URLTaskOperatorRunInfo) -> None:
-        await self.handler.link_urls_to_task(
-            task_id=run_info.task_id,
-            url_ids=run_info.linked_url_ids
-        )
+    async def conclude_task(self, run_info: TaskOperatorRunInfo) -> None:
         await self.handler.handle_outcome(run_info)
 
 

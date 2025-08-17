@@ -1,7 +1,7 @@
 import pytest
 
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
-from src.core.tasks.url.operators.internet_archives.core import URLInternetArchivesTaskOperator
+from src.core.tasks.base.run_info import TaskOperatorRunInfo
+from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.url.ia_metadata.sqlalchemy import URLInternetArchivesMetadata
@@ -12,13 +12,20 @@ from tests.automated.integration.tasks.url.impl.ia_metadata.setup import add_url
 
 
 @pytest.mark.asyncio
-async def test_happy_path(operator: URLInternetArchivesTaskOperator) -> None:
+async def test_happy_path(operator: InternetArchivesProbeTaskOperator) -> None:
     """
     If URLs are present in the database and have not been processed yet,
     They should be processed, and flagged as checked for
     If the client returns a valid response,
     the internet archive metadata should be added
     """
+    # TODO: Figure out how to change the check for task pre-requisites to something different,
+    #   like checking that the next time it runs, it cancels immediately?
+    #   Or perhaps add `meets_task_prerequisites` and have it only be required for some operators
+    #   set it up in a configuration
+    #   Maybe make a URLScheduledTask Operator Base?
+    #   Or make both into mixins?
+
     adb_client: AsyncDatabaseClient = operator.adb_client
 
     # Confirm operator does not yet meet prerequisites
@@ -47,7 +54,7 @@ async def test_happy_path(operator: URLInternetArchivesTaskOperator) -> None:
     ]
 
     # Run task
-    run_info: URLTaskOperatorRunInfo = await operator.run_task(1)
+    run_info: TaskOperatorRunInfo = await operator.run_task()
 
     # Confirm task ran without error
     assert_task_ran_without_error(run_info)

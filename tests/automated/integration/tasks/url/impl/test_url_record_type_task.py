@@ -32,9 +32,8 @@ async def test_url_record_type_task(db_data_creator: DBDataCreator):
     await db_data_creator.html_data(url_ids)
 
     assert await operator.meets_task_prerequisites()
-    task_id = await db_data_creator.adb_client.initiate_task(task_type=TaskType.RECORD_TYPE)
 
-    run_info = await operator.run_task(task_id)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS
 
     # Task should have been created
@@ -46,7 +45,6 @@ async def test_url_record_type_task(db_data_creator: DBDataCreator):
     assert len(tasks) == 1
     task = tasks[0]
     assert task.type == TaskType.RECORD_TYPE
-    assert run_info.linked_url_ids == url_ids
     assert task.url_error_count == 1
 
     # Get metadata

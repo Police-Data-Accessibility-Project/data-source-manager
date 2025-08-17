@@ -36,5 +36,5 @@ async def test_url_html_task_operator(
         url_request_interface=URLRequestInterface(),
         html_parser=parser
     )
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     pass

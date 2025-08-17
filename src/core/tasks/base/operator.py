@@ -10,8 +10,18 @@ from src.db.enums import TaskType
 
 class TaskOperatorBase(ABC):
     def __init__(self, adb_client: AsyncDatabaseClient):
-        self.adb_client = adb_client
-        self.task_id = None
+        self._adb_client = adb_client
+        self._task_id: int | None = None
+
+    @property
+    def task_id(self) -> int:
+        if self._task_id is None:
+            raise AttributeError("Task id is not set. Call initiate_task_in_db() first.")
+        return self._task_id
+
+    @property
+    def adb_client(self) -> AsyncDatabaseClient:
+        return self._adb_client
 
     @property
     @abstractmethod
@@ -28,8 +38,8 @@ class TaskOperatorBase(ABC):
     async def conclude_task(self):
         raise NotImplementedError
 
-    async def run_task(self, task_id: int) -> TaskOperatorRunInfo:
-        self.task_id = task_id
+    async def run_task(self) -> TaskOperatorRunInfo:
+        self._task_id = await self.initiate_task_in_db()
         try:
             await self.inner_task_logic()
             return await self.conclude_task()

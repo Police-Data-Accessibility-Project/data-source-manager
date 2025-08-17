@@ -22,5 +22,4 @@ def loader() -> URLTaskOperatorLoader:
         pdap_client=AsyncMock(spec=PDAPClient),
         muckrock_api_interface=AsyncMock(spec=MuckrockAPIInterface),
         hf_inference_client=AsyncMock(spec=HuggingFaceInferenceClient),
-        ia_client=AsyncMock(spec=InternetArchivesClient)
     )

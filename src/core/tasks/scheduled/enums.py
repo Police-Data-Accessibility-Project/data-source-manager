@@ -2,5 +2,6 @@ from enum import Enum
 
 
 class IntervalEnum(Enum):
-    DAILY = "DAILY"
-    HOURLY = "HOURLY"
+    DAILY = 60 * 24
+    HOURLY = 60
+    TEN_MINUTES = 10

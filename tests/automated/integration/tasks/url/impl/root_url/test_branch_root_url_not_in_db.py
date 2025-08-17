@@ -34,7 +34,7 @@ async def test_branch_root_url_not_in_db(
     assert await operator.meets_task_prerequisites()
 
     # Run task
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
 
     # Check task prerequisites no longer met

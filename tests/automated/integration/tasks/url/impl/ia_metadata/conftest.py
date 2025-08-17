@@ -2,13 +2,13 @@ from unittest.mock import create_autospec, AsyncMock
 
 import pytest
 
-from src.core.tasks.url.operators.internet_archives.core import URLInternetArchivesTaskOperator
+from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.internet_archives.client import InternetArchivesClient
 
 
 @pytest.fixture
-def operator(adb_client_test: AsyncDatabaseClient) -> URLInternetArchivesTaskOperator:
+def operator(adb_client_test: AsyncDatabaseClient) -> InternetArchivesProbeTaskOperator:
     ia_client = InternetArchivesClient(
         session=AsyncMock()
     )
@@ -16,7 +16,7 @@ def operator(adb_client_test: AsyncDatabaseClient) -> URLInternetArchivesTaskOpe
         ia_client._get_url_snapshot,
     )
 
-    return URLInternetArchivesTaskOperator(
+    return InternetArchivesProbeTaskOperator(
         adb_client=adb_client_test,
         ia_client=ia_client
     )

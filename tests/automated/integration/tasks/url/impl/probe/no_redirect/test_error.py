@@ -30,7 +30,7 @@ async def test_url_probe_task_error(
     assert not await operator.meets_task_prerequisites()
     url_id = await setup_manager.setup_url(URLStatus.SUBMITTED)
     assert await operator.meets_task_prerequisites()
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     assert not await operator.meets_task_prerequisites()
     await check_manager.check_url(

@@ -1,12 +1,14 @@
 from tqdm.asyncio import tqdm_asyncio
 
-from src.core.tasks.url.operators.base import URLTaskOperatorBase
-from src.core.tasks.url.operators.internet_archives.convert import convert_ia_url_mapping_to_ia_metadata
-from src.core.tasks.url.operators.internet_archives.filter import filter_into_subsets
-from src.core.tasks.url.operators.internet_archives.models.subset import IAURLMappingSubsets
-from src.core.tasks.url.operators.internet_archives.queries.get import GetURLsForInternetArchivesTaskQueryBuilder
-from src.core.tasks.url.operators.internet_archives.queries.prereq import \
+from src.core.tasks.mixins.link_urls import LinkURLsMixin
+from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
+from src.core.tasks.scheduled.impl.internet_archives.probe.queries.prereq import \
     CheckURLInternetArchivesTaskPrerequisitesQueryBuilder
+from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
+from src.core.tasks.scheduled.impl.internet_archives.probe.convert import convert_ia_url_mapping_to_ia_metadata
+from src.core.tasks.scheduled.impl.internet_archives.probe.filter import filter_into_subsets
+from src.core.tasks.scheduled.impl.internet_archives.probe.models.subset import IAURLMappingSubsets
+from src.core.tasks.scheduled.impl.internet_archives.probe.queries.get import GetURLsForInternetArchivesTaskQueryBuilder
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
@@ -18,7 +20,11 @@ from src.external.internet_archives.models.ia_url_mapping import InternetArchive
 from src.util.url_mapper import URLMapper
 
 
-class URLInternetArchivesTaskOperator(URLTaskOperatorBase):
+class InternetArchivesProbeTaskOperator(
+    ScheduledTaskOperatorBase,
+    HasPrerequisitesMixin,
+    LinkURLsMixin
+):
 
     def __init__(
         self,
@@ -30,7 +36,7 @@ class URLInternetArchivesTaskOperator(URLTaskOperatorBase):
 
     @property
     def task_type(self) -> TaskType:
-        return TaskType.INTERNET_ARCHIVES
+        return TaskType.IA_PROBE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.adb_client.run_query_builder(
@@ -39,6 +45,8 @@ class URLInternetArchivesTaskOperator(URLTaskOperatorBase):
 
     async def inner_task_logic(self) -> None:
         url_mappings: list[URLMapping] = await self._get_url_mappings()
+        if len(url_mappings) == 0:
+            return
         mapper = URLMapper(url_mappings)
 
         await self.link_urls_to_task(mapper.get_all_ids())
@@ -101,3 +109,4 @@ class URLInternetArchivesTaskOperator(URLTaskOperatorBase):
             )
             flags.append(flag)
         await self.adb_client.bulk_insert(flags)
+

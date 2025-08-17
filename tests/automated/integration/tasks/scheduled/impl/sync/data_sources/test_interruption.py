@@ -34,7 +34,7 @@ async def test_data_sources_sync_interruption(
             first_response +
             [ValueError("test error")]
     ):
-        run_info = await test_operator.run_task(1)
+        run_info = await test_operator.run_task()
         assert run_info.outcome == TaskOperatorOutcome.ERROR, run_info.message
 
     await manager.check_via_sync_response_order(SyncResponseOrder.FIRST)
@@ -57,7 +57,7 @@ async def test_data_sources_sync_interruption(
         [SyncResponseOrder.SECOND, SyncResponseOrder.THIRD]
     )
     with patch_sync_data_sources(second_response):
-        await test_operator.run_task(2)
+        await test_operator.run_task()
 
     await check_sync_concluded(adb_client)
 

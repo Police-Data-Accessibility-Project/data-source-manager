@@ -28,7 +28,7 @@ async def test_url_probe_task_redirect_infinite(
         )
     )
     url_id = await setup_manager.setup_url(URLStatus.PENDING)
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     await check_manager.check_url(
         url_id=url_id,
         expected_status=URLStatus.PENDING

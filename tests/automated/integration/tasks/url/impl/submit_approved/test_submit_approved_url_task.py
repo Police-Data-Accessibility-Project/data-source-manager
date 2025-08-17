@@ -44,10 +44,7 @@ async def test_submit_approved_url_task(
     assert await operator.meets_task_prerequisites()
 
     # Run Task
-    task_id = await db_data_creator.adb_client.initiate_task(
-        task_type=TaskType.SUBMIT_APPROVED
-    )
-    run_info = await operator.run_task(task_id=task_id)
+    run_info = await operator.run_task()
 
     # Check Task has been marked as completed
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message

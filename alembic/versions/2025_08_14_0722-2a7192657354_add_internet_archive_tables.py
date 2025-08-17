@@ -67,7 +67,8 @@ def _add_internet_archives_task_enum():
             'Delete Old Logs',
             'Run URL Task Cycles',
             'Root URL',
-            'Internet Archives',
+            'Internet Archives Probe',
+            'Internet Archives Archive'
         ]
     )
 

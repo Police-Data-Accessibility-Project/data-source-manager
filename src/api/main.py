@@ -83,9 +83,6 @@ async def lifespan(app: FastAPI):
                 session=session,
                 token=env_var_manager.hf_inference_api_key
             ),
-            ia_client=InternetArchivesClient(
-                session=session
-            )
         ),
     )
     async_collector_manager = AsyncCollectorManager(
@@ -108,6 +105,9 @@ async def lifespan(app: FastAPI):
                 token=env_var_manager.hf_hub_token
             ),
             async_core=async_core,
+            ia_client=InternetArchivesClient(
+                session=session
+            )
         ),
         registry=ScheduledJobRegistry()
     )

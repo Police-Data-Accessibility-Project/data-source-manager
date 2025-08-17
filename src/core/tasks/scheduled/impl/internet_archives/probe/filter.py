@@ -1,5 +1,5 @@
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
-from src.core.tasks.url.operators.internet_archives.models.subset import IAURLMappingSubsets
+from src.core.tasks.scheduled.impl.internet_archives.probe.models.subset import IAURLMappingSubsets
 
 
 def filter_into_subsets(

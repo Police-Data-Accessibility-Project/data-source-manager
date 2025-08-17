@@ -40,7 +40,7 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
         accessed=True
     )
     await setup_manager.adb_client.bulk_insert([web_metadata])
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     await check_manager.check_url(
         url_id=source_url_id,
