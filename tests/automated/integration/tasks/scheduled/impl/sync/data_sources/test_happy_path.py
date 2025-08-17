@@ -28,7 +28,7 @@ async def test_data_sources_sync_happy_path(
     with patch_sync_data_sources(
         await manager.get_data_sources_sync_responses([order for order in SyncResponseOrder])
     ):
-        run_info = await test_operator.run_task(1)
+        run_info = await test_operator.run_task()
         assert_task_run_success(run_info)
         mock_func: MagicMock = test_operator.pdap_client.sync_data_sources
 

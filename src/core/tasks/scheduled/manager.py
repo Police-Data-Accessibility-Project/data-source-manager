@@ -3,6 +3,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
+from src.core.tasks.mixins.link_urls import LinkURLsMixin
+from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
@@ -53,6 +55,16 @@ class AsyncScheduledTaskManager:
 
     async def run_task(self, operator: ScheduledTaskOperatorBase):
         print(f"Running {operator.task_type.value} Task")
-        task_id = await self._handler.initiate_task_in_db(task_type=operator.task_type)
-        run_info: TaskOperatorRunInfo = await operator.run_task(task_id)
+        if issubclass(operator.__class__, HasPrerequisitesMixin):
+            operator: HasPrerequisitesMixin
+            if not await operator.meets_task_prerequisites():
+                operator: ScheduledTaskOperatorBase
+                print(f"Prerequisites not met for {operator.task_type.value} Task. Skipping.")
+                return
+        run_info: TaskOperatorRunInfo = await operator.run_task()
+        if issubclass(operator.__class__, LinkURLsMixin):
+            operator: LinkURLsMixin
+            if not operator.urls_linked:
+                operator: ScheduledTaskOperatorBase
+                raise Exception(f"Task {operator.task_type.value} has not been linked to any URLs but is designated as a link task")
         await self._handler.handle_outcome(run_info)

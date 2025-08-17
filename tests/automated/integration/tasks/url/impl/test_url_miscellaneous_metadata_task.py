@@ -94,7 +94,7 @@ async def test_url_miscellaneous_metadata_task(db_data_creator: DBDataCreator):
     assert meets_prereqs
 
     # Run task
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS
 
     # Check that each URL has the expected name/description and optional metadata

@@ -29,7 +29,7 @@ async def test_url_probe_task_redirect_dest_new_ok(
         )
     )
     source_url_id = await setup_manager.setup_url(URLStatus.PENDING)
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     await check_manager.check_url(
         url_id=source_url_id,

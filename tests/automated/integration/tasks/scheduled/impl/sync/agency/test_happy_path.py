@@ -21,7 +21,7 @@ async def test_agency_sync_happy_path(
     db_client = operator.adb_client
 
     with patch_sync_agencies(AGENCIES_SYNC_RESPONSES):
-        run_info = await operator.run_task(1)
+        run_info = await operator.run_task()
         assert_task_run_success(run_info)
         mock_func: MagicMock = operator.pdap_client.sync_agencies
 

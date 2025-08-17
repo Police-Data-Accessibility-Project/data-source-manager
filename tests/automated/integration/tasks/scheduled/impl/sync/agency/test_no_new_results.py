@@ -31,7 +31,7 @@ async def test_agency_sync_task_no_new_results(
     )
 
     with patch_sync_agencies([THIRD_CALL_RESPONSE]):
-        run_info = await operator.run_task(1)
+        run_info = await operator.run_task()
         assert_task_run_success(run_info)
         mock_func: AsyncMock = operator.pdap_client.sync_agencies
         mock_func.assert_called_once_with(

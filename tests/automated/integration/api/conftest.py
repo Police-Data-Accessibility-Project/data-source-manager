@@ -1,3 +1,5 @@
+import os
+from contextlib import contextmanager
 from typing import Generator, Any, AsyncGenerator
 from unittest.mock import AsyncMock
 
@@ -36,23 +38,45 @@ def override_access_info() -> AccessInfo:
         ]
     )
 
+@contextmanager
+def set_env_vars(env_vars: dict[str, str]):
+    """Temporarily set multiple environment variables, restoring afterwards."""
+    originals = {}
+    try:
+        # Save originals and set new values
+        for key, value in env_vars.items():
+            originals[key] = os.environ.get(key)
+            os.environ[key] = value
+        yield
+    finally:
+        # Restore originals
+        for key, original in originals.items():
+            if original is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = original
+
 @pytest.fixture(scope="session")
 def client() -> Generator[TestClient, None, None]:
     # Mock environment
-    with TestClient(app) as c:
-        app.dependency_overrides[get_access_info] = override_access_info
-        app.dependency_overrides[requires_final_review_permission] = override_access_info
-        async_core: AsyncCore = c.app.state.async_core
+    with set_env_vars({
+        "SCHEDULED_TASKS_FLAG": "0",
+        "RUN_URL_TASKS_TASK_FLAG": "0",
+    }):
+        with TestClient(app) as c:
+            app.dependency_overrides[get_access_info] = override_access_info
+            app.dependency_overrides[requires_final_review_permission] = override_access_info
+            async_core: AsyncCore = c.app.state.async_core
 
-        # Interfaces to the web should be mocked
-        task_manager = async_core.task_manager
-        task_manager.url_request_interface = AsyncMock()
-        task_manager.discord_poster = AsyncMock()
-        # Disable Logger
-        task_manager.logger.disabled = True
-        # Set trigger to fail immediately if called, to force it to be manually specified in tests
-        task_manager.task_trigger._func = fail_task_trigger
-        yield c
+            # Interfaces to the web should be mocked
+            task_manager = async_core.task_manager
+            task_manager.url_request_interface = AsyncMock()
+            task_manager.discord_poster = AsyncMock()
+            # Disable Logger
+            task_manager.logger.disabled = True
+            # Set trigger to fail immediately if called, to force it to be manually specified in tests
+            task_manager.task_trigger._func = fail_task_trigger
+            yield c
 
     # Reset environment variables back to original state
 

@@ -18,7 +18,7 @@ async def test_happy_path(
     push_function: AsyncMock = hf_client.push_data_sources_raw_to_hub
 
     # Check, prior to adding URLs, that task does not run
-    task_info = await operator.run_task(1)
+    task_info = await operator.run_task()
     assert_task_ran_without_error(task_info)
     push_function.assert_not_called()
 
@@ -27,7 +27,7 @@ async def test_happy_path(
     await manager.setup()
 
     # Run task
-    task_info = await operator.run_task(2)
+    task_info = await operator.run_task()
     assert_task_ran_without_error(task_info)
     push_function.assert_called_once()
 
@@ -37,6 +37,6 @@ async def test_happy_path(
     manager.check_results(call_args)
 
     # Test that after update, running again yields no results
-    task_info = await operator.run_task(3)
+    task_info = await operator.run_task()
     assert_task_ran_without_error(task_info)
     push_function.assert_called_once()

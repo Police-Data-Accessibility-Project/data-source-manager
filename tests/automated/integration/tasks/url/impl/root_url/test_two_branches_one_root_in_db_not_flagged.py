@@ -47,7 +47,7 @@ async def test_two_branches_one_root_in_db_not_flagged(
     assert await operator.meets_task_prerequisites()
 
     # Run task
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
 
     # Check task prerequisites no longer met

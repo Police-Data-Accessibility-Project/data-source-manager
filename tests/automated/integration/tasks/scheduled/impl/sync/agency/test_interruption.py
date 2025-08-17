@@ -27,7 +27,7 @@ async def test_agency_sync_interruption(
     with patch_sync_agencies(
         [FIRST_CALL_RESPONSE, ValueError("test error")]
     ):
-        run_info = await operator.run_task(1)
+        run_info = await operator.run_task()
         assert run_info.outcome == TaskOperatorOutcome.ERROR, run_info.message
 
 
@@ -58,7 +58,7 @@ async def test_agency_sync_interruption(
     assert sync_state_results.current_cutoff_date is None
 
     with patch_sync_agencies([SECOND_CALL_RESPONSE, THIRD_CALL_RESPONSE]):
-        await operator.run_task(2)
+        await operator.run_task()
 
     await check_sync_concluded(db_client)
 

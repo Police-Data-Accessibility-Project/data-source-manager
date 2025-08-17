@@ -20,6 +20,7 @@ from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
+from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
 from src.external.url_request.core import URLRequestInterface
 
@@ -33,7 +34,7 @@ class URLTaskOperatorLoader:
             html_parser: HTMLResponseParser,
             pdap_client: PDAPClient,
             muckrock_api_interface: MuckrockAPIInterface,
-            hf_inference_client: HuggingFaceInferenceClient
+            hf_inference_client: HuggingFaceInferenceClient,
     ):
         # Dependencies
         self.adb_client = adb_client
@@ -164,6 +165,7 @@ class URLTaskOperatorLoader:
                 default=True
             )
         )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [

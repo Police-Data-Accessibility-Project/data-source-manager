@@ -5,9 +5,12 @@ import pytest
 from src.db.enums import TaskType
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
+from src.db.models.impl.link.task_url import LinkTaskURL
 from tests.helpers.data_creator.core import DBDataCreator
 
-class ExampleTaskOperator(URLTaskOperatorBase):
+class ExampleTaskOperator(
+    URLTaskOperatorBase,
+):
 
     @property
     def task_type(self) -> TaskType:
@@ -31,14 +34,16 @@ async def test_example_task_success(db_data_creator: DBDataCreator):
 
     async def mock_inner_task_logic(self):
         # Add link to 3 urls
-        self.linked_url_ids = url_ids
+        await self.link_urls_to_task(url_ids)
 
     operator = ExampleTaskOperator(adb_client=db_data_creator.adb_client)
     operator.inner_task_logic = types.MethodType(mock_inner_task_logic, operator)
 
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS
-    assert run_info.linked_url_ids == url_ids
+    links: list[LinkTaskURL] = await db_data_creator.adb_client.get_all(LinkTaskURL)
+    assert len(links) == 3
+    assert all(link.url_id in url_ids for link in links)
 
 
 @pytest.mark.asyncio
@@ -49,7 +54,7 @@ async def test_example_task_failure(db_data_creator: DBDataCreator):
         raise ValueError("test error")
 
     operator.inner_task_logic = types.MethodType(mock_inner_task_logic, operator)
-    run_info = await operator.run_task(1)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.ERROR
 
 

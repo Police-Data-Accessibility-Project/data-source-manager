@@ -21,8 +21,7 @@ async def test_url_html_task(adb_client_test: AsyncDatabaseClient):
     records = await setup.setup()
     await assert_prereqs_met(operator)
 
-    task_id = await adb_client_test.initiate_task(task_type=TaskType.HTML)
-    run_info = await operator.run_task(task_id)
+    run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
 
     checker = TestURLHTMLTaskCheckManager(

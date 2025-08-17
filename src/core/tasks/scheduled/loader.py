@@ -5,12 +5,14 @@ from src.core.tasks.scheduled.enums import IntervalEnum
 from src.core.tasks.scheduled.impl.backlog.operator import PopulateBacklogSnapshotTaskOperator
 from src.core.tasks.scheduled.impl.delete_logs.operator import DeleteOldLogsTaskOperator
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
+from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
 from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskOperator
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient
+from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
 
 
@@ -21,13 +23,17 @@ class ScheduledTaskOperatorLoader:
             async_core: AsyncCore,
             adb_client: AsyncDatabaseClient,
             pdap_client: PDAPClient,
-            hf_client: HuggingFaceHubClient
+            hf_client: HuggingFaceHubClient,
+            ia_client: InternetArchivesClient
     ):
         # Dependencies
         self.async_core = async_core
         self.adb_client = adb_client
         self.pdap_client = pdap_client
+
+        # External Interfaces
         self.hf_client = hf_client
+        self.ia_client = ia_client
 
         self.env = Env()
         self.env.read_env()
@@ -42,13 +48,21 @@ class ScheduledTaskOperatorLoader:
 
         return [
             ScheduledTaskEntry(
-                operator=DeleteOldLogsTaskOperator(adb_client=self.async_core.adb_client),
+                operator=InternetArchivesProbeTaskOperator(
+                    adb_client=self.adb_client,
+                    ia_client=self.ia_client
+                ),
+                interval=IntervalEnum.TEN_MINUTES,
+                enabled=self.env.bool("IA_PROBE_TASK_FLAG", default=True),
+            ),
+            ScheduledTaskEntry(
+                operator=DeleteOldLogsTaskOperator(adb_client=self.adb_client),
                 interval=IntervalEnum.DAILY,
                 enabled=self.env.bool("DELETE_OLD_LOGS_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
                 operator=SyncDataSourcesTaskOperator(
-                    adb_client=self.async_core.adb_client,
+                    adb_client=self.adb_client,
                     pdap_client=self.pdap_client
                 ),
                 interval=IntervalEnum.DAILY,

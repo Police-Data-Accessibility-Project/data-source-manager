@@ -100,7 +100,7 @@ async def test_url_404_probe_task(
     assert meets_prereqs
 
     # Run task and validate results
-    run_info = await operator.run_task(task_id=1)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
 
@@ -149,7 +149,7 @@ async def test_url_404_probe_task(
     assert meets_prereqs
 
     # Run the task and Ensure all but the URL previously marked as 404 have been checked again
-    run_info = await operator.run_task(task_id=2)
+    run_info = await operator.run_task()
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
     probed_for_404_objects: list[URLProbedFor404] = await db_data_creator.adb_client.get_all(URLProbedFor404)
