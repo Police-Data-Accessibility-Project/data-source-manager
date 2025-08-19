@@ -48,7 +48,8 @@ def setup_and_teardown():
         "DISCORD_WEBHOOK_URL",
         "OPENAI_API_KEY",
         "HUGGINGFACE_INFERENCE_API_KEY",
-        "HUGGINGFACE_HUB_TOKEN"
+        "HUGGINGFACE_HUB_TOKEN",
+        "INTERNET_ARCHIVE_S3_KEYS",
     ]
     all_env_vars = required_env_vars.copy()
     for env_var in test_env_vars:
