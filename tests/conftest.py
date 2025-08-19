@@ -1,4 +1,6 @@
 import logging
+import os
+from contextlib import contextmanager
 from typing import Any, Generator, AsyncGenerator
 from unittest.mock import AsyncMock
 
@@ -46,7 +48,8 @@ def setup_and_teardown():
         "DISCORD_WEBHOOK_URL",
         "OPENAI_API_KEY",
         "HUGGINGFACE_INFERENCE_API_KEY",
-        "HUGGINGFACE_HUB_TOKEN"
+        "HUGGINGFACE_HUB_TOKEN",
+        "INTERNET_ARCHIVE_S3_KEYS",
     ]
     all_env_vars = required_env_vars.copy()
     for env_var in test_env_vars:
@@ -54,43 +57,49 @@ def setup_and_teardown():
 
     EnvVarManager.override(all_env_vars)
 
-    conn = get_postgres_connection_string()
-    engine = create_engine(conn)
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.attributes["connection"] = engine.connect()
-    alembic_cfg.set_main_option(
-        "sqlalchemy.url",
-        get_postgres_connection_string()
-    )
-    live_connection = engine.connect()
-    runner = AlembicRunner(
-        alembic_config=alembic_cfg,
-        inspector=inspect(live_connection),
-        metadata=MetaData(),
-        connection=live_connection,
-        session=scoped_session(sessionmaker(bind=live_connection)),
-    )
-    try:
-        runner.upgrade("head")
-    except Exception as e:
-        print("Exception while upgrading: ", e)
-        print("Resetting schema")
-        runner.reset_schema()
-        runner.stamp("base")
-        runner.upgrade("head")
+    with set_env_vars(
+        {
+            "INTERNET_ARCHIVE_S3_KEYS": "TEST",
+        }
+    ):
+
+        conn = get_postgres_connection_string()
+        engine = create_engine(conn)
+        alembic_cfg = Config("alembic.ini")
+        alembic_cfg.attributes["connection"] = engine.connect()
+        alembic_cfg.set_main_option(
+            "sqlalchemy.url",
+            get_postgres_connection_string()
+        )
+        live_connection = engine.connect()
+        runner = AlembicRunner(
+            alembic_config=alembic_cfg,
+            inspector=inspect(live_connection),
+            metadata=MetaData(),
+            connection=live_connection,
+            session=scoped_session(sessionmaker(bind=live_connection)),
+        )
+        try:
+            runner.upgrade("head")
+        except Exception as e:
+            print("Exception while upgrading: ", e)
+            print("Resetting schema")
+            runner.reset_schema()
+            runner.stamp("base")
+            runner.upgrade("head")
 
 
-    yield
-    try:
-        runner.downgrade("base")
-    except Exception as e:
-        print("Exception while downgrading: ", e)
-        print("Resetting schema")
-        runner.reset_schema()
-        runner.stamp("base")
-    finally:
-        live_connection.close()
-        engine.dispose()
+        yield
+        try:
+            runner.downgrade("base")
+        except Exception as e:
+            print("Exception while downgrading: ", e)
+            print("Resetting schema")
+            runner.reset_schema()
+            runner.stamp("base")
+        finally:
+            live_connection.close()
+            engine.dispose()
 
 @pytest.fixture
 def wiped_database():
@@ -131,3 +140,31 @@ def db_data_creator(
 async def test_client_session() -> AsyncGenerator[ClientSession, Any]:
     async with ClientSession() as session:
         yield session
+
+
+
+@contextmanager
+def set_env_vars(env_vars: dict[str, str]):
+    """Temporarily set multiple environment variables, restoring afterwards."""
+    originals = {}
+    try:
+        # Save originals and set new values
+        for key, value in env_vars.items():
+            originals[key] = os.environ.get(key)
+            os.environ[key] = value
+        yield
+    finally:
+        # Restore originals
+        for key, original in originals.items():
+            if original is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = original
+
+@pytest.fixture(scope="session")
+def disable_task_flags():
+    with set_env_vars({
+        "SCHEDULED_TASKS_FLAG": "0",
+        "RUN_URL_TASKS_TASK_FLAG": "0",
+    }):
+        yield

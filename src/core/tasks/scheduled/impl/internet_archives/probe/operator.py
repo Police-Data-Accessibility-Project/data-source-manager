@@ -14,7 +14,7 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.flag.checked_for_ia.pydantic import FlagURLCheckedForInternetArchivesPydantic
 from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
-from src.db.models.impl.url.ia_metadata.pydantic import URLInternetArchiveMetadataPydantic
+from src.db.models.impl.url.internet_archives.probe.pydantic import URLInternetArchiveMetadataPydantic
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
 from src.util.url_mapper import URLMapper

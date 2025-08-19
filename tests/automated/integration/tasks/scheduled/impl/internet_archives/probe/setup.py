@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
-from tests.automated.integration.tasks.url.impl.ia_metadata.constants import TEST_URL_1, TEST_URL_2
+from tests.automated.integration.tasks.scheduled.impl.internet_archives.probe.constants import TEST_URL_1, TEST_URL_2
 
 
 async def add_urls(dbc: AsyncDatabaseClient) -> list[int]:

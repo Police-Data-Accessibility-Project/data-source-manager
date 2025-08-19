@@ -7,12 +7,17 @@ from aiohttp import ClientSession
 from src.external.internet_archives.convert import convert_capture_to_archive_metadata
 from src.external.internet_archives.models.capture import IACapture
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
+from src.external.internet_archives.models.save_response import InternetArchivesSaveResponseInfo
+
+from environs import Env
 
 limiter = AsyncLimiter(
     max_rate=50,
     time_period=50
 )
 sem = Semaphore(10)
+
+
 
 class InternetArchivesClient:
 
@@ -21,6 +26,11 @@ class InternetArchivesClient:
         session: ClientSession
     ):
         self.session = session
+
+        env = Env()
+        env.read_env()
+
+        self.s3_keys = env.str("INTERNET_ARCHIVE_S3_KEYS")
 
     async def _get_url_snapshot(self, url: str) -> IACapture | None:
         params = {
@@ -67,5 +77,28 @@ class InternetArchivesClient:
         return InternetArchivesURLMapping(
             url=url,
             ia_metadata=metadata,
+            error=None
+        )
+
+    async def _save_url(self, url: str) -> int:
+        async with self.session.post(
+            f"http://web.archive.org/save/{url}",
+            headers={
+                "Authorization": f"LOW {self.s3_keys}"
+            }
+        ) as response:
+            return response.status
+
+    async def save_to_internet_archives(self, url: str) -> InternetArchivesSaveResponseInfo:
+        try:
+            _: int = await self._save_url(url)
+        except Exception as e:
+            return InternetArchivesSaveResponseInfo(
+                url=url,
+                error=f"{e.__class__.__name__}: {e}"
+            )
+
+        return InternetArchivesSaveResponseInfo(
+            url=url,
             error=None
         )

@@ -2,12 +2,11 @@ import pytest
 
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.enums import TaskType
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
-from src.db.models.impl.url.ia_metadata.sqlalchemy import URLInternetArchivesMetadata
+from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
-from tests.automated.integration.tasks.url.impl.ia_metadata.setup import add_urls
+from tests.automated.integration.tasks.scheduled.impl.internet_archives.probe.setup import add_urls
 
 
 @pytest.mark.asyncio
@@ -51,7 +50,7 @@ async def test_error(operator: InternetArchivesProbeTaskOperator) -> None:
     assert all(not flag.success for flag in flags)
 
     # Confirm IA metadata has not been added
-    metadata_list: list[URLInternetArchivesMetadata] = await adb_client.get_all(URLInternetArchivesMetadata)
+    metadata_list: list[URLInternetArchivesProbeMetadata] = await adb_client.get_all(URLInternetArchivesProbeMetadata)
     assert len(metadata_list) == 0
 
     # Confirm presence of URL Error Info

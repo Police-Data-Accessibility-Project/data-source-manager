@@ -14,7 +14,10 @@ from src.db.client.async_ import AsyncDatabaseClient
 
 
 @pytest.fixture
-def manager(adb_client_test: AsyncDatabaseClient) -> AsyncScheduledTaskManager:
+def manager(
+    disable_task_flags,
+    adb_client_test: AsyncDatabaseClient
+) -> AsyncScheduledTaskManager:
     mock_discord_poster = create_autospec(DiscordPoster, instance=True)
 
     task_handler = TaskHandler(

@@ -9,8 +9,8 @@ BASE_URL = "example.com"
 # BASE_URL = "hk45jk"
 
 @pytest.mark.asyncio
-async def test_basic():
-    """Test basic requests to the Internet Archive."""
+async def test_search():
+    """Test basic search requests to the Internet Archive."""
 
     async with ClientSession() as session:
         client = InternetArchivesClient(session)

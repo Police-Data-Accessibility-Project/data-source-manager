@@ -1,4 +1,4 @@
-from src.db.models.impl.url.ia_metadata.sqlalchemy import URLInternetArchivesMetadata
+from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 
 
@@ -10,5 +10,5 @@ class URLInternetArchiveMetadataPydantic(BulkInsertableModel):
     length: int
 
     @classmethod
-    def sa_model(cls) -> type[URLInternetArchivesMetadata]:
-        return URLInternetArchivesMetadata
+    def sa_model(cls) -> type[URLInternetArchivesProbeMetadata]:
+        return URLInternetArchivesProbeMetadata

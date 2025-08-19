@@ -4,11 +4,11 @@ from src.db.models.mixins import URLDependentMixin
 from src.db.models.templates_.standard import StandardBase
 
 
-class URLInternetArchivesMetadata(
+class URLInternetArchivesProbeMetadata(
     StandardBase,
     URLDependentMixin
 ):
-    __tablename__ = 'urls_internet_archive_metadata'
+    __tablename__ = 'url_internet_archives_probe_metadata'
 
     archive_url: Mapped[str]
     digest: Mapped[str]
