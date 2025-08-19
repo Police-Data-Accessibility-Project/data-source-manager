@@ -57,43 +57,49 @@ def setup_and_teardown():
 
     EnvVarManager.override(all_env_vars)
 
-    conn = get_postgres_connection_string()
-    engine = create_engine(conn)
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.attributes["connection"] = engine.connect()
-    alembic_cfg.set_main_option(
-        "sqlalchemy.url",
-        get_postgres_connection_string()
-    )
-    live_connection = engine.connect()
-    runner = AlembicRunner(
-        alembic_config=alembic_cfg,
-        inspector=inspect(live_connection),
-        metadata=MetaData(),
-        connection=live_connection,
-        session=scoped_session(sessionmaker(bind=live_connection)),
-    )
-    try:
-        runner.upgrade("head")
-    except Exception as e:
-        print("Exception while upgrading: ", e)
-        print("Resetting schema")
-        runner.reset_schema()
-        runner.stamp("base")
-        runner.upgrade("head")
+    with set_env_vars(
+        {
+            "INTERNET_ARCHIVE_S3_KEYS": "TEST",
+        }
+    ):
+
+        conn = get_postgres_connection_string()
+        engine = create_engine(conn)
+        alembic_cfg = Config("alembic.ini")
+        alembic_cfg.attributes["connection"] = engine.connect()
+        alembic_cfg.set_main_option(
+            "sqlalchemy.url",
+            get_postgres_connection_string()
+        )
+        live_connection = engine.connect()
+        runner = AlembicRunner(
+            alembic_config=alembic_cfg,
+            inspector=inspect(live_connection),
+            metadata=MetaData(),
+            connection=live_connection,
+            session=scoped_session(sessionmaker(bind=live_connection)),
+        )
+        try:
+            runner.upgrade("head")
+        except Exception as e:
+            print("Exception while upgrading: ", e)
+            print("Resetting schema")
+            runner.reset_schema()
+            runner.stamp("base")
+            runner.upgrade("head")
 
 
-    yield
-    try:
-        runner.downgrade("base")
-    except Exception as e:
-        print("Exception while downgrading: ", e)
-        print("Resetting schema")
-        runner.reset_schema()
-        runner.stamp("base")
-    finally:
-        live_connection.close()
-        engine.dispose()
+        yield
+        try:
+            runner.downgrade("base")
+        except Exception as e:
+            print("Exception while downgrading: ", e)
+            print("Resetting schema")
+            runner.reset_schema()
+            runner.stamp("base")
+        finally:
+            live_connection.close()
+            engine.dispose()
 
 @pytest.fixture
 def wiped_database():
