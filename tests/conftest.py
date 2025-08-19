@@ -1,4 +1,6 @@
 import logging
+import os
+from contextlib import contextmanager
 from typing import Any, Generator, AsyncGenerator
 from unittest.mock import AsyncMock
 
@@ -131,3 +133,31 @@ def db_data_creator(
 async def test_client_session() -> AsyncGenerator[ClientSession, Any]:
     async with ClientSession() as session:
         yield session
+
+
+
+@contextmanager
+def set_env_vars(env_vars: dict[str, str]):
+    """Temporarily set multiple environment variables, restoring afterwards."""
+    originals = {}
+    try:
+        # Save originals and set new values
+        for key, value in env_vars.items():
+            originals[key] = os.environ.get(key)
+            os.environ[key] = value
+        yield
+    finally:
+        # Restore originals
+        for key, original in originals.items():
+            if original is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = original
+
+@pytest.fixture(scope="session")
+def disable_task_flags():
+    with set_env_vars({
+        "SCHEDULED_TASKS_FLAG": "0",
+        "RUN_URL_TASKS_TASK_FLAG": "0",
+    }):
+        yield

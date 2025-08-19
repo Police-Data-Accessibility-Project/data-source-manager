@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.backlog.operator import PopulateBacklogSnapsh
 from src.core.tasks.scheduled.impl.delete_logs.operator import DeleteOldLogsTaskOperator
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
+from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
 from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskOperator
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
@@ -49,6 +50,10 @@ params: list[FlagTestParams] = [
     FlagTestParams(
         env_var="IA_PROBE_TASK_FLAG",
         operator=InternetArchivesProbeTaskOperator
+    ),
+    FlagTestParams(
+        env_var="IA_SAVE_TASK_FLAG",
+        operator=InternetArchivesSaveTaskOperator
     ),
 ]
 
