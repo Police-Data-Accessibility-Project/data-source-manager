@@ -3,7 +3,7 @@ from functools import wraps
 from operator import or_
 from typing import Optional, Type, Any, List, Sequence
 
-from sqlalchemy import select, exists, func, case, Select, and_, update, delete, literal, Row
+from sqlalchemy import select, exists, func, Select, and_, update, delete, Row
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload, QueryableAttribute
@@ -31,10 +31,9 @@ from src.api.endpoints.metrics.batches.aggregated.dto import GetMetricsBatchesAg
 from src.api.endpoints.metrics.batches.aggregated.query.core import GetBatchesAggregatedMetricsQueryBuilder
 from src.api.endpoints.metrics.batches.breakdown.dto import GetMetricsBatchesBreakdownResponseDTO
 from src.api.endpoints.metrics.batches.breakdown.query import GetBatchesBreakdownMetricsQueryBuilder
-from src.api.endpoints.metrics.dtos.get.backlog import GetMetricsBacklogResponseDTO, GetMetricsBacklogResponseInnerDTO
+from src.api.endpoints.metrics.dtos.get.backlog import GetMetricsBacklogResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.core import GetMetricsURLsAggregatedResponseDTO
-from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO, \
-    GetMetricsURLsBreakdownPendingResponseInnerDTO
+from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.submitted import GetMetricsURLsBreakdownSubmittedResponseDTO, \
     GetMetricsURLsBreakdownSubmittedInnerDTO
 from src.api.endpoints.metrics.urls.aggregated.query.core import GetURLsAggregatedMetricsQueryBuilder
@@ -61,7 +60,7 @@ from src.core.tasks.scheduled.impl.sync.agency.queries.get_sync_params import Ge
 from src.core.tasks.scheduled.impl.sync.agency.queries.mark_full_sync import get_mark_full_agencies_sync_query
 from src.core.tasks.scheduled.impl.sync.agency.queries.update_sync_progress import \
     get_update_agencies_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert import \
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert_.upsert import \
     convert_agencies_sync_response_to_agencies_upsert
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.get_sync_params import \

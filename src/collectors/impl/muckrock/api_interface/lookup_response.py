@@ -6,6 +6,6 @@ from src.collectors.impl.muckrock.enums import AgencyLookupResponseType
 
 
 class AgencyLookupResponse(BaseModel):
-    name: Optional[str]
+    name: str | None
     type: AgencyLookupResponseType
-    error: Optional[str] = None
+    error: str | None = None
