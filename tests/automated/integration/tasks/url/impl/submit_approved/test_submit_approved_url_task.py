@@ -16,9 +16,9 @@ from src.external.pdap.client import PDAPClient
 
 @pytest.mark.asyncio
 async def test_submit_approved_url_task(
-        db_data_creator,
-        mock_pdap_client: PDAPClient,
-        monkeypatch
+    db_data_creator,
+    mock_pdap_client: PDAPClient,
+    monkeypatch
 ):
     """
     The submit_approved_url_task should submit
@@ -37,7 +37,7 @@ async def test_submit_approved_url_task(
 
     # Create URLs with status 'validated' in database and all requisite URL values
     # Ensure they have optional metadata as well
-    urls = await setup_validated_urls(db_data_creator)
+    urls: list[str] = await setup_validated_urls(db_data_creator)
     mock_make_request(mock_pdap_client, urls)
 
     # Check Task Operator does meet pre-requisites
@@ -50,14 +50,14 @@ async def test_submit_approved_url_task(
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
     # Get URLs
-    urls = await db_data_creator.adb_client.get_all(URL, order_by_attribute="id")
-    url_1 = urls[0]
-    url_2 = urls[1]
-    url_3 = urls[2]
+    urls: list[URL] = await db_data_creator.adb_client.get_all(URL, order_by_attribute="id")
+    url_1: URL = urls[0]
+    url_2: URL = urls[1]
+    url_3: URL = urls[2]
 
     # Check URLs have been marked as 'submitted'
-    assert url_1.status == URLStatus.SUBMITTED
-    assert url_2.status == URLStatus.SUBMITTED
+    assert url_1.status == URLStatus.OK
+    assert url_2.status == URLStatus.OK
     assert url_3.status == URLStatus.ERROR
 
     # Get URL Data Source Links

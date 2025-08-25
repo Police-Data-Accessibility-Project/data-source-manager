@@ -1,6 +1,7 @@
 import pytest
 
 from src.collectors.enums import URLStatus
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 
 
@@ -14,7 +15,7 @@ async def test_get_next_url_for_final_review_only_confirmed_urls(db_data_creator
     url_mapping = db_data_creator.urls(
         batch_id=batch_id,
         url_count=1,
-        outcome=URLStatus.SUBMITTED
+        outcome=URLCreationEnum.SUBMITTED
     ).url_mappings[0]
 
     result = await db_data_creator.adb_client.get_next_url_for_final_review(

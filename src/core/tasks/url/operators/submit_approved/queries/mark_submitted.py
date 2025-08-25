@@ -19,14 +19,6 @@ class MarkURLsAsSubmittedQueryBuilder(QueryBuilderBase):
             url_id = info.url_id
             data_source_id = info.data_source_id
 
-            query = (
-                update(URL)
-                .where(URL.id == url_id)
-                .values(
-                    status=URLStatus.SUBMITTED.value
-                )
-            )
-
             url_data_source_object = URLDataSource(
                 url_id=url_id,
                 data_source_id=data_source_id
@@ -35,4 +27,3 @@ class MarkURLsAsSubmittedQueryBuilder(QueryBuilderBase):
                 url_data_source_object.created_at = info.submitted_at
             session.add(url_data_source_object)
 
-            await session.execute(query)

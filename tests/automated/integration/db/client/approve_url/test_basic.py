@@ -3,6 +3,7 @@ import pytest
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
@@ -42,9 +43,15 @@ async def test_approve_url_basic(db_data_creator: DBDataCreator):
     url = urls[0]
     assert url.id == url_mapping.url_id
     assert url.record_type == RecordType.ARREST_RECORDS
-    assert url.status == URLStatus.VALIDATED
+    assert url.status == URLStatus.OK
     assert url.name == "Test Name"
     assert url.description == "Test Description"
+
+    # Confirm presence of validated flag
+    validated_flags: list[FlagURLValidated] = await adb_client.get_all(FlagURLValidated)
+    assert len(validated_flags) == 1
+    assert validated_flags[0].url_id == url_mapping.url_id
+
 
     confirmed_agency: list[LinkURLAgency] = await adb_client.get_all(LinkURLAgency)
     assert len(confirmed_agency) == 1

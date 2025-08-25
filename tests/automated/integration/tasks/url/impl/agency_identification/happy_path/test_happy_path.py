@@ -13,6 +13,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.unknown im
 from tests.automated.integration.tasks.url.impl.agency_identification.happy_path.asserts import \
     assert_expected_confirmed_and_auto_suggestions
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.batch.v2 import BatchURLCreationInfoV2
@@ -47,35 +48,35 @@ async def test_agency_identification_task(
                 urls=[
                     TestURLCreationParameters(
                         count=1,
-                        status=URLStatus.OK,
+                        status=URLCreationEnum.OK,
                         with_html_content=True
                     ),
                     TestURLCreationParameters(
                         count=1,
-                        status=URLStatus.ERROR,
+                        status=URLCreationEnum.ERROR,
                         with_html_content=True
                     )
                 ]
             )
         )
-        collector_type_to_url_id[strategy] = creation_info.urls_by_status[URLStatus.OK].url_mappings[0].url_id
+        collector_type_to_url_id[strategy] = creation_info.urls_by_status[URLCreationEnum.OK].url_mappings[0].url_id
 
     # Create an additional two urls with no collector.
     response = await db_data_creator.url_v2(
         parameters=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.OK,
+                status=URLCreationEnum.OK,
                 with_html_content=True
             ),
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.ERROR,
+                status=URLCreationEnum.ERROR,
                 with_html_content=True
             )
         ]
     )
-    collector_type_to_url_id[None] = response.urls_by_status[URLStatus.OK].url_mappings[0].url_id
+    collector_type_to_url_id[None] = response.urls_by_status[URLCreationEnum.OK].url_mappings[0].url_id
 
 
     # Confirm meets prerequisites

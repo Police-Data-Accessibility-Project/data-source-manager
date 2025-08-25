@@ -1,6 +1,7 @@
 import pytest
 
 from src.collectors.enums import URLStatus
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.setup.annotation.core import setup_for_get_next_url_for_annotation
 from tests.helpers.data_creator.core import DBDataCreator
 
@@ -12,19 +13,12 @@ async def test_get_next_url_for_user_relevance_annotation_validated(
     """
     A validated URL should not turn up in get_next_url_for_user_annotation
     """
-
-    setup_info = await setup_for_get_next_url_for_annotation(
-        db_data_creator=db_data_creator,
-        url_count=1,
-        outcome=URLStatus.VALIDATED
-    )
-
-
-    url_1 = setup_info.insert_urls_info.url_mappings[0]
+    dbdc = db_data_creator
+    url_1: int = (await dbdc.create_validated_urls())[0]
 
     # Add `Relevancy` attribute with value `True`
     await db_data_creator.auto_relevant_suggestions(
-        url_id=url_1.url_id,
+        url_id=url_1,
         relevant=True
     )
 
