@@ -6,7 +6,7 @@ from tests.helpers.setup.annotation.model import AnnotationSetupInfo
 async def setup_for_get_next_url_for_annotation(
         db_data_creator: DBDataCreator,
         url_count: int,
-        outcome: URLStatus = URLStatus.PENDING
+        outcome: URLStatus = URLStatus.OK
 ) -> AnnotationSetupInfo:
     batch_id = db_data_creator.batch()
     insert_urls_info = db_data_creator.urls(

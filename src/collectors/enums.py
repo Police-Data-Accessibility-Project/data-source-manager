@@ -11,11 +11,7 @@ class CollectorType(Enum):
     MANUAL = "manual"
 
 class URLStatus(Enum):
-    PENDING = "pending"
-    SUBMITTED = "submitted"
-    VALIDATED = "validated"
+    OK = "ok"
     ERROR = "error"
     DUPLICATE = "duplicate"
-    NOT_RELEVANT = "not relevant"
     NOT_FOUND = "404 not found"
-    INDIVIDUAL_RECORD = "individual record"

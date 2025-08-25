@@ -84,7 +84,7 @@ async def test_url_404_probe_task(
             urls=[
                 TestURLCreationParameters(
                     count=3,
-                    status=URLStatus.PENDING,
+                    status=URLStatus.OK,
                     with_html_content=True
                 ),
                 TestURLCreationParameters(
@@ -104,7 +104,7 @@ async def test_url_404_probe_task(
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
 
-    pending_url_mappings = creation_info.urls_by_status[URLStatus.PENDING].url_mappings
+    pending_url_mappings = creation_info.urls_by_status[URLStatus.OK].url_mappings
     url_id_success = pending_url_mappings[0].url_id
     url_id_404 = pending_url_mappings[1].url_id
     url_id_error = pending_url_mappings[2].url_id
@@ -128,9 +128,9 @@ async def test_url_404_probe_task(
                 return url
         raise Exception(f"URL with id {url_id} not found")
 
-    assert find_url(url_id_success).status == URLStatus.PENDING
+    assert find_url(url_id_success).status == URLStatus.OK
     assert find_url(url_id_404).status == URLStatus.NOT_FOUND
-    assert find_url(url_id_error).status == URLStatus.PENDING
+    assert find_url(url_id_error).status == URLStatus.OK
     assert find_url(url_id_initial_error).status == URLStatus.ERROR
 
     # Check that meets_task_prerequisites now returns False

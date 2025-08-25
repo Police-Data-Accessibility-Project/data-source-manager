@@ -16,6 +16,6 @@ class URLInsertModel(BulkInsertableModel):
     url: str
     collector_metadata: dict | None = None
     name: str | None = None
-    status: URLStatus = URLStatus.PENDING
+    status: URLStatus = URLStatus.OK
     record_type: RecordType | None = None
     source: URLSource

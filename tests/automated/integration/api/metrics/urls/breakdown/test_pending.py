@@ -6,6 +6,7 @@ from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import SuggestedStatus, RecordType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 
 
@@ -27,14 +28,14 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
                     user_relevant=SuggestedStatus.NOT_RELEVANT
                 )
             ),
             TestURLCreationParameters(
                 count=2,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
         ]
     )
@@ -44,7 +45,7 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
                     user_relevant=SuggestedStatus.RELEVANT,
                     user_record_type=RecordType.CALLS_FOR_SERVICE
@@ -60,15 +61,15 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
             TestURLCreationParameters(
                 count=4,
-                status=URLStatus.ERROR
+                status=URLCreationEnum.ERROR
             ),
             TestURLCreationParameters(
                 count=5,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
                     user_relevant=SuggestedStatus.RELEVANT,
                     user_record_type=RecordType.INCARCERATION_RECORDS,

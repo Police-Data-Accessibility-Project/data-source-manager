@@ -30,7 +30,7 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
         )
     )
     source_url_id = await setup_manager.setup_url(URLStatus.INDIVIDUAL_RECORD)
-    dest_url_id = await setup_manager.setup_url(URLStatus.PENDING, url=TEST_DEST_URL)
+    dest_url_id = await setup_manager.setup_url(URLStatus.OK, url=TEST_DEST_URL)
     # Add web metadata for destination URL, to prevent it from being pulled
     web_metadata = URLWebMetadataPydantic(
         url_id=dest_url_id,
@@ -48,7 +48,7 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
     )
     await check_manager.check_url(
         url_id=dest_url_id,
-        expected_status=URLStatus.PENDING
+        expected_status=URLStatus.OK
     )
     await check_manager.check_web_metadata(
         url_id=source_url_id,

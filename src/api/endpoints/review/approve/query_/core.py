@@ -9,6 +9,8 @@ from src.api.endpoints.review.approve.query_.util import update_if_not_none
 from src.collectors.enums import URLStatus
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
@@ -30,76 +32,38 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
     async def run(self, session: AsyncSession) -> None:
         # Get URL
 
+        url = await self._get_url(session)
 
-        query = (
-            Select(URL)
-            .where(URL.id == self.approval_info.url_id)
-            .options(
-                joinedload(URL.optional_data_source_metadata),
-                joinedload(URL.confirmed_agencies),
-            )
-        )
-
-        url = await session.execute(query)
-        url = url.scalars().first()
-
-        update_if_not_none(
-            url,
-            "record_type",
-            self.approval_info.record_type.value
-            if self.approval_info.record_type is not None else None,
-            required=True
-        )
+        await self._optionally_update_record_type(url)
 
         # Get existing agency ids
         existing_agencies = url.confirmed_agencies or []
         existing_agency_ids = [agency.agency_id for agency in existing_agencies]
         new_agency_ids = self.approval_info.agency_ids or []
-        if len(existing_agency_ids) == 0 and len(new_agency_ids) == 0:
-            raise HTTPException(
-                status_code=HTTP_400_BAD_REQUEST,
-                detail="Must specify agency_id if URL does not already have a confirmed agency"
-            )
+        await self._check_for_unspecified_agency_ids(existing_agency_ids, new_agency_ids)
 
-        # Get any existing agency ids that are not in the new agency ids
-        # If new agency ids are specified, overwrite existing
-        if len(new_agency_ids) != 0:
-            for existing_agency in existing_agencies:
-                if existing_agency.id not in new_agency_ids:
-                    # If the existing agency id is not in the new agency ids, delete it
-                    await session.delete(existing_agency)
+        await self._overwrite_existing_agencies(existing_agencies, new_agency_ids, session)
         # Add any new agency ids that are not in the existing agency ids
-        for new_agency_id in new_agency_ids:
-            if new_agency_id not in existing_agency_ids:
-                # Check if the new agency exists in the database
-                query = (
-                    select(Agency)
-                    .where(Agency.agency_id == new_agency_id)
-                )
-                existing_agency = await session.execute(query)
-                existing_agency = existing_agency.scalars().first()
-                if existing_agency is None:
-                    # If not, create it
-                    agency = Agency(
-                        agency_id=new_agency_id,
-                        name=PLACEHOLDER_AGENCY_NAME,
-                    )
-                    session.add(agency)
+        await self._add_new_agencies(existing_agency_ids, new_agency_ids, session)
 
-                # If the new agency id is not in the existing agency ids, add it
-                confirmed_url_agency = LinkURLAgency(
-                    url_id=self.approval_info.url_id,
-                    agency_id=new_agency_id
-                )
-                session.add(confirmed_url_agency)
+        await self._add_validated_flag(session, url=url)
 
-        # If it does, do nothing
+        await self._optionally_update_required_metadata(url)
+        await self._optionally_update_optional_metdata(url)
+        await self._add_approving_user(session)
 
-        url.status = URLStatus.VALIDATED.value
-
+    async def _optionally_update_required_metadata(self, url: URL) -> None:
         update_if_not_none(url, "name", self.approval_info.name, required=True)
         update_if_not_none(url, "description", self.approval_info.description, required=False)
 
+    async def _add_approving_user(self, session: AsyncSession) -> None:
+        approving_user_url = ReviewingUserURL(
+            user_id=self.user_id,
+            url_id=self.approval_info.url_id
+        )
+        session.add(approving_user_url)
+
+    async def _optionally_update_optional_metdata(self, url: URL) -> None:
         optional_metadata = url.optional_data_source_metadata
         if optional_metadata is None:
             url.optional_data_source_metadata = URLOptionalDataSourceMetadata(
@@ -124,10 +88,85 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
                 self.approval_info.supplying_entity
             )
 
-        # Add approving user
-        approving_user_url = ReviewingUserURL(
-            user_id=self.user_id,
-            url_id=self.approval_info.url_id
+    async def _optionally_update_record_type(self, url: URL) -> None:
+        update_if_not_none(
+            url,
+            "record_type",
+            self.approval_info.record_type.value
+            if self.approval_info.record_type is not None else None,
+            required=True
         )
 
-        session.add(approving_user_url)
+    async def _get_url(self, session: AsyncSession) -> URL:
+        query = (
+            Select(URL)
+            .where(URL.id == self.approval_info.url_id)
+            .options(
+                joinedload(URL.optional_data_source_metadata),
+                joinedload(URL.confirmed_agencies),
+            )
+        )
+        url = await session.execute(query)
+        url = url.scalars().first()
+        return url
+
+    async def _check_for_unspecified_agency_ids(
+        self,
+        existing_agency_ids: list[int],
+        new_agency_ids: list[int]
+    ) -> None:
+        """
+        raises:
+            HTTPException: If no agency ids are specified and no existing agency ids are found
+        """
+        if len(existing_agency_ids) == 0 and len(new_agency_ids) == 0:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail="Must specify agency_id if URL does not already have a confirmed agency"
+            )
+
+    async def _overwrite_existing_agencies(self, existing_agencies, new_agency_ids, session):
+        # Get any existing agency ids that are not in the new agency ids
+        # If new agency ids are specified, overwrite existing
+        if len(new_agency_ids) != 0:
+            for existing_agency in existing_agencies:
+                if existing_agency.id not in new_agency_ids:
+                    # If the existing agency id is not in the new agency ids, delete it
+                    await session.delete(existing_agency)
+
+    async def _add_new_agencies(self, existing_agency_ids, new_agency_ids, session):
+        for new_agency_id in new_agency_ids:
+            if new_agency_id in existing_agency_ids:
+                continue
+            # Check if the new agency exists in the database
+            query = (
+                select(Agency)
+                .where(Agency.agency_id == new_agency_id)
+            )
+            existing_agency = await session.execute(query)
+            existing_agency = existing_agency.scalars().first()
+            if existing_agency is None:
+                # If not, create it
+                agency = Agency(
+                    agency_id=new_agency_id,
+                    name=PLACEHOLDER_AGENCY_NAME,
+                )
+                session.add(agency)
+
+            # If the new agency id is not in the existing agency ids, add it
+            confirmed_url_agency = LinkURLAgency(
+                url_id=self.approval_info.url_id,
+                agency_id=new_agency_id
+            )
+            session.add(confirmed_url_agency)
+
+    async def _add_validated_flag(
+        self,
+        session: AsyncSession,
+        url: URL
+    ) -> None:
+        flag = FlagURLValidated(
+            url_id=url.id,
+            type=ValidatedURLType.DATA_SOURCE
+        )
+        session.add(flag)

@@ -44,7 +44,7 @@ class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
                 URL.id == self.url_id
             )
             .where(
-                URL.status == URLStatus.PENDING.value
+                URL.status == URLStatus.OK.value
             ).cte("pending")
         )
 

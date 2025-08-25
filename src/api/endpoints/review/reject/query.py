@@ -5,6 +5,8 @@ from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.api.endpoints.review.enums import RejectionReason
 from src.collectors.enums import URLStatus
+from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from src.db.queries.base.builder import QueryBuilderBase
@@ -33,18 +35,26 @@ class RejectURLQueryBuilder(QueryBuilderBase):
         url = await session.execute(query)
         url = url.scalars().first()
 
+        validation_type: ValidatedURLType | None = None
         match self.rejection_reason:
             case RejectionReason.INDIVIDUAL_RECORD:
-                url.status = URLStatus.INDIVIDUAL_RECORD.value
+                validation_type = ValidatedURLType.INDIVIDUAL_RECORD
             case RejectionReason.BROKEN_PAGE_404:
                 url.status = URLStatus.NOT_FOUND.value
             case RejectionReason.NOT_RELEVANT:
-                url.status = URLStatus.NOT_RELEVANT.value
+                validation_type = ValidatedURLType.NOT_RELEVANT
             case _:
                 raise HTTPException(
                     status_code=HTTP_400_BAD_REQUEST,
                     detail="Invalid rejection reason"
                 )
+
+        if validation_type is not None:
+            flag_url_validated = FlagURLValidated(
+                url_id=self.url_id,
+                type=validation_type
+            )
+            session.add(flag_url_validated)
 
         # Add rejecting user
         rejecting_user_url = ReviewingUserURL(

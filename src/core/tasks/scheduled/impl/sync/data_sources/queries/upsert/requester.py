@@ -14,6 +14,7 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.update.p
     UpdateURLForDataSourcesSyncParams
 from src.db.dtos.url.mapping import URLMapping
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
 
@@ -76,3 +77,6 @@ class UpsertURLsFromDataSourcesDBRequester:
         """Overwrite existing url_agency links with new ones, if applicable."""
         query = URLAgencyLinkUpdateQueryBuilder(params)
         await query.run(self.session)
+
+    async def upsert_validated_flags(self, flags: list[FlagURLValidatedPydantic]) -> None:
+        await sh.bulk_upsert(self.session, models=flags)

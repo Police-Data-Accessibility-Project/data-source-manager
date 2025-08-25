@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Type
 
 from sqlalchemy import FromClause, select, and_, Select, desc, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +13,8 @@ from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.exceptions import FailedQueryException
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
@@ -93,7 +94,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         query = (
             query.where(
                 and_(
-                    URL.status == URLStatus.PENDING.value,
+                    URL.status == URLStatus.OK.value,
                     *where_exist_clauses
                 )
             )
@@ -189,7 +190,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             )
             .where(
                 LinkBatchURL.batch_id == self.batch_id,
-                URL.status == URLStatus.PENDING.value,
+                URL.status == URLStatus.OK.value,
                 *self._get_where_exist_clauses(
                     builder.query
                 )
@@ -203,22 +204,12 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         count_reviewed_query = (
             select(
                 Batch.id.label("batch_id"),
-                func.count(URL.id).label(self.count_label)
+                func.count(FlagURLValidated.url_id).label(self.count_label)
             )
             .select_from(Batch)
             .join(LinkBatchURL)
-            .outerjoin(URL, URL.id == LinkBatchURL.url_id)
-            .where(
-                URL.status.in_(
-                    [
-                        URLStatus.VALIDATED.value,
-                        URLStatus.NOT_RELEVANT.value,
-                        URLStatus.SUBMITTED.value,
-                        URLStatus.INDIVIDUAL_RECORD.value
-                    ]
-                ),
-                LinkBatchURL.batch_id == self.batch_id
-            )
+            .outerjoin(FlagURLValidated, FlagURLValidated.url_id == LinkBatchURL.url_id)
+
             .group_by(Batch.id)
             .subquery("count_reviewed")
         )

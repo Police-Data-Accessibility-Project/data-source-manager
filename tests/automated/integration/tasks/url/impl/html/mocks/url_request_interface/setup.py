@@ -3,7 +3,6 @@ from http import HTTPStatus
 from src.external.url_request.dtos.url_response import URLResponseInfo
 from tests.automated.integration.tasks.url.impl.html.setup.data import TEST_ENTRIES
 from tests.automated.integration.tasks.url.impl.html.setup.models.entry import TestURLHTMLTaskSetupEntry, TestErrorType
-from tests.helpers.simple_test_data_functions import generate_test_html
 
 
 def _get_success(
@@ -29,6 +28,19 @@ def _get_content_type(
         return None
     return "text/html"
 
+def _generate_test_html() -> str:
+    return """
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Example HTML</title>
+      </head>
+      <body>
+        <h1>Example HTML</h1>
+        <p>This is an example of HTML content.</p>
+      </body>
+    </html>
+    """
 
 def setup_url_to_response_info(
 ) -> dict[str, URLResponseInfo]:
@@ -37,7 +49,7 @@ def setup_url_to_response_info(
         response_info = URLResponseInfo(
             success=_get_success(entry),
             status=get_http_status(entry),
-            html=generate_test_html() if _get_success(entry) else None,
+            html=_generate_test_html() if _get_success(entry) else None,
             content_type=_get_content_type(entry),
             exception=None if _get_success(entry) else "Error"
         )

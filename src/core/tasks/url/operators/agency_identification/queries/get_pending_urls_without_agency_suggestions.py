@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.collectors.enums import URLStatus, CollectorType
 from src.core.tasks.url.operators.agency_identification.dtos.tdo import AgencyIdentificationTDO
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.statement_composer import StatementComposer
@@ -21,7 +21,7 @@ class GetPendingURLsWithoutAgencySuggestionsQueryBuilder(QueryBuilderBase):
                 Batch.strategy
             )
             .select_from(URL)
-            .where(URL.status == URLStatus.PENDING.value)
+            .where(URL.status == URLStatus.OK.value)
             .outerjoin(LinkBatchURL)
             .outerjoin(Batch)
         )

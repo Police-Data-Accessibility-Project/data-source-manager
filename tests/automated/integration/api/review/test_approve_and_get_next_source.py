@@ -6,6 +6,8 @@ from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
@@ -55,7 +57,7 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
     url = urls[0]
     assert url.id == url_mapping.url_id
     assert url.record_type == RecordType.ARREST_RECORDS
-    assert url.status == URLStatus.VALIDATED
+    assert url.status == URLStatus.OK
     assert url.name == "New Test Name"
     assert url.description == "New Test Description"
 
@@ -76,3 +78,8 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
     for agency in agencies:
         if agency.agency_id == additional_agency:
             assert agency.name == PLACEHOLDER_AGENCY_NAME
+
+    # Confirm presence of FlagURLValidated
+    flag_url_validated = await adb_client.get_all(FlagURLValidated)
+    assert len(flag_url_validated) == 1
+    assert flag_url_validated[0].type == ValidatedURLType.DATA_SOURCE

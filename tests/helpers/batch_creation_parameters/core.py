@@ -9,10 +9,10 @@ from tests.helpers.batch_creation_parameters.url_creation_parameters import Test
 
 
 class TestBatchCreationParameters(BaseModel):
-    created_at: Optional[datetime.datetime] = None
+    created_at: datetime.datetime | None = None
     outcome: BatchStatus = BatchStatus.READY_TO_LABEL
     strategy: CollectorType = CollectorType.EXAMPLE
-    urls: Optional[list[TestURLCreationParameters]] = None
+    urls: list[TestURLCreationParameters] | None = None
 
     @model_validator(mode='after')
     def validate_urls(self):

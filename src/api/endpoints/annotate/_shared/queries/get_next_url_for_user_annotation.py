@@ -5,7 +5,7 @@ from sqlalchemy.orm import QueryableAttribute, joinedload
 from src.collectors.enums import URLStatus
 from src.core.enums import SuggestedStatus
 from src.db.client.types import UserSuggestionModel
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
@@ -43,7 +43,7 @@ class GetNextURLForUserAnnotationQueryBuilder(QueryBuilderBase):
 
         query = (
             query
-            .where(URL.status == URLStatus.PENDING.value)
+            .where(URL.status == URLStatus.OK.value)
             # URL must not have user suggestion
             .where(
                 StatementComposer.user_suggestion_not_exists(self.user_suggestion_model_to_exclude)

@@ -11,7 +11,7 @@ TEST_ENTRIES = [
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
             url="https://happy-path.com/pending",
-            status=URLStatus.PENDING
+            status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
             accessed=True,
@@ -66,7 +66,7 @@ TEST_ENTRIES = [
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
             url="https://not-200-path.com/submitted",
-            status=URLStatus.PENDING
+            status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
             accessed=True,
@@ -83,7 +83,7 @@ TEST_ENTRIES = [
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
             url="https://no-web-metadata.com/submitted",
-            status=URLStatus.PENDING
+            status=URLStatus.OK
         ),
         web_metadata_info=None,
         expected_result=ExpectedResult(

@@ -28,7 +28,7 @@ class GetAutoRelevantTDOsQueryBuilder(QueryBuilderBase):
             .join(URLCompressedHTML)
             .outerjoin(AutoRelevantSuggestion)
             .where(
-                URL.status == URLStatus.PENDING.value,
+                URL.status == URLStatus.OK.value,
                 AutoRelevantSuggestion.id.is_(None),
             )
         )

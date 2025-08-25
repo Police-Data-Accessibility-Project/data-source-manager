@@ -8,11 +8,10 @@ from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
 from src.db.constants import STANDARD_ROW_LIMIT
 from src.db.enums import TaskType
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.task_url import LinkTaskURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.task.core import Task
-from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.batch.sqlalchemy import Batch
@@ -96,7 +95,7 @@ class StatementComposer:
     def pending_urls_missing_miscellaneous_metadata_query() -> Select:
         query = select(URL).where(
             and_(
-                URL.status == URLStatus.PENDING.value,
+                URL.status == URLStatus.OK.value,
                 URL.name == None,
                 URL.description == None,
                 URLOptionalDataSourceMetadata.url_id == None

@@ -31,7 +31,7 @@ async def test_two_urls(
         ]
     )
     assert not await operator.meets_task_prerequisites()
-    url_id_1 = await setup_manager.setup_url(URLStatus.PENDING, url=url_1)
+    url_id_1 = await setup_manager.setup_url(URLStatus.OK, url=url_1)
     url_id_2 = await setup_manager.setup_url(URLStatus.NOT_RELEVANT, url=url_2)
     assert await operator.meets_task_prerequisites()
     run_info = await operator.run_task()

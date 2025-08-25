@@ -1,4 +1,5 @@
 from datetime import datetime
+from operator import or_
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +7,7 @@ from sqlalchemy.sql.functions import count
 
 from src.collectors.enums import URLStatus
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.state.huggingface import HuggingFaceUploadState
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -34,14 +36,12 @@ class CheckValidURLsUpdatedRequester:
                 URLCompressedHTML,
                 URL.id == URLCompressedHTML.url_id
             )
+            .outerjoin(
+                FlagURLValidated,
+                URL.id == FlagURLValidated.url_id
+            )
             .where(
-                URL.status.in_(
-                    [
-                        URLStatus.VALIDATED,
-                        URLStatus.NOT_RELEVANT.value,
-                        URLStatus.SUBMITTED.value,
-                    ]
-                ),
+                FlagURLValidated.url_id.isnot(None)
             )
         )
         if last_upload_at is not None:

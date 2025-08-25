@@ -8,6 +8,7 @@ def switch_enum_type(
         new_enum_values,
         drop_old_enum=True,
         check_constraints_to_drop: list[str] = None,
+        conversion_mappings: dict[str, str] = None
 ):
     """
     Switches an ENUM type in a PostgreSQL column by:
@@ -21,6 +22,8 @@ def switch_enum_type(
     :param enum_name: Name of the ENUM type in PostgreSQL.
     :param new_enum_values: List of new ENUM values.
     :param drop_old_enum: Whether to drop the old ENUM type.
+    :param check_constraints_to_drop: List of check constraints to drop before switching the ENUM type.
+    :param conversion_mappings: Dictionary of old values to new values for the ENUM type.
     """
 
     # 1. Drop check constraints that reference the enum
@@ -38,7 +41,21 @@ def switch_enum_type(
     new_enum_type.create(op.get_bind())
 
     # Alter the column type to use the new enum type
-    op.execute(f'ALTER TABLE "{table_name}" ALTER COLUMN "{column_name}" TYPE "{enum_name}" USING "{column_name}"::text::{enum_name}')
+    if conversion_mappings is None:
+        op.execute(f'ALTER TABLE "{table_name}" ALTER COLUMN "{column_name}" TYPE "{enum_name}" USING "{column_name}"::text::{enum_name}')
+    if conversion_mappings is not None:
+        case_when: str = ""
+        for old_value, new_value in conversion_mappings.items():
+            case_when += f"WHEN '{old_value}' THEN '{new_value}'\n"
+
+        op.execute(f"""
+            ALTER TABLE "{table_name}"
+            ALTER COLUMN "{column_name}" TYPE "{enum_name}" 
+            USING CASE {column_name}::text
+            {case_when}
+            ELSE "{column_name}"::text
+            END::{enum_name};
+        """)
 
     # Drop the old enum type
     if drop_old_enum:

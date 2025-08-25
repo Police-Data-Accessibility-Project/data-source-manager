@@ -8,7 +8,7 @@ from src.db.models.templates_.with_id import WithIDBase
 
 
 class AutomatedUrlAgencySuggestion(URLDependentMixin, StandardBase):
-    __tablename__ = "automated_url_agency_suggestions"
+    __tablename__ = "url_auto_agency_suggestions"
 
     agency_id = get_agency_id_foreign_column(nullable=True)
     is_unknown = Column(Boolean, nullable=True)

@@ -47,7 +47,7 @@ async def test_agency_identification_task(
                 urls=[
                     TestURLCreationParameters(
                         count=1,
-                        status=URLStatus.PENDING,
+                        status=URLStatus.OK,
                         with_html_content=True
                     ),
                     TestURLCreationParameters(
@@ -58,14 +58,14 @@ async def test_agency_identification_task(
                 ]
             )
         )
-        collector_type_to_url_id[strategy] = creation_info.urls_by_status[URLStatus.PENDING].url_mappings[0].url_id
+        collector_type_to_url_id[strategy] = creation_info.urls_by_status[URLStatus.OK].url_mappings[0].url_id
 
     # Create an additional two urls with no collector.
     response = await db_data_creator.url_v2(
         parameters=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.PENDING,
+                status=URLStatus.OK,
                 with_html_content=True
             ),
             TestURLCreationParameters(
@@ -75,7 +75,7 @@ async def test_agency_identification_task(
             )
         ]
     )
-    collector_type_to_url_id[None] = response.urls_by_status[URLStatus.PENDING].url_mappings[0].url_id
+    collector_type_to_url_id[None] = response.urls_by_status[URLStatus.OK].url_mappings[0].url_id
 
 
     # Confirm meets prerequisites

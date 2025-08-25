@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from sqlalchemy import select, cast, func, TIMESTAMP
 
@@ -9,14 +9,9 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 
 async def check_sync_concluded(
     db_client: AsyncDatabaseClient,
+    current_db_datetime: datetime,
     check_updated_at: bool = True
-):
-
-    current_db_datetime = await db_client.scalar(
-        select(
-            cast(func.now(), TIMESTAMP)
-        )
-    )
+) -> None:
 
     sync_state_results = await db_client.scalar(
         select(

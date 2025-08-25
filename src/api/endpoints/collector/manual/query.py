@@ -6,7 +6,7 @@ from src.api.endpoints.collector.dtos.manual_batch.response import ManualBatchRe
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
@@ -47,7 +47,7 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
                 name=entry.name,
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,
-                status=URLStatus.PENDING.value,
+                status=URLStatus.OK.value,
                 record_type=entry.record_type.value if entry.record_type is not None else None,
                 source=URLSource.MANUAL
             )

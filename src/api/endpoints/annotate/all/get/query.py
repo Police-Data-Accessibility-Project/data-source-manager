@@ -10,7 +10,7 @@ from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResp
 from src.collectors.enums import URLStatus
 from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -39,7 +39,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             query
             .where(
                 and_(
-                    URL.status == URLStatus.PENDING.value,
+                    URL.status == URLStatus.OK.value,
                     StatementComposer.user_suggestion_not_exists(UserUrlAgencySuggestion),
                     StatementComposer.user_suggestion_not_exists(UserRecordTypeSuggestion),
                     StatementComposer.user_suggestion_not_exists(UserRelevantSuggestion),

@@ -7,6 +7,8 @@ from src.core.tasks.url.operators.agency_identification.dtos.suggestion import U
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
+from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
 from src.db.client.sync import DatabaseClient
 from src.db.enums import TaskType
@@ -14,6 +16,7 @@ from src.collectors.enums import CollectorType, URLStatus
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 from tests.helpers.data_creator.commands.impl.agency import AgencyCommand
@@ -28,9 +31,11 @@ from tests.helpers.data_creator.commands.impl.suggestion.user.agency import Agen
 from tests.helpers.data_creator.commands.impl.suggestion.user.record_type import UserRecordTypeSuggestionCommand
 from tests.helpers.data_creator.commands.impl.suggestion.user.relevant import UserRelevantSuggestionCommand
 from tests.helpers.data_creator.commands.impl.url_metadata import URLMetadataCommand
-from tests.helpers.data_creator.commands.impl.urls import URLsDBDataCreatorCommand
+from tests.helpers.data_creator.commands.impl.urls_.query import URLsDBDataCreatorCommand
 from tests.helpers.data_creator.commands.impl.urls_v2.core import URLsV2Command
 from tests.helpers.data_creator.commands.impl.urls_v2.response import URLsV2Response
+from tests.helpers.data_creator.create import create_urls, create_batch, create_batch_url_links, create_validated_flags, \
+    create_url_data_sources
 from tests.helpers.data_creator.models.clients import DBDataCreatorClientContainer
 from tests.helpers.data_creator.models.creation_info.batch.v1 import BatchURLCreationInfo
 from tests.helpers.data_creator.models.creation_info.batch.v2 import BatchURLCreationInfoV2
@@ -105,7 +110,7 @@ class DBDataCreator:
             url_count: int = 3,
             with_html_content: bool = False,
             batch_status: BatchStatus = BatchStatus.READY_TO_LABEL,
-            url_status: URLStatus = URLStatus.PENDING
+            url_status: URLCreationEnum = URLCreationEnum.OK
     ) -> BatchURLCreationInfo:
         batch_id = self.batch(
             strategy=strategy,
@@ -239,7 +244,7 @@ class DBDataCreator:
             batch_id: int,
             url_count: int,
             collector_metadata: dict | None = None,
-            outcome: URLStatus = URLStatus.PENDING,
+            outcome: URLCreationEnum = URLCreationEnum.OK,
             created_at: datetime | None = None
     ) -> InsertURLsInfo:
         command = URLsDBDataCreatorCommand(
@@ -367,4 +372,104 @@ class DBDataCreator:
                 content_type=content_type,
                 status_code=status_code
             )
+        )
+
+    async def create_validated_urls(
+        self,
+        record_type: RecordType = RecordType.RESOURCES,
+        validation_type: ValidatedURLType = ValidatedURLType.DATA_SOURCE,
+        count: int = 1
+    ) -> list[int]:
+        url_ids: list[int] = await self.create_urls(
+            record_type=record_type,
+            count=count
+        )
+        await self.create_validated_flags(
+            url_ids=url_ids,
+            validation_type=validation_type
+        )
+        return url_ids
+
+    async def create_submitted_urls(
+        self,
+        record_type: RecordType = RecordType.RESOURCES,
+        count: int = 1
+    ):
+        url_ids: list[int] = await self.create_urls(
+            record_type=record_type,
+            count=count
+        )
+        await self.create_validated_flags(
+            url_ids=url_ids,
+            validation_type=ValidatedURLType.DATA_SOURCE
+        )
+        await self.create_url_data_sources(url_ids=url_ids)
+        return url_ids
+
+
+    async def create_urls(
+        self,
+        status: URLStatus = URLStatus.OK,
+        source: URLSource = URLSource.COLLECTOR,
+        record_type: RecordType | None = RecordType.RESOURCES,
+        count: int = 1,
+        batch_id: int | None = None
+    ):
+
+        url_ids: list[int] = await create_urls(
+            adb_client=self.adb_client,
+            status=status,
+            source=source,
+            record_type=record_type,
+            count=count
+        )
+        if batch_id is not None:
+            await self.create_batch_url_links(
+                url_ids=url_ids,
+                batch_id=batch_id
+            )
+        return url_ids
+
+    async def create_batch(
+        self,
+        status: BatchStatus = BatchStatus.READY_TO_LABEL,
+        strategy: CollectorType = CollectorType.EXAMPLE,
+        date_generated: datetime = datetime.now(),
+    ):
+        return await create_batch(
+            adb_client=self.adb_client,
+            status=status,
+            strategy=strategy,
+            date_generated=date_generated
+        )
+
+    async def create_batch_url_links(
+        self,
+        url_ids: list[int],
+        batch_id: int,
+    ):
+        return await create_batch_url_links(
+            adb_client=self.adb_client,
+            url_ids=url_ids,
+            batch_id=batch_id
+        )
+
+    async def create_validated_flags(
+        self,
+        url_ids: list[int],
+        validation_type: ValidatedURLType,
+    ):
+        return await create_validated_flags(
+            adb_client=self.adb_client,
+            url_ids=url_ids,
+            validation_type=validation_type
+        )
+
+    async def create_url_data_sources(
+        self,
+        url_ids: list[int],
+    ):
+        return await create_url_data_sources(
+            adb_client=self.adb_client,
+            url_ids=url_ids
         )

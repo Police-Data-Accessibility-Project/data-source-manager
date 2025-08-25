@@ -17,7 +17,7 @@ class HasURLsWithoutAgencySuggestionsQueryBuilder(QueryBuilderBase):
             select(
                 URL.id
             ).where(
-                URL.status == URLStatus.PENDING.value
+                URL.status == URLStatus.OK.value
             )
         )
 
