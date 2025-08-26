@@ -1,10 +1,9 @@
 from pydantic import BaseModel
 
-class AgencyMetaURLLookupResponse(BaseModel):
-    url: str
-    url_id: int | None
-    agency_ids: list[int] = []
+from src.db.dtos.url.mapping import URLMapping
 
-    @property
-    def exists_in_db(self) -> bool:
-        return self.url_id is not None
+
+class AgencyMetaURLLookupResponse(BaseModel):
+    agency_id: int
+    exists_in_db: bool
+    url_mappings: list[URLMapping] = []

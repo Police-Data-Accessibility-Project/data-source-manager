@@ -1,9 +1,10 @@
 from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
 
 
-def extract_meta_urls_from_agencies_sync_response(responses: list[AgenciesSyncResponseInnerInfo]) -> list[str]:
-    url_set: set[str] = set()
+def extract_agency_ids_from_agencies_sync_response(
+    responses: list[AgenciesSyncResponseInnerInfo]
+) -> list[int]:
+    agency_ids: list[int] = []
     for response in responses:
-        for url in response.meta_urls:
-            url_set.add(url)
-    return list(url_set)
+        agency_ids.append(response.id)
+    return agency_ids
