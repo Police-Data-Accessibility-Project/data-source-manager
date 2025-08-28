@@ -1,5 +1,5 @@
 from src.collectors.enums import URLStatus
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 
 
@@ -24,13 +24,13 @@ def convert_url_creation_enum_to_url_status(url_creation_enum: URLCreationEnum) 
 
 def convert_url_creation_enum_to_validated_type(
     url_creation_enum: URLCreationEnum
-) -> ValidatedURLType:
+) -> URLValidatedType:
     match url_creation_enum:
         case URLCreationEnum.SUBMITTED:
-            return ValidatedURLType.DATA_SOURCE
+            return URLValidatedType.DATA_SOURCE
         case URLCreationEnum.VALIDATED:
-            return ValidatedURLType.DATA_SOURCE
+            return URLValidatedType.DATA_SOURCE
         case URLCreationEnum.NOT_RELEVANT:
-            return ValidatedURLType.NOT_RELEVANT
+            return URLValidatedType.NOT_RELEVANT
         case _:
             raise ValueError(f"Unknown URLCreationEnum: {url_creation_enum}")

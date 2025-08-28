@@ -5,7 +5,7 @@ from unittest.mock import patch, create_autospec, AsyncMock
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInfo, DataSourcesSyncResponseInnerInfo
 from src.external.pdap.enums import ApprovalStatus, DataSourcesURLStatus
@@ -41,7 +41,7 @@ def set_up_mock_pdap_client_responses(
 async def set_up_urls(
     adb_client: AsyncDatabaseClient,
     record_type: RecordType,
-    validated_type: ValidatedURLType | None = None,
+    validated_type: URLValidatedType | None = None,
     previously_synced: bool = False,
 ) -> list[int]:
     """Creates 2 test URLs."""

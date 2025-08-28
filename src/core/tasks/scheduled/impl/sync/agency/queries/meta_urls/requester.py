@@ -15,3 +15,15 @@ class UpdateMetaURLsRequester(RequesterBase):
                 agency_ids
             )
         )
+
+    async def add_meta_urls(self) -> None:
+        raise NotImplementedError
+
+    async def update_meta_urls(self) -> None:
+        raise NotImplementedError
+
+    async def add_agency_url_links(self) -> None:
+        raise NotImplementedError
+
+    async def remove_agency_url_links(self) -> None:
+        raise NotImplementedError

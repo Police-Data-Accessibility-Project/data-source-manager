@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.enums import RecordType
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.queries.base.builder import QueryBuilderBase
 from tests.automated.integration.tasks.scheduled.impl.sync.data_sources.setup.queries.url_.requester import \
     TestDataSourcesSyncURLSetupQueryRequester
@@ -12,7 +12,7 @@ class TestDataSourcesSyncURLSetupQueryBuilder(QueryBuilderBase):
     def __init__(
         self,
         record_type: RecordType,
-        validated_type: ValidatedURLType | None = None,
+        validated_type: URLValidatedType | None = None,
         previously_synced: bool = False,
     ):
         super().__init__()

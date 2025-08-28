@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 from src.core.enums import RecordType
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 
 
 class MetaURLLookupResponse(BaseModel):
     url: str
     url_id: int | None
     record_type: RecordType | None
-    validation_type: ValidatedURLType | None
+    validation_type: URLValidatedType | None
 
     @property
     def exists_in_db(self) -> bool:

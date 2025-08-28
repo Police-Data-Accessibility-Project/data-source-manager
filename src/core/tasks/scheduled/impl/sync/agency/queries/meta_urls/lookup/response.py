@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from src.db.dtos.url.mapping import URLMapping
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 
 
 class AgencyMetaURLLookupResponse(BaseModel):

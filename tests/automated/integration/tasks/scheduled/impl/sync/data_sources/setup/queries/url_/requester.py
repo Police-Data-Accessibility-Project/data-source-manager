@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.enums import RecordType
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
@@ -32,7 +32,7 @@ class TestDataSourcesSyncURLSetupQueryRequester(RequesterBase):
     async def insert_validated_flags(
         self,
         url_ids: list[int],
-        validated_type: ValidatedURLType
+        validated_type: URLValidatedType
     ) -> None:
         to_insert: list[FlagURLValidatedPydantic] = []
         for url_id in url_ids:

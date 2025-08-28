@@ -7,7 +7,7 @@ from src.core.tasks.url.operators.agency_identification.dtos.suggestion import U
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
 from src.db.client.sync import DatabaseClient
@@ -377,7 +377,7 @@ class DBDataCreator:
     async def create_validated_urls(
         self,
         record_type: RecordType = RecordType.RESOURCES,
-        validation_type: ValidatedURLType = ValidatedURLType.DATA_SOURCE,
+        validation_type: URLValidatedType = URLValidatedType.DATA_SOURCE,
         count: int = 1
     ) -> list[int]:
         url_ids: list[int] = await self.create_urls(
@@ -401,7 +401,7 @@ class DBDataCreator:
         )
         await self.create_validated_flags(
             url_ids=url_ids,
-            validation_type=ValidatedURLType.DATA_SOURCE
+            validation_type=URLValidatedType.DATA_SOURCE
         )
         await self.create_url_data_sources(url_ids=url_ids)
         return url_ids
@@ -457,7 +457,7 @@ class DBDataCreator:
     async def create_validated_flags(
         self,
         url_ids: list[int],
-        validation_type: ValidatedURLType,
+        validation_type: URLValidatedType,
     ):
         return await create_validated_flags(
             adb_client=self.adb_client,

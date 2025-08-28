@@ -2,7 +2,7 @@ import pytest
 
 from src.api.endpoints.review.enums import RejectionReason
 from src.collectors.enums import URLStatus
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from tests.automated.integration.api.review.rejection.helpers import run_rejection_test
 
@@ -17,4 +17,4 @@ async def test_rejection_not_relevant(api_test_helper):
 
     # Get FlagURLValidated and confirm Not Relevant
     flag: FlagURLValidated = (await api_test_helper.adb_client().get_all(FlagURLValidated))[0]
-    assert flag.type == ValidatedURLType.NOT_RELEVANT
+    assert flag.type == URLValidatedType.NOT_RELEVANT

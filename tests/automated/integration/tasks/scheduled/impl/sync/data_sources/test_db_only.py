@@ -8,7 +8,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInfo

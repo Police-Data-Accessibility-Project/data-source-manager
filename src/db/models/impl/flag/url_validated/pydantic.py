@@ -1,4 +1,4 @@
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.upsert import BulkUpsertableModel
@@ -11,7 +11,7 @@ class FlagURLValidatedPydantic(
 ):
 
     url_id: int
-    type: ValidatedURLType
+    type: URLValidatedType
 
     @classmethod
     def sa_model(cls) -> type_[FlagURLValidated]:

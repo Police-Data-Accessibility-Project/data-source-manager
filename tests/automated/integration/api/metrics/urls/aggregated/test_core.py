@@ -4,7 +4,7 @@ import pendulum
 import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -47,8 +47,8 @@ async def test_get_urls_aggregated_metrics(api_test_helper):
     )
     url_ids_2_ok: list[int] = await ddc.create_urls(batch_id=batch_2, count=4, status=URLStatus.OK)
     url_ids_2_error: list[int] = await ddc.create_urls(batch_id=batch_2, count=2, status=URLStatus.ERROR)
-    url_ids_2_validated: list[int] = await ddc.create_validated_urls(count=1, validation_type=ValidatedURLType.DATA_SOURCE)
-    url_ids_2_not_relevant: list[int] = await ddc.create_validated_urls(count=5, validation_type=ValidatedURLType.NOT_RELEVANT)
+    url_ids_2_validated: list[int] = await ddc.create_validated_urls(count=1, validation_type=URLValidatedType.DATA_SOURCE)
+    url_ids_2_not_relevant: list[int] = await ddc.create_validated_urls(count=5, validation_type=URLValidatedType.NOT_RELEVANT)
     await ddc.create_batch_url_links(
         url_ids=url_ids_2_validated + url_ids_2_not_relevant,
         batch_id=batch_2

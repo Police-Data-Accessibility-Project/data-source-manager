@@ -1,7 +1,7 @@
 from sqlalchemy import select, func
 
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -26,7 +26,7 @@ NOT_RELEVANT_CTE = URLCountsCTEContainer(
         FlagURLValidated.url_id == URL.id,
     )
     .where(
-        FlagURLValidated.type == ValidatedURLType.NOT_RELEVANT
+        FlagURLValidated.type == URLValidatedType.NOT_RELEVANT
     )
     .group_by(
         Batch.id

@@ -12,7 +12,7 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.lookup.r
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.update.params import \
     UpdateURLForDataSourcesSyncParams
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
@@ -116,7 +116,7 @@ class UpsertURLsFromDataSourcesParamManager:
             url_id: int = mapper.get_id(url)
             sync_info: DataSourcesSyncResponseInnerInfo = self._mapper.get(url)
             approval_status: ApprovalStatus = sync_info.approval_status
-            validated_type: ValidatedURLType = convert_approval_status_to_validated_type(approval_status)
+            validated_type: URLValidatedType = convert_approval_status_to_validated_type(approval_status)
             flag = FlagURLValidatedPydantic(
                 url_id=url_id,
                 type=validated_type

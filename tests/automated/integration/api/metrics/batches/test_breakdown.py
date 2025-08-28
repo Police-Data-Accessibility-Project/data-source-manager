@@ -6,7 +6,7 @@ import pytest
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.data_creator.create import create_batch, create_urls, create_batch_url_links, create_validated_flags, \
     create_url_data_sources
 
@@ -30,7 +30,7 @@ async def test_get_batches_breakdown_metrics(api_test_helper):
     await create_validated_flags(
         adb_client=adb_client,
         url_ids=url_ids_1[:2],
-        validation_type=ValidatedURLType.DATA_SOURCE
+        validation_type=URLValidatedType.DATA_SOURCE
     )
     await create_url_data_sources(
         adb_client=adb_client,
@@ -60,12 +60,12 @@ async def test_get_batches_breakdown_metrics(api_test_helper):
     await create_validated_flags(
         adb_client=adb_client,
         url_ids=validated_url_ids[:3],
-        validation_type=ValidatedURLType.NOT_RELEVANT,
+        validation_type=URLValidatedType.NOT_RELEVANT,
     )
     await create_validated_flags(
         adb_client=adb_client,
         url_ids=validated_url_ids[4:9],
-        validation_type=ValidatedURLType.DATA_SOURCE,
+        validation_type=URLValidatedType.DATA_SOURCE,
     )
     await create_batch_url_links(
         adb_client=adb_client,

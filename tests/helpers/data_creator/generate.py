@@ -3,7 +3,7 @@ from datetime import datetime
 from src.collectors.enums import URLStatus, CollectorType
 from src.core.enums import BatchStatus, RecordType
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
-from src.db.models.impl.flag.url_validated.enums import ValidatedURLType
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
@@ -58,7 +58,7 @@ def generate_urls(
 
 def generate_validated_flags(
     url_ids: list[int],
-    validation_type: ValidatedURLType,
+    validation_type: URLValidatedType,
 ) -> list[FlagURLValidatedPydantic]:
     return [
         FlagURLValidatedPydantic(
