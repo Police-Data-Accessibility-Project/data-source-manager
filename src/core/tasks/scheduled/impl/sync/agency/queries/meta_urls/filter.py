@@ -29,6 +29,34 @@ def filter_add_and_remove_meta_urls(
     links_to_remove: list[LinkURLAgencyPydantic] = []
 
     for lookup_response in lookup_responses:
+        if not lookup_response.exists_in_db:
+            # All meta_urls in sync must be added
+            urls_in_sync: list[str] = agency_meta_url_mapper.get_urls(
+                lookup_response.agency_id
+            )
+
+            for url in urls_in_sync:
+                urls_to_add.append(
+                    NewURLAgenciesMapping(
+                        agency_id=lookup_response.agency_id,
+                        url=url
+                    )
+                )
+
+        # If it already exists in the database, compare the meta_urls and see if they differ
+        urls_in_db: list[str] = lookup_response.meta_urls
+
+        urls_in_sync: list[str] = agency_meta_url_mapper.get_urls(
+            lookup_response.agency_id
+        )
+
+        in_db_not_sync: list[str] = list(set(urls_in_db) - set(urls_in_sync))
+        in_sync_not_db: list[str] = list(set(urls_in_sync) - set(urls_in_db))
+
+        # For meta_urls in sync but not db, add to urls_to_add
+
+        # For meta_urls in db but not sync, add to links_to_remove
+
         if lookup_response.exists_in_db:
             lookup_response.url_mappings = url_mapper.get_url_mappings(
                 lookup_response.agency_id

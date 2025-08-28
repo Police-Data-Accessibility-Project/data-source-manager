@@ -19,6 +19,12 @@ class UpdateMetaUrlsQueryBuilder(QueryBuilderBase):
 
         requester = UpdateMetaURLsRequester(session)
 
+        # Add new URLs to database
+
+        # Update existing URLs as validated meta URLs
+
+        # Update Agency-URL links
+
         # Get existing meta URLs
         lookup_responses: list[AgencyMetaURLLookupResponse] = \
             await requester.lookup_meta_urls(self.agencies)

@@ -4,6 +4,7 @@ from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBas
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.external.pdap.client import PDAPClient
+from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
 
 
 class SyncAgenciesTaskOperator(ScheduledTaskOperatorBase):
@@ -47,3 +48,9 @@ class SyncAgenciesTaskOperator(ScheduledTaskOperatorBase):
         await self.adb_client.mark_full_agencies_sync()
         print(f"Sync complete. Synced {count_agencies_synced} agencies")
 
+    async def add_new_data(self, agencies: list[AgenciesSyncResponseInnerInfo]):
+        # First, add new agencies
+        await self.adb_client.upsert_agencies(agencies)
+
+        # Then, add new meta urls
+        raise NotImplementedError 
