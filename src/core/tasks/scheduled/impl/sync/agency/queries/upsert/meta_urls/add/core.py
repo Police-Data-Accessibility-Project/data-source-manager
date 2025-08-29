@@ -34,6 +34,15 @@ class AddMetaURLsQueryBuilder(QueryBuilderBase):
             )
         url_ids: list[int] = await sh.bulk_insert(session, models=url_inserts, return_ids=True)
 
+        # Connect with URLs
+        mappings: list[URLMapping] = [
+            URLMapping(
+                url=url,
+                url_id=url_id,
+            )
+            for url, url_id in zip(self.urls, url_ids)
+        ]
+
         # Add Validation Flags
         flag_inserts: list[FlagURLValidatedPydantic] = []
         for url_id in url_ids:
@@ -44,3 +53,5 @@ class AddMetaURLsQueryBuilder(QueryBuilderBase):
                 )
             )
         await sh.bulk_insert(session, models=flag_inserts)
+
+        return mappings

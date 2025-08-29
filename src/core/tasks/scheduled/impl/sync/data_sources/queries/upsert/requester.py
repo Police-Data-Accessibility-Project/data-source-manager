@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.params import \
-    UpdateLinkURLAgencyForDataSourcesSyncParams
-from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.query import \
+    UpdateLinkURLAgencyParams
+from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.core import \
     URLAgencyLinkUpdateQueryBuilder
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.insert.params import \
     InsertURLForDataSourcesSyncParams
@@ -72,7 +72,7 @@ class UpsertURLsFromDataSourcesDBRequester:
 
     async def update_agency_links(
         self,
-        params: list[UpdateLinkURLAgencyForDataSourcesSyncParams]
+        params: list[UpdateLinkURLAgencyParams]
     ) -> None:
         """Overwrite existing url_agency links with new ones, if applicable."""
         query = URLAgencyLinkUpdateQueryBuilder(params)

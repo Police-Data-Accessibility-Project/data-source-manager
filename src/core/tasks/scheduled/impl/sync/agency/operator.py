@@ -1,3 +1,4 @@
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.core import UpsertAgenciesQueryBuilder
 from src.core.tasks.scheduled.impl.sync.check import check_max_sync_requests_not_exceeded
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
 from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
@@ -48,9 +49,8 @@ class SyncAgenciesTaskOperator(ScheduledTaskOperatorBase):
         await self.adb_client.mark_full_agencies_sync()
         print(f"Sync complete. Synced {count_agencies_synced} agencies")
 
-    async def add_new_data(self, agencies: list[AgenciesSyncResponseInnerInfo]):
+    async def update_data(self, agencies: list[AgenciesSyncResponseInnerInfo]):
         # First, add new agencies
-        await self.adb_client.upsert_agencies(agencies)
-
-        # Then, add new meta urls
-        raise NotImplementedError 
+        await self.adb_client.run_query_builder(
+            UpsertAgenciesQueryBuilder(agencies)
+        )

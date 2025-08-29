@@ -13,9 +13,8 @@ class AgencyIDMetaURLMapper:
                 self._meta_url_to_agency_id[meta_url].append(sync_response.agency_id)
                 self._agency_id_to_meta_urls[sync_response.agency_id].append(meta_url)
 
+    def get_urls(self, id_: int) -> list[str]:
+        return self._agency_id_to_meta_urls[id_]
 
-    def get_ids(self, url: str) -> list[int]:
-        return self._meta_url_to_agency_id[url]
-
-    def get_urls(self, id: int) -> list[str]:
-        return self._agency_id_to_meta_urls[id]
+    def get_all_ids(self) -> list[int]:
+        return list(self._agency_id_to_meta_urls.keys())
