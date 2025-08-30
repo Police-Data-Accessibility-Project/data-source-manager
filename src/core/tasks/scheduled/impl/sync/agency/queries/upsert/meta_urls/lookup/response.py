@@ -9,7 +9,6 @@ class MetaURLLookupResponse(BaseModel):
     url_id: int | None
     record_type: RecordType | None
     validation_type: URLValidatedType | None
-    agency_ids: list[int] | None
 
     @property
     def exists_in_db(self) -> bool:

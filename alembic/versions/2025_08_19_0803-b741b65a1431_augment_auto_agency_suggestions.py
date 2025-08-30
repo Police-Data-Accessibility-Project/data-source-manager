@@ -53,6 +53,7 @@ def upgrade() -> None:
     _create_flag_url_validated_table()
     _add_urls_to_flag_url_validated_table()
     _remove_validated_and_submitted_url_statuses()
+    _reset_agencies_sync_state()
 
 
 def downgrade() -> None:
@@ -63,6 +64,9 @@ def downgrade() -> None:
     _update_validated_and_submitted_url_statuses()
     op.drop_table(FLAG_URL_VALIDATED_TABLE_NAME)
     _drop_validated_url_type_enum()
+
+def _reset_agencies_sync_state():
+    op.execute("DELETE FROM agencies_sync_state")
 
 def _remove_validated_and_submitted_url_statuses():
     switch_enum_type(

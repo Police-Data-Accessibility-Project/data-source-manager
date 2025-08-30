@@ -3,24 +3,20 @@ from typing import Sequence
 from sqlalchemy import select, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.extract import extract_urls_from_agencies_sync_response
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.extract import \
-    extract_agency_ids_from_agencies_sync_response
-from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
-from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
-from src.db.helpers.session import session_helper as sh
+
 
 class LookupMetaURLLinksQueryBuilder(QueryBuilderBase):
 
-    def __init__(self, sync_responses: list[AgenciesSyncResponseInnerInfo]):
+    def __init__(self, agency_ids: list[int]):
         super().__init__()
-        self.agency_ids: list[int] = extract_agency_ids_from_agencies_sync_response(sync_responses)
+        self.agency_ids: list[int] = agency_ids
 
     async def run(self, session: AsyncSession) -> list[LinkURLAgencyPydantic]:
 

@@ -1,24 +1,24 @@
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.core import LookupMetaURLsQueryBuilder
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.response import MetaURLLookupResponse
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.add.core import AddMetaURLsQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.convert import \
     convert_to_update_meta_urls_params, convert_url_lookups_to_url_mappings
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.filter import filter_existing_url_mappings, \
     filter_urls_to_add
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.lookup.core import LookupMetaURLsQueryBuilder
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.lookup.response import MetaURLLookupResponse
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.core import UpdateMetaURLsQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.params import UpdateMetaURLsParams
 from src.db.dtos.url.mapping import URLMapping
 from src.db.templates.requester import RequesterBase
-from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
+
 
 class UpdateMetaURLsRequester(RequesterBase):
 
     async def lookup_meta_urls(
         self,
-        agencies: list[AgenciesSyncResponseInnerInfo]
+        urls: list[str]
     ) -> list[MetaURLLookupResponse]:
         return await LookupMetaURLsQueryBuilder(
-            agencies
+            urls
         ).run(self.session)
 
     async def add_new_urls_to_database(

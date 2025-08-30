@@ -25,13 +25,13 @@ class AsyncScheduledTaskManager:
         self._loader = loader
         self._registry = registry
 
-        # Main objects
-        self.scheduler = AsyncIOScheduler()
-
 
     async def setup(self):
         self._registry.start_scheduler()
         await self.add_scheduled_tasks()
+        await self._registry.report_next_scheduled_task()
+
+
 
     async def add_scheduled_tasks(self):
         """
@@ -68,3 +68,4 @@ class AsyncScheduledTaskManager:
                 operator: ScheduledTaskOperatorBase
                 raise Exception(f"Task {operator.task_type.value} has not been linked to any URLs but is designated as a link task")
         await self._handler.handle_outcome(run_info)
+        await self._registry.report_next_scheduled_task()

@@ -1,4 +1,4 @@
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.response import MetaURLLookupResponse
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.lookup.response import MetaURLLookupResponse
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.params import UpdateMetaURLsParams
 from src.db.dtos.url.mapping import URLMapping
 
