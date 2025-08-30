@@ -27,6 +27,7 @@ class UpdateAgencyURLLinksQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> None:
         # TODO: Replace with LookupMetaURLLinksQueryBuilder
+        # TODO: Include a Lookup for the URL Mappings of the sync URLs
 
         lookup_responses: list[MetaURLLookupResponse] = \
             await LookupMetaURLsQueryBuilder(self._sync_responses).run(session=session)
