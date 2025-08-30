@@ -5,9 +5,12 @@ from typing import Optional, Any
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.dtos.url.mapping import URLMapping
+from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
 from src.db.client.sync import DatabaseClient
@@ -39,6 +42,7 @@ from tests.helpers.data_creator.create import create_urls, create_batch, create_
 from tests.helpers.data_creator.models.clients import DBDataCreatorClientContainer
 from tests.helpers.data_creator.models.creation_info.batch.v1 import BatchURLCreationInfo
 from tests.helpers.data_creator.models.creation_info.batch.v2 import BatchURLCreationInfoV2
+from tests.helpers.simple_test_data_functions import generate_test_name
 
 
 class DBDataCreator:
@@ -264,7 +268,7 @@ class DBDataCreator:
             record_formats: Optional[list[str]] = None,
             data_portal_type: Optional[str] = "Test Data Portal Type",
             supplying_entity: Optional[str] = "Test Supplying Entity"
-    ):
+    ) -> None:
         if record_formats is None:
             record_formats = ["Test Record Format", "Test Record Format 2"]
 
@@ -282,7 +286,11 @@ class DBDataCreator:
         await self.adb_client.add_miscellaneous_metadata([tdo])
 
 
-    def duplicate_urls(self, duplicate_batch_id: int, url_ids: list[int]):
+    def duplicate_urls(
+        self,
+        duplicate_batch_id: int,
+        url_ids: list[int]
+    ) -> None:
         """
         Create duplicates for all given url ids, and associate them
         with the given batch
@@ -307,7 +315,7 @@ class DBDataCreator:
             self,
             url_ids: list[int],
             task_id: Optional[int] = None
-    ):
+    ) -> None:
         if task_id is None:
             task_id = await self.task()
         error_infos = []
@@ -379,32 +387,34 @@ class DBDataCreator:
         record_type: RecordType = RecordType.RESOURCES,
         validation_type: URLValidatedType = URLValidatedType.DATA_SOURCE,
         count: int = 1
-    ) -> list[int]:
-        url_ids: list[int] = await self.create_urls(
+    ) -> list[URLMapping]:
+        url_mappings: list[URLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
+        url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]
         await self.create_validated_flags(
             url_ids=url_ids,
             validation_type=validation_type
         )
-        return url_ids
+        return url_mappings
 
     async def create_submitted_urls(
         self,
         record_type: RecordType = RecordType.RESOURCES,
         count: int = 1
-    ):
-        url_ids: list[int] = await self.create_urls(
+    ) -> list[URLMapping]:
+        url_mappings: list[URLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
+        url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]
         await self.create_validated_flags(
             url_ids=url_ids,
             validation_type=URLValidatedType.DATA_SOURCE
         )
         await self.create_url_data_sources(url_ids=url_ids)
-        return url_ids
+        return url_mappings
 
 
     async def create_urls(
@@ -414,28 +424,29 @@ class DBDataCreator:
         record_type: RecordType | None = RecordType.RESOURCES,
         count: int = 1,
         batch_id: int | None = None
-    ):
+    ) -> list[URLMapping]:
 
-        url_ids: list[int] = await create_urls(
+        url_mappings: list[URLMapping] = await create_urls(
             adb_client=self.adb_client,
             status=status,
             source=source,
             record_type=record_type,
             count=count
         )
+        url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]
         if batch_id is not None:
             await self.create_batch_url_links(
                 url_ids=url_ids,
                 batch_id=batch_id
             )
-        return url_ids
+        return url_mappings
 
     async def create_batch(
         self,
         status: BatchStatus = BatchStatus.READY_TO_LABEL,
         strategy: CollectorType = CollectorType.EXAMPLE,
         date_generated: datetime = datetime.now(),
-    ):
+    ) -> int:
         return await create_batch(
             adb_client=self.adb_client,
             status=status,
@@ -447,8 +458,8 @@ class DBDataCreator:
         self,
         url_ids: list[int],
         batch_id: int,
-    ):
-        return await create_batch_url_links(
+    ) -> None:
+        await create_batch_url_links(
             adb_client=self.adb_client,
             url_ids=url_ids,
             batch_id=batch_id
@@ -458,8 +469,8 @@ class DBDataCreator:
         self,
         url_ids: list[int],
         validation_type: URLValidatedType,
-    ):
-        return await create_validated_flags(
+    ) -> None:
+        await create_validated_flags(
             adb_client=self.adb_client,
             url_ids=url_ids,
             validation_type=validation_type
@@ -468,8 +479,34 @@ class DBDataCreator:
     async def create_url_data_sources(
         self,
         url_ids: list[int],
-    ):
-        return await create_url_data_sources(
+    ) -> None:
+        await create_url_data_sources(
             adb_client=self.adb_client,
             url_ids=url_ids
         )
+
+    async def create_url_agency_links(
+        self,
+        url_ids: list[int],
+        agency_ids: list[int],
+    ) -> None:
+        links: list[LinkURLAgency] = []
+        for url_id in url_ids:
+            for agency_id in agency_ids:
+                link = LinkURLAgency(
+                    url_id=url_id,
+                    agency_id=agency_id,
+                )
+                links.append(link)
+        await self.adb_client.add_all(links)
+
+    async def create_agency(self, agency_id: int = 1) -> None:
+        agency = Agency(
+            agency_id=agency_id,
+            name=generate_test_name(agency_id),
+            state=None,
+            county=None,
+            locality=None
+        )
+        await self.adb_client.add_all([agency])
+

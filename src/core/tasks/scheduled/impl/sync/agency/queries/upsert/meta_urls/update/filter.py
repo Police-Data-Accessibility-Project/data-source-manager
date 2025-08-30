@@ -29,7 +29,7 @@ def filter_urls_with_non_meta_url_validation_flag(
 ) -> list[int]:
     url_ids: list[int] = []
     for param in params:
-        if param.validation_flag is None:
+        if param.validation_type is None:
             continue
         if param.validation_type != URLValidatedType.META_URL:
             url_ids.append(param.url_id)

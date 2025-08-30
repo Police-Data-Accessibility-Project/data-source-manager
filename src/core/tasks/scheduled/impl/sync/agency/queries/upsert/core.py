@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.links.core import UpdateAgencyURLLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.core import UpsertMetaUrlsQueryBuilder
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.response import AgencyURLMappings
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.convert import \
     convert_agencies_sync_response_to_agencies_upsert
 from src.db.models.impl.agency.pydantic.upsert import AgencyUpsertModel
@@ -24,8 +23,8 @@ class UpsertAgenciesQueryBuilder(QueryBuilderBase):
 
         # Add and update Meta URLs
         meta_urls_query_builder = UpsertMetaUrlsQueryBuilder(self.sync_responses)
-        upsert_meta_urls_responses: list[AgencyURLMappings] = await meta_urls_query_builder.run(session=session)
+        await meta_urls_query_builder.run(session=session)
 
         # Add and remove URL-Agency Links
-        update_url_links_query_builder = UpdateAgencyURLLinksQueryBuilder(upsert_meta_urls_responses)
+        update_url_links_query_builder = UpdateAgencyURLLinksQueryBuilder(self.sync_responses)
         await update_url_links_query_builder.run(session=session)

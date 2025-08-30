@@ -11,9 +11,8 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.helpers.session.parser import BulkActionParser
-from src.db.models.templates_.with_id import WithIDBase
 from src.db.models.templates_.base import Base
-from src.db.queries.base.builder import QueryBuilderBase
+from src.db.models.templates_.with_id import WithIDBase
 from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.update import BulkUpdatableModel

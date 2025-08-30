@@ -17,6 +17,9 @@ async def test_agency_sync_happy_path(
     wiped_database,
     setup: SyncAgenciesTaskOperator
 ):
+    """
+    Test behavior of Agency sync where no meta URLs are returned.
+    """
     operator = setup
     db_client = operator.adb_client
 

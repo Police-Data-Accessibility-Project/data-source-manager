@@ -31,7 +31,7 @@ class SyncAgenciesTaskOperator(ScheduledTaskOperatorBase):
         count_agencies_synced = 0
         request_count = 0
         while len(response.agencies) > 0:
-            await self.adb_client.upsert_agencies(response.agencies)
+            await self.update_data(response.agencies)
             count_agencies_synced += len(response.agencies)
             request_count += 1
 

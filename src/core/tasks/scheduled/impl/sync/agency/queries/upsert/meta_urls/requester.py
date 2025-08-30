@@ -1,11 +1,10 @@
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.core import LookupMetaURLsQueryBuilder
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.lookup.response import MetaURLLookupResponse
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.add.core import AddMetaURLsQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.convert import \
     convert_to_update_meta_urls_params, convert_url_lookups_to_url_mappings
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.extract import extract_urls_from_agencies_sync_response
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.filter import filter_existing_url_mappings, \
     filter_urls_to_add
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.lookup.core import LookupMetaURLsQueryBuilder
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.lookup.response import MetaURLLookupResponse
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.core import UpdateMetaURLsQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.params import UpdateMetaURLsParams
 from src.db.dtos.url.mapping import URLMapping
@@ -18,11 +17,19 @@ class UpdateMetaURLsRequester(RequesterBase):
         self,
         agencies: list[AgenciesSyncResponseInnerInfo]
     ) -> list[MetaURLLookupResponse]:
-        urls: list[str] = extract_urls_from_agencies_sync_response(agencies)
-        return await LookupMetaURLsQueryBuilder(urls).run(self.session)
+        return await LookupMetaURLsQueryBuilder(
+            agencies
+        ).run(self.session)
 
-    async def add_new_urls_to_database(self, lookup_responses: list[MetaURLLookupResponse]) -> list[URLMapping]:
+    async def add_new_urls_to_database(
+        self,
+        lookup_responses: list[MetaURLLookupResponse]
+    ) -> list[URLMapping]:
+        if len(lookup_responses) == 0:
+            return []
         urls_to_add: list[str] = filter_urls_to_add(lookup_responses)
+        if len(urls_to_add) == 0:
+            return []
         return await AddMetaURLsQueryBuilder(urls_to_add).run(self.session)
 
     async def update_existing_urls(
@@ -30,7 +37,8 @@ class UpdateMetaURLsRequester(RequesterBase):
         lookup_responses: list[MetaURLLookupResponse]
     ) -> list[URLMapping]:
         existing_url_lookups: list[MetaURLLookupResponse] = (
-            filter_existing_url_mappings(lookup_responses))
+            filter_existing_url_mappings(lookup_responses)
+        )
         params: list[UpdateMetaURLsParams] = \
             convert_to_update_meta_urls_params(existing_url_lookups)
         await UpdateMetaURLsQueryBuilder(params).run(self.session)

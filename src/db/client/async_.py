@@ -60,7 +60,7 @@ from src.core.tasks.scheduled.impl.sync.agency.queries.get_sync_params import Ge
 from src.core.tasks.scheduled.impl.sync.agency.queries.mark_full_sync import get_mark_full_agencies_sync_query
 from src.core.tasks.scheduled.impl.sync.agency.queries.update_sync_progress import \
     get_update_agencies_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert_.upsert import \
+from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.convert import \
     convert_agencies_sync_response_to_agencies_upsert
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.get_sync_params import \
@@ -1253,14 +1253,6 @@ class AsyncDatabaseClient:
     async def get_data_sources_sync_parameters(self) -> DataSourcesSyncParameters:
         return await self.run_query_builder(
             GetDataSourcesSyncParametersQueryBuilder()
-        )
-
-    async def upsert_agencies(
-        self,
-        agencies: list[AgenciesSyncResponseInnerInfo]
-    ) -> None:
-        await self.bulk_upsert(
-            models=convert_agencies_sync_response_to_agencies_upsert(agencies)
         )
 
     async def upsert_urls_from_data_sources(

@@ -22,14 +22,11 @@ async def test_agency_sync_interruption(
     operator = setup
     db_client = operator.adb_client
 
-
-
     with patch_sync_agencies(
         [FIRST_CALL_RESPONSE, ValueError("test error")]
     ):
         run_info = await operator.run_task()
         assert run_info.outcome == TaskOperatorOutcome.ERROR, run_info.message
-
 
     # Get current updated_ats from database for the 5 recently updated
     query = (

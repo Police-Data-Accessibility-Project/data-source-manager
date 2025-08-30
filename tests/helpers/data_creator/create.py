@@ -3,6 +3,7 @@ from datetime import datetime
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus, RecordType
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
@@ -29,14 +30,15 @@ async def create_urls(
     source: URLSource = URLSource.COLLECTOR,
     record_type: RecordType | None = RecordType.RESOURCES,
     count: int = 1
-) -> list[int]:
+) -> list[URLMapping]:
     urls: list[URLInsertModel] = generate_urls(
         status=status,
         source=source,
         record_type=record_type,
         count=count,
     )
-    return await adb_client.bulk_insert(urls, return_ids=True)
+    url_ids = await adb_client.bulk_insert(urls, return_ids=True)
+    return [URLMapping(url_id=url_id, url=url.url) for url_id, url in zip(url_ids, urls)]
 
 async def create_validated_flags(
     adb_client: AsyncDatabaseClient,
