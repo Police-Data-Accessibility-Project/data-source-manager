@@ -1,6 +1,6 @@
 from src.collectors.enums import CollectorType
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.base import AgencyIdentificationSubtaskBase
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIdentificationSubtaskBase
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan import CKANAgencyIdentificationSubtask
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock import \
     MuckrockAgencyIdentificationSubtask

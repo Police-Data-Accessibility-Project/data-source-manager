@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType
 
@@ -162,14 +162,17 @@ class PDAPClient:
         )
         headers = await self.access_manager.jwt_header()
         headers['Content-Type'] = "application/json"
+        request_params: dict[str, Any] = {
+            "page": params.page
+        }
+        if params.cutoff_date is not None:
+            params["updated_at"] = params.cutoff_date
+
         request_info = RequestInfo(
             type_=RequestType.GET,
             url=url,
             headers=headers,
-            params={
-                "page": params.page,
-                "updated_at": params.cutoff_date
-            }
+            params=request_params
         )
         response_info = await self.access_manager.make_request(request_info)
         return AgenciesSyncResponseInfo(

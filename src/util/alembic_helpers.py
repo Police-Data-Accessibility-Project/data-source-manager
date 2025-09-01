@@ -126,3 +126,15 @@ def batch_id_column(nullable=False) -> sa.Column:
         nullable=nullable,
         comment='A foreign key to the `batches` table.'
     )
+
+def agency_id_column(nullable=False) -> sa.Column:
+    return sa.Column(
+        'agency_id',
+        sa.Integer(),
+        sa.ForeignKey(
+            'agencies.agency_id',
+            ondelete='CASCADE'
+        ),
+        nullable=nullable,
+        comment='A foreign key to the `agencies` table.'
+    )

@@ -4,7 +4,7 @@ from typing_extensions import override
 
 from src.core.helpers import process_match_agency_response_to_suggestions
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.base import AgencyIdentificationSubtaskBase
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIdentificationSubtaskBase
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 

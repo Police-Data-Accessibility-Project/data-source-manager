@@ -2,7 +2,7 @@ from typing_extensions import override, final
 
 from src.core.enums import SuggestionType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.base import AgencyIdentificationSubtaskBase
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIdentificationSubtaskBase
 
 @final
 class UnknownAgencyIdentificationSubtask(AgencyIdentificationSubtaskBase):

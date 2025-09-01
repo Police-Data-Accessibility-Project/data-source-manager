@@ -29,7 +29,6 @@ AGENCY_AUTO_SUGGESTION_METHOD_ENUM = sa.Enum(
     "nlp_location_match",
     "muckrock_match",
     "ckan_match",
-    "unknown",
     name="agency_auto_suggestion_method",
 )
 
@@ -66,7 +65,15 @@ def downgrade() -> None:
     _drop_validated_url_type_enum()
 
 def _reset_agencies_sync_state():
-    op.execute("DELETE FROM agencies_sync_state")
+    op.execute(
+        """
+        UPDATE agencies_sync_state
+        set
+            last_full_sync_at = null,
+            current_cutoff_date = null,
+            current_page = null
+        """
+    )
 
 def _remove_validated_and_submitted_url_statuses():
     switch_enum_type(
@@ -201,8 +208,7 @@ def _alter_auto_agency_suggestions_table():
         sa.Column(
             'method',
             AGENCY_AUTO_SUGGESTION_METHOD_ENUM,
-            server_default="unknown",
-            nullable=False
+            nullable=True
         )
     )
     # Confidence
