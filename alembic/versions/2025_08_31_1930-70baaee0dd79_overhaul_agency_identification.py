@@ -10,7 +10,8 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from src.util.alembic_helpers import id_column, url_id_column, created_at_column, agency_id_column, updated_at_column
+from src.util.alembic_helpers import id_column, url_id_column, created_at_column, agency_id_column, updated_at_column, \
+    task_id_column
 
 # revision identifiers, used by Alembic.
 revision: str = '70baaee0dd79'
@@ -18,11 +19,11 @@ down_revision: Union[str, None] = 'b741b65a1431'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-URL_HAS_AGENCY_SUGGESTIONS_VIEW_NAME: str = "url_has_agency_suggestions_view"
+URL_HAS_AGENCY_SUGGESTIONS_VIEW_NAME: str = "url_has_agency_auto_suggestions_view"
 URL_UNKNOWN_AGENCIES_VIEW_NAME: str = "url_unknown_agencies_view"
 
-URL_AUTO_AGENCY_SUBTASK_TABLE_NAME: str = "url_auto_agency_subtask"
-LINK_AGENCY_ID_SUBTASK_AGENCIES_TABLE_NAME: str = "link_agency_id_subtask_agencies"
+URL_AUTO_AGENCY_SUBTASK_TABLE_NAME: str = "url_auto_agency_id_subtasks"
+LINK_AGENCY_ID_SUBTASK_AGENCIES_TABLE_NAME: str = "agency_id_subtask_suggestions"
 
 URL_AUTO_AGENCY_SUGGESTIONS_TABLE_NAME: str = "url_auto_agency_suggestions"
 
@@ -33,11 +34,7 @@ AGENCY_AUTO_SUGGESTION_METHOD_ENUM = sa.dialects.postgresql.ENUM(
 
 SUBTASK_DETAIL_CODE_ENUM = sa.Enum(
     'no details',
-    'blacklist-ckan-no ckan collector',
-    'blacklist-muckrock-no muckrock collector',
-    'blacklist-nlp-no html',
-    'blacklist-homepage-root url',
-    'blacklist-homepage-no meta urls associated with root',
+    'retrieval error',
     'case-homepage-single agency',
     'case-homepage-no data sources',
     'case-homepage-multi agency nonzero data sources',
@@ -128,6 +125,7 @@ def _create_url_auto_agency_subtask_table():
     op.create_table(
         URL_AUTO_AGENCY_SUBTASK_TABLE_NAME,
         id_column(),
+        task_id_column(),
         url_id_column(),
         sa.Column(
             "subtask",
@@ -142,7 +140,8 @@ def _create_url_auto_agency_subtask_table():
         sa.Column(
             "detail",
             SUBTASK_DETAIL_CODE_ENUM,
-            nullable=True
+            server_default=sa.text("'no details'"),
+            nullable=False
         ),
         created_at_column()
     )

@@ -25,6 +25,7 @@ class Agency(
     locality = Column(String, nullable=True)
 
     # Relationships
-    automated_suggestions = relationship("AutomatedUrlAgencySuggestion", back_populates="agency")
+    # TODO: Revise
+    # automated_suggestions = relationship("AutomatedUrlAgencySuggestion", back_populates="agency")
     user_suggestions = relationship("UserUrlAgencySuggestion", back_populates="agency")
     confirmed_urls = relationship("LinkURLAgency", back_populates="agency")

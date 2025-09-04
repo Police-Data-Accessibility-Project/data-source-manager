@@ -1,10 +1,20 @@
+import spacy
+
 from src.collectors.enums import CollectorType
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
-from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIdentificationSubtaskBase
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan import CKANAgencyIdentificationSubtask
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock import \
-    MuckrockAgencyIdentificationSubtask
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.core import CKANAgencyIDSubtaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.core import \
+    HomepageMatchSubtaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.core import \
+    MuckrockAgencyIDSubtaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.core import \
+    NLPLocationMatchSubtaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor_.core import \
+    NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.unknown import UnknownAgencyIdentificationSubtask
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
+from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
 from src.external.pdap.client import PDAPClient
 
 
@@ -14,25 +24,48 @@ class AgencyIdentificationSubtaskLoader:
     def __init__(
         self,
         pdap_client: PDAPClient,
-        muckrock_api_interface: MuckrockAPIInterface
+        muckrock_api_interface: MuckrockAPIInterface,
+        adb_client: AsyncDatabaseClient
     ):
         self.pdap_client = pdap_client
         self.muckrock_api_interface = muckrock_api_interface
+        self.adb_client = adb_client
 
-    async def _load_muckrock_subtask(self) -> MuckrockAgencyIdentificationSubtask:
-        return MuckrockAgencyIdentificationSubtask(
+    async def _load_muckrock_subtask(self, task_id: int) -> MuckrockAgencyIDSubtaskOperator:
+        return MuckrockAgencyIDSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
             muckrock_api_interface=self.muckrock_api_interface,
             pdap_client=self.pdap_client
         )
 
-    async def _load_ckan_subtask(self) -> CKANAgencyIdentificationSubtask:
-        return CKANAgencyIdentificationSubtask(
+    async def _load_ckan_subtask(self, task_id: int) -> CKANAgencyIDSubtaskOperator:
+        return CKANAgencyIDSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
             pdap_client=self.pdap_client
         )
 
-    async def load_subtask(self, collector_type: CollectorType) -> AgencyIdentificationSubtaskBase:
+    async def _load_homepage_match_subtask(self, task_id: int) -> HomepageMatchSubtaskOperator:
+        return HomepageMatchSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
+        )
+
+    async def _load_nlp_location_match_subtask(self, task_id: int) -> NLPLocationMatchSubtaskOperator:
+        return NLPLocationMatchSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client,
+            processor=NLPProcessor(
+                spacy.load('en_core_web_trf', disable=['parser'])
+            )
+        )
+
+
+    async def load_subtask(self, subtask_type: AutoAgencyIDSubtaskType) -> AgencyIDSubtaskOperatorBase:
         """Get subtask based on collector type."""
-        match collector_type:
+        match subtask_type:
             case CollectorType.MUCKROCK_SIMPLE_SEARCH:
                 return await self._load_muckrock_subtask()
             case CollectorType.MUCKROCK_COUNTY_SEARCH:

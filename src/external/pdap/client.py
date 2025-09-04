@@ -4,7 +4,11 @@ from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInf
 
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor_.models.response import \
+    NLPLocationMatchResponse
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
+from src.external.pdap.dtos.search_agency_by_location.params import SearchAgencyByLocationParams
+from src.external.pdap.dtos.search_agency_by_location.response import SearchAgencyByLocationResponse
 from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo, AgenciesSyncResponseInfo
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
@@ -20,6 +24,12 @@ class PDAPClient:
         access_manager: AccessManager,
     ):
         self.access_manager = access_manager
+
+    async def search_agency_by_location(
+        self,
+        params: list[SearchAgencyByLocationParams]
+    ) -> list[SearchAgencyByLocationResponse]:
+        raise NotImplementedError
 
     async def match_agency(
         self,

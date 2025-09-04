@@ -50,8 +50,9 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         secondary="link_task_urls",
         back_populates="urls",
     )
-    automated_agency_suggestions = relationship(
-        "AutomatedUrlAgencySuggestion", back_populates="url")
+    # TODO: Revise
+    # automated_agency_suggestions = relationship(
+    #     "AutomatedUrlAgencySuggestion", back_populates="url")
     user_agency_suggestion = relationship(
         "UserUrlAgencySuggestion", uselist=False, back_populates="url")
     auto_record_type_suggestion = relationship(

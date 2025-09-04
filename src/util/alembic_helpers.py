@@ -103,6 +103,18 @@ def updated_at_column() -> sa.Column:
         comment='The last time the row was updated.'
     )
 
+def task_id_column() -> sa.Column:
+    return sa.Column(
+        'task_id',
+        sa.Integer(),
+        sa.ForeignKey(
+            'tasks.id',
+            ondelete='CASCADE'
+        ),
+        nullable=False,
+        comment='A foreign key to the `tasks` table.'
+    )
+
 def url_id_column(name: str = 'url_id') -> sa.Column:
     return sa.Column(
         name,

@@ -17,7 +17,6 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
@@ -43,7 +42,8 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         ]
         # The below relationships are joined to entities that are joined to the URL
         self.double_join_relationships = [
-            (URL.automated_agency_suggestions, AutomatedUrlAgencySuggestion.agency),
+            # TODO: Replace with new logic
+            # (URL.automated_agency_suggestions, AutomatedUrlAgencySuggestion.agency),
             (URL.user_agency_suggestion, UserUrlAgencySuggestion.agency),
             (URL.confirmed_agencies, LinkURLAgency.agency)
         ]

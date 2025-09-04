@@ -2,17 +2,17 @@ from typing_extensions import override, final
 
 from src.core.enums import SuggestionType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIdentificationSubtaskBase
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 
 @final
-class UnknownAgencyIdentificationSubtask(AgencyIdentificationSubtaskBase):
+class UnknownAgencyIdentificationSubtask(AgencyIDSubtaskOperatorBase):
     """A subtask that returns an unknown suggestion.
 
     Used in cases where the agency cannot be reliably inferred from the source.
     """
 
     @override
-    async def run(
+    async def inner_logic(
             self,
             url_id: int,
             collector_metadata: dict | None = None

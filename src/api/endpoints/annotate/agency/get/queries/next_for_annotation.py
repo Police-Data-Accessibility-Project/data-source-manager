@@ -12,7 +12,6 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
@@ -63,14 +62,15 @@ class GetNextURLAgencyForAnnotationQueryBuilder(QueryBuilderBase):
                 )
             )
             # Must have extant autosuggestions
-            .join(AutomatedUrlAgencySuggestion, isouter=True)
-            .where(
-                exists(
-                    select(AutomatedUrlAgencySuggestion).
-                    where(AutomatedUrlAgencySuggestion.url_id == URL.id).
-                    correlate(URL)
-                )
-            )
+            # TODO: Replace with new logic
+            # .join(AutomatedUrlAgencySuggestion, isouter=True)
+            # .where(
+            #     exists(
+            #         select(AutomatedUrlAgencySuggestion).
+            #         where(AutomatedUrlAgencySuggestion.url_id == URL.id).
+            #         correlate(URL)
+            #     )
+            # )
             # Must not have confirmed agencies
             .join(LinkURLAgency, isouter=True)
             .where(

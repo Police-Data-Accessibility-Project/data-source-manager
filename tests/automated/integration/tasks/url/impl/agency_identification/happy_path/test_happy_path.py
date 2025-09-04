@@ -3,15 +3,13 @@ from unittest.mock import AsyncMock
 import pytest
 from aiohttp import ClientSession
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan import CKANAgencyIdentificationSubtask
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock import \
-    MuckrockAgencyIdentificationSubtask
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.core import CKANAgencyIDSubtaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.core import \
+    MuckrockAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.unknown import UnknownAgencyIdentificationSubtask
-from tests.automated.integration.tasks.url.impl.agency_identification.happy_path.asserts import \
-    assert_expected_confirmed_and_auto_suggestions
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -108,10 +106,10 @@ async def test_agency_identification_task(
 
 
     subtask_class_collector_type = [
-        (MuckrockAgencyIdentificationSubtask, CollectorType.MUCKROCK_ALL_SEARCH),
-        (MuckrockAgencyIdentificationSubtask, CollectorType.MUCKROCK_COUNTY_SEARCH),
-        (MuckrockAgencyIdentificationSubtask, CollectorType.MUCKROCK_SIMPLE_SEARCH),
-        (CKANAgencyIdentificationSubtask, CollectorType.CKAN),
+        (MuckrockAgencyIDSubtaskOperator, CollectorType.MUCKROCK_ALL_SEARCH),
+        (MuckrockAgencyIDSubtaskOperator, CollectorType.MUCKROCK_COUNTY_SEARCH),
+        (MuckrockAgencyIDSubtaskOperator, CollectorType.MUCKROCK_SIMPLE_SEARCH),
+        (CKANAgencyIDSubtaskOperator, CollectorType.CKAN),
         (UnknownAgencyIdentificationSubtask, CollectorType.COMMON_CRAWLER),
         (UnknownAgencyIdentificationSubtask, CollectorType.AUTO_GOOGLER),
         (UnknownAgencyIdentificationSubtask, None)

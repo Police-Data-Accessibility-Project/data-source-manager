@@ -8,5 +8,7 @@ def wipe_database(connection_string: str) -> None:
     engine = create_engine(connection_string)
     with engine.connect() as connection:
         for table in reversed(Base.metadata.sorted_tables):
+            if table.info == "view":
+                continue
             connection.execute(table.delete())
         connection.commit()

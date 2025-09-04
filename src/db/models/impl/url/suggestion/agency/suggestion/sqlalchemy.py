@@ -3,12 +3,12 @@ from src.db.models.templates_.base import Base
 
 import sqlalchemy as sa
 
-class LinkAgencyIDSubtaskAgencies(
+class AgencyIDSubtaskSuggestion(
     Base,
     CreatedAtMixin,
     AgencyDependentMixin,
 ):
-    __tablename__ = "link_agency_id_subtask_agencies"
+    __tablename__ = "agency_id_subtask_suggestions"
 
     subtask_id = sa.Column(
         sa.Integer,

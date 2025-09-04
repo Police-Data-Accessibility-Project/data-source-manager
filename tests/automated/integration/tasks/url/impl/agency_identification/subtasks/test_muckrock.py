@@ -7,7 +7,7 @@ from src.collectors.impl.muckrock.api_interface.lookup_response import AgencyLoo
 from src.collectors.impl.muckrock.enums import AgencyLookupResponseType
 from src.core.enums import SuggestionType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock import MuckrockAgencyIdentificationSubtask
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.core import MuckrockAgencyIDSubtaskOperator
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
@@ -47,13 +47,13 @@ async def test_muckrock_subtask(db_data_creator: DBDataCreator):
     )
 
     # Create an instance of MuckrockAgencyIdentificationSubtask with mock dependencies
-    muckrock_agency_identification_subtask = MuckrockAgencyIdentificationSubtask(
+    muckrock_agency_identification_subtask = MuckrockAgencyIDSubtaskOperator(
         muckrock_api_interface=muckrock_api_interface_mock,
         pdap_client=pdap_client_mock
     )
 
     # Run the subtask
-    results: list[URLAgencySuggestionInfo] = await muckrock_agency_identification_subtask.run(
+    results: list[URLAgencySuggestionInfo] = await muckrock_agency_identification_subtask.inner_logic(
         url_id=1,
         collector_metadata={
             "agency": 123

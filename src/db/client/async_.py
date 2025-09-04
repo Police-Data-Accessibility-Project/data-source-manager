@@ -52,7 +52,7 @@ from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.api.endpoints.url.get.query import GetURLsQueryBuilder
 from src.collectors.enums import URLStatus, CollectorType
 from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
-from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
+from src.core.enums import BatchStatus, RecordType, SuggestedStatus
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
@@ -60,8 +60,6 @@ from src.core.tasks.scheduled.impl.sync.agency.queries.get_sync_params import Ge
 from src.core.tasks.scheduled.impl.sync.agency.queries.mark_full_sync import get_mark_full_agencies_sync_query
 from src.core.tasks.scheduled.impl.sync.agency.queries.update_sync_progress import \
     get_update_agencies_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.convert import \
-    convert_agencies_sync_response_to_agencies_upsert
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.get_sync_params import \
     GetDataSourcesSyncParametersQueryBuilder
@@ -71,9 +69,6 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.update_sync_progres
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.core import \
     UpsertURLsFromDataSourcesQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.dtos.tdo import AgencyIdentificationTDO
-from src.core.tasks.url.operators.agency_identification.queries.get_pending_urls_without_agency_suggestions import \
-    GetPendingURLsWithoutAgencySuggestionsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.queries.has_urls_without_agency_suggestions import \
     HasURLsWithoutAgencySuggestionsQueryBuilder
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
@@ -126,7 +121,6 @@ from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -145,7 +139,6 @@ from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.upsert import BulkUpsertableModel
 from src.db.utils.compression import decompress_html, compress_html
-from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
 from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInnerInfo
 
 
@@ -725,11 +718,6 @@ class AsyncDatabaseClient:
     async def has_urls_without_agency_suggestions(self) -> bool:
         return await self.run_query_builder(HasURLsWithoutAgencySuggestionsQueryBuilder())
 
-    async def get_urls_without_agency_suggestions(
-        self
-    ) -> list[AgencyIdentificationTDO]:
-        """Retrieve URLs without confirmed or suggested agencies."""
-        return await self.run_query_builder(GetPendingURLsWithoutAgencySuggestionsQueryBuilder())
 
     async def get_next_url_agency_for_annotation(
         self,
@@ -783,14 +771,15 @@ class AsyncDatabaseClient:
         session: AsyncSession,
         suggestions: list[URLAgencySuggestionInfo]
     ):
-        for suggestion in suggestions:
-            url_agency_suggestion = AutomatedUrlAgencySuggestion(
-                url_id=suggestion.url_id,
-                agency_id=suggestion.pdap_agency_id,
-                is_unknown=suggestion.suggestion_type == SuggestionType.UNKNOWN,
-                confidence=0
-            )
-            session.add(url_agency_suggestion)
+        raise NotImplementedError("Revise")
+        # for suggestion in suggestions:
+        #     url_agency_suggestion = AutomatedUrlAgencySuggestion(
+        #         url_id=suggestion.url_id,
+        #         agency_id=suggestion.pdap_agency_id,
+        #         is_unknown=suggestion.suggestion_type == SuggestionType.UNKNOWN,
+        #         confidence=0
+        #     )
+        #     session.add(url_agency_suggestion)
 
     @session_manager
     async def add_agency_manual_suggestion(

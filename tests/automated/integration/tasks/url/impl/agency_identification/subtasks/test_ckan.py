@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from src.external.pdap.enums import MatchAgencyResponseStatus
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan import CKANAgencyIdentificationSubtask
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.core import CKANAgencyIDSubtaskOperator
 from src.core.enums import SuggestionType
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
@@ -33,14 +33,14 @@ async def test_ckan_subtask(db_data_creator: DBDataCreator):
     )  # Assuming MatchAgencyResponse is a class
 
     # Create an instance of CKANAgencyIdentificationSubtask
-    task = CKANAgencyIdentificationSubtask(pdap_client)
+    task = CKANAgencyIDSubtaskOperator(pdap_client)
 
     # Call the run method with static values
     collector_metadata = {"agency_name": "Test Agency"}
     url_id = 1
 
     # Call the run method
-    result = await task.run(url_id, collector_metadata)
+    result = await task.inner_logic(url_id, collector_metadata)
 
     # Check the result
     assert len(result) == 2

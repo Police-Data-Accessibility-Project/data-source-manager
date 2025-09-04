@@ -1,4 +1,3 @@
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -12,7 +11,8 @@ STANDARD_ROW_LIMIT = 100
 ALL_ANNOTATION_MODELS = [
     AutoRecordTypeSuggestion,
     AutoRelevantSuggestion,
-    AutomatedUrlAgencySuggestion,
+    # TODO: Revise
+    # AutomatedUrlAgencySuggestion,
     UserRelevantSuggestion,
     UserRecordTypeSuggestion,
     UserUrlAgencySuggestion
