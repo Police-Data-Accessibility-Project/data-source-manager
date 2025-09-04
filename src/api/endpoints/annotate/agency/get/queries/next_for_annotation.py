@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse, \
     GetNextURLForAgencyAnnotationInnerResponse
-from src.api.endpoints.annotate.agency.get.queries.agency_suggestion import GetAgencySuggestionsQueryBuilder
+from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.collectors.enums import URLStatus
 from src.core.enums import SuggestedStatus
 from src.core.tasks.url.operators.html.scraper.parser.util import convert_to_response_html_info

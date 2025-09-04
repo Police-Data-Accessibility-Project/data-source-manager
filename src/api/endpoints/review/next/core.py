@@ -7,6 +7,9 @@ from sqlalchemy.orm import joinedload
 from src.api.endpoints.review.next.convert import convert_agency_info_to_final_review_annotation_agency_info
 from src.api.endpoints.review.next.dto import FinalReviewOptionalMetadata, FinalReviewBatchInfo, \
     GetNextURLForFinalReviewOuterResponse, GetNextURLForFinalReviewResponse, FinalReviewAnnotationInfo
+from src.api.endpoints.review.next.extract import extract_html_content_infos, extract_optional_metadata
+from src.api.endpoints.review.next.queries.count_reviewed import COUNT_REVIEWED_CTE
+from src.api.endpoints.review.next.templates.count_cte import CountCTE
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.html.scraper.parser.util import convert_to_response_html_info
 from src.db.constants import USER_ANNOTATION_MODELS
@@ -18,6 +21,8 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
+from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
@@ -43,10 +48,15 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         ]
         # The below relationships are joined to entities that are joined to the URL
         self.double_join_relationships = [
-            # TODO: Replace with new logic
-            # (URL.automated_agency_suggestions, AutomatedUrlAgencySuggestion.agency),
             (URL.user_agency_suggestion, UserUrlAgencySuggestion.agency),
             (URL.confirmed_agencies, LinkURLAgency.agency)
+        ]
+        self.triple_join_relationships = [
+            (
+                URL.auto_agency_subtasks,
+                URLAutoAgencyIDSubtask.suggestions,
+                AgencyIDSubtaskSuggestion.agency
+            )
         ]
 
         self.count_label = "count"
@@ -126,6 +136,10 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             *[
                 joinedload(primary).joinedload(secondary)
                 for primary, secondary in self.double_join_relationships
+            ],
+            *[
+                joinedload(primary).joinedload(secondary).joinedload(tertiary)
+                for primary, secondary, tertiary in self.triple_join_relationships
             ]
         )
 
@@ -135,40 +149,23 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             asc(URL.id)
         )
 
-    async def _extract_html_content_infos(self, url: URL) -> list[URLHTMLContentInfo]:
-        html_content = url.html_content
-        html_content_infos = [
-            URLHTMLContentInfo(**html_info.__dict__)
-            for html_info in html_content
-        ]
-        return html_content_infos
-
-    async def _extract_optional_metadata(self, url: URL) -> FinalReviewOptionalMetadata:
-        if url.optional_data_source_metadata is None:
-            return FinalReviewOptionalMetadata()
-        return FinalReviewOptionalMetadata(
-            record_formats=url.optional_data_source_metadata.record_formats,
-            data_portal_type=url.optional_data_source_metadata.data_portal_type,
-            supplying_entity=url.optional_data_source_metadata.supplying_entity
-        )
-
     async def get_batch_info(self, session: AsyncSession) -> FinalReviewBatchInfo | None:
         if self.batch_id is None:
             return None
 
-        count_reviewed_query = await self.get_count_reviewed_query()
+        count_reviewed_query: CountCTE = COUNT_REVIEWED_CTE
 
         count_ready_query = await self.get_count_ready_query()
 
         full_query = (
             select(
-                func.coalesce(count_reviewed_query.c[self.count_label], 0).label("count_reviewed"),
+                func.coalesce(count_reviewed_query.count, 0).label("count_reviewed"),
                 func.coalesce(count_ready_query.c[self.count_label], 0).label("count_ready_for_review")
             )
             .select_from(
                 count_ready_query.outerjoin(
                     count_reviewed_query,
-                    count_reviewed_query.c.batch_id == count_ready_query.c.batch_id
+                    count_reviewed_query.batch_id == count_ready_query.c.batch_id
                 )
             )
         )
@@ -201,21 +198,6 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         )
         return count_ready_query
 
-    async def get_count_reviewed_query(self):
-        count_reviewed_query = (
-            select(
-                Batch.id.label("batch_id"),
-                func.count(FlagURLValidated.url_id).label(self.count_label)
-            )
-            .select_from(Batch)
-            .join(LinkBatchURL)
-            .outerjoin(FlagURLValidated, FlagURLValidated.url_id == LinkBatchURL.url_id)
-
-            .group_by(Batch.id)
-            .subquery("count_reviewed")
-        )
-        return count_reviewed_query
-
     async def run(
         self,
         session: AsyncSession
@@ -243,8 +225,8 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
 
         result: URL = row[0]
 
-        html_content_infos = await self._extract_html_content_infos(result)
-        optional_metadata = await self._extract_optional_metadata(result)
+        html_content_infos: list[URLHTMLContentInfo] = await extract_html_content_infos(result)
+        optional_metadata: FinalReviewOptionalMetadata = await extract_optional_metadata(result)
 
         batch_info = await self.get_batch_info(session)
         try:

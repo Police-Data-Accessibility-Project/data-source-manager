@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
-from src.api.endpoints.annotate.agency.get.queries.agency_suggestion import GetAgencySuggestionsQueryBuilder
+from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo

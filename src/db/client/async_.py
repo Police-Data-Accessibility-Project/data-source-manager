@@ -42,7 +42,7 @@ from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.core import ApproveURLQueryBuilder
 from src.api.endpoints.review.enums import RejectionReason
 from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
-from src.api.endpoints.review.next.query import GetNextURLForFinalReviewQueryBuilder
+from src.api.endpoints.review.next.core import GetNextURLForFinalReviewQueryBuilder
 from src.api.endpoints.review.reject.query import RejectURLQueryBuilder
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
