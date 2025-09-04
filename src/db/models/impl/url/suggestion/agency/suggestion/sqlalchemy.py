@@ -1,3 +1,5 @@
+from sqlalchemy.orm import relationship
+
 from src.db.models.mixins import CreatedAtMixin, AgencyDependentMixin
 from src.db.models.templates_.base import Base
 
@@ -22,3 +24,5 @@ class AgencyIDSubtaskSuggestion(
         ),
         nullable=False,
     )
+
+    agency = relationship("Agency")

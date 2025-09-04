@@ -14,6 +14,7 @@ from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.html_content_info import GetHTMLContentInfoQueryBuilder
 
@@ -50,28 +51,17 @@ class GetNextURLAgencyForAnnotationQueryBuilder(QueryBuilderBase):
             URL.status == URLStatus.OK.value
         )
 
-
-        # Must not have been annotated by a user
         query = (
-            query.join(UserUrlAgencySuggestion, isouter=True)
-            .where(
-                ~exists(
-                    select(UserUrlAgencySuggestion).
-                    where(UserUrlAgencySuggestion.url_id == URL.id).
-                    correlate(URL)
-                )
+            query.join(
+                URLAnnotationFlagsView,
+                URLAnnotationFlagsView.url_id == URL.id
             )
-            # Must have extant autosuggestions
-            # TODO: Replace with new logic
-            # .join(AutomatedUrlAgencySuggestion, isouter=True)
-            # .where(
-            #     exists(
-            #         select(AutomatedUrlAgencySuggestion).
-            #         where(AutomatedUrlAgencySuggestion.url_id == URL.id).
-            #         correlate(URL)
-            #     )
-            # )
-            # Must not have confirmed agencies
+            # Must not have been annotated by a user
+            .where(
+                URLAnnotationFlagsView.has_user_agency_suggestion.is_(False),
+                # Must have extant autosuggestions
+                URLAnnotationFlagsView.has_auto_agency_suggestion.is_(True)
+            )
             .join(LinkURLAgency, isouter=True)
             .where(
                 ~exists(

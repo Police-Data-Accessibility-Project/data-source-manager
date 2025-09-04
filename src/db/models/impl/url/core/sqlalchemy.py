@@ -53,6 +53,9 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     # TODO: Revise
     # automated_agency_suggestions = relationship(
     #     "AutomatedUrlAgencySuggestion", back_populates="url")
+    auto_agency_suggestions = relationship(
+        "URLAutoAgencyIDSubtask"
+    )
     user_agency_suggestion = relationship(
         "UserUrlAgencySuggestion", uselist=False, back_populates="url")
     auto_record_type_suggestion = relationship(

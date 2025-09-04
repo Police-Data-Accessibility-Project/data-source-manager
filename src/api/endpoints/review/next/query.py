@@ -4,6 +4,7 @@ from sqlalchemy import FromClause, select, and_, Select, desc, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from src.api.endpoints.review.next.convert import convert_agency_info_to_final_review_annotation_agency_info
 from src.api.endpoints.review.next.dto import FinalReviewOptionalMetadata, FinalReviewBatchInfo, \
     GetNextURLForFinalReviewOuterResponse, GetNextURLForFinalReviewResponse, FinalReviewAnnotationInfo
 from src.collectors.enums import URLStatus
@@ -263,7 +264,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
                         user_suggestion=result.user_record_type_suggestion,
                         auto_suggestion=result.auto_record_type_suggestion
                     ),
-                    agency=DTOConverter.final_review_annotation_agency_info(
+                    agency=convert_agency_info_to_final_review_annotation_agency_info(
                         automated_agency_suggestions=result.automated_agency_suggestions,
                         user_agency_suggestion=result.user_agency_suggestion,
                         confirmed_agencies=result.confirmed_agencies

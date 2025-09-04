@@ -46,7 +46,6 @@ def upgrade() -> None:
     _create_url_auto_agency_subtask_table()
     _create_url_unknown_agencies_view()
     _create_link_agency_id_subtask_agencies_table()
-    _create_url_has_agency_suggestions_view()
     _create_new_url_annotation_flags_view()
     _drop_url_auto_agency_suggestions_table()
 
@@ -55,7 +54,6 @@ def downgrade() -> None:
     _drop_url_unknown_agencies_view()
     _create_url_auto_agency_suggestions_table()
     _create_old_url_annotation_flags_view()
-    _drop_url_has_agency_suggestions_view()
     _drop_link_agency_id_subtask_agencies_table()
     _drop_url_auto_agency_subtask_table()
     SUBTASK_DETAIL_CODE_ENUM.drop(op.get_bind())
@@ -66,45 +64,24 @@ def _drop_url_auto_agency_suggestions_table():
 
 
 def _create_new_url_annotation_flags_view():
+
     op.execute(
         f"""
         CREATE OR REPLACE VIEW url_annotation_flags AS
         (
         SELECT u.id,
-               CASE WHEN arts.url_id IS NOT NULL THEN TRUE ELSE FALSE END AS has_auto_record_type_suggestion,
-               CASE WHEN ars.url_id IS NOT NULL THEN TRUE ELSE FALSE END  AS has_auto_relevant_suggestion,
-               auas.has_agency_suggestions AS has_auto_agency_suggestion,
-               CASE WHEN urts.url_id IS NOT NULL THEN TRUE ELSE FALSE END AS has_user_record_type_suggestion,
-               CASE WHEN urs.url_id IS NOT NULL THEN TRUE ELSE FALSE END  AS has_user_relevant_suggestion,
-               CASE WHEN uuas.url_id IS NOT NULL THEN TRUE ELSE FALSE END AS has_user_agency_suggestion,
-               CASE WHEN lua.url_id IS NOT NULL THEN TRUE ELSE FALSE END  AS has_confirmed_agency,
-               CASE WHEN ruu.url_id IS NOT NULL THEN TRUE ELSE FALSE END  AS was_reviewed
+                EXISTS (SELECT 1 FROM public.auto_record_type_suggestions    a WHERE a.url_id = u.id) AS has_auto_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.auto_relevant_suggestions       a WHERE a.url_id = u.id) AS has_auto_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.{URL_AUTO_AGENCY_SUBTASK_TABLE_NAME} a WHERE a.url_id = u.id) AS has_auto_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.user_record_type_suggestions    a WHERE a.url_id = u.id) AS has_user_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.user_relevant_suggestions       a WHERE a.url_id = u.id) AS has_user_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.user_url_agency_suggestions     a WHERE a.url_id = u.id) AS has_user_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.link_urls_agency                a WHERE a.url_id = u.id) AS has_confirmed_agency,
+                EXISTS (SELECT 1 FROM public.reviewing_user_url              a WHERE a.url_id = u.id) AS was_reviewed
         FROM urls u
-                 LEFT JOIN public.auto_record_type_suggestions arts ON u.id = arts.url_id
-                 LEFT JOIN public.auto_relevant_suggestions ars ON u.id = ars.url_id
-                 LEFT JOIN public.{URL_HAS_AGENCY_SUGGESTIONS_VIEW_NAME} auas ON u.id = auas.url_id
-                 LEFT JOIN public.user_record_type_suggestions urts ON u.id = urts.url_id
-                 LEFT JOIN public.user_relevant_suggestions urs ON u.id = urs.url_id
-                 LEFT JOIN public.user_url_agency_suggestions uuas ON u.id = uuas.url_id
-                 LEFT JOIN public.reviewing_user_url ruu ON u.id = ruu.url_id
-                 LEFT JOIN public.link_urls_agency lua on u.id = lua.url_id
             )
         """
     )
-
-
-def _create_url_has_agency_suggestions_view():
-    op.execute(
-        f"""
-    CREATE OR REPLACE VIEW {URL_HAS_AGENCY_SUGGESTIONS_VIEW_NAME} AS
-    SELECT 
-        u.id as url_id,
-        (uas.id IS NOT NULL) AS has_agency_suggestions
-    FROM public.urls u
-    LEFT JOIN public.{URL_AUTO_AGENCY_SUBTASK_TABLE_NAME} uas on u.id = uas.url_id
-    """
-        )
-    pass
 
 
 def _create_url_unknown_agencies_view():
@@ -211,11 +188,6 @@ def _create_url_auto_agency_suggestions_table():
 
 def _drop_url_unknown_agencies_view():
     op.execute(f"DROP VIEW IF EXISTS {URL_UNKNOWN_AGENCIES_VIEW_NAME}")
-
-
-def _drop_url_has_agency_suggestions_view():
-    op.execute(f"DROP VIEW IF EXISTS {URL_HAS_AGENCY_SUGGESTIONS_VIEW_NAME}")
-
 
 def _drop_url_annotation_flags_view():
     op.execute("DROP VIEW url_annotation_flags;")
