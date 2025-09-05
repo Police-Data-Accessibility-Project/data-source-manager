@@ -3,6 +3,7 @@ import pytest
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.dtos.url.mapping import URLMapping
 from src.db.helpers.connect import get_postgres_connection_string
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
@@ -24,17 +25,18 @@ async def test_get_batches_aggregated_metrics(
             adb_client=adb_client,
             strategy=CollectorType.MANUAL,
         )
-        url_ids_error: list[int] = await create_urls(
+        url_mappings_error: list[URLMapping] = await create_urls(
             adb_client=adb_client,
             status=URLStatus.ERROR,
             count=4,
         )
-        url_ids_ok: list[int] = await create_urls(
+        url_mappings_ok: list[URLMapping] = await create_urls(
             adb_client=adb_client,
             status=URLStatus.OK,
             count=11,
         )
-        url_ids_all: list[int] = url_ids_error + url_ids_ok
+        url_mappings_all: list[URLMapping] = url_mappings_error + url_mappings_ok
+        url_ids_all: list[int] = [url_mapping.url_id for url_mapping in url_mappings_all]
         await create_batch_url_links(
             adb_client=adb_client,
             batch_id=batch_id,

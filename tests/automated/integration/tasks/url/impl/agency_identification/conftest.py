@@ -7,23 +7,20 @@ from src.core.tasks.url.operators.agency_identification.core import AgencyIdenti
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.pdap.client import PDAPClient
-from tests.automated.integration.tasks.url.impl.agency_identification.happy_path.mock import mock_run_subtask
 
 
 @pytest.fixture
 def operator(
     adb_client_test: AsyncDatabaseClient
-):
+) -> AgencyIdentificationTaskOperator:
 
     operator = AgencyIdentificationTaskOperator(
         adb_client=adb_client_test,
         loader=AgencyIdentificationSubtaskLoader(
             pdap_client=create_autospec(PDAPClient),
-            muckrock_api_interface=create_autospec(MuckrockAPIInterface)
-        )
-    )
-    operator.run_subtask = AsyncMock(
-        side_effect=mock_run_subtask
+            muckrock_api_interface=create_autospec(MuckrockAPIInterface),
+            adb_client=adb_client_test
+        ),
     )
 
     return operator

@@ -6,6 +6,7 @@ import pytest
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.data_creator.create import create_batch, create_urls, create_batch_url_links, create_validated_flags, \
     create_url_data_sources
@@ -22,10 +23,11 @@ async def test_get_batches_breakdown_metrics(api_test_helper):
         adb_client=adb_client,
         strategy=CollectorType.MANUAL,
     )
-    url_ids_1: list[int] = await create_urls(
+    url_mappings_1: list[URLMapping] = await create_urls(
         adb_client=adb_client,
         count=3,
     )
+    url_ids_1: list[int] = [url_mapping.url_id for url_mapping in url_mappings_1]
     await create_batch_url_links(adb_client=adb_client, batch_id=batch_id_1, url_ids=url_ids_1)
     await create_validated_flags(
         adb_client=adb_client,
@@ -48,15 +50,17 @@ async def test_get_batches_breakdown_metrics(api_test_helper):
         strategy=CollectorType.AUTO_GOOGLER,
         date_generated=today - timedelta(days=14)
     )
-    error_url_ids: list[int] = await create_urls(
+    error_url_mappings: list[URLMapping] = await create_urls(
         adb_client=adb_client,
         status=URLStatus.ERROR,
         count=4,
     )
-    validated_url_ids: list[int] = await create_urls(
+    error_url_ids: list[int] = [url_mapping.url_id for url_mapping in error_url_mappings]
+    validated_url_mappings: list[URLMapping] = await create_urls(
         adb_client=adb_client,
         count=8,
     )
+    validated_url_ids: list[int] = [url_mapping.url_id for url_mapping in validated_url_mappings]
     await create_validated_flags(
         adb_client=adb_client,
         url_ids=validated_url_ids[:3],

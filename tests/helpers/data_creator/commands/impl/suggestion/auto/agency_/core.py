@@ -25,6 +25,7 @@ class AgencyAutoSuggestionsCommand(DBDataCreatorCommandBase):
 
     @override
     async def run(self) -> None:
+        task_id: int = await self.add_task()
         suggestions = []
         for _ in range(self.count):
             if self.suggestion_type == SuggestionType.UNKNOWN:
@@ -44,3 +45,13 @@ class AgencyAutoSuggestionsCommand(DBDataCreatorCommandBase):
         await self.adb_client.add_agency_auto_suggestions(
             suggestions=suggestions
         )
+
+    async def add_task(self) -> int:
+        raise NotImplementedError
+
+    async def create_subtask(self, task_id: int) -> int:
+        raise NotImplementedError
+
+    async def add_suggestions(self) -> None:
+        raise NotImplementedError
+

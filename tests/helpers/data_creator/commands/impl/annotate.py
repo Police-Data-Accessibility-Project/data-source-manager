@@ -7,7 +7,7 @@ from src.api.endpoints.review.enums import RejectionReason
 from src.core.enums import SuggestionType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
-from tests.helpers.data_creator.commands.impl.suggestion.auto.agency import AgencyAutoSuggestionsCommand
+from tests.helpers.data_creator.commands.impl.suggestion.auto.agency_.core import AgencyAutoSuggestionsCommand
 from tests.helpers.data_creator.commands.impl.suggestion.auto.record_type import AutoRecordTypeSuggestionCommand
 from tests.helpers.data_creator.commands.impl.suggestion.auto.relevant import AutoRelevantSuggestionCommand
 from tests.helpers.data_creator.commands.impl.suggestion.user.agency import AgencyUserSuggestionsCommand

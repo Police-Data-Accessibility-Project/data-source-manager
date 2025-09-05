@@ -1,5 +1,5 @@
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
-from src.api.endpoints.review.next.dto import FinalReviewAnnotationAgencyInfo
+from src.api.endpoints.review.next.dto import FinalReviewAnnotationAgencyInfo, FinalReviewAnnotationAgencyAutoInfo
 from src.core.enums import SuggestionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
@@ -8,23 +8,27 @@ from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestio
 
 
 def convert_agency_info_to_final_review_annotation_agency_info(
-    automated_agency_suggestions: list[None],
+    subtasks: list[URLAutoAgencyIDSubtask],
     confirmed_agencies: list[LinkURLAgency],
     user_agency_suggestion: UserUrlAgencySuggestion
 ) -> FinalReviewAnnotationAgencyInfo:
 
-    confirmed_agency_info = _convert_confirmed_agencies_to_final_review_annotation_agency_info(
-        confirmed_agencies
+    confirmed_agency_info: list[GetNextURLForAgencyAgencyInfo] = (
+        _convert_confirmed_agencies_to_final_review_annotation_agency_info(
+            confirmed_agencies
+        )
     )
 
-    # TODO: Revise
-    # agency_auto_info = DTOConverter.final_review_annotation_agency_auto_info(
-    #     automated_agency_suggestions
-    # )
-    agency_auto_info = None
+    agency_auto_info: FinalReviewAnnotationAgencyAutoInfo = (
+        _convert_url_auto_agency_suggestions_to_final_review_annotation_agency_auto_info(
+            subtasks
+        )
+    )
 
-    agency_user_info = _convert_user_url_agency_suggestion_to_final_review_annotation_agency_user_info(
-        user_agency_suggestion
+    agency_user_info: GetNextURLForAgencyAgencyInfo | None = (
+        _convert_user_url_agency_suggestion_to_final_review_annotation_agency_user_info(
+            user_agency_suggestion
+        )
     )
 
     return FinalReviewAnnotationAgencyInfo(
@@ -76,10 +80,12 @@ def _convert_agency_to_get_next_url_for_agency_agency_info(
 
 def _convert_url_auto_agency_suggestions_to_final_review_annotation_agency_auto_info(
     subtasks: list[URLAutoAgencyIDSubtask]
-) -> list[GetNextURLForAgencyAgencyInfo]:
+) -> FinalReviewAnnotationAgencyAutoInfo:
     results: list[GetNextURLForAgencyAgencyInfo] = []
+    count_agencies_not_found: int = 0
     for subtask in subtasks:
         if not subtask.agencies_found:
+            count_agencies_not_found += 1
             continue
         for suggestion in subtask.suggestions:
             info: GetNextURLForAgencyAgencyInfo = _convert_agency_to_get_next_url_for_agency_agency_info(
@@ -87,4 +93,7 @@ def _convert_url_auto_agency_suggestions_to_final_review_annotation_agency_auto_
                 agency=suggestion.agency
             )
             results.append(info)
-    return results
+    return FinalReviewAnnotationAgencyAutoInfo(
+        unknown=count_agencies_not_found == len(subtasks),
+        suggestions=results
+    )

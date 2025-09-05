@@ -1,7 +1,9 @@
-from sqlalchemy import CTE, Column
+from sqlalchemy import CTE, Column, ColumnElement, exists
+
+from src.db.models.impl.url.core.sqlalchemy import URL
 
 
-class PrereqCTE:
+class ExistsCTEContainer:
     """
     Base class for CTEs that determine validity for each subtask.
 
@@ -11,7 +13,7 @@ class PrereqCTE:
 
     def __init__(
         self,
-        cte: CTE
+        cte: CTE,
     ) -> None:
         self._cte = cte
 
@@ -22,3 +24,10 @@ class PrereqCTE:
     @property
     def url_id(self) -> Column[int]:
         return self.cte.columns[0]
+
+    @property
+    def not_exists_query(self) -> ColumnElement[bool]:
+        return (
+            ~exists()
+            .where(self.url_id == URL.id)
+        )

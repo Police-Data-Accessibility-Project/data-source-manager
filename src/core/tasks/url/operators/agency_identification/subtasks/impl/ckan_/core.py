@@ -5,6 +5,8 @@ from typing_extensions import override
 from src.core.tasks.url.operators.agency_identification.subtasks.convert import \
     convert_match_agency_response_to_subtask_data
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.params import CKANAgencyIDSubtaskParams
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.query import \
+    GetCKANAgencyIDSubtaskParamsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import \
     AgencyIDSubtaskOperatorBase
@@ -29,6 +31,7 @@ class CKANAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
     @override
     async def inner_logic(self) -> None:
         params: list[CKANAgencyIDSubtaskParams] = await self._get_params()
+        self.linked_urls = [param.url_id for param in params]
         subtask_data_list: list[AutoAgencyIDSubtaskData] = []
         for param in params:
             agency_name: str = param.collector_metadata["agency_name"]
@@ -46,4 +49,6 @@ class CKANAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
         await self._upload_subtask_data(subtask_data_list)
 
     async def _get_params(self) -> list[CKANAgencyIDSubtaskParams]:
-        raise NotImplementedError
+        return await self.adb_client.run_query_builder(
+            GetCKANAgencyIDSubtaskParamsQueryBuilder()
+        )

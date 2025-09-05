@@ -41,8 +41,8 @@ from src.api.endpoints.metrics.urls.breakdown.query.core import GetURLsBreakdown
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.core import ApproveURLQueryBuilder
 from src.api.endpoints.review.enums import RejectionReason
-from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.review.next.core import GetNextURLForFinalReviewQueryBuilder
+from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.review.reject.query import RejectURLQueryBuilder
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
@@ -69,8 +69,6 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.update_sync_progres
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.core import \
     UpsertURLsFromDataSourcesQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.queries.has_urls_without_agency_suggestions import \
-    HasURLsWithoutAgencySuggestionsQueryBuilder
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
 from src.core.tasks.url.operators.auto_relevant.queries.get_tdos import GetAutoRelevantTDOsQueryBuilder
 from src.core.tasks.url.operators.html.queries.get import \
@@ -652,7 +650,12 @@ class AsyncDatabaseClient:
         return await self.run_query_builder(GetHTMLContentInfoQueryBuilder(url_id))
 
     @session_manager
-    async def link_urls_to_task(self, session: AsyncSession, task_id: int, url_ids: list[int]):
+    async def link_urls_to_task(
+        self,
+        session: AsyncSession,
+        task_id: int,
+        url_ids: list[int]
+    ) -> None:
         for url_id in url_ids:
             link = LinkTaskURL(
                 url_id=url_id,
@@ -715,8 +718,6 @@ class AsyncDatabaseClient:
             tasks=final_results
         )
 
-    async def has_urls_without_agency_suggestions(self) -> bool:
-        return await self.run_query_builder(HasURLsWithoutAgencySuggestionsQueryBuilder())
 
 
     async def get_next_url_agency_for_annotation(

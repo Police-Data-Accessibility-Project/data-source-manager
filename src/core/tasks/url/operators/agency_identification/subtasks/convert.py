@@ -19,7 +19,7 @@ def convert_match_agency_response_to_subtask_data(
     agencies_found: bool = len(suggestions) > 0
     subtask_pydantic = URLAutoAgencyIDSubtaskPydantic(
         url_id=url_id,
-        subtask=subtask_type,
+        type=subtask_type,
         agencies_found=agencies_found,
         task_id=task_id
     )

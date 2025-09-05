@@ -3,6 +3,7 @@ import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import SuggestedStatus
+from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
@@ -24,7 +25,8 @@ async def test_get_backlog_metrics(api_test_helper):
     # Ensure that multiple days in each month are added to the backlog table, with different values
 
     batch_1_id: int = await ddc.create_batch()
-    url_ids_1: list[int] = await ddc.create_urls(count=3)
+    url_mappings_1: list[URLMapping] = await ddc.create_urls(count=3)
+    url_ids_1: list[int] = [url_mapping.url_id for url_mapping in url_mappings_1]
     await ddc.create_batch_url_links(url_ids=url_ids_1, batch_id=batch_1_id)
     submitted_url_ids_1: list[int] = url_ids_1[:2]
     await ddc.create_validated_flags(
@@ -42,16 +44,18 @@ async def test_get_backlog_metrics(api_test_helper):
     )
 
     batch_2_id: int = await ddc.create_batch()
-    not_relevant_url_ids_2: list[int] = await ddc.create_urls(count=6)
+    not_relevant_url_mappings_2: list[URLMapping] = await ddc.create_urls(count=6)
+    not_relevant_url_ids_2: list[int] = [url_mapping.url_id for url_mapping in not_relevant_url_mappings_2]
     await ddc.create_batch_url_links(url_ids=not_relevant_url_ids_2, batch_id=batch_2_id)
     await ddc.create_validated_flags(
         url_ids=not_relevant_url_ids_2[:4],
         validation_type=URLValidatedType.NOT_RELEVANT
     )
-    error_url_ids_2: list[int] = await ddc.create_urls(
+    error_url_mappings_2: list[URLMapping] = await ddc.create_urls(
         status=URLStatus.ERROR,
         count=2
     )
+    error_url_ids_2: list[int] = [url_mapping.url_id for url_mapping in error_url_mappings_2]
     await ddc.create_batch_url_links(url_ids=error_url_ids_2, batch_id=batch_2_id)
 
     await adb_client.populate_backlog_snapshot(
@@ -63,7 +67,8 @@ async def test_get_backlog_metrics(api_test_helper):
     )
 
     batch_3_id: int = await ddc.create_batch()
-    url_ids_3: list[int] = await ddc.create_urls(count=12)
+    url_mappings_3: list[URLMapping] = await ddc.create_urls(count=12)
+    url_ids_3: list[int] = [url_mapping.url_id for url_mapping in url_mappings_3]
     await ddc.create_batch_url_links(url_ids=url_ids_3, batch_id=batch_3_id)
     await ddc.create_validated_flags(
         url_ids=url_ids_3[:5],

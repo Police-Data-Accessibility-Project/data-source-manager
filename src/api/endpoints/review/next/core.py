@@ -16,8 +16,6 @@ from src.db.constants import USER_ANNOTATION_MODELS
 from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.exceptions import FailedQueryException
-from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -26,7 +24,7 @@ from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import Agenc
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.queries.implementations.core.common.annotation_exists import AnnotationExistsCTEQueryBuilder
+from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
 
 TOTAL_DISTINCT_ANNOTATION_COUNT_LABEL = "total_distinct_annotation_count"
 
@@ -164,7 +162,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             )
             .select_from(
                 count_ready_query.outerjoin(
-                    count_reviewed_query,
+                    count_reviewed_query.cte,
                     count_reviewed_query.batch_id == count_ready_query.c.batch_id
                 )
             )
@@ -247,7 +245,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
                         auto_suggestion=result.auto_record_type_suggestion
                     ),
                     agency=convert_agency_info_to_final_review_annotation_agency_info(
-                        automated_agency_suggestions=result.automated_agency_suggestions,
+                        subtasks=result.auto_agency_subtasks,
                         user_agency_suggestion=result.user_agency_suggestion,
                         confirmed_agencies=result.confirmed_agencies
                     )

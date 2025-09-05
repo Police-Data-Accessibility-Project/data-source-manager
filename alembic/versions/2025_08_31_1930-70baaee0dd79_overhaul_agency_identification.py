@@ -25,6 +25,8 @@ URL_UNKNOWN_AGENCIES_VIEW_NAME: str = "url_unknown_agencies_view"
 URL_AUTO_AGENCY_SUBTASK_TABLE_NAME: str = "url_auto_agency_id_subtasks"
 LINK_AGENCY_ID_SUBTASK_AGENCIES_TABLE_NAME: str = "agency_id_subtask_suggestions"
 
+META_URL_VIEW_NAME: str = "meta_url_view"
+
 URL_AUTO_AGENCY_SUGGESTIONS_TABLE_NAME: str = "url_auto_agency_suggestions"
 
 AGENCY_AUTO_SUGGESTION_METHOD_ENUM = sa.dialects.postgresql.ENUM(
@@ -42,12 +44,18 @@ SUBTASK_DETAIL_CODE_ENUM = sa.Enum(
 )
 
 
+
+
+
 def upgrade() -> None:
     _create_url_auto_agency_subtask_table()
     _create_url_unknown_agencies_view()
+    _create_meta_url_view()
     _create_link_agency_id_subtask_agencies_table()
     _create_new_url_annotation_flags_view()
     _drop_url_auto_agency_suggestions_table()
+
+
 
 
 def downgrade() -> None:
@@ -56,8 +64,23 @@ def downgrade() -> None:
     _create_old_url_annotation_flags_view()
     _drop_link_agency_id_subtask_agencies_table()
     _drop_url_auto_agency_subtask_table()
+    _drop_meta_url_view()
     SUBTASK_DETAIL_CODE_ENUM.drop(op.get_bind())
 
+
+def _drop_meta_url_view():
+    op.execute(f"DROP VIEW IF EXISTS {META_URL_VIEW_NAME}")
+
+
+def _create_meta_url_view():
+    op.execute(f"""
+    CREATE OR REPLACE VIEW {META_URL_VIEW_NAME} AS 
+        SELECT
+            urls.id as url_id
+        FROM urls
+        INNER JOIN flag_url_validated fuv on fuv.url_id = urls.id
+        where fuv.type = 'meta url'
+    """)
 
 def _drop_url_auto_agency_suggestions_table():
     op.drop_table(URL_AUTO_AGENCY_SUGGESTIONS_TABLE_NAME)
@@ -105,7 +128,7 @@ def _create_url_auto_agency_subtask_table():
         task_id_column(),
         url_id_column(),
         sa.Column(
-            "subtask",
+            "type",
             AGENCY_AUTO_SUGGESTION_METHOD_ENUM,
             nullable=False
         ),
@@ -127,6 +150,7 @@ def _create_url_auto_agency_subtask_table():
 def _create_link_agency_id_subtask_agencies_table():
     op.create_table(
         LINK_AGENCY_ID_SUBTASK_AGENCIES_TABLE_NAME,
+        id_column(),
         sa.Column(
             "subtask_id",
             sa.Integer(),

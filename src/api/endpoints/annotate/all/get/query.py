@@ -50,7 +50,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
 
         load_options = [
             URL.html_content,
-            URL.automated_agency_suggestions,
+            URL.auto_agency_subtasks,
             URL.auto_relevant_suggestion,
             URL.auto_record_type_suggestion
         ]

@@ -1,12 +1,12 @@
+import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
 from src.db.models.mixins import CreatedAtMixin, AgencyDependentMixin
-from src.db.models.templates_.base import Base
+from src.db.models.templates_.with_id import WithIDBase
 
-import sqlalchemy as sa
 
 class AgencyIDSubtaskSuggestion(
-    Base,
+    WithIDBase,
     CreatedAtMixin,
     AgencyDependentMixin,
 ):

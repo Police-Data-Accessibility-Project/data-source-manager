@@ -9,6 +9,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.convert import 
     convert_match_agency_response_to_subtask_data
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.params import \
     MuckrockAgencyIDSubtaskParams
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.query import \
+    GetMuckrockAgencyIDSubtaskParamsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
@@ -35,6 +37,7 @@ class MuckrockAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
     @override
     async def inner_logic(self) -> None:
         params: list[MuckrockAgencyIDSubtaskParams] = await self._get_params()
+        self.linked_urls = [param.url_id for param in params]
         subtask_data_list: list[AutoAgencyIDSubtaskData] = []
         for param in params:
             muckrock_agency_id: int = param.collector_metadata["agency"]
@@ -55,7 +58,7 @@ class MuckrockAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
             subtask_data: AutoAgencyIDSubtaskData = convert_match_agency_response_to_subtask_data(
                 url_id=param.url_id,
                 response=match_agency_response,
-                subtask_type=AutoAgencyIDSubtaskType.CKAN,
+                subtask_type=AutoAgencyIDSubtaskType.MUCKROCK,
                 task_id=self.task_id
             )
             subtask_data_list.append(subtask_data)
@@ -72,7 +75,7 @@ class MuckrockAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
         pydantic_model = URLAutoAgencyIDSubtaskPydantic(
             task_id=self.task_id,
             url_id=url_id,
-            subtask=AutoAgencyIDSubtaskType.MUCKROCK,
+            type=AutoAgencyIDSubtaskType.MUCKROCK,
             agencies_found=False,
             detail=SubtaskDetailCode.RETRIEVAL_ERROR
         )
@@ -85,4 +88,6 @@ class MuckrockAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
         )
 
     async def _get_params(self) -> list[MuckrockAgencyIDSubtaskParams]:
-        raise NotImplementedError
+        return await self.adb_client.run_query_builder(
+            GetMuckrockAgencyIDSubtaskParamsQueryBuilder()
+        )

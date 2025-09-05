@@ -7,3 +7,8 @@ SUBTASK_HIERARCHY: list[AutoAgencyIDSubtaskType] = [
     AutoAgencyIDSubtaskType.HOMEPAGE_MATCH,
     AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH
 ]
+
+SUBTASK_HIERARCHY_MAPPING: dict[AutoAgencyIDSubtaskType, int] = {
+    subtask: idx
+    for idx, subtask in enumerate(SUBTASK_HIERARCHY)
+}

@@ -21,9 +21,9 @@ async def test_run_task_prereq_met(db_data_creator: DBDataCreator):
     And a task entry should be created in the database
     """
 
-    async def run_task(self, task_id: int) -> TaskOperatorRunInfo:
+    async def run_task(self) -> TaskOperatorRunInfo:
         return TaskOperatorRunInfo(
-            task_id=task_id,
+            task_id=1,
             task_type=TaskType.HTML,
             outcome=TaskOperatorOutcome.SUCCESS,
         )

@@ -27,7 +27,7 @@ from tests.helpers.data_creator.commands.impl.batch import DBDataCreatorBatchCom
 from tests.helpers.data_creator.commands.impl.batch_v2 import BatchV2Command
 from tests.helpers.data_creator.commands.impl.html_data import HTMLDataCreatorCommand
 from tests.helpers.data_creator.commands.impl.suggestion.agency_confirmed import AgencyConfirmedSuggestionCommand
-from tests.helpers.data_creator.commands.impl.suggestion.auto.agency import AgencyAutoSuggestionsCommand
+from tests.helpers.data_creator.commands.impl.suggestion.auto.agency_.core import AgencyAutoSuggestionsCommand
 from tests.helpers.data_creator.commands.impl.suggestion.auto.record_type import AutoRecordTypeSuggestionCommand
 from tests.helpers.data_creator.commands.impl.suggestion.auto.relevant import AutoRelevantSuggestionCommand
 from tests.helpers.data_creator.commands.impl.suggestion.user.agency import AgencyUserSuggestionsCommand
@@ -422,6 +422,7 @@ class DBDataCreator:
         status: URLStatus = URLStatus.OK,
         source: URLSource = URLSource.COLLECTOR,
         record_type: RecordType | None = RecordType.RESOURCES,
+        collector_metadata: dict | None = None,
         count: int = 1,
         batch_id: int | None = None
     ) -> list[URLMapping]:
@@ -431,6 +432,7 @@ class DBDataCreator:
             status=status,
             source=source,
             record_type=record_type,
+            collector_metadata=collector_metadata,
             count=count
         )
         url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]

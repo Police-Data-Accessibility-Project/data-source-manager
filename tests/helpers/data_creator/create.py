@@ -29,12 +29,14 @@ async def create_urls(
     status: URLStatus = URLStatus.OK,
     source: URLSource = URLSource.COLLECTOR,
     record_type: RecordType | None = RecordType.RESOURCES,
+    collector_metadata: dict | None = None,
     count: int = 1
 ) -> list[URLMapping]:
     urls: list[URLInsertModel] = generate_urls(
         status=status,
         source=source,
         record_type=record_type,
+        collector_metadata=collector_metadata,
         count=count,
     )
     url_ids = await adb_client.bulk_insert(urls, return_ids=True)

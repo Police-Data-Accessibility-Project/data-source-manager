@@ -16,7 +16,7 @@ class URLAutoAgencyIDSubtask(
 
     __tablename__ = "url_auto_agency_id_subtasks"
 
-    subtask = enum_column(
+    type = enum_column(
         AutoAgencyIDSubtaskType,
         name="agency_auto_suggestion_method"
     )

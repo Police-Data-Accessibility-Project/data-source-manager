@@ -18,15 +18,19 @@ class AgencyIDSubtaskOperatorBase(ABC):
     ) -> None:
         self.adb_client: AsyncDatabaseClient = adb_client
         self.task_id: int = task_id
+        self.linked_urls: list[int] | None = None
 
     async def run(self) -> AgencyIDSubtaskRunInfo:
         try:
             await self.inner_logic()
         except Exception as e:
             return AgencyIDSubtaskRunInfo(
-                error=str(e)
+                error=f"{type(e).__name__}: {str(e)}",
+                linked_url_ids=self.linked_urls
             )
-        return AgencyIDSubtaskRunInfo()
+        return AgencyIDSubtaskRunInfo(
+            linked_url_ids=self.linked_urls
+        )
 
     @abc.abstractmethod
     async def inner_logic(self) -> AgencyIDSubtaskRunInfo:
