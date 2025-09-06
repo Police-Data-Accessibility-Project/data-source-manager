@@ -26,6 +26,7 @@ URL_AUTO_AGENCY_SUBTASK_TABLE_NAME: str = "url_auto_agency_id_subtasks"
 LINK_AGENCY_ID_SUBTASK_AGENCIES_TABLE_NAME: str = "agency_id_subtask_suggestions"
 
 META_URL_VIEW_NAME: str = "meta_url_view"
+UNVALIDATED_URL_VIEW_NAME: str = "unvalidated_url_view"
 
 URL_AUTO_AGENCY_SUGGESTIONS_TABLE_NAME: str = "url_auto_agency_suggestions"
 
@@ -55,9 +56,7 @@ def upgrade() -> None:
     _drop_url_annotation_flags_view()
     _create_new_url_annotation_flags_view()
     _drop_url_auto_agency_suggestions_table()
-
-def _drop_url_annotation_flags_view():
-    op.execute(f"DROP VIEW IF EXISTS url_annotation_flags")
+    _create_unvalidated_urls_view()
 
 
 def downgrade() -> None:
@@ -69,6 +68,27 @@ def downgrade() -> None:
     _drop_url_auto_agency_subtask_table()
     _drop_meta_url_view()
     SUBTASK_DETAIL_CODE_ENUM.drop(op.get_bind())
+    _drop_unvalidated_urls_view()
+
+def _create_unvalidated_urls_view():
+    op.execute(f"""
+        CREATE OR REPLACE VIEW {UNVALIDATED_URL_VIEW_NAME} as 
+        select
+            u.id as url_id
+        from
+            urls u
+            left join flag_url_validated fuv
+                      on fuv.url_id = u.id
+        where
+            fuv.type is null
+    """)
+
+def _drop_unvalidated_urls_view():
+    op.execute(f"DROP VIEW IF EXISTS {UNVALIDATED_URL_VIEW_NAME}")
+
+
+def _drop_url_annotation_flags_view():
+    op.execute(f"DROP VIEW IF EXISTS url_annotation_flags")
 
 
 def _drop_meta_url_view():
