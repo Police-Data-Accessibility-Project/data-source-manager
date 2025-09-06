@@ -20,6 +20,7 @@ from tests.helpers.batch_creation_parameters.core import TestBatchCreationParame
 
 @pytest.mark.asyncio
 async def test_url_404_probe_task(
+    wiped_database,
     db_data_creator: DBDataCreator
 ):
 

@@ -4,6 +4,7 @@ from src.core.enums import SuggestionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
+from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 
 
@@ -67,8 +68,15 @@ def _convert_user_url_agency_suggestion_to_final_review_annotation_agency_user_i
 
 def _convert_agency_to_get_next_url_for_agency_agency_info(
     suggestion_type: SuggestionType,
-    agency: Agency
+    agency: Agency | None
 ) -> GetNextURLForAgencyAgencyInfo:
+    if agency is None:
+        if suggestion_type == SuggestionType.UNKNOWN:
+            return GetNextURLForAgencyAgencyInfo(
+                suggestion_type=suggestion_type,
+            )
+        raise ValueError("agency cannot be None for suggestion type other than unknown")
+
     return GetNextURLForAgencyAgencyInfo(
         suggestion_type=suggestion_type,
         pdap_agency_id=agency.agency_id,
@@ -87,7 +95,8 @@ def _convert_url_auto_agency_suggestions_to_final_review_annotation_agency_auto_
         if not subtask.agencies_found:
             count_agencies_not_found += 1
             continue
-        for suggestion in subtask.suggestions:
+        suggestions: list[AgencyIDSubtaskSuggestion] = subtask.suggestions
+        for suggestion in suggestions:
             info: GetNextURLForAgencyAgencyInfo = _convert_agency_to_get_next_url_for_agency_agency_info(
                 suggestion_type=SuggestionType.AUTO_SUGGESTION,
                 agency=suggestion.agency

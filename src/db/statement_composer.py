@@ -73,24 +73,6 @@ class StatementComposer:
         ).group_by(attr_value).subquery()
 
     @staticmethod
-    def exclude_urls_with_agency_suggestions(
-            statement: Select
-    ):
-        raise NotImplementedError
-        # # Aliases for clarity
-        # AutomatedSuggestion = aliased(AutomatedUrlAgencySuggestion)
-        #
-        # # Exclude if automated suggestions exist
-        # statement = statement.where(
-        #     ~exists().where(AutomatedSuggestion.url_id == URL.id)
-        # )
-        # # Exclude if confirmed agencies exist
-        # statement = statement.where(
-        #     ~exists().where(LinkURLAgency.url_id == URL.id)
-        # )
-        # return statement
-
-    @staticmethod
     def pending_urls_missing_miscellaneous_metadata_query() -> Select:
         query = select(URL).where(
             and_(

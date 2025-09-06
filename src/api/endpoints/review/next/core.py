@@ -1,6 +1,4 @@
-from typing import Type
-
-from sqlalchemy import FromClause, select, and_, Select, desc, asc, func
+from sqlalchemy import FromClause, select, Select, desc, asc, func, CTE
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -9,6 +7,7 @@ from src.api.endpoints.review.next.dto import FinalReviewOptionalMetadata, Final
     GetNextURLForFinalReviewOuterResponse, GetNextURLForFinalReviewResponse, FinalReviewAnnotationInfo
 from src.api.endpoints.review.next.extract import extract_html_content_infos, extract_optional_metadata
 from src.api.endpoints.review.next.queries.count_reviewed import COUNT_REVIEWED_CTE
+from src.api.endpoints.review.next.queries.eligible_urls import build_eligible_urls_cte
 from src.api.endpoints.review.next.templates.count_cte import CountCTE
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.html.scraper.parser.util import convert_to_response_html_info
@@ -22,7 +21,6 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
 from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
-from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
 
@@ -49,13 +47,6 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             (URL.user_agency_suggestion, UserUrlAgencySuggestion.agency),
             (URL.confirmed_agencies, LinkURLAgency.agency)
         ]
-        self.triple_join_relationships = [
-            (
-                URL.auto_agency_subtasks,
-                URLAutoAgencyIDSubtask.suggestions,
-                AgencyIDSubtaskSuggestion.agency
-            )
-        ]
 
         self.count_label = "count"
 
@@ -70,57 +61,25 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             where_clauses.append(where_clause)
         return where_clauses
 
-    def _build_base_query(
-        self,
-        anno_exists_query: FromClause,
-    ) -> Select:
-        builder = self.anno_exists_builder
-        where_exist_clauses = self._get_where_exist_clauses(
-            builder.query
-        )
+    def _build_base_query(self) -> Select:
+        eligible_urls: CTE = build_eligible_urls_cte(batch_id=self.batch_id)
 
         query = (
             select(
                 URL,
-                self._sum_exists_query(anno_exists_query, USER_ANNOTATION_MODELS)
             )
-            .select_from(anno_exists_query)
+            .select_from(
+                eligible_urls
+            )
             .join(
                 URL,
-                URL.id == builder.url_id
+                URL.id == eligible_urls.c.url_id
             )
-        )
-        if self.batch_id is not None:
-            query = (
-                query.join(
-                    LinkBatchURL
-                )
-                .where(
-                    LinkBatchURL.batch_id == self.batch_id
-                )
-            )
-
-        query = (
-            query.where(
-                and_(
-                    URL.status == URLStatus.OK.value,
-                    *where_exist_clauses
-                )
+            .where(
+                URL.status == URLStatus.OK.value
             )
         )
         return query
-
-
-    def _sum_exists_query(self, query, models: list[Type[URLDependentMixin]]):
-        return sum(
-            [getattr(query.c, self.anno_exists_builder.get_exists_label(model)) for model in models]
-        ).label(TOTAL_DISTINCT_ANNOTATION_COUNT_LABEL)
-
-
-    async def _apply_batch_id_filter(self, url_query: Select, batch_id: int | None):
-        if batch_id is None:
-            return url_query
-        return url_query.where(URL.batch_id == batch_id)
 
     async def _apply_options(
         self,
@@ -135,17 +94,11 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
                 joinedload(primary).joinedload(secondary)
                 for primary, secondary in self.double_join_relationships
             ],
-            *[
-                joinedload(primary).joinedload(secondary).joinedload(tertiary)
-                for primary, secondary, tertiary in self.triple_join_relationships
-            ]
+            joinedload(URL.auto_agency_subtasks)
+            .joinedload(URLAutoAgencyIDSubtask.suggestions)
+            .contains_eager(AgencyIDSubtaskSuggestion.agency)
         )
 
-    async def _apply_order_clause(self, url_query: Select):
-        return url_query.order_by(
-            desc(TOTAL_DISTINCT_ANNOTATION_COUNT_LABEL),
-            asc(URL.id)
-        )
 
     async def get_batch_info(self, session: AsyncSession) -> FinalReviewBatchInfo | None:
         if self.batch_id is None:
@@ -172,6 +125,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
         return FinalReviewBatchInfo(**raw_result.mappings().one())
 
     async def get_count_ready_query(self):
+        # TODO: Migrate to separate query builder
         builder = self.anno_exists_builder
         count_ready_query = (
             select(
@@ -261,9 +215,7 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             raise FailedQueryException(f"Failed to convert result for url id {result.id} to response") from e
 
     async def build_url_query(self):
-        anno_exists_query = self.anno_exists_builder.query
-        url_query = self._build_base_query(anno_exists_query)
+        url_query = self._build_base_query()
         url_query = await self._apply_options(url_query)
-        url_query = await self._apply_order_clause(url_query)
 
         return url_query

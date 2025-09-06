@@ -37,7 +37,7 @@ class GetAgencySuggestionsQueryBuilder(QueryBuilderBase):
             )
             .outerjoin(
                 Agency,
-                Agency.id == cte.agency_id
+                Agency.agency_id == cte.agency_id
             )
             .where(
                 cte.url_id == self.url_id

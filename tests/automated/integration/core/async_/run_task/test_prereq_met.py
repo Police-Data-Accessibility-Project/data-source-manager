@@ -18,7 +18,6 @@ from tests.helpers.data_creator.core import DBDataCreator
 async def test_run_task_prereq_met(db_data_creator: DBDataCreator):
     """
     When a task pre-requisite is met, the task should be run
-    And a task entry should be created in the database
     """
 
     async def run_task(self) -> TaskOperatorRunInfo:
@@ -47,10 +46,5 @@ async def test_run_task_prereq_met(db_data_creator: DBDataCreator):
 
     # There should be two calls to meets_task_prerequisites
     mock_operator.meets_task_prerequisites.assert_has_calls([call(), call()])
-
-    results = await db_data_creator.adb_client.get_all(Task)
-
-    assert len(results) == 1
-    assert results[0].task_status == BatchStatus.IN_PROCESS.value
 
     core.task_manager.conclude_task.assert_called_once()

@@ -767,22 +767,6 @@ class AsyncDatabaseClient:
             session.add(confirmed_agency)
 
     @session_manager
-    async def add_agency_auto_suggestions(
-        self,
-        session: AsyncSession,
-        suggestions: list[URLAgencySuggestionInfo]
-    ):
-        raise NotImplementedError("Revise")
-        # for suggestion in suggestions:
-        #     url_agency_suggestion = AutomatedUrlAgencySuggestion(
-        #         url_id=suggestion.url_id,
-        #         agency_id=suggestion.pdap_agency_id,
-        #         is_unknown=suggestion.suggestion_type == SuggestionType.UNKNOWN,
-        #         confidence=0
-        #     )
-        #     session.add(url_agency_suggestion)
-
-    @session_manager
     async def add_agency_manual_suggestion(
         self,
         session: AsyncSession,

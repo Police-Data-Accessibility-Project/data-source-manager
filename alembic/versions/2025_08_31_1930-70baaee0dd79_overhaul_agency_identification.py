@@ -52,15 +52,18 @@ def upgrade() -> None:
     _create_url_unknown_agencies_view()
     _create_meta_url_view()
     _create_link_agency_id_subtask_agencies_table()
+    _drop_url_annotation_flags_view()
     _create_new_url_annotation_flags_view()
     _drop_url_auto_agency_suggestions_table()
 
-
+def _drop_url_annotation_flags_view():
+    op.execute(f"DROP VIEW IF EXISTS url_annotation_flags")
 
 
 def downgrade() -> None:
     _drop_url_unknown_agencies_view()
     _create_url_auto_agency_suggestions_table()
+    _drop_url_annotation_flags_view()
     _create_old_url_annotation_flags_view()
     _drop_link_agency_id_subtask_agencies_table()
     _drop_url_auto_agency_subtask_table()
@@ -92,7 +95,7 @@ def _create_new_url_annotation_flags_view():
         f"""
         CREATE OR REPLACE VIEW url_annotation_flags AS
         (
-        SELECT u.id,
+        SELECT u.id as url_id,
                 EXISTS (SELECT 1 FROM public.auto_record_type_suggestions    a WHERE a.url_id = u.id) AS has_auto_record_type_suggestion,
                 EXISTS (SELECT 1 FROM public.auto_relevant_suggestions       a WHERE a.url_id = u.id) AS has_auto_relevant_suggestion,
                 EXISTS (SELECT 1 FROM public.{URL_AUTO_AGENCY_SUBTASK_TABLE_NAME} a WHERE a.url_id = u.id) AS has_auto_agency_suggestion,

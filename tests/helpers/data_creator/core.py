@@ -203,23 +203,14 @@ class DBDataCreator:
             raise ValueError(f"suggestion_type must be one of {allowed_suggestion_types}")
         if suggestion_type == SuggestionType.UNKNOWN and num_suggestions > 1:
             raise ValueError("num_suggestions must be 1 when suggestion_type is unknown")
-
+        
         for url_id in url_ids:
-            suggestions = []
-            for i in range(num_suggestions):
-                if suggestion_type == SuggestionType.UNKNOWN:
-                    agency_id = None
-                else:
-                    agency_id = await self.agency()
-                suggestion = URLAgencySuggestionInfo(
+            await self.run_command(
+                AgencyAutoSuggestionsCommand(
                     url_id=url_id,
-                    suggestion_type=suggestion_type,
-                    pdap_agency_id=agency_id
+                    count=num_suggestions,
+                    suggestion_type=suggestion_type
                 )
-                suggestions.append(suggestion)
-
-            await self.adb_client.add_agency_auto_suggestions(
-                suggestions=suggestions
             )
 
     async def confirmed_suggestions(self, url_ids: list[int]):
