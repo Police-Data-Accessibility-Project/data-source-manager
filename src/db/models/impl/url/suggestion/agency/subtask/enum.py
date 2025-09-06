@@ -11,5 +11,4 @@ class SubtaskDetailCode(Enum):
     NO_DETAILS = "no details"
     RETRIEVAL_ERROR = "retrieval error"
     HOMEPAGE_SINGLE_AGENCY = "homepage-single agency"
-    HOMEPAGE_NO_DATA_SOURCES = "homepage-no data sources"
-    HOMEPAGE_MULTI_AGENCY_NONZERO_DATA_SOURCES = "homepage-multi agency nonzero data sources"
+    HOMEPAGE_MULTI_AGENCY = "homepage-multi agency"

@@ -38,9 +38,8 @@ AGENCY_AUTO_SUGGESTION_METHOD_ENUM = sa.dialects.postgresql.ENUM(
 SUBTASK_DETAIL_CODE_ENUM = sa.Enum(
     'no details',
     'retrieval error',
-    'case-homepage-single agency',
-    'case-homepage-no data sources',
-    'case-homepage-multi agency nonzero data sources',
+    'homepage-single agency',
+    'homepage-multi agency',
     name="agency_id_subtask_detail_code",
 )
 
