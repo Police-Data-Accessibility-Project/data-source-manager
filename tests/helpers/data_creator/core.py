@@ -9,8 +9,10 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
+from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
+from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
 from src.db.client.sync import DatabaseClient
@@ -21,6 +23,7 @@ from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedSta
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
+from tests.helpers.counter import next_int
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 from tests.helpers.data_creator.commands.impl.agency import AgencyCommand
 from tests.helpers.data_creator.commands.impl.batch import DBDataCreatorBatchCommand
@@ -503,3 +506,42 @@ class DBDataCreator:
         )
         await self.adb_client.add_all([agency])
 
+    async def create_agencies(self, count: int = 3) -> list[int]:
+        agencies: list[Agency] = []
+        agency_ids: list[int] = []
+        for _ in range(count):
+            agency_id = next_int()
+            agency = Agency(
+                agency_id=agency_id,
+                name=generate_test_name(agency_id),
+                state=None,
+                county=None,
+                locality=None
+            )
+            agencies.append(agency)
+            agency_ids.append(agency_id)
+        await self.adb_client.add_all(agencies)
+        return agency_ids
+
+    async def flag_as_root(self, url_ids: list[int]) -> None:
+        flag_root_urls: list[FlagRootURL] = [
+            FlagRootURL(url_id=url_id) for url_id in url_ids
+        ]
+        await self.adb_client.add_all(flag_root_urls)
+
+    async def link_urls_to_root(self, url_ids: list[int], root_url_id: int) -> None:
+        links: list[LinkURLRootURL] = [
+            LinkURLRootURL(url_id=url_id, root_url_id=root_url_id) for url_id in url_ids
+        ]
+        await self.adb_client.add_all(links)
+
+    async def link_urls_to_agencies(self, url_ids: list[int], agency_ids: list[int]) -> None:
+        assert len(url_ids) == len(agency_ids)
+        links: list[LinkURLAgency] = []
+        for url_id, agency_id in zip(url_ids, agency_ids):
+            link = LinkURLAgency(
+                url_id=url_id,
+                agency_id=agency_id
+            )
+            links.append(link)
+        await self.adb_client.add_all(links)

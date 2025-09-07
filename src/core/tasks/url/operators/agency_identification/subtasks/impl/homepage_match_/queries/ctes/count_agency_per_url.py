@@ -6,7 +6,7 @@ from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 
 COUNT_AGENCY_PER_URL_CTE: CTE = (
     select(
-        META_ROOT_URLS_CTE.c.url_id,
+        META_ROOT_URLS_CTE.c.root_url_id,
         func.count(LinkURLAgency.agency_id).label("agency_count")
     )
     .join(
@@ -14,7 +14,7 @@ COUNT_AGENCY_PER_URL_CTE: CTE = (
         META_ROOT_URLS_CTE.c.meta_url_id == LinkURLAgency.url_id
     )
     .group_by(
-        META_ROOT_URLS_CTE.c.url_id
+        META_ROOT_URLS_CTE.c.root_url_id
     )
     .cte("count_agency_per_url")
 )

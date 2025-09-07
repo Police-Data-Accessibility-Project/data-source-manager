@@ -18,4 +18,5 @@ UNVALIDATED_URLS_WITH_ROOT: CTE = (
         WHITELISTED_ROOT_URLS_CTE,
         WHITELISTED_ROOT_URLS_CTE.c.id == LinkURLRootURL.root_url_id
     )
+    .cte("unvalidated_urls_with_root")
 )

@@ -6,7 +6,7 @@ from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 
 META_ROOT_URLS_WITH_AGENCIES: CTE = (
     select(
-        META_ROOT_URLS_CTE.c.url_id,
+        META_ROOT_URLS_CTE.c.meta_url_id,
         META_ROOT_URLS_CTE.c.root_url_id,
         LinkURLAgency.agency_id
     )

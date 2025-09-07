@@ -4,7 +4,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_m
     CONSOLIDATED_CTE
 from src.db.models.impl.url.suggestion.agency.subtask.enum import SubtaskDetailCode
 
-SINGLE_AGENCY_CASE_CTE: CTE = (
+SINGLE_AGENCY_CASE_QUERY = (
     select(
         CONSOLIDATED_CTE.c.url_id,
         CONSOLIDATED_CTE.c.agency_id,
@@ -14,5 +14,4 @@ SINGLE_AGENCY_CASE_CTE: CTE = (
     .where(
         CONSOLIDATED_CTE.c.agency_count == 1
     )
-    .cte("single_agency_case")
 )
