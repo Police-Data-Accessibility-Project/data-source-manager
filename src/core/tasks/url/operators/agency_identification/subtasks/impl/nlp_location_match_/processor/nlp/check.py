@@ -1,4 +1,4 @@
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor_.mappings import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.mappings import \
     US_STATE_ISO_TO_NAME, US_NAME_TO_STATE_ISO
 
 

@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.params import \
     MuckrockAgencyIDSubtaskParams
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.eligible import \
+    EligibleContainer
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
@@ -19,27 +21,19 @@ class GetMuckrockAgencyIDSubtaskParamsQueryBuilder(QueryBuilderBase):
         self,
         session: AsyncSession
     ) -> list[MuckrockAgencyIDSubtaskParams]:
+        container = EligibleContainer()
+
         query = (
             select(
-                URL.id,
+                container.url_id,
                 URL.collector_metadata
             )
             .join(
-                LinkBatchURL,
-                LinkBatchURL.url_id == URL.id,
-            )
-            .join(
-                Batch,
-                Batch.id == LinkBatchURL.batch_id,
+                URL,
+                URL.id == container.url_id,
             )
             .where(
-                Batch.strategy.in_(
-                    (
-                        CollectorType.MUCKROCK_ALL_SEARCH.value,
-                        CollectorType.MUCKROCK_COUNTY_SEARCH.value,
-                        CollectorType.MUCKROCK_SIMPLE_SEARCH.value,
-                    )
-                ),
+                container.muckrock,
             )
             .limit(500)
         )

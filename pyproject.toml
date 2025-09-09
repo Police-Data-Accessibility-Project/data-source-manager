@@ -24,6 +24,7 @@ dependencies = [
     "marshmallow~=3.23.2",
     "openai~=1.60.1",
     "pdap-access-manager==0.3.6",
+    "pip>=25.2",
     "playwright~=1.49.1",
     "psycopg2-binary~=2.9.6",
     "psycopg[binary]~=3.1.20",

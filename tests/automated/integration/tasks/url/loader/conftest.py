@@ -4,10 +4,11 @@ import pytest
 
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.loader import URLTaskOperatorLoader
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+    NLPProcessor
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
-from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
 from src.external.url_request.core import URLRequestInterface
 
@@ -22,4 +23,5 @@ def loader() -> URLTaskOperatorLoader:
         pdap_client=AsyncMock(spec=PDAPClient),
         muckrock_api_interface=AsyncMock(spec=MuckrockAPIInterface),
         hf_inference_client=AsyncMock(spec=HuggingFaceInferenceClient),
+        nlp_processor=AsyncMock(spec=NLPProcessor)
     )

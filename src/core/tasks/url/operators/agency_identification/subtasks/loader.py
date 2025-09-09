@@ -1,5 +1,3 @@
-import spacy
-
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.core import CKANAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.core import \
@@ -8,7 +6,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.
     MuckrockAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.core import \
     NLPLocationMatchSubtaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor_.core import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
     NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
@@ -23,10 +21,12 @@ class AgencyIdentificationSubtaskLoader:
         self,
         pdap_client: PDAPClient,
         muckrock_api_interface: MuckrockAPIInterface,
-        adb_client: AsyncDatabaseClient
+        adb_client: AsyncDatabaseClient,
+        nlp_processor: NLPProcessor
     ):
         self._pdap_client = pdap_client
         self._muckrock_api_interface = muckrock_api_interface
+        self._nlp_processor = nlp_processor
         self.adb_client = adb_client
 
     def _load_muckrock_subtask(self, task_id: int) -> MuckrockAgencyIDSubtaskOperator:
@@ -55,9 +55,7 @@ class AgencyIdentificationSubtaskLoader:
             task_id=task_id,
             adb_client=self.adb_client,
             pdap_client=self._pdap_client,
-            processor=NLPProcessor(
-                spacy.load('en_core_web_trf', disable=['parser'])
-            )
+            processor=self._nlp_processor
         )
 
 

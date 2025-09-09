@@ -26,14 +26,25 @@ class AgencyIDSubtaskSurveyQueryBuilder(QueryBuilderBase):
     (or an empty list if no subtasks have applicable URLs)
     """
 
+    def __init__(
+        self,
+        allowed_subtasks: list[AutoAgencyIDSubtaskType]
+    ):
+        super().__init__()
+        self._allowed_subtasks = allowed_subtasks
+
     async def run(self, session: AsyncSession) -> AutoAgencyIDSubtaskType | None:
         results: RowMapping = await sh.mapping(session, ELIGIBLE_COUNTS_QUERY)
         counts: Counter[str] = Counter(results)
-        max_count: int = max(counts.values())
+
+        allowed_counts: Counter[str] = await self._filter_allowed_counts(counts)
+        if len(allowed_counts) == 0:
+            return None
+        max_count: int = max(allowed_counts.values())
         if max_count == 0:
             return None
         subtasks_with_max_count: list[str] = [
-            subtask for subtask, count in counts.items()
+            subtask for subtask, count in allowed_counts.items()
             if count == max_count
         ]
         subtasks_as_enum_list: list[AutoAgencyIDSubtaskType] = [
@@ -48,6 +59,15 @@ class AgencyIDSubtaskSurveyQueryBuilder(QueryBuilderBase):
         )
         # Return the highest priority subtask
         return sorted_subtasks[0]
+
+    async def _filter_allowed_counts(self, counts: Counter[str]) -> Counter[str]:
+        return Counter(
+            {
+                subtask: count
+                for subtask, count in counts.items()
+                if AutoAgencyIDSubtaskType(subtask) in self._allowed_subtasks
+            }
+        )
 
 
 

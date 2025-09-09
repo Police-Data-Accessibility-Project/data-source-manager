@@ -1,15 +1,14 @@
 from datetime import date
-from typing import Optional, Any
+from typing import Any
 
 from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType, ResponseInfo
 
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor_.models.response import \
-    NLPLocationMatchResponse
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
 from src.external.pdap.dtos.search_agency_by_location.params import SearchAgencyByLocationParams
-from src.external.pdap.dtos.search_agency_by_location.response import SearchAgencyByLocationResponse
+from src.external.pdap.dtos.search_agency_by_location.response import SearchAgencyByLocationResponse, \
+    SearchAgencyByLocationOuterResponse
 from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo, AgenciesSyncResponseInfo
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
@@ -52,7 +51,11 @@ class PDAPClient:
         )
         response_info: ResponseInfo = await self.access_manager.make_request(request_info)
 
-        raise NotImplementedError
+        outer_response = SearchAgencyByLocationOuterResponse(
+            **response_info.data
+        )
+
+        return outer_response.responses
 
     async def match_agency(
         self,

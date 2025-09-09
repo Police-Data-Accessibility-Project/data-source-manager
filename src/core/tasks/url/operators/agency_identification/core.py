@@ -1,5 +1,6 @@
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
 from src.core.tasks.url.operators.agency_identification.exceptions import SubtaskError
+from src.core.tasks.url.operators.agency_identification.subtasks.flags.core import SubtaskFlagger
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info import AgencyIDSubtaskRunInfo
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.core import \
@@ -34,9 +35,14 @@ class AgencyIdentificationTaskOperator(
         Modifies:
         - self._subtask
         """
+        flagger = SubtaskFlagger()
+        allowed_subtasks: list[AutoAgencyIDSubtaskType] = flagger.get_allowed_subtasks()
+
         next_subtask: AutoAgencyIDSubtaskType | None = \
             await self.adb_client.run_query_builder(
-                AgencyIDSubtaskSurveyQueryBuilder()
+                AgencyIDSubtaskSurveyQueryBuilder(
+                    allowed_subtasks=allowed_subtasks
+                )
             )
         self._subtask = next_subtask
         if next_subtask is None:

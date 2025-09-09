@@ -14,6 +14,8 @@ RUN uv sync --locked --no-dev
 # Must call from the root directory because uv does not add playwright to path
 RUN playwright install-deps chromium
 RUN playwright install chromium
+# Download Spacy Model
+RUN python -m spacy download en_core_web_sm
 
 # Copy project files
 COPY src ./src

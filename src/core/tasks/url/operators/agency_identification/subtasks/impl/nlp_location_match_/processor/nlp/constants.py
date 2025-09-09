@@ -1,0 +1,3 @@
+
+
+TOP_N_LOCATIONS_COUNT: int = 5
