@@ -40,7 +40,7 @@ class GetNLPLocationMatchSubtaskInputQueryBuilder(QueryBuilderBase):
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
         inputs: list[NLPLocationMatchSubtaskInput] = [
             NLPLocationMatchSubtaskInput(
-                url_id=mapping["url_id"],
+                url_id=mapping["id"],
                 html=decompress_html(mapping["compressed_html"]),
             )
             for mapping in mappings

@@ -8,3 +8,7 @@ class AgencyIDSubtaskRunInfo(BaseModel):
     @property
     def is_success(self) -> bool:
         return self.error is None
+
+    @property
+    def has_linked_urls(self) -> bool:
+        return len(self.linked_url_ids) > 0

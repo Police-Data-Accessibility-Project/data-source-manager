@@ -71,7 +71,7 @@ class AgencyIdentificationSubtaskLoader:
             case AutoAgencyIDSubtaskType.CKAN:
                 return self._load_ckan_subtask(task_id)
             case AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH:
-                return self._load_muckrock_subtask(task_id)
+                return self._load_nlp_location_match_subtask(task_id)
             case AutoAgencyIDSubtaskType.HOMEPAGE_MATCH:
                 return self._load_homepage_match_subtask(task_id)
         raise ValueError(f"Unknown subtask type: {subtask_type}")

@@ -38,6 +38,7 @@ class NLPLocationMatchSubtaskOperator(AgencyIDSubtaskOperatorBase):
             await self.run_subtask_iteration(inputs)
 
     async def run_subtask_iteration(self, inputs: list[NLPLocationMatchSubtaskInput]) -> None:
+        self.linked_urls.extend([input_.url_id for input_ in inputs])
         subtask_data_list: list[AutoAgencyIDSubtaskData] = await self._process_inputs(inputs)
 
         await self._upload_subtask_data(subtask_data_list)
@@ -52,5 +53,5 @@ class NLPLocationMatchSubtaskOperator(AgencyIDSubtaskOperatorBase):
 
     async def _get_from_db(self) -> list[NLPLocationMatchSubtaskInput]:
         return await self.adb_client.run_query_builder(
-            query_builder=GetNLPLocationMatchSubtaskInputQueryBuilder(),
+            GetNLPLocationMatchSubtaskInputQueryBuilder(),
         )

@@ -18,7 +18,7 @@ class AgencyIDSubtaskOperatorBase(ABC):
     ) -> None:
         self.adb_client: AsyncDatabaseClient = adb_client
         self.task_id: int = task_id
-        self.linked_urls: list[int] | None = None
+        self.linked_urls: list[int] = []
 
     async def run(self) -> AgencyIDSubtaskRunInfo:
         try:
