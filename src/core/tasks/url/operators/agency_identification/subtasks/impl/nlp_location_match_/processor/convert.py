@@ -4,6 +4,8 @@ from math import ceil
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.counter import RequestCounter
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.mapper import \
     URLRequestIDMapper
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.models.mappings.url_id_search_params import \
+    URLToSearchParamsMapping
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.models.response import \
     NLPLocationMatchResponse
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
@@ -79,6 +81,19 @@ def _convert_search_agency_response_to_agency_suggestions(
         )
         suggestions.append(suggestion)
     return suggestions
+
+def convert_empty_url_search_param_mappings_to_subtask_data_list(
+    mappings: list[URLToSearchParamsMapping],
+    task_id: int
+) -> list[AutoAgencyIDSubtaskData]:
+    results: list[AutoAgencyIDSubtaskData] = []
+    for mapping in mappings:
+        if not mapping.empty:
+            raise ValueError("URLToSearchParamsMapping expected empty in conversion function.")
+        subtask_data = AutoAgencyIDSubtaskData(
+
+        )
+
 
 
 

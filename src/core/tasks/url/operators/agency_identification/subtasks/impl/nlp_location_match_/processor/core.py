@@ -40,9 +40,24 @@ class AgencyIDSubtaskInternalProcessor:
         inputs: list[NLPLocationMatchSubtaskInput]
     ) -> list[AutoAgencyIDSubtaskData]:
         
-        search_params: list[SearchAgencyByLocationParams] = self._extract_search_params(
+        url_search_param_mappings: list[URLToSearchParamsMapping] = self._extract_search_params(
             inputs=inputs
         )
+
+        # Filter out empty params
+        url_search_param_mappings_empty: list[URLToSearchParamsMapping] = \
+            [mapping for mapping in url_search_param_mappings if mapping.is_empty]
+
+        # Convert empty params to subtask data with empty agencies
+        subtask_data_no_agency_list: list[AutoAgencyIDSubtaskData] = \
+            convert_empty_url_search_param_mappings_to_subtask_data_list(
+                responses=[],
+                task_id=self._task_id,
+                mapper=self._mapper,
+            )
+
+
+
 
         search_responses: list[SearchAgencyByLocationResponse] = \
             await self._get_pdap_info(search_params)
@@ -59,7 +74,7 @@ class AgencyIDSubtaskInternalProcessor:
     def _extract_search_params(
         self,
         inputs: list[NLPLocationMatchSubtaskInput]
-    ) -> list[SearchAgencyByLocationParams]:
+    ) -> list[URLToSearchParamsMapping]:
         """
         Modifies:
             - self._mapper
@@ -72,12 +87,7 @@ class AgencyIDSubtaskInternalProcessor:
         url_to_search_params_mappings: list[URLToSearchParamsMapping] = \
             self._match_urls_to_search_params(url_to_nlp_mappings)
 
-        all_search_params: list[SearchAgencyByLocationParams] = \
-            _extract_all_search_params(url_to_search_params_mappings)
-
-        self._add_all_url_search_param_mappings(url_to_search_params_mappings)
-
-        return all_search_params
+        return url_to_search_params_mappings
 
     def _add_all_url_search_param_mappings(
         self,
