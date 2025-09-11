@@ -1,3 +1,4 @@
+from collections import defaultdict
 from math import ceil
 
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.counter import RequestCounter
@@ -40,22 +41,33 @@ def convert_search_agency_responses_to_subtask_data_list(
     task_id: int
 ) -> list[AutoAgencyIDSubtaskData]:
     subtask_data_list: list[AutoAgencyIDSubtaskData] = []
+    url_id_to_suggestions: dict[int, list[AgencySuggestion]] = defaultdict(list)
+
+    # First, extract agency suggestions for URL
     for response in responses:
+        suggestions: list[AgencySuggestion] = _convert_search_agency_response_to_agency_suggestions(response)
         url_id: int = mapper.get_url_id_by_request_id(response.request_id)
-        subtask_data: AutoAgencyIDSubtaskData = \
-            convert_search_agency_response_to_subtask_data(
-                response=response,
-                task_id=task_id,
-                url_id=url_id,
-            )
+        url_id_to_suggestions[url_id].extend(suggestions)
+
+    # Then, construct subtask data and
+    for url_id, suggestions in url_id_to_suggestions.items():
+        pydantic_model: URLAutoAgencyIDSubtaskPydantic = convert_search_agency_response_to_subtask_pydantic(
+            url_id=url_id,
+            task_id=task_id
+        )
+
+        subtask_data = AutoAgencyIDSubtaskData(
+            pydantic_model=pydantic_model,
+            suggestions=suggestions
+        )
+
         subtask_data_list.append(subtask_data)
     return subtask_data_list
 
-def convert_search_agency_response_to_subtask_data(
-    url_id: int,
+
+def _convert_search_agency_response_to_agency_suggestions(
     response: SearchAgencyByLocationResponse,
-    task_id: int
-) -> AutoAgencyIDSubtaskData:
+) -> list[AgencySuggestion]:
     suggestions: list[AgencySuggestion] = []
     for result in response.results:
         agency_id: int = result.agency_id
@@ -66,14 +78,18 @@ def convert_search_agency_response_to_subtask_data(
             confidence=confidence,
         )
         suggestions.append(suggestion)
+    return suggestions
 
-    pydantic_model = URLAutoAgencyIDSubtaskPydantic(
+
+
+def convert_search_agency_response_to_subtask_pydantic(
+    url_id: int,
+    task_id: int
+) -> URLAutoAgencyIDSubtaskPydantic:
+
+    return URLAutoAgencyIDSubtaskPydantic(
         task_id=task_id,
         url_id=url_id,
         type=AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH,
         agencies_found=True
-    )
-    return AutoAgencyIDSubtaskData(
-        pydantic_model=pydantic_model,
-        suggestions=suggestions
     )
