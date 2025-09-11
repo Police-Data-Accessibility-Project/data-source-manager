@@ -6,7 +6,7 @@ class SearchAgencyByLocationAgencyInfo(BaseModel):
 
 class SearchAgencyByLocationResponse(BaseModel):
     request_id: int
-    results: list[SearchAgencyByLocationAgencyInfo]
+    results: list[SearchAgencyByLocationAgencyInfo] = Field(min_length=1)
 
 class SearchAgencyByLocationOuterResponse(BaseModel):
     responses: list[SearchAgencyByLocationResponse]

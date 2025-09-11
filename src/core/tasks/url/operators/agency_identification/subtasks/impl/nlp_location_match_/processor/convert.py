@@ -71,7 +71,7 @@ def convert_search_agency_response_to_subtask_data(
         task_id=task_id,
         url_id=url_id,
         type=AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH,
-        agencies_found=len(suggestions) > 0
+        agencies_found=True
     )
     return AutoAgencyIDSubtaskData(
         pydantic_model=pydantic_model,
