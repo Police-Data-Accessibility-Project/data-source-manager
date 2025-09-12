@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from aiohttp import ClientSession, InvalidUrlClientError, ClientConnectorSSLError, ClientConnectorDNSError, \
     ClientConnectorCertificateError, ClientResponseError, ClientConnectorError, TooManyRedirects, ClientOSError, \
-    ServerDisconnectedError
+    ServerDisconnectedError, ClientConnectionResetError
 from pydantic import ValidationError
 from tqdm.asyncio import tqdm_asyncio
 
@@ -41,7 +41,8 @@ class URLProbeManager:
                 ClientConnectorSSLError,
                 ClientConnectorDNSError,
                 ClientConnectorCertificateError,
-                ServerDisconnectedError
+                ServerDisconnectedError,
+                ClientConnectionResetError
         ) as e:
             return convert_to_error_response(url, error=str(e))
         except asyncio.exceptions.TimeoutError:
