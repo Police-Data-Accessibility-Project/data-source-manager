@@ -39,11 +39,13 @@ from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
 from src.external.url_request.core import URLRequestInterface
-
+from environs import Env
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     env_var_manager = EnvVarManager.get()
+    env = Env()
+    env.read_env()
 
     # Initialize shared dependencies
     db_client = DatabaseClient(
@@ -57,11 +59,16 @@ async def lifespan(app: FastAPI):
 
     session = aiohttp.ClientSession()
 
-    task_handler = TaskHandler(
-        adb_client=adb_client,
-        discord_poster=DiscordPoster(
+    if env.bool("POST_TO_DISCORD_FLAG", True):
+        discord_poster = DiscordPoster(
             webhook_url=env_var_manager.discord_webhook_url
         )
+    else:
+        discord_poster = None
+
+    task_handler = TaskHandler(
+        adb_client=adb_client,
+        discord_poster=discord_poster
     )
     pdap_client = PDAPClient(
         access_manager=AccessManager(

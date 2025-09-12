@@ -14,7 +14,7 @@ class TaskHandler:
     def __init__(
         self,
         adb_client: AsyncDatabaseClient,
-        discord_poster: DiscordPoster
+        discord_poster: DiscordPoster | None
     ):
         self.adb_client = adb_client
         self.discord_poster = discord_poster
@@ -24,7 +24,10 @@ class TaskHandler:
         self.logger.setLevel(logging.INFO)
 
 
-    async def post_to_discord(self, message: str):
+    async def post_to_discord(self, message: str) -> None:
+        if self.discord_poster is None:
+            print("Post to Discord disabled by POST_TO_DISCORD_FLAG")
+            return
         self.discord_poster.post_to_discord(message=message)
 
     async def initiate_task_in_db(self, task_type: TaskType) -> int:  #
@@ -50,7 +53,7 @@ class TaskHandler:
             task_id=run_info.task_id,
             error=run_info.message
         )
-        msg: str = f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error: {run_info.message}"
+        msg: str = f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error: {run_info.message[:100]}..."
         print(msg)
         await self.post_to_discord(
             message=msg
