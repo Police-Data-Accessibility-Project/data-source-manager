@@ -52,7 +52,7 @@ class TaskHandler:
         )
         msg: str = f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error: {run_info.message}"
         print(msg)
-        self.discord_poster.post_to_discord(
+        await self.post_to_discord(
             message=msg
         )
 
