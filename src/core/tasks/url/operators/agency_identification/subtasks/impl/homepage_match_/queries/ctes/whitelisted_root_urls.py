@@ -8,7 +8,6 @@ from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 
 WHITELISTED_ROOT_URLS_CTE: CTE = (
-    # TODO: Check for no fan-out
     select(
         URL.id
     )
@@ -33,7 +32,9 @@ WHITELISTED_ROOT_URLS_CTE: CTE = (
     )
     .where(
         # The connected URLs must be Meta URLs
-        FlagURLValidated.type == URLValidatedType.META_URL
+        FlagURLValidated.type == URLValidatedType.META_URL,
+        # Root URL can't be "https://catalog.data.gov"
+        URL.url != "https://catalog.data.gov"
     )
     .group_by(
         URL.id

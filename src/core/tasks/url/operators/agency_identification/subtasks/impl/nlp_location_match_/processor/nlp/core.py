@@ -6,6 +6,8 @@ from spacy.tokens import Doc
 
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.check import \
     is_name_us_state, is_iso_us_state
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.constants import \
+    INVALID_LOCATION_CHARACTERS, INVALID_SCAN_ISOS
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.convert import \
     convert_us_state_name_to_us_state, convert_us_state_iso_to_us_state
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.enums import \
@@ -39,10 +41,27 @@ class NLPProcessor:
         us_state_counter: Counter[USState] = Counter()
         location_counter: Counter[str] = Counter()
 
+        # Scan over tokens
+        for token in doc:
+            upper_token: str = token.text.upper()
+            # Disregard certain ISOs that align with common words
+            if upper_token in INVALID_SCAN_ISOS:
+                continue
+            if not is_iso_us_state(upper_token):
+                continue
+
+            us_state: USState | None = convert_us_state_iso_to_us_state(upper_token)
+            if us_state is not None:
+                us_state_counter[us_state] += 1
+
+
+        # Scan over entities using spacy
         for ent in doc.ents:
             if ent.label_ != "GPE": # Geopolitical Entity
                 continue
             text: str = ent.text
+            if any(char in text for char in INVALID_LOCATION_CHARACTERS):
+                continue
             if is_name_us_state(text):
                 us_state: USState | None = convert_us_state_name_to_us_state(text)
                 if us_state is not None:

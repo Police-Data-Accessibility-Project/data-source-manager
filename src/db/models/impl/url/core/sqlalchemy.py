@@ -40,7 +40,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         "Batch",
         secondary="link_batch_urls",
         back_populates="urls",
-        uselist=False
+        uselist=False,
     )
     duplicates = relationship("Duplicate", back_populates="original_url")
     html_content = relationship("URLHTMLContent", back_populates="url", cascade="all, delete-orphan")

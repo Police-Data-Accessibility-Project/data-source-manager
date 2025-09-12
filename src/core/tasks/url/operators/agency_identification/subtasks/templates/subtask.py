@@ -1,4 +1,5 @@
 import abc
+import traceback
 from abc import ABC
 
 from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info import AgencyIDSubtaskRunInfo
@@ -24,8 +25,10 @@ class AgencyIDSubtaskOperatorBase(ABC):
         try:
             await self.inner_logic()
         except Exception as e:
+            # Get stack trace
+            stack_trace: str = traceback.format_exc()
             return AgencyIDSubtaskRunInfo(
-                error=f"{type(e).__name__}: {str(e)}",
+                error=f"{type(e).__name__}: {str(e)}: {stack_trace}",
                 linked_url_ids=self.linked_urls
             )
         return AgencyIDSubtaskRunInfo(

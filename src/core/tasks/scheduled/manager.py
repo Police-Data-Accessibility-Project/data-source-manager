@@ -1,6 +1,3 @@
-from apscheduler.job import Job
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
@@ -39,15 +36,19 @@ class AsyncScheduledTaskManager:
             self._registry
         """
         entries: list[ScheduledTaskEntry] = await self._loader.load_entries()
-        for idx, entry in enumerate(entries):
+        enabled_entries: list[ScheduledTaskEntry] = []
+        for entry in entries:
             if not entry.enabled:
                 print(f"{entry.operator.task_type.value} is disabled. Skipping add to scheduler.")
                 continue
+            enabled_entries.append(entry)
 
+        initial_lag: int = 1
+        for idx, entry in enumerate(enabled_entries):
             await self._registry.add_job(
                 func=self.run_task,
                 entry=entry,
-                minute_lag=idx
+                minute_lag=idx + initial_lag
             )
 
     def shutdown(self):

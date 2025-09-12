@@ -65,6 +65,7 @@ class AgencyIdentificationTaskOperator(
 
     async def inner_task_logic(self) -> None:
         subtask_operator: AgencyIDSubtaskOperatorBase = await self.load_subtask(self._subtask)
+        print(f"Running Subtask: {self._subtask.value}")
         run_info: AgencyIDSubtaskRunInfo = await self.run_subtask(subtask_operator)
         await self.link_urls_to_task(run_info.linked_url_ids)
         if not run_info.is_success:

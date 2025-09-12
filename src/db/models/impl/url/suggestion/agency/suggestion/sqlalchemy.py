@@ -25,4 +25,4 @@ class AgencyIDSubtaskSuggestion(
         nullable=False,
     )
 
-    agency = relationship("Agency")
+    agency = relationship("Agency", viewonly=True)

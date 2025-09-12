@@ -83,7 +83,8 @@ class URLTaskOperatorLoader:
             loader=AgencyIdentificationSubtaskLoader(
                 pdap_client=self.pdap_client,
                 muckrock_api_interface=self.muckrock_api_interface,
-                adb_client=self.adb_client
+                adb_client=self.adb_client,
+                nlp_processor=self.nlp_processor
             )
         )
         return URLTaskEntry(

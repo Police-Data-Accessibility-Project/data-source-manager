@@ -9,9 +9,10 @@ class NLPLocationMatchResponse(BaseModel):
     us_state: USState | None
 
     @property
-    def empty(self) -> bool:
-        if self.us_state is not None:
+    def valid(self) -> bool:
+        # Valid responses must have a US State and at least one location
+        if self.us_state is None:
             return False
-        if len(self.locations) > 0:
+        if len(self.locations) == 0:
             return False
         return True
