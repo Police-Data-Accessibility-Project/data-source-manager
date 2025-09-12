@@ -1,8 +1,7 @@
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.core.tasks.scheduled.impl.huggingface.queries.get.enums import RecordTypeCoarse
-from src.core.tasks.scheduled.impl.huggingface.queries.get.mappings import FINE_COARSE_RECORD_TYPE_MAPPING, \
-    OUTCOME_RELEVANCY_MAPPING
+from src.core.tasks.scheduled.impl.huggingface.queries.get.mappings import FINE_COARSE_RECORD_TYPE_MAPPING
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 
 
 def convert_fine_to_coarse_record_type(
@@ -10,7 +9,14 @@ def convert_fine_to_coarse_record_type(
 ) -> RecordTypeCoarse:
     return FINE_COARSE_RECORD_TYPE_MAPPING[fine_record_type]
 
-def convert_url_status_to_relevant(
-    url_status: URLStatus
+
+def convert_validated_type_to_relevant(
+    validated_type: URLValidatedType
 ) -> bool:
-    return OUTCOME_RELEVANCY_MAPPING[url_status]
+    match validated_type:
+        case URLValidatedType.NOT_RELEVANT:
+            return False
+        case URLValidatedType.DATA_SOURCE:
+            return True
+        case _:
+            raise ValueError(f"Disallowed validated type: {validated_type}")

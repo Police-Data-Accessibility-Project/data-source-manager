@@ -3,6 +3,7 @@ import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 
 
@@ -18,11 +19,11 @@ async def test_get_urls_breakdown_submitted_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.PENDING
+                status=URLCreationEnum.OK
             ),
             TestURLCreationParameters(
                 count=2,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
         ]
     )
@@ -32,7 +33,7 @@ async def test_get_urls_breakdown_submitted_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             )
         ],
         created_at=today.subtract(weeks=1),
@@ -44,15 +45,15 @@ async def test_get_urls_breakdown_submitted_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
             TestURLCreationParameters(
                 count=4,
-                status=URLStatus.ERROR
+                status=URLCreationEnum.ERROR
             ),
             TestURLCreationParameters(
                 count=5,
-                status=URLStatus.VALIDATED
+                status=URLCreationEnum.VALIDATED
             ),
         ]
     )

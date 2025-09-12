@@ -78,6 +78,14 @@ class ScheduledTaskOperatorLoader:
                 enabled=self.env.bool("SYNC_DATA_SOURCES_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
+                operator=SyncAgenciesTaskOperator(
+                    adb_client=self.async_core.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval=IntervalEnum.DAILY,
+                enabled=self.env.bool("SYNC_AGENCIES_TASK_FLAG", default=True)
+            ),
+            ScheduledTaskEntry(
                 operator=RunURLTasksTaskOperator(async_core=self.async_core),
                 interval=IntervalEnum.HOURLY,
                 enabled=self.env.bool("RUN_URL_TASKS_TASK_FLAG", default=True)
@@ -87,14 +95,6 @@ class ScheduledTaskOperatorLoader:
                 operator=PopulateBacklogSnapshotTaskOperator(adb_client=self.async_core.adb_client),
                 interval=IntervalEnum.DAILY,
                 enabled=self.env.bool("POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG", default=True)
-            ),
-            ScheduledTaskEntry(
-                operator=SyncAgenciesTaskOperator(
-                    adb_client=self.async_core.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval=IntervalEnum.DAILY,
-                enabled=self.env.bool("SYNC_AGENCIES_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
                 operator=PushToHuggingFaceTaskOperator(

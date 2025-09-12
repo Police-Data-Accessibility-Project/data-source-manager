@@ -1,8 +1,8 @@
 import pytest
 
 from src.core.enums import BatchStatus
-from src.db.models.impl.batch.pydantic import BatchInfo
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.batch.pydantic.info import BatchInfo
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL

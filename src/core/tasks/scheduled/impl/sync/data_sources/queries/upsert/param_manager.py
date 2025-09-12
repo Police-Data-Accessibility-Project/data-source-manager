@@ -1,5 +1,7 @@
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.params import \
-    UpdateLinkURLAgencyForDataSourcesSyncParams
+    UpdateLinkURLAgencyParams
+from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.convert import \
+    convert_approval_status_to_validated_type
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.helpers.convert import convert_to_url_update_params, \
     convert_to_url_insert_params
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.mapper import URLSyncInfoMapper
@@ -10,8 +12,14 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.lookup.r
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.url.update.params import \
     UpdateURLForDataSourcesSyncParams
 from src.db.dtos.url.mapping import URLMapping
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
+from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInnerInfo
+from src.external.pdap.enums import ApprovalStatus
+from src.util.url_mapper import URLMapper
 
 
 class UpsertURLsFromDataSourcesParamManager:
@@ -53,12 +61,12 @@ class UpsertURLsFromDataSourcesParamManager:
     def update_agency_link(
         self,
         lookup_results: list[LookupURLForDataSourcesSyncResponse]
-    ) -> list[UpdateLinkURLAgencyForDataSourcesSyncParams]:
+    ) -> list[UpdateLinkURLAgencyParams]:
         results = []
         for lookup_result in lookup_results:
             url_info = lookup_result.url_info
             sync_info = self._mapper.get(url_info.url)
-            update_params = UpdateLinkURLAgencyForDataSourcesSyncParams(
+            update_params = UpdateLinkURLAgencyParams(
                 url_id=url_info.url_id,
                 new_agency_ids=sync_info.agency_ids,
                 old_agency_ids=url_info.agency_ids
@@ -98,4 +106,21 @@ class UpsertURLsFromDataSourcesParamManager:
             )
         return results
 
+    def upsert_validated_flags(
+        self,
+        mapper: URLMapper
+    ) -> list[FlagURLValidatedPydantic]:
+        urls: list[str] = mapper.get_all_urls()
+        flags: list[FlagURLValidatedPydantic] = []
+        for url in urls:
+            url_id: int = mapper.get_id(url)
+            sync_info: DataSourcesSyncResponseInnerInfo = self._mapper.get(url)
+            approval_status: ApprovalStatus = sync_info.approval_status
+            validated_type: URLValidatedType = convert_approval_status_to_validated_type(approval_status)
+            flag = FlagURLValidatedPydantic(
+                url_id=url_id,
+                type=validated_type
+            )
+            flags.append(flag)
 
+        return flags

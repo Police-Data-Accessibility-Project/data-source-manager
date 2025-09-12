@@ -13,16 +13,15 @@ def generate_test_urls(count: int) -> list[str]:
 
     return results
 
-def generate_test_html() -> str:
-    return """
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Example HTML</title>
-      </head>
-      <body>
-        <h1>Example HTML</h1>
-        <p>This is an example of HTML content.</p>
-      </body>
-    </html>
-    """
+
+def generate_test_url(i: int) -> str:
+    return f"https://test.com/{i}"
+
+def generate_test_name(i: int) -> str:
+    return f"Test Name {i}"
+
+def generate_test_description(i: int) -> str:
+    return f"Test description {i}"
+
+def generate_test_html(i: int) -> str:
+    return f"<html><body><h1>Test {i}</h1></body></html>"

@@ -34,17 +34,17 @@ async def test_url_probe_task_redirect_two_urls_same_dest(
             ),
         ]
     )
-    source_url_id_1 = await setup_manager.setup_url(URLStatus.PENDING)
-    source_url_id_2 = await setup_manager.setup_url(URLStatus.PENDING, url="https://example.com/2")
+    source_url_id_1 = await setup_manager.setup_url(URLStatus.OK)
+    source_url_id_2 = await setup_manager.setup_url(URLStatus.OK, url="https://example.com/2")
     run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     await check_manager.check_url(
         url_id=source_url_id_1,
-        expected_status=URLStatus.PENDING
+        expected_status=URLStatus.OK
     )
     await check_manager.check_url(
         url_id=source_url_id_2,
-        expected_status=URLStatus.PENDING
+        expected_status=URLStatus.OK
     )
     redirect_url_id_1 = await check_manager.check_redirect(
         source_url_id=source_url_id_1

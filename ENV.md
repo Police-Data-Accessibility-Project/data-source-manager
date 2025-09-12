@@ -53,7 +53,10 @@ The following flags are available:
 | `RUN_URL_TASKS_TASK_FLAG`           | Runs URL tasks.                                        |
 | `IA_PROBE_TASK_FLAG`            | Extracts and links Internet Archives metadata to URLs. |
 | `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                       |
-
+| `AGENCY_ID_HOMEPAGE_MATCH_FLAG` | Enables the homepage match subtask for agency identification. |
+| `AGENCY_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for agency identification. |
+| `AGENCY_ID_CKAN_FLAG` | Enables the CKAN subtask for agency identification. |
+| `AGENCY_ID_MUCKROCK_FLAG` | Enables the MuckRock subtask for agency identification. |
 
 
 ## Foreign Data Wrapper (FDW)

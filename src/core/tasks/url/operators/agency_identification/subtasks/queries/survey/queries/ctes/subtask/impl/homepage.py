@@ -1,0 +1,34 @@
+from sqlalchemy import select, exists
+
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.queries.ctes.consolidated import \
+    CONSOLIDATED_CTE
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.container import \
+    SubtaskCTEContainer
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.helpers import \
+    get_exists_subtask_query
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+
+VALID_URL_FLAG = (
+    exists()
+    .where(
+        URL.id == CONSOLIDATED_CTE.c.url_id,
+    )
+)
+
+cte = (
+    select(
+        URL.id,
+        get_exists_subtask_query(
+            AutoAgencyIDSubtaskType.HOMEPAGE_MATCH,
+        )
+    )
+    .where(
+        VALID_URL_FLAG,
+    )
+    .cte("homepage_eligible")
+)
+
+HOMEPAGE_SUBTASK_CONTAINER = SubtaskCTEContainer(
+    cte,
+)

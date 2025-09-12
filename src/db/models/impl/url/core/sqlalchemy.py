@@ -40,7 +40,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         "Batch",
         secondary="link_batch_urls",
         back_populates="urls",
-        uselist=False
+        uselist=False,
     )
     duplicates = relationship("Duplicate", back_populates="original_url")
     html_content = relationship("URLHTMLContent", back_populates="url", cascade="all, delete-orphan")
@@ -50,8 +50,9 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         secondary="link_task_urls",
         back_populates="urls",
     )
-    automated_agency_suggestions = relationship(
-        "AutomatedUrlAgencySuggestion", back_populates="url")
+    auto_agency_subtasks = relationship(
+        "URLAutoAgencyIDSubtask"
+    )
     user_agency_suggestion = relationship(
         "UserUrlAgencySuggestion", uselist=False, back_populates="url")
     auto_record_type_suggestion = relationship(

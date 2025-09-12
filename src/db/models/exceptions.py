@@ -1,0 +1,4 @@
+
+
+class WriteToViewError(Exception):
+    pass

@@ -11,8 +11,8 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.helpers.session.parser import BulkActionParser
-from src.db.models.templates_.with_id import WithIDBase
 from src.db.models.templates_.base import Base
+from src.db.models.templates_.with_id import WithIDBase
 from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.update import BulkUpdatableModel
@@ -51,21 +51,27 @@ async def has_results(session: AsyncSession, query: sa.Select) -> bool:
 async def bulk_upsert(
     session: AsyncSession,
     models: list[BulkUpsertableModel],
-):
+) -> None:
     if len(models) == 0:
         return
+    # Parse models to get sa_model and id_field
     parser = BulkActionParser(models)
 
+    # Create base insert query
     query = pg_insert(parser.sa_model)
 
-    upsert_mappings = [upsert_model.model_dump() for upsert_model in models]
+    upsert_mappings: list[dict[str, Any]] = [
+        upsert_model.model_dump() for upsert_model in models
+    ]
 
+    # Set all non-id fields to the values in the upsert mapping
     set_ = {}
     for k, v in upsert_mappings[0].items():
         if k == parser.id_field:
             continue
         set_[k] = getattr(query.excluded, k)
 
+    # Add upsert logic to update on conflict
     query = query.on_conflict_do_update(
         index_elements=[parser.id_field],
         set_=set_
@@ -215,5 +221,4 @@ async def bulk_update(
             .values(**update_values)
         )
         await session.execute(stmt)
-
 

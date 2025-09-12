@@ -23,13 +23,13 @@ def convert_to_source_collector_url_status(
 
     match ds_approval_status:
         case ApprovalStatus.APPROVED:
-            return URLStatus.SUBMITTED
+            return URLStatus.OK
         case ApprovalStatus.REJECTED:
             return URLStatus.NOT_RELEVANT
         case ApprovalStatus.NEEDS_IDENTIFICATION:
-            return URLStatus.PENDING
+            return URLStatus.OK
         case ApprovalStatus.PENDING:
-            return URLStatus.PENDING
+            return URLStatus.OK
         case _:
             raise NotImplementedError(f"Logic not implemented for this approval status: {ds_approval_status}")
 

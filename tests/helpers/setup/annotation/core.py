@@ -1,4 +1,5 @@
 from src.collectors.enums import URLStatus
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.annotation.model import AnnotationSetupInfo
 
@@ -6,7 +7,7 @@ from tests.helpers.setup.annotation.model import AnnotationSetupInfo
 async def setup_for_get_next_url_for_annotation(
         db_data_creator: DBDataCreator,
         url_count: int,
-        outcome: URLStatus = URLStatus.PENDING
+        outcome: URLCreationEnum = URLCreationEnum.OK
 ) -> AnnotationSetupInfo:
     batch_id = db_data_creator.batch()
     insert_urls_info = db_data_creator.urls(

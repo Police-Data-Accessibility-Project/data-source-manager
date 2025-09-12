@@ -4,17 +4,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse, \
     GetNextURLForAgencyAnnotationInnerResponse
-from src.api.endpoints.annotate.agency.get.queries.agency_suggestion import GetAgencySuggestionsQueryBuilder
+from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.collectors.enums import URLStatus
 from src.core.enums import SuggestedStatus
 from src.core.tasks.url.operators.html.scraper.parser.util import convert_to_response_html_info
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.html_content_info import GetHTMLContentInfoQueryBuilder
 
@@ -48,30 +48,20 @@ class GetNextURLAgencyForAnnotationQueryBuilder(QueryBuilderBase):
 
         # Must not have confirmed agencies
         query = query.where(
-            URL.status == URLStatus.PENDING.value
+            URL.status == URLStatus.OK.value
         )
 
-
-        # Must not have been annotated by a user
         query = (
-            query.join(UserUrlAgencySuggestion, isouter=True)
-            .where(
-                ~exists(
-                    select(UserUrlAgencySuggestion).
-                    where(UserUrlAgencySuggestion.url_id == URL.id).
-                    correlate(URL)
-                )
+            query.join(
+                URLAnnotationFlagsView,
+                URLAnnotationFlagsView.url_id == URL.id
             )
-            # Must have extant autosuggestions
-            .join(AutomatedUrlAgencySuggestion, isouter=True)
+            # Must not have been annotated by a user
             .where(
-                exists(
-                    select(AutomatedUrlAgencySuggestion).
-                    where(AutomatedUrlAgencySuggestion.url_id == URL.id).
-                    correlate(URL)
-                )
+                URLAnnotationFlagsView.has_user_agency_suggestion.is_(False),
+                # Must have extant autosuggestions
+                URLAnnotationFlagsView.has_auto_agency_suggestion.is_(True)
             )
-            # Must not have confirmed agencies
             .join(LinkURLAgency, isouter=True)
             .where(
                 ~exists(

@@ -52,7 +52,7 @@ def downgrade() -> None:
     _remove_cascade_foreign_key(URL_ERROR_INFO_TABLE_NAME, foreign_key_name=URL_ERROR_INFO_FOREIGN_KEY_NAME)
     _remove_cascade_foreign_key(COMPRESSED_HTML_TABLE_NAME, foreign_key_name=COMPRESSED_HTML_FOREIGN_KEY_NAME)
     _remove_cascade_foreign_key(URL_HTML_CONTENT_TABLE_NAME, foreign_key_name=URL_HTML_CONTENT_FOREIGN_KEY_NAME)
-    _remove_cascade_foreign_key(AUTOMATED_URL_AGENCY_SUGGESTION_TABLE_NAME, foreign_key_name=AUTOMATED_URL_AGENCY_SUGGESTION_FOREIGN_KEY_NAME)
+    # _remove_cascade_foreign_key(AUTOMATED_URL_AGENCY_SUGGESTION_TABLE_NAME, foreign_key_name=AUTOMATED_URL_AGENCY_SUGGESTION_FOREIGN_KEY_NAME)
 
 def _delete_duplicate_urls() -> None:
     op.execute('delete from urls where id in (2341,2343,2344,2347,2348,2349,2354,2359,2361,2501,2504,2505,2506,2507)')

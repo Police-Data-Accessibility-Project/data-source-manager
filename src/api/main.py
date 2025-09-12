@@ -27,6 +27,10 @@ from src.core.tasks.scheduled.manager import AsyncScheduledTaskManager
 from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 from src.core.tasks.url.manager import TaskManager
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+    NLPProcessor
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.enums import \
+    SpacyModelType
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
@@ -83,6 +87,9 @@ async def lifespan(app: FastAPI):
                 session=session,
                 token=env_var_manager.hf_inference_api_key
             ),
+            nlp_processor=NLPProcessor(
+                model_type=SpacyModelType.EN_CORE_WEB_SM
+            )
         ),
     )
     async_collector_manager = AsyncCollectorManager(

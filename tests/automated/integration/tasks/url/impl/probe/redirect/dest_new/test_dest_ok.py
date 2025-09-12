@@ -28,12 +28,12 @@ async def test_url_probe_task_redirect_dest_new_ok(
             dest_error=None
         )
     )
-    source_url_id = await setup_manager.setup_url(URLStatus.PENDING)
+    source_url_id = await setup_manager.setup_url(URLStatus.OK)
     run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     await check_manager.check_url(
         url_id=source_url_id,
-        expected_status=URLStatus.PENDING
+        expected_status=URLStatus.OK
     )
     await check_manager.check_web_metadata(
         url_id=source_url_id,
@@ -45,7 +45,7 @@ async def test_url_probe_task_redirect_dest_new_ok(
     dest_url_id = await check_manager.check_redirect(source_url_id)
     await check_manager.check_url(
         url_id=dest_url_id,
-        expected_status=URLStatus.PENDING
+        expected_status=URLStatus.OK
     )
     await check_manager.check_web_metadata(
         url_id=dest_url_id,

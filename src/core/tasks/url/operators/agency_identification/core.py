@@ -1,17 +1,21 @@
-from src.collectors.enums import CollectorType
-from src.core.enums import SuggestionType
-from src.core.tasks.url.operators.agency_identification.dtos.output import GetAgencySuggestionsOutput
-from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.dtos.tdo import AgencyIdentificationTDO
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.base import AgencyIdentificationSubtaskBase
+from src.core.tasks.mixins.link_urls import LinkURLsMixin
+from src.core.tasks.url.operators.agency_identification.exceptions import SubtaskError
+from src.core.tasks.url.operators.agency_identification.subtasks.flags.core import SubtaskFlagger
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
+from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info import AgencyIDSubtaskRunInfo
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.core import \
+    AgencyIDSubtaskSurveyQueryBuilder
+from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
 
 
-class AgencyIdentificationTaskOperator(URLTaskOperatorBase):
+class AgencyIdentificationTaskOperator(
+    URLTaskOperatorBase,
+    LinkURLsMixin
+):
 
     def __init__(
             self,
@@ -20,90 +24,51 @@ class AgencyIdentificationTaskOperator(URLTaskOperatorBase):
     ):
         super().__init__(adb_client)
         self.loader = loader
+        self._subtask: AutoAgencyIDSubtaskType | None = None
 
     @property
     def task_type(self) -> TaskType:
         return TaskType.AGENCY_IDENTIFICATION
 
     async def meets_task_prerequisites(self) -> bool:
-        has_urls_without_agency_suggestions = await self.adb_client.has_urls_without_agency_suggestions()
-        return has_urls_without_agency_suggestions
+        """
+        Modifies:
+        - self._subtask
+        """
+        flagger = SubtaskFlagger()
+        allowed_subtasks: list[AutoAgencyIDSubtaskType] = flagger.get_allowed_subtasks()
 
-    async def get_pending_urls_without_agency_identification(self) -> list[AgencyIdentificationTDO]:
-        return await self.adb_client.get_urls_without_agency_suggestions()
+        next_subtask: AutoAgencyIDSubtaskType | None = \
+            await self.adb_client.run_query_builder(
+                AgencyIDSubtaskSurveyQueryBuilder(
+                    allowed_subtasks=allowed_subtasks
+                )
+            )
+        self._subtask = next_subtask
+        if next_subtask is None:
+            return False
+        return True
 
-    async def get_subtask(
+
+    async def load_subtask(
         self,
-        collector_type: CollectorType
-    ) -> AgencyIdentificationSubtaskBase:
+        subtask_type: AutoAgencyIDSubtaskType
+    ) -> AgencyIDSubtaskOperatorBase:
         """Get subtask based on collector type."""
-        return await self.loader.load_subtask(collector_type)
+        return await self.loader.load_subtask(subtask_type, task_id=self.task_id)
 
     @staticmethod
     async def run_subtask(
-        subtask: AgencyIdentificationSubtaskBase,
-        url_id: int,
-        collector_metadata: dict | None
-    ) -> list[URLAgencySuggestionInfo]:
-        return await subtask.run(
-            url_id=url_id,
-            collector_metadata=collector_metadata
-        )
+        subtask_operator: AgencyIDSubtaskOperatorBase,
+    ) -> AgencyIDSubtaskRunInfo:
+        return await subtask_operator.run()
 
     async def inner_task_logic(self) -> None:
-        tdos: list[AgencyIdentificationTDO] = await self.get_pending_urls_without_agency_identification()
-        await self.link_urls_to_task(url_ids=[tdo.url_id for tdo in tdos])
-        output = await self._get_agency_suggestions(tdos)
-
-        await self._process_agency_suggestions(output.agency_suggestions)
-        await self.adb_client.add_url_error_infos(output.error_infos)
-
-    async def _process_agency_suggestions(
-        self,
-        suggestions: list[URLAgencySuggestionInfo]
-    ) -> None:
-        non_unknown_agency_suggestions = [
-            suggestion for suggestion in suggestions
-            if suggestion.suggestion_type != SuggestionType.UNKNOWN
-        ]
-        await self.adb_client.upsert_new_agencies(non_unknown_agency_suggestions)
-        confirmed_suggestions = [
-            suggestion for suggestion in suggestions
-            if suggestion.suggestion_type == SuggestionType.CONFIRMED
-        ]
-        await self.adb_client.add_confirmed_agency_url_links(confirmed_suggestions)
-        non_confirmed_suggestions = [
-            suggestion for suggestion in suggestions
-            if suggestion.suggestion_type != SuggestionType.CONFIRMED
-        ]
-        await self.adb_client.add_agency_auto_suggestions(non_confirmed_suggestions)
-
-    async def _get_agency_suggestions(
-        self,
-        tdos: list[AgencyIdentificationTDO]
-    ) -> GetAgencySuggestionsOutput:
-        error_infos = []
-        all_agency_suggestions = []
-        for tdo in tdos:
-            subtask = await self.get_subtask(tdo.collector_type)
-            try:
-                new_agency_suggestions = await self.run_subtask(
-                    subtask,
-                    tdo.url_id,
-                    tdo.collector_metadata
-                )
-                all_agency_suggestions.extend(new_agency_suggestions)
-            except Exception as e:
-                error_info = URLErrorPydanticInfo(
-                    task_id=self.task_id,
-                    url_id=tdo.url_id,
-                    error=str(e),
-                )
-                error_infos.append(error_info)
-        output = GetAgencySuggestionsOutput(
-            agency_suggestions=all_agency_suggestions,
-            error_infos=error_infos
-        )
-        return output
+        subtask_operator: AgencyIDSubtaskOperatorBase = await self.load_subtask(self._subtask)
+        print(f"Running Subtask: {self._subtask.value}")
+        run_info: AgencyIDSubtaskRunInfo = await self.run_subtask(subtask_operator)
+        await self.link_urls_to_task(run_info.linked_url_ids)
+        if not run_info.is_success:
+            raise SubtaskError(run_info.error)
 
 

@@ -1,23 +1,26 @@
 from pydantic import BaseModel, model_validator
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 
 
 class TestURLCreationParameters(BaseModel):
     count: int = 1
-    status: URLStatus = URLStatus.PENDING
+    status: URLCreationEnum = URLCreationEnum.OK
     with_html_content: bool = False
     annotation_info: AnnotationInfo = AnnotationInfo()
 
     @model_validator(mode='after')
     def validate_annotation_info(self):
-        if self.status == URLStatus.NOT_RELEVANT:
+        if self.status == URLCreationEnum.NOT_RELEVANT:
             self.annotation_info.final_review_approved = False
             return self
-        if self.status != URLStatus.VALIDATED:
+        if self.status not in (
+                URLCreationEnum.SUBMITTED,
+                URLCreationEnum.VALIDATED
+        ):
             return self
 
         # Assume is validated

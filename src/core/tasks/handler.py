@@ -50,8 +50,11 @@ class TaskHandler:
             task_id=run_info.task_id,
             error=run_info.message
         )
+        msg: str = f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error: {run_info.message}"
+        print(msg)
         self.discord_poster.post_to_discord(
-            message=f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error.")
+            message=msg
+        )
 
     async def link_urls_to_task(self, task_id: int, url_ids: list[int]):
         await self.adb_client.link_urls_to_task(

@@ -12,6 +12,7 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.external.url_request.dtos.url_response import URLResponseInfo
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
@@ -19,6 +20,7 @@ from tests.helpers.batch_creation_parameters.core import TestBatchCreationParame
 
 @pytest.mark.asyncio
 async def test_url_404_probe_task(
+    wiped_database,
     db_data_creator: DBDataCreator
 ):
 
@@ -84,12 +86,12 @@ async def test_url_404_probe_task(
             urls=[
                 TestURLCreationParameters(
                     count=3,
-                    status=URLStatus.PENDING,
+                    status=URLCreationEnum.OK,
                     with_html_content=True
                 ),
                 TestURLCreationParameters(
                     count=1,
-                    status=URLStatus.ERROR,
+                    status=URLCreationEnum.ERROR,
                     with_html_content=False
                 ),
             ]
@@ -104,12 +106,12 @@ async def test_url_404_probe_task(
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
 
-    pending_url_mappings = creation_info.urls_by_status[URLStatus.PENDING].url_mappings
+    pending_url_mappings = creation_info.urls_by_status[URLCreationEnum.OK].url_mappings
     url_id_success = pending_url_mappings[0].url_id
     url_id_404 = pending_url_mappings[1].url_id
     url_id_error = pending_url_mappings[2].url_id
 
-    url_id_initial_error = creation_info.urls_by_status[URLStatus.ERROR].url_mappings[0].url_id
+    url_id_initial_error = creation_info.urls_by_status[URLCreationEnum.ERROR].url_mappings[0].url_id
 
     # Check that URLProbedFor404 has been appropriately populated
     probed_for_404_objects: list[URLProbedFor404] = await db_data_creator.adb_client.get_all(URLProbedFor404)
@@ -128,9 +130,9 @@ async def test_url_404_probe_task(
                 return url
         raise Exception(f"URL with id {url_id} not found")
 
-    assert find_url(url_id_success).status == URLStatus.PENDING
+    assert find_url(url_id_success).status == URLStatus.OK
     assert find_url(url_id_404).status == URLStatus.NOT_FOUND
-    assert find_url(url_id_error).status == URLStatus.PENDING
+    assert find_url(url_id_error).status == URLStatus.OK
     assert find_url(url_id_initial_error).status == URLStatus.ERROR
 
     # Check that meets_task_prerequisites now returns False

@@ -3,7 +3,7 @@ from functools import wraps
 from operator import or_
 from typing import Optional, Type, Any, List, Sequence
 
-from sqlalchemy import select, exists, func, case, Select, and_, update, delete, literal, Row
+from sqlalchemy import select, exists, func, Select, and_, update, delete, Row
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload, QueryableAttribute
@@ -26,21 +26,23 @@ from src.api.endpoints.batch.urls.query import GetURLsByBatchQueryBuilder
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInputDTO
 from src.api.endpoints.collector.dtos.manual_batch.response import ManualBatchResponseDTO
 from src.api.endpoints.collector.manual.query import UploadManualBatchQueryBuilder
+from src.api.endpoints.metrics.backlog.query import GetBacklogMetricsQueryBuilder
 from src.api.endpoints.metrics.batches.aggregated.dto import GetMetricsBatchesAggregatedResponseDTO
-from src.api.endpoints.metrics.batches.aggregated.query import GetBatchesAggregatedMetricsQueryBuilder
+from src.api.endpoints.metrics.batches.aggregated.query.core import GetBatchesAggregatedMetricsQueryBuilder
 from src.api.endpoints.metrics.batches.breakdown.dto import GetMetricsBatchesBreakdownResponseDTO
 from src.api.endpoints.metrics.batches.breakdown.query import GetBatchesBreakdownMetricsQueryBuilder
-from src.api.endpoints.metrics.dtos.get.backlog import GetMetricsBacklogResponseDTO, GetMetricsBacklogResponseInnerDTO
+from src.api.endpoints.metrics.dtos.get.backlog import GetMetricsBacklogResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.core import GetMetricsURLsAggregatedResponseDTO
-from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO, \
-    GetMetricsURLsBreakdownPendingResponseInnerDTO
+from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.submitted import GetMetricsURLsBreakdownSubmittedResponseDTO, \
     GetMetricsURLsBreakdownSubmittedInnerDTO
+from src.api.endpoints.metrics.urls.aggregated.query.core import GetURLsAggregatedMetricsQueryBuilder
+from src.api.endpoints.metrics.urls.breakdown.query.core import GetURLsBreakdownPendingMetricsQueryBuilder
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.core import ApproveURLQueryBuilder
 from src.api.endpoints.review.enums import RejectionReason
+from src.api.endpoints.review.next.core import GetNextURLForFinalReviewQueryBuilder
 from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
-from src.api.endpoints.review.next.query import GetNextURLForFinalReviewQueryBuilder
 from src.api.endpoints.review.reject.query import RejectURLQueryBuilder
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
@@ -50,19 +52,14 @@ from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.api.endpoints.url.get.query import GetURLsQueryBuilder
 from src.collectors.enums import URLStatus, CollectorType
 from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
-from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
+from src.core.enums import BatchStatus, RecordType, SuggestedStatus
 from src.core.env_var_manager import EnvVarManager
-from src.core.tasks.scheduled.impl.huggingface.queries.check.core import CheckValidURLsUpdatedQueryBuilder
-from src.core.tasks.scheduled.impl.huggingface.queries.get.core import GetForLoadingToHuggingFaceQueryBuilder
-from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLoadingToHuggingFaceOutput
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
 from src.core.tasks.scheduled.impl.sync.agency.queries.get_sync_params import GetAgenciesSyncParametersQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.queries.mark_full_sync import get_mark_full_agencies_sync_query
 from src.core.tasks.scheduled.impl.sync.agency.queries.update_sync_progress import \
     get_update_agencies_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.agency.queries.upsert import \
-    convert_agencies_sync_response_to_agencies_upsert
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.get_sync_params import \
     GetDataSourcesSyncParametersQueryBuilder
@@ -72,11 +69,6 @@ from src.core.tasks.scheduled.impl.sync.data_sources.queries.update_sync_progres
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.core import \
     UpsertURLsFromDataSourcesQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.agency_identification.dtos.tdo import AgencyIdentificationTDO
-from src.core.tasks.url.operators.agency_identification.queries.get_pending_urls_without_agency_suggestions import \
-    GetPendingURLsWithoutAgencySuggestionsQueryBuilder
-from src.core.tasks.url.operators.agency_identification.queries.has_urls_without_agency_suggestions import \
-    HasURLsWithoutAgencySuggestionsQueryBuilder
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
 from src.core.tasks.url.operators.auto_relevant.queries.get_tdos import GetAutoRelevantTDOsQueryBuilder
 from src.core.tasks.url.operators.html.queries.get import \
@@ -106,9 +98,10 @@ from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
-from src.db.models.impl.batch.pydantic import BatchInfo
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.duplicate.pydantic.info import DuplicateInfo
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.task_url import LinkTaskURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.log.pydantic.info import LogInfo
@@ -126,7 +119,6 @@ from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
-from src.db.models.impl.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -145,7 +137,6 @@ from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.upsert import BulkUpsertableModel
 from src.db.utils.compression import decompress_html, compress_html
-from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo
 from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInnerInfo
 
 
@@ -546,7 +537,7 @@ class AsyncDatabaseClient:
     ):
         statement = (select(URL)
                      .options(selectinload(URL.html_content))
-                     .where(URL.status == URLStatus.PENDING.value))
+                     .where(URL.status == URLStatus.OK.value))
         statement = self.statement_composer.exclude_urls_with_extant_model(
             statement=statement,
             model=model
@@ -575,7 +566,7 @@ class AsyncDatabaseClient:
     ) -> bool:
         statement = (select(URL)
                      .join(URLCompressedHTML)
-                     .where(URL.status == URLStatus.PENDING.value))
+                     .where(URL.status == URLStatus.OK.value))
         # Exclude URLs with auto suggested record types
         statement = self.statement_composer.exclude_urls_with_extant_model(
             statement=statement,
@@ -614,9 +605,11 @@ class AsyncDatabaseClient:
         page: int,
         errors: bool
     ) -> GetURLsResponseInfo:
-        return await self.run_query_builder(GetURLsQueryBuilder(
-            page=page, errors=errors
-        ))
+        return await self.run_query_builder(
+            GetURLsQueryBuilder(
+                page=page, errors=errors
+            )
+        )
 
     @session_manager
     async def initiate_task(
@@ -657,7 +650,12 @@ class AsyncDatabaseClient:
         return await self.run_query_builder(GetHTMLContentInfoQueryBuilder(url_id))
 
     @session_manager
-    async def link_urls_to_task(self, session: AsyncSession, task_id: int, url_ids: list[int]):
+    async def link_urls_to_task(
+        self,
+        session: AsyncSession,
+        task_id: int,
+        url_ids: list[int]
+    ) -> None:
         for url_id in url_ids:
             link = LinkTaskURL(
                 url_id=url_id,
@@ -720,24 +718,19 @@ class AsyncDatabaseClient:
             tasks=final_results
         )
 
-    async def has_urls_without_agency_suggestions(self) -> bool:
-        return await self.run_query_builder(HasURLsWithoutAgencySuggestionsQueryBuilder())
 
-    async def get_urls_without_agency_suggestions(
-        self
-    ) -> list[AgencyIdentificationTDO]:
-        """Retrieve URLs without confirmed or suggested agencies."""
-        return await self.run_query_builder(GetPendingURLsWithoutAgencySuggestionsQueryBuilder())
 
     async def get_next_url_agency_for_annotation(
         self,
         user_id: int,
         batch_id: int | None
     ) -> GetNextURLForAgencyAnnotationResponse:
-        return await self.run_query_builder(builder=GetNextURLAgencyForAnnotationQueryBuilder(
-            user_id=user_id,
-            batch_id=batch_id
-        ))
+        return await self.run_query_builder(
+            builder=GetNextURLAgencyForAnnotationQueryBuilder(
+                user_id=user_id,
+                batch_id=batch_id
+            )
+        )
 
     @session_manager
     async def upsert_new_agencies(
@@ -772,20 +765,6 @@ class AsyncDatabaseClient:
                 agency_id=suggestion.pdap_agency_id
             )
             session.add(confirmed_agency)
-
-    @session_manager
-    async def add_agency_auto_suggestions(
-        self,
-        session: AsyncSession,
-        suggestions: list[URLAgencySuggestionInfo]
-    ):
-        for suggestion in suggestions:
-            url_agency_suggestion = AutomatedUrlAgencySuggestion(
-                url_id=suggestion.url_id,
-                agency_id=suggestion.pdap_agency_id,
-                is_unknown=suggestion.suggestion_type == SuggestionType.UNKNOWN
-            )
-            session.add(url_agency_suggestion)
 
     @session_manager
     async def add_agency_manual_suggestion(
@@ -842,10 +821,12 @@ class AsyncDatabaseClient:
         approval_info: FinalReviewApprovalInfo,
         user_id: int,
     ) -> None:
-        await self.run_query_builder(ApproveURLQueryBuilder(
-            user_id=user_id,
-            approval_info=approval_info
-        ))
+        await self.run_query_builder(
+            ApproveURLQueryBuilder(
+                user_id=user_id,
+                approval_info=approval_info
+            )
+        )
 
     async def reject_url(
         self,
@@ -853,11 +834,13 @@ class AsyncDatabaseClient:
         user_id: int,
         rejection_reason: RejectionReason
     ) -> None:
-        await self.run_query_builder(RejectURLQueryBuilder(
-            url_id=url_id,
-            user_id=user_id,
-            rejection_reason=rejection_reason
-        ))
+        await self.run_query_builder(
+            RejectURLQueryBuilder(
+                url_id=url_id,
+                user_id=user_id,
+                rejection_reason=rejection_reason
+            )
+        )
 
     @session_manager
     async def get_batch_by_id(self, session, batch_id: int) -> Optional[BatchSummary]:
@@ -873,10 +856,12 @@ class AsyncDatabaseClient:
 
     async def get_urls_by_batch(self, batch_id: int, page: int = 1) -> list[URLInfo]:
         """Retrieve all URLs associated with a batch."""
-        return await self.run_query_builder(GetURLsByBatchQueryBuilder(
-            batch_id=batch_id,
-            page=page
-        ))
+        return await self.run_query_builder(
+            GetURLsByBatchQueryBuilder(
+                batch_id=batch_id,
+                page=page
+            )
+        )
 
     @session_manager
     async def insert_logs(
@@ -926,8 +911,6 @@ class AsyncDatabaseClient:
         )
         return await self.run_query_builder(builder)
 
-
-
     @session_manager
     async def update_batch_post_collection(
         self,
@@ -960,10 +943,12 @@ class AsyncDatabaseClient:
         await self.run_query_builder(MarkURLsAsSubmittedQueryBuilder(infos))
 
     async def get_duplicates_by_batch_id(self, batch_id: int, page: int) -> list[DuplicateInfo]:
-        return await self.run_query_builder(GetDuplicatesByBatchIDQueryBuilder(
-            batch_id=batch_id,
-            page=page
-        ))
+        return await self.run_query_builder(
+            GetDuplicatesByBatchIDQueryBuilder(
+                batch_id=batch_id,
+                page=page
+            )
+        )
 
     @session_manager
     async def get_batch_summaries(
@@ -1048,10 +1033,12 @@ class AsyncDatabaseClient:
         user_id: int,
         dto: ManualBatchInputDTO
     ) -> ManualBatchResponseDTO:
-        return await self.run_query_builder(UploadManualBatchQueryBuilder(
-            user_id=user_id,
-            dto=dto
-        ))
+        return await self.run_query_builder(
+            UploadManualBatchQueryBuilder(
+                user_id=user_id,
+                dto=dto
+            )
+        )
 
     @session_manager
     async def search_for_url(self, session: AsyncSession, url: str) -> SearchURLResponse:
@@ -1114,183 +1101,16 @@ class AsyncDatabaseClient:
             entries=final_results
         )
 
-    @session_manager
-    async def get_urls_aggregated_metrics(
-        self,
-        session: AsyncSession
-    ) -> GetMetricsURLsAggregatedResponseDTO:
-        sc = StatementComposer
+    async def get_urls_aggregated_metrics(self) -> GetMetricsURLsAggregatedResponseDTO:
+        return await self.run_query_builder(GetURLsAggregatedMetricsQueryBuilder())
 
-        oldest_pending_url_query = select(
-            URL.id,
-            URL.created_at
-        ).where(
-            URL.status == URLStatus.PENDING.value
-        ).order_by(
-            URL.created_at.asc()
-        ).limit(1)
+    async def get_urls_breakdown_pending_metrics(self) -> GetMetricsURLsBreakdownPendingResponseDTO:
+        return await self.run_query_builder(GetURLsBreakdownPendingMetricsQueryBuilder())
 
-        oldest_pending_url = await session.execute(oldest_pending_url_query)
-        oldest_pending_url = oldest_pending_url.one_or_none()
-        if oldest_pending_url is None:
-            oldest_pending_url_id = None
-            oldest_pending_created_at = None
-        else:
-            oldest_pending_url_id = oldest_pending_url.id
-            oldest_pending_created_at = oldest_pending_url.created_at
-
-        def case_column(status: URLStatus, label):
-            return sc.count_distinct(
-                case(
-                    (
-                        URL.status == status.value,
-                        URL.id
-                    )
-                ),
-                label=label
-            )
-
-        count_query = select(
-            sc.count_distinct(URL.id, label="count"),
-            case_column(URLStatus.PENDING, label="count_pending"),
-            case_column(URLStatus.SUBMITTED, label="count_submitted"),
-            case_column(URLStatus.VALIDATED, label="count_validated"),
-            case_column(URLStatus.NOT_RELEVANT, label="count_rejected"),
-            case_column(URLStatus.ERROR, label="count_error"),
-        )
-        raw_results = await session.execute(count_query)
-        results = raw_results.all()
-
-        return GetMetricsURLsAggregatedResponseDTO(
-            count_urls_total=results[0].count,
-            count_urls_pending=results[0].count_pending,
-            count_urls_submitted=results[0].count_submitted,
-            count_urls_validated=results[0].count_validated,
-            count_urls_rejected=results[0].count_rejected,
-            count_urls_errors=results[0].count_error,
-            oldest_pending_url_id=oldest_pending_url_id,
-            oldest_pending_url_created_at=oldest_pending_created_at,
-        )
-
-    @session_manager
-    async def get_urls_breakdown_pending_metrics(
-        self,
-        session: AsyncSession
-    ) -> GetMetricsURLsBreakdownPendingResponseDTO:
-        sc = StatementComposer
-
-        flags = (
-            select(
-                URL.id.label("url_id"),
-                case((UserRecordTypeSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
-                    "has_user_record_type_annotation"
-                ),
-                case((UserRelevantSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
-                    "has_user_relevant_annotation"
-                ),
-                case((UserUrlAgencySuggestion.url_id != None, literal(True)), else_=literal(False)).label(
-                    "has_user_agency_annotation"
-                ),
-            )
-            .outerjoin(UserRecordTypeSuggestion, URL.id == UserRecordTypeSuggestion.url_id)
-            .outerjoin(UserRelevantSuggestion, URL.id == UserRelevantSuggestion.url_id)
-            .outerjoin(UserUrlAgencySuggestion, URL.id == UserUrlAgencySuggestion.url_id)
-        ).cte("flags")
-
-        month = func.date_trunc('month', URL.created_at)
-
-        # Build the query
-        query = (
-            select(
-                month.label('month'),
-                func.count(URL.id).label('count_total'),
-                func.count(
-                    case(
-                        (flags.c.has_user_record_type_annotation == True, 1)
-                    )
-                ).label('user_record_type_count'),
-                func.count(
-                    case(
-                        (flags.c.has_user_relevant_annotation == True, 1)
-                    )
-                ).label('user_relevant_count'),
-                func.count(
-                    case(
-                        (flags.c.has_user_agency_annotation == True, 1)
-                    )
-                ).label('user_agency_count'),
-            )
-            .outerjoin(flags, flags.c.url_id == URL.id)
-            .where(URL.status == URLStatus.PENDING.value)
-            .group_by(month)
-            .order_by(month.asc())
-        )
-
-        # Execute the query and return the results
-        results = await session.execute(query)
-        all_results = results.all()
-        final_results: list[GetMetricsURLsBreakdownPendingResponseInnerDTO] = []
-
-        for result in all_results:
-            dto = GetMetricsURLsBreakdownPendingResponseInnerDTO(
-                month=result.month.strftime("%B %Y"),
-                count_pending_total=result.count_total,
-                count_pending_relevant_user=result.user_relevant_count,
-                count_pending_record_type_user=result.user_record_type_count,
-                count_pending_agency_user=result.user_agency_count,
-            )
-            final_results.append(dto)
-        return GetMetricsURLsBreakdownPendingResponseDTO(
-            entries=final_results,
-        )
-
-    @session_manager
     async def get_backlog_metrics(
         self,
-        session: AsyncSession
     ) -> GetMetricsBacklogResponseDTO:
-        month = func.date_trunc('month', BacklogSnapshot.created_at)
-
-        # 1. Create a subquery that assigns row_number() partitioned by month
-        monthly_snapshot_subq = (
-            select(
-                BacklogSnapshot.id,
-                BacklogSnapshot.created_at,
-                BacklogSnapshot.count_pending_total,
-                month.label("month_start"),
-                func.row_number()
-                .over(
-                    partition_by=month,
-                    order_by=BacklogSnapshot.created_at.desc()
-                )
-                .label("row_number")
-            )
-            .subquery()
-        )
-
-        # 2. Filter for the top (most recent) row in each month
-        stmt = (
-            select(
-                monthly_snapshot_subq.c.month_start,
-                monthly_snapshot_subq.c.created_at,
-                monthly_snapshot_subq.c.count_pending_total
-            )
-            .where(monthly_snapshot_subq.c.row_number == 1)
-            .order_by(monthly_snapshot_subq.c.month_start)
-        )
-
-        raw_result = await session.execute(stmt)
-        results = raw_result.all()
-        final_results = []
-        for result in results:
-            final_results.append(
-                GetMetricsBacklogResponseInnerDTO(
-                    month=result.month_start.strftime("%B %Y"),
-                    count_pending_total=result.count_pending_total,
-                )
-            )
-
-        return GetMetricsBacklogResponseDTO(entries=final_results)
+        return await self.run_query_builder(GetBacklogMetricsQueryBuilder())
 
     @session_manager
     async def populate_backlog_snapshot(
@@ -1300,10 +1120,15 @@ class AsyncDatabaseClient:
     ):
         sc = StatementComposer
         # Get count of pending URLs
-        query = select(
-            sc.count_distinct(URL.id, label="count")
-        ).where(
-            URL.status == URLStatus.PENDING.value
+        query = (
+            select(
+                sc.count_distinct(URL.id, label="count")
+            )
+            .outerjoin(FlagURLValidated, URL.id == FlagURLValidated.url_id)
+            .where(
+                URL.status == URLStatus.OK.value,
+                FlagURLValidated.url_id.is_(None),
+            )
         )
 
         raw_result = await session.execute(query)
@@ -1355,7 +1180,7 @@ class AsyncDatabaseClient:
                 URLProbedFor404
             ).where(
                 and_(
-                    URL.status == URLStatus.PENDING.value,
+                    URL.status == URLStatus.OK.value,
                     or_(
                         URLProbedFor404.id == None,
                         URLProbedFor404.last_probed_at < month_ago
@@ -1378,7 +1203,7 @@ class AsyncDatabaseClient:
                 URLProbedFor404
             ).where(
                 and_(
-                    URL.status == URLStatus.PENDING.value,
+                    URL.status == URLStatus.OK.value,
                     or_(
                         URLProbedFor404.id == None,
                         URLProbedFor404.last_probed_at < month_ago
@@ -1402,14 +1227,6 @@ class AsyncDatabaseClient:
     async def get_data_sources_sync_parameters(self) -> DataSourcesSyncParameters:
         return await self.run_query_builder(
             GetDataSourcesSyncParametersQueryBuilder()
-        )
-
-    async def upsert_agencies(
-        self,
-        agencies: list[AgenciesSyncResponseInnerInfo]
-    ) -> None:
-        await self.bulk_upsert(
-            models=convert_agencies_sync_response_to_agencies_upsert(agencies)
         )
 
     async def upsert_urls_from_data_sources(
@@ -1463,19 +1280,9 @@ class AsyncDatabaseClient:
             )
             session.add(compressed_html)
 
-    async def get_data_sources_raw_for_huggingface(self, page: int) -> list[GetForLoadingToHuggingFaceOutput]:
-        return await self.run_query_builder(
-            GetForLoadingToHuggingFaceQueryBuilder(page)
-        )
-
     async def set_hugging_face_upload_state(self, dt: datetime) -> None:
         await self.run_query_builder(
             SetHuggingFaceUploadStateQueryBuilder(dt=dt)
-        )
-
-    async def check_valid_urls_updated(self) -> bool:
-        return await self.run_query_builder(
-            CheckValidURLsUpdatedQueryBuilder()
         )
 
     async def get_current_database_time(self) -> datetime:

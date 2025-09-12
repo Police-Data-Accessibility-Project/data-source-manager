@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
-from src.api.endpoints.annotate.agency.get.queries.agency_suggestion import GetAgencySuggestionsQueryBuilder
+from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
 from src.collectors.enums import URLStatus
 from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -39,7 +39,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             query
             .where(
                 and_(
-                    URL.status == URLStatus.PENDING.value,
+                    URL.status == URLStatus.OK.value,
                     StatementComposer.user_suggestion_not_exists(UserUrlAgencySuggestion),
                     StatementComposer.user_suggestion_not_exists(UserRecordTypeSuggestion),
                     StatementComposer.user_suggestion_not_exists(UserRelevantSuggestion),
@@ -50,7 +50,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
 
         load_options = [
             URL.html_content,
-            URL.automated_agency_suggestions,
+            URL.auto_agency_subtasks,
             URL.auto_relevant_suggestion,
             URL.auto_record_type_suggestion
         ]

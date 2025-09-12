@@ -1,12 +1,12 @@
 from pydantic import BaseModel
 
-from src.collectors.enums import URLStatus
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.models.creation_info.url import URLCreationInfo
 
 
 class BatchURLCreationInfoV2(BaseModel):
     batch_id: int
-    urls_by_status: dict[URLStatus, URLCreationInfo] = {}
+    urls_by_status: dict[URLCreationEnum, URLCreationInfo] = {}
 
     @property
     def url_ids(self) -> list[int]:

@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy import create_engine, update, Select
 from sqlalchemy.exc import IntegrityError
@@ -7,12 +7,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
 from src.collectors.enums import URLStatus
 from src.db.config_manager import ConfigManager
-from src.db.models.impl.batch.pydantic import BatchInfo
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.models.impl.log.pydantic.info import LogInfo
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.link.batch_url import LinkBatchURL
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.templates_.base import Base
 from src.db.models.impl.duplicate.sqlalchemy import Duplicate
@@ -57,6 +57,11 @@ class DatabaseClient:
                 session.close()  # Ensures the session is cleaned up
 
         return wrapper
+
+    @session_manager
+    def add_all(self, session: Session, objects: list[Base]):
+        session.add_all(objects)
+        session.commit()
 
     @session_manager
     def insert_batch(self, session: Session, batch_info: BatchInfo) -> int:
@@ -221,14 +226,6 @@ class DatabaseClient:
             url_id = info.url_id
             data_source_id = info.data_source_id
 
-            query = (
-                update(URL)
-                .where(URL.id == url_id)
-                .values(
-                    status=URLStatus.SUBMITTED.value
-                )
-            )
-
             url_data_source_object = URLDataSource(
                 url_id=url_id,
                 data_source_id=data_source_id
@@ -237,7 +234,6 @@ class DatabaseClient:
                 url_data_source_object.created_at = info.submitted_at
             session.add(url_data_source_object)
 
-            session.execute(query)
 
 if __name__ == "__main__":
     client = DatabaseClient()

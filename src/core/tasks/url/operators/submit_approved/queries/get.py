@@ -4,6 +4,8 @@ from sqlalchemy.orm import selectinload
 
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.helpers.session import session_helper as sh
@@ -29,7 +31,8 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
     async def _build_query():
         query = (
             select(URL)
-            .where(URL.status == URLStatus.VALIDATED.value)
+            .join(FlagURLValidated, FlagURLValidated.url_id == URL.id)
+            .where(FlagURLValidated.type == URLValidatedType.DATA_SOURCE)
             .options(
                 selectinload(URL.optional_data_source_metadata),
                 selectinload(URL.confirmed_agencies),

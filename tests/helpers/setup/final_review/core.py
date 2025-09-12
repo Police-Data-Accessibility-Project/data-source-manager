@@ -37,7 +37,7 @@ async def setup_for_get_next_url_for_final_review(
         )
         return agency_id
 
-    async def add_record_type_suggestion(record_type: RecordType):
+    async def add_record_type_suggestion(record_type: RecordType) -> None:
         await db_data_creator.user_record_type_suggestion(
             url_id=url_mapping.url_id,
             record_type=record_type

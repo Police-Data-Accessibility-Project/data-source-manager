@@ -1,6 +1,3 @@
-from apscheduler.job import Job
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
@@ -25,13 +22,13 @@ class AsyncScheduledTaskManager:
         self._loader = loader
         self._registry = registry
 
-        # Main objects
-        self.scheduler = AsyncIOScheduler()
-
 
     async def setup(self):
         self._registry.start_scheduler()
         await self.add_scheduled_tasks()
+        await self._registry.report_next_scheduled_task()
+
+
 
     async def add_scheduled_tasks(self):
         """
@@ -39,15 +36,19 @@ class AsyncScheduledTaskManager:
             self._registry
         """
         entries: list[ScheduledTaskEntry] = await self._loader.load_entries()
-        for idx, entry in enumerate(entries):
+        enabled_entries: list[ScheduledTaskEntry] = []
+        for entry in entries:
             if not entry.enabled:
                 print(f"{entry.operator.task_type.value} is disabled. Skipping add to scheduler.")
                 continue
+            enabled_entries.append(entry)
 
+        initial_lag: int = 1
+        for idx, entry in enumerate(enabled_entries):
             await self._registry.add_job(
                 func=self.run_task,
                 entry=entry,
-                minute_lag=idx
+                minute_lag=idx + initial_lag
             )
 
     def shutdown(self):
@@ -68,3 +69,4 @@ class AsyncScheduledTaskManager:
                 operator: ScheduledTaskOperatorBase
                 raise Exception(f"Task {operator.task_type.value} has not been linked to any URLs but is designated as a link task")
         await self._handler.handle_outcome(run_info)
+        await self._registry.report_next_scheduled_task()

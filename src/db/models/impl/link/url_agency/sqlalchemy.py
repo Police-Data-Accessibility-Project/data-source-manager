@@ -7,7 +7,7 @@ from src.db.models.templates_.with_id import WithIDBase
 
 
 class LinkURLAgency(URLDependentMixin, WithIDBase):
-    __tablename__ = "link_urls_agencies"
+    __tablename__ = "link_urls_agency"
 
     agency_id: Mapped[int] = get_agency_id_foreign_column()
 

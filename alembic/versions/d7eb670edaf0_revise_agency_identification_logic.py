@@ -118,7 +118,7 @@ def upgrade():
 def downgrade():
     # Drop constraints first
     op.drop_constraint("uq_confirmed_url_agency", "confirmed_url_agency", type_="unique")
-    op.drop_constraint("uq_automated_url_agency_suggestions", "automated_url_agency_suggestions", type_="unique")
+    # op.drop_constraint("uq_automated_url_agency_suggestions", "automated_url_agency_suggestions", type_="unique")
     op.drop_constraint("uq_user_url_agency_suggestions", "user_url_agency_suggestions", type_="unique")
 
     # Drop tables

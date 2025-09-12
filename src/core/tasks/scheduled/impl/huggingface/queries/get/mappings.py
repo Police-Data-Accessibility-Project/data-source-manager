@@ -47,9 +47,3 @@ FINE_COARSE_RECORD_TYPE_MAPPING = {
     RecordType.OTHER: RecordTypeCoarse.OTHER,
     None: RecordTypeCoarse.NOT_RELEVANT
 }
-
-OUTCOME_RELEVANCY_MAPPING = {
-    URLStatus.SUBMITTED: True,
-    URLStatus.VALIDATED: True,
-    URLStatus.NOT_RELEVANT: False
-}

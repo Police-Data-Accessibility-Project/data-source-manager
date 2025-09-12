@@ -56,8 +56,7 @@ class TaskManager:
                 print(message)
                 await self.handler.post_to_discord(message=message)
                 break
-            task_id = await self.handler.initiate_task_in_db(task_type=operator.task_type)
-            run_info: TaskOperatorRunInfo = await operator.run_task(task_id)
+            run_info: TaskOperatorRunInfo = await operator.run_task()
             await self.conclude_task(run_info)
             if run_info.outcome == TaskOperatorOutcome.ERROR:
                 break

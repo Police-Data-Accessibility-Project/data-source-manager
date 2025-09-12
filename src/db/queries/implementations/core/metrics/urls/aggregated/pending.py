@@ -11,7 +11,7 @@ from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSug
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.queries.implementations.core.common.annotation_exists import AnnotationExistsCTEQueryBuilder
+from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
 
 class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
 
@@ -44,7 +44,7 @@ class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
                 URL.id == self.url_id
             )
             .where(
-                URL.status == URLStatus.PENDING.value
+                URL.status == URLStatus.OK.value
             ).cte("pending")
         )
 

@@ -1,16 +1,18 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.collectors.enums import URLStatus
-from src.core.tasks.scheduled.impl.huggingface.queries.get.convert import convert_url_status_to_relevant, \
-    convert_fine_to_coarse_record_type
+from src.core.tasks.scheduled.impl.huggingface.queries.get.convert import convert_fine_to_coarse_record_type, \
+    convert_validated_type_to_relevant
 from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLoadingToHuggingFaceOutput
 from src.db.client.helpers import add_standard_limit_and_offset
-from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
+from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.utils.compression import decompress_html
-from src.db.helpers.session import session_helper as sh
+
 
 class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
 
@@ -22,29 +24,32 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
     async def run(self, session: AsyncSession) -> list[GetForLoadingToHuggingFaceOutput]:
         label_url_id = 'url_id'
         label_url = 'url'
-        label_url_status = 'url_status'
         label_record_type_fine = 'record_type_fine'
         label_html = 'html'
+        label_type = 'type'
 
 
         query = (
             select(
                 URL.id.label(label_url_id),
                 URL.url.label(label_url),
-                URL.status.label(label_url_status),
                 URL.record_type.label(label_record_type_fine),
-                URLCompressedHTML.compressed_html.label(label_html)
+                URLCompressedHTML.compressed_html.label(label_html),
+                FlagURLValidated.type.label(label_type)
             )
             .join(
                 URLCompressedHTML,
                 URL.id == URLCompressedHTML.url_id
             )
+            .outerjoin(
+                FlagURLValidated,
+                URL.id == FlagURLValidated.url_id
+            )
             .where(
-                URL.status.in_([
-                    URLStatus.VALIDATED,
-                    URLStatus.NOT_RELEVANT,
-                    URLStatus.SUBMITTED
-                ])
+                FlagURLValidated.type.in_(
+                    (URLValidatedType.DATA_SOURCE,
+                     URLValidatedType.NOT_RELEVANT)
+                )
             )
         )
         query = add_standard_limit_and_offset(page=self.page, statement=query)
@@ -57,7 +62,9 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
             output = GetForLoadingToHuggingFaceOutput(
                 url_id=result[label_url_id],
                 url=result[label_url],
-                relevant=convert_url_status_to_relevant(result[label_url_status]),
+                relevant=convert_validated_type_to_relevant(
+                    URLValidatedType(result[label_type])
+                ),
                 record_type_fine=result[label_record_type_fine],
                 record_type_coarse=convert_fine_to_coarse_record_type(
                     result[label_record_type_fine]

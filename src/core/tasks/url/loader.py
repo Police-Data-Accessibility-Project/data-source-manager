@@ -7,6 +7,8 @@ from environs import Env
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+    NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
@@ -20,7 +22,6 @@ from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
-from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
 from src.external.url_request.core import URLRequestInterface
 
@@ -35,11 +36,13 @@ class URLTaskOperatorLoader:
             pdap_client: PDAPClient,
             muckrock_api_interface: MuckrockAPIInterface,
             hf_inference_client: HuggingFaceInferenceClient,
+            nlp_processor: NLPProcessor
     ):
         # Dependencies
         self.adb_client = adb_client
         self.url_request_interface = url_request_interface
         self.html_parser = html_parser
+        self.nlp_processor = nlp_processor
         self.env = Env()
 
         # External clients and interfaces
@@ -79,7 +82,9 @@ class URLTaskOperatorLoader:
             adb_client=self.adb_client,
             loader=AgencyIdentificationSubtaskLoader(
                 pdap_client=self.pdap_client,
-                muckrock_api_interface=self.muckrock_api_interface
+                muckrock_api_interface=self.muckrock_api_interface,
+                adb_client=self.adb_client,
+                nlp_processor=self.nlp_processor
             )
         )
         return URLTaskEntry(

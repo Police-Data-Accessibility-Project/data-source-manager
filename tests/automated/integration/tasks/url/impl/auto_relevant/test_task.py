@@ -32,7 +32,7 @@ async def test_url_auto_relevant_task(db_data_creator):
     assert len(urls) == 3
     counter = Counter([url.status for url in urls])
     assert counter[URLStatus.ERROR] == 1
-    assert counter[URLStatus.PENDING] == 2
+    assert counter[URLStatus.OK] == 2
 
     # Confirm two annotations were created
     suggestions: list[AutoRelevantSuggestion] = await adb_client.get_all(AutoRelevantSuggestion)
