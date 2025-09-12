@@ -17,6 +17,7 @@ from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
 from src.db.models.impl.url.internet_archives.probe.pydantic import URLInternetArchiveMetadataPydantic
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
+from src.util.progress_bar import get_progress_bar_disabled
 from src.util.url_mapper import URLMapper
 
 
@@ -81,7 +82,8 @@ class InternetArchivesProbeTaskOperator(
                 self.ia_client.search_for_url_snapshot(url)
                 for url in urls
             ],
-            timeout=60 * 10  # 10 minutes
+            timeout=60 * 10,  # 10 minutes
+            disable=get_progress_bar_disabled()
         )
 
     async def _add_ia_metadata_to_db(

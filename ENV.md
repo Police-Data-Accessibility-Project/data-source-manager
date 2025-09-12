@@ -36,9 +36,10 @@ Flags are used to enable/disable certain features. They are set to `1` to enable
 
 Configuration flags are used to enable/disable certain configurations.
 
-| Flag         | Description                        |
-|--------------|------------------------------------|
-| `POST_TO_DISCORD_FLAG` | Enables posting errors to discord. |
+| Flag         | Description                          |
+|--------------|--------------------------------------|
+| `POST_TO_DISCORD_FLAG` | Enables posting errors to discord.   |
+| `PROGRESS_BAR_FLAG` | Enables progress bars on some tasks. |
 
 
 ## Task Flags
