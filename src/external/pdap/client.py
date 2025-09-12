@@ -204,7 +204,7 @@ class PDAPClient:
             "page": params.page
         }
         if params.cutoff_date is not None:
-            params["updated_at"]: date = params.cutoff_date
+            request_params["updated_at"]: date = params.cutoff_date
 
         request_info = RequestInfo(
             type_=RequestType.GET,
