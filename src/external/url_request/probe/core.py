@@ -9,6 +9,7 @@ from tqdm.asyncio import tqdm_asyncio
 
 from src.external.url_request.probe.convert import convert_client_response_to_probe_response, convert_to_error_response
 from src.external.url_request.probe.models.wrapper import URLProbeResponseOuterWrapper
+from src.util.progress_bar import get_progress_bar_disabled
 
 
 class URLProbeManager:
@@ -22,7 +23,8 @@ class URLProbeManager:
     async def probe_urls(self, urls: list[str]) -> list[URLProbeResponseOuterWrapper]:
         return await tqdm_asyncio.gather(
             *[self._probe(url) for url in urls],
-            timeout=60 * 10  # 10 minutes
+            timeout=60 * 10,  # 10 minutes,
+            disable=get_progress_bar_disabled()
         )
 
     async def _probe(self, url: str) -> URLProbeResponseOuterWrapper:
