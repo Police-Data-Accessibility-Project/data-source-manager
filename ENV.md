@@ -28,14 +28,45 @@ Please ensure these are properly defined in a `.env` file in the root directory.
 
 [^1:] The user account in question will require elevated permissions to access certain endpoints. At a minimum, the user will require the `source_collector` and `db_write` permissions.
 
+# Flags
+
+Flags are used to enable/disable certain features. They are set to `1` to enable the feature and `0` to disable the feature. By default, all flags are enabled.
+
+## Configuration Flags
+
+Configuration flags are used to enable/disable certain configurations.
+
+| Flag         | Description                        |
+|--------------|------------------------------------|
+| `POST_TO_DISCORD_FLAG` | Enables posting errors to discord. |
+
+
 ## Task Flags
-Task flags are used to enable/disable certain tasks. They are set to `1` to enable the task and `0` to disable the task. By default, all tasks are enabled.
+Task flags are used to enable/disable certain tasks. 
 
-The following flags are available:
+Note that some tasks/subtasks are themselves enabled by other tasks.
 
-| Flag                                | Description                                            |
-|-------------------------------------|--------------------------------------------------------|
-| `SCHEDULED_TASKS_FLAG`              | All scheduled tasks.                                   |
+### Scheduled Task Flags
+
+| Flag                                | Description                                                        |
+|-------------------------------------|--------------------------------------------------------------------|
+| `SCHEDULED_TASKS_FLAG`              | All scheduled tasks. Disabling disables all other scheduled tasks. |
+| `SYNC_AGENCIES_TASK_FLAG`           | Synchonize agencies from Data Sources App.             |
+| `SYNC_DATA_SOURCES_TASK_FLAG`       | Synchonize data sources from Data Sources App.         |
+| `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                            |
+| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                        |
+| `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                      |
+| `RUN_URL_TASKS_TASK_FLAG`           | Runs URL tasks.                                        |
+| `IA_PROBE_TASK_FLAG`            | Extracts and links Internet Archives metadata to URLs. |
+| `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                       |
+
+### URL Task Flags
+
+URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag.
+
+
+| Flag                                | Description                                                        |
+|-------------------------------------|--------------------------------------------------------------------|
 | `URL_HTML_TASK_FLAG`                | URL HTML scraping task.                                |
 | `URL_RECORD_TYPE_TASK_FLAG`         | Automatically assigns Record Types to URLs.            |
 | `URL_AGENCY_IDENTIFICATION_TASK_FLAG` | Automatically assigns and suggests Agencies for URLs.  |
@@ -45,14 +76,13 @@ The following flags are available:
 | `URL_AUTO_RELEVANCE_TASK_FLAG`      | Automatically assigns Relevances to URLs.              |
 | `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                          |
 | `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                  |
-| `SYNC_AGENCIES_TASK_FLAG`           | Synchonize agencies from Data Sources App.             |
-| `SYNC_DATA_SOURCES_TASK_FLAG`       | Synchonize data sources from Data Sources App.         |
-| `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                            |
-| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                        |
-| `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                      |
-| `RUN_URL_TASKS_TASK_FLAG`           | Runs URL tasks.                                        |
-| `IA_PROBE_TASK_FLAG`            | Extracts and links Internet Archives metadata to URLs. |
-| `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                       |
+
+### Agency ID Subtasks
+
+Agency ID Subtasks are collectively disabled by the `URL_AGENCY_IDENTIFICATION_TASK_FLAG` flag.
+
+| Flag                                | Description                                                        |
+|-------------------------------------|--------------------------------------------------------------------|
 | `AGENCY_ID_HOMEPAGE_MATCH_FLAG` | Enables the homepage match subtask for agency identification. |
 | `AGENCY_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for agency identification. |
 | `AGENCY_ID_CKAN_FLAG` | Enables the CKAN subtask for agency identification. |
