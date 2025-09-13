@@ -4,12 +4,22 @@ from src.core.tasks.url.operators.screenshot.convert import convert_to_url_scree
 from src.core.tasks.url.operators.screenshot.filter import filter_success_outcomes
 from src.core.tasks.url.operators.screenshot.models.outcome import URLScreenshotOutcome
 from src.core.tasks.url.operators.screenshot.models.subsets import URLScreenshotOutcomeSubsets
+from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.screenshot.pydantic import URLScreenshotPydantic
+from src.external.url_request.core import URLRequestInterface
 
 
 class URLScreenshotTaskOperator(URLTaskOperatorBase):
+
+    def __init__(
+        self,
+        adb_client: AsyncDatabaseClient,
+        url_request_interface: URLRequestInterface
+    ):
+        super().__init__(adb_client)
+        self.url_request_interface = url_request_interface
 
 
     async def meets_task_prerequisites(self) -> bool:
