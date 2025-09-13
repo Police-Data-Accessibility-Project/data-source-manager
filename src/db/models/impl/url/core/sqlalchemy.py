@@ -4,7 +4,9 @@ from sqlalchemy.orm import relationship
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.models.helpers import enum_column
+from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
+from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
@@ -76,12 +78,12 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         uselist=False
     )
     checked_for_duplicate = relationship(
-        "URLCheckedForDuplicate",
+        URLCheckedForDuplicate,
         uselist=False,
         back_populates="url"
     )
     probed_for_404 = relationship(
-        "URLProbedFor404",
+        URLProbedFor404,
         uselist=False,
         back_populates="url"
     )

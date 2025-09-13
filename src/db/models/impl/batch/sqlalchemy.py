@@ -3,6 +3,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import relationship
 
 from src.db.models.helpers import CURRENT_TIME_SERVER_DEFAULT
+from src.db.models.impl.log.sqlalchemy import Log
 from src.db.models.templates_.with_id import WithIDBase
 from src.db.models.types import batch_status_enum
 
@@ -54,5 +55,5 @@ class Batch(WithIDBase):
     )
     # These relationships exist but are never referenced by their attributes
     # missings = relationship("Missing", back_populates="batch")
-    logs = relationship("Log", back_populates="batch")
+    logs = relationship(Log, back_populates="batch")
     duplicates = relationship("Duplicate", back_populates="batch")
