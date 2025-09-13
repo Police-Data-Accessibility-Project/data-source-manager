@@ -49,6 +49,9 @@ async def test_submit_approved_url_task(
     # Check Task has been marked as completed
     assert run_info.outcome == TaskOperatorOutcome.SUCCESS, run_info.message
 
+    # Check Task Operator no longer meets pre-requisites
+    assert not await operator.meets_task_prerequisites()
+
     # Get URLs
     urls: list[URL] = await db_data_creator.adb_client.get_all(URL, order_by_attribute="id")
     url_1: URL = urls[0]

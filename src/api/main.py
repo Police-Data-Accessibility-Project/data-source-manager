@@ -41,6 +41,7 @@ from src.external.pdap.client import PDAPClient
 from src.external.url_request.core import URLRequestInterface
 from environs import Env
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     env_var_manager = EnvVarManager.get()

@@ -52,6 +52,7 @@ class Batch(WithIDBase):
         back_populates="batch",
         overlaps="url"
     )
-    # missings = relationship("Missing", back_populates="batch")  # Not in active use
+    # These relationships exist but are never referenced by their attributes
+    # missings = relationship("Missing", back_populates="batch")
     logs = relationship("Log", back_populates="batch")
     duplicates = relationship("Duplicate", back_populates="batch")
