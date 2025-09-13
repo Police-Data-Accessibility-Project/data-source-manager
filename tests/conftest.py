@@ -2,17 +2,21 @@ import logging
 import os
 from contextlib import contextmanager
 from typing import Any, Generator, AsyncGenerator
-from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
 from aiohttp import ClientSession
 from alembic.config import Config
-from pdap_access_manager import AccessManager
 from sqlalchemy import create_engine, inspect, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from src.core.env_var_manager import EnvVarManager
+# Below are to prevent import errors
+from src.db.models.impl.missing import Missing  # noqa: F401
+from src.db.models.impl.log.sqlalchemy import Log  # noqa: F401
+from src.db.models.impl.task.error import TaskError  # noqa: F401
+from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate  # noqa: F401
+from src.db.models.impl.url.probed_for_404 import URLProbedFor404  # noqa: F401
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.helpers.connect import get_postgres_connection_string

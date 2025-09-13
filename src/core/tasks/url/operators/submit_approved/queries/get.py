@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.collectors.enums import URLStatus
+from src.core.tasks.url.operators.submit_approved.queries.cte import VALIDATED_URLS_WITHOUT_DS_ALIAS
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO
 from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
@@ -30,13 +31,11 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
     @staticmethod
     async def _build_query():
         query = (
-            select(URL)
-            .join(FlagURLValidated, FlagURLValidated.url_id == URL.id)
-            .where(FlagURLValidated.type == URLValidatedType.DATA_SOURCE)
+            select(VALIDATED_URLS_WITHOUT_DS_ALIAS)
             .options(
-                selectinload(URL.optional_data_source_metadata),
-                selectinload(URL.confirmed_agencies),
-                selectinload(URL.reviewing_user)
+                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.optional_data_source_metadata),
+                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.confirmed_agencies),
+                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.reviewing_user)
             ).limit(100)
         )
         return query
