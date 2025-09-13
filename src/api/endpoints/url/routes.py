@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query, Depends, Response
 
 from src.api.dependencies import get_async_core
+from src.api.endpoints.url.by_id.screenshot.wrapper import get_url_screenshot_wrapper
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.core.core import AsyncCore
 from src.security.manager import get_access_info
@@ -27,3 +28,19 @@ async def get_urls(
 ) -> GetURLsResponseInfo:
     result = await async_core.get_urls(page=page, errors=errors)
     return result
+
+@url_router.get("/{url_id}/screenshot")
+async def get_url_screenshot(
+    url_id: int,
+    async_core: AsyncCore = Depends(get_async_core),
+    access_info: AccessInfo = Depends(get_access_info),
+) -> Response:
+
+    raw_result: bytes = await get_url_screenshot_wrapper(
+        url_id=url_id,
+        adb_client=async_core.adb_client
+    )
+    return Response(
+        content=raw_result,
+        media_type="image/webp"
+    )

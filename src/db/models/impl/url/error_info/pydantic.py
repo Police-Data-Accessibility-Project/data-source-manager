@@ -5,7 +5,7 @@ from src.db.models.templates_.base import Base
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 
 
-class URLErrorPydanticInfo(BulkInsertableModel):
+class URLErrorInfoPydantic(BulkInsertableModel):
     task_id: int
     url_id: int
     error: str

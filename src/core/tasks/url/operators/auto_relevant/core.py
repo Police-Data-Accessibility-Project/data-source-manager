@@ -4,7 +4,7 @@ from src.core.tasks.url.operators.auto_relevant.sort import separate_success_and
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.enums import TaskType
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.huggingface.inference.models.input import BasicInput
@@ -79,7 +79,7 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
     async def update_errors_in_database(self, tdos: list[URLRelevantTDO]) -> None:
         error_infos = []
         for tdo in tdos:
-            error_info = URLErrorPydanticInfo(
+            error_info = URLErrorInfoPydantic(
                 task_id=self.task_id,
                 url_id=tdo.url_id,
                 error=tdo.error

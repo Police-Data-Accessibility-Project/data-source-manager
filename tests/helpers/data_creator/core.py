@@ -14,7 +14,7 @@ from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.client.sync import DatabaseClient
 from src.db.enums import TaskType
 from src.collectors.enums import CollectorType, URLStatus
@@ -314,7 +314,7 @@ class DBDataCreator:
             task_id = await self.task()
         error_infos = []
         for url_id in url_ids:
-            url_error_info = URLErrorPydanticInfo(
+            url_error_info = URLErrorInfoPydantic(
                 url_id=url_id,
                 error="test error",
                 task_id=task_id

@@ -3,7 +3,7 @@ from http import HTTPStatus
 from src.core.tasks.url.operators.html.content_info_getter import HTMLContentInfoGetter
 from src.core.tasks.url.operators.html.tdo import UrlHtmlTDO
 from src.db.dtos.url.html_content import URLHTMLContentInfo
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.html.compressed.pydantic import URLCompressedHTMLPydantic
 from src.db.models.impl.url.scrape_info.enums import ScrapeStatus
 from src.db.models.impl.url.scrape_info.pydantic import URLScrapeInfoInsertModel
@@ -59,12 +59,12 @@ def convert_to_scrape_infos(tdos: list[UrlHtmlTDO]) -> list[URLScrapeInfoInsertM
 def convert_to_url_errors(
     tdos: list[UrlHtmlTDO],
     task_id: int
-) -> list[URLErrorPydanticInfo]:
+) -> list[URLErrorInfoPydantic]:
     models = []
     for tdo in tdos:
         if tdo.url_response_info.success:
             continue
-        model = URLErrorPydanticInfo(
+        model = URLErrorInfoPydantic(
             url_id=tdo.url_info.id,
             error=tdo.url_response_info.exception,
             task_id=task_id

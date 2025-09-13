@@ -13,7 +13,7 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.flag.checked_for_ia.pydantic import FlagURLCheckedForInternetArchivesPydantic
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.internet_archives.probe.pydantic import URLInternetArchiveMetadataPydantic
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
@@ -60,10 +60,10 @@ class InternetArchivesProbeTaskOperator(
         await self._add_ia_metadata_to_db(mapper, ia_mappings=subsets.has_metadata)
 
     async def _add_errors_to_db(self, mapper: URLMapper, ia_mappings: list[InternetArchivesURLMapping]) -> None:
-        url_error_info_list: list[URLErrorPydanticInfo] = []
+        url_error_info_list: list[URLErrorInfoPydantic] = []
         for ia_mapping in ia_mappings:
             url_id = mapper.get_id(ia_mapping.url)
-            url_error_info = URLErrorPydanticInfo(
+            url_error_info = URLErrorInfoPydantic(
                 url_id=url_id,
                 error=ia_mapping.error,
                 task_id=self.task_id
