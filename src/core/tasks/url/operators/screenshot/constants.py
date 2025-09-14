@@ -1,4 +1,4 @@
 
 
 
-TASK_URL_LIMIT: int = 50
+TASK_URL_LIMIT: int = 25

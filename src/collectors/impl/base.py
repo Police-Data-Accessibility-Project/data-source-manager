@@ -23,13 +23,13 @@ class AsyncCollectorBase(ABC):
 
 
     def __init__(
-            self,
-            batch_id: int,
-            dto: BaseModel,
-            logger: AsyncCoreLogger,
-            adb_client: AsyncDatabaseClient,
-            raise_error: bool = False,
-            post_collection_function_trigger: Optional[FunctionTrigger] = None,
+        self,
+        batch_id: int,
+        dto: BaseModel,
+        logger: AsyncCoreLogger,
+        adb_client: AsyncDatabaseClient,
+        raise_error: bool = False,
+        post_collection_function_trigger: Optional[FunctionTrigger] = None,
     ) -> None:
         self.post_collection_function_trigger = post_collection_function_trigger
         self.batch_id = batch_id
