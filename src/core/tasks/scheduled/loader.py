@@ -53,7 +53,7 @@ class ScheduledTaskOperatorLoader:
                     adb_client=self.adb_client,
                     ia_client=self.ia_client
                 ),
-                interval=IntervalEnum.TEN_MINUTES,
+                interval_minutes=IntervalEnum.TEN_MINUTES.value,
                 enabled=self.env.bool("IA_PROBE_TASK_FLAG", default=True),
             ),
             ScheduledTaskEntry(
@@ -61,12 +61,12 @@ class ScheduledTaskOperatorLoader:
                     adb_client=self.adb_client,
                     ia_client=self.ia_client
                 ),
-                interval=IntervalEnum.TEN_MINUTES,
+                interval_minutes=IntervalEnum.TEN_MINUTES.value,
                 enabled=self.env.bool("IA_SAVE_TASK_FLAG", default=True),
             ),
             ScheduledTaskEntry(
                 operator=DeleteOldLogsTaskOperator(adb_client=self.adb_client),
-                interval=IntervalEnum.DAILY,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool("DELETE_OLD_LOGS_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
@@ -74,7 +74,7 @@ class ScheduledTaskOperatorLoader:
                     adb_client=self.adb_client,
                     pdap_client=self.pdap_client
                 ),
-                interval=IntervalEnum.DAILY,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool("SYNC_DATA_SOURCES_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
@@ -82,18 +82,21 @@ class ScheduledTaskOperatorLoader:
                     adb_client=self.async_core.adb_client,
                     pdap_client=self.pdap_client
                 ),
-                interval=IntervalEnum.DAILY,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool("SYNC_AGENCIES_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
                 operator=RunURLTasksTaskOperator(async_core=self.async_core),
-                interval=IntervalEnum.HOURLY,
+                interval_minutes=self.env.int(
+                    "URL_TASKS_FREQUENCY_MINUTES",
+                    default=IntervalEnum.HOURLY.value
+                ),
                 enabled=self.env.bool("RUN_URL_TASKS_TASK_FLAG", default=True)
 
             ),
             ScheduledTaskEntry(
                 operator=PopulateBacklogSnapshotTaskOperator(adb_client=self.async_core.adb_client),
-                interval=IntervalEnum.DAILY,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool("POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
@@ -101,7 +104,7 @@ class ScheduledTaskOperatorLoader:
                     adb_client=self.async_core.adb_client,
                     hf_client=self.hf_client
                 ),
-                interval=IntervalEnum.DAILY,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool(
                     "PUSH_TO_HUGGING_FACE_TASK_FLAG",
                     default=True

@@ -14,12 +14,13 @@ from src.db.models.impl.flag.url_validated.enums import URLValidatedType
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.client.sync import DatabaseClient
 from src.db.enums import TaskType
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -314,7 +315,7 @@ class DBDataCreator:
             task_id = await self.task()
         error_infos = []
         for url_id in url_ids:
-            url_error_info = URLErrorPydanticInfo(
+            url_error_info = URLErrorInfoPydantic(
                 url_id=url_id,
                 error="test error",
                 task_id=task_id
@@ -545,3 +546,19 @@ class DBDataCreator:
             )
             links.append(link)
         await self.adb_client.add_all(links)
+
+    async def create_web_metadata(
+        self,
+        url_ids: list[int],
+        status_code: int = 200,
+    ):
+        web_metadata: list[URLWebMetadata] = [
+            URLWebMetadata(
+                url_id=url_id,
+                status_code=status_code,
+                accessed=True,
+                content_type="text/html",
+            )
+            for url_id in url_ids
+        ]
+        await self.adb_client.add_all(web_metadata)

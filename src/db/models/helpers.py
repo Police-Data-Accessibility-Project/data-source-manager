@@ -1,4 +1,4 @@
-from sqlalchemy import Column, TIMESTAMP, func, Integer, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, TIMESTAMP, func, Integer, ForeignKey, Enum as SAEnum, PrimaryKeyConstraint
 from enum import Enum as PyEnum
 
 def get_created_at_column() -> Column:
@@ -38,3 +38,6 @@ def url_id_column() -> Column[int]:
     )
 
 CURRENT_TIME_SERVER_DEFAULT = func.now()
+
+def url_id_primary_key_constraint() -> PrimaryKeyConstraint:
+    return PrimaryKeyConstraint('url_id')

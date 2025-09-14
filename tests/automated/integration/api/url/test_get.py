@@ -2,10 +2,11 @@ import pytest
 
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.db.dtos.url.insert import InsertURLsInfo
+from tests.helpers.api_test_helper import APITestHelper
 
 
 @pytest.mark.asyncio
-async def test_get_urls(api_test_helper):
+async def test_get_urls(api_test_helper: APITestHelper):
     # Basic test, no results
     data: GetURLsResponseInfo = api_test_helper.request_validator.get_urls()
 

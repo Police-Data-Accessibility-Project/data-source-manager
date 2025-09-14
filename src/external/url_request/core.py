@@ -19,3 +19,4 @@ class URLRequestInterface:
         async with ClientSession(timeout=ClientTimeout(total=30)) as session:
             manager = URLProbeManager(session=session)
             return await manager.probe_urls(urls=urls)
+

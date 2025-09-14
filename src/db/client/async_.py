@@ -113,7 +113,7 @@ from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
@@ -449,7 +449,7 @@ class AsyncDatabaseClient:
     # endregion record_type
 
     @session_manager
-    async def add_url_error_infos(self, session: AsyncSession, url_error_infos: list[URLErrorPydanticInfo]):
+    async def add_url_error_infos(self, session: AsyncSession, url_error_infos: list[URLErrorInfoPydantic]):
         for url_error_info in url_error_infos:
             statement = select(URL).where(URL.id == url_error_info.url_id)
             scalar_result = await session.scalars(statement)
@@ -460,7 +460,7 @@ class AsyncDatabaseClient:
             session.add(url_error)
 
     @session_manager
-    async def get_urls_with_errors(self, session: AsyncSession) -> list[URLErrorPydanticInfo]:
+    async def get_urls_with_errors(self, session: AsyncSession) -> list[URLErrorInfoPydantic]:
         statement = (select(URL, URLErrorInfo.error, URLErrorInfo.updated_at, URLErrorInfo.task_id)
                      .join(URLErrorInfo)
                      .where(URL.status == URLStatus.ERROR.value)
@@ -470,7 +470,7 @@ class AsyncDatabaseClient:
         final_results = []
         for url, error, updated_at, task_id in results:
             final_results.append(
-                URLErrorPydanticInfo(
+                URLErrorInfoPydantic(
                     url_id=url.id,
                     error=error,
                     updated_at=updated_at,

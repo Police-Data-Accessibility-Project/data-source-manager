@@ -1,7 +1,7 @@
 import pytest
 
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from tests.helpers.data_creator.core import DBDataCreator
 
 
@@ -16,7 +16,7 @@ async def test_add_url_error_info(db_data_creator: DBDataCreator):
 
     error_infos = []
     for url_mapping in url_mappings:
-        uei = URLErrorPydanticInfo(
+        uei = URLErrorInfoPydantic(
             url_id=url_mapping.url_id,
             error="test error",
             task_id=task_id

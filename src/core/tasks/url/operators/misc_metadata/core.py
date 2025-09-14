@@ -1,7 +1,7 @@
 from typing import Optional
 
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.enums import TaskType
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
@@ -69,7 +69,7 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
                     subtask.process(tdo)
                 await self.html_default_logic(tdo)
             except Exception as e:
-                error_info = URLErrorPydanticInfo(
+                error_info = URLErrorInfoPydantic(
                     task_id=self.task_id,
                     url_id=tdo.url_id,
                     error=str(e),

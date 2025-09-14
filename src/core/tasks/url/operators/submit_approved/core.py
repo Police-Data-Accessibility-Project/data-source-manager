@@ -1,5 +1,5 @@
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.enums import TaskType
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
@@ -50,13 +50,13 @@ class SubmitApprovedURLTaskOperator(URLTaskOperatorBase):
         return success_infos
 
     async def get_error_infos(self, submitted_url_infos):
-        error_infos: list[URLErrorPydanticInfo] = []
+        error_infos: list[URLErrorInfoPydantic] = []
         error_response_objects = [
             response_object for response_object in submitted_url_infos
             if response_object.request_error is not None
         ]
         for error_response_object in error_response_objects:
-            error_info = URLErrorPydanticInfo(
+            error_info = URLErrorInfoPydantic(
                 task_id=self.task_id,
                 url_id=error_response_object.url_id,
                 error=error_response_object.request_error,

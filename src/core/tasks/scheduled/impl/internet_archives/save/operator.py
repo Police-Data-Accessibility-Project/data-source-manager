@@ -14,7 +14,7 @@ from src.core.tasks.scheduled.impl.internet_archives.save.queries.update import 
 from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.error_info.pydantic import URLErrorPydanticInfo
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.internet_archives.save.pydantic import URLInternetArchiveSaveMetadataPydantic
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.internet_archives.models.save_response import InternetArchivesSaveResponseInfo
@@ -89,10 +89,10 @@ class InternetArchivesSaveTaskOperator(
         mapper: URLToEntryMapper,
         responses: list[InternetArchivesSaveResponseInfo]
     ) -> None:
-        error_info_list: list[URLErrorPydanticInfo] = []
+        error_info_list: list[URLErrorInfoPydantic] = []
         for response in responses:
             url_id = mapper.get_url_id(response.url)
-            url_error_info = URLErrorPydanticInfo(
+            url_error_info = URLErrorInfoPydantic(
                 url_id=url_id,
                 error=response.error,
                 task_id=self.task_id

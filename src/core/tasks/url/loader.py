@@ -19,6 +19,7 @@ from src.core.tasks.url.operators.probe_404.core import URL404ProbeTaskOperator
 from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOperator
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai import OpenAIRecordClassifier
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
+from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
@@ -50,7 +51,7 @@ class URLTaskOperatorLoader:
         self.muckrock_api_interface = muckrock_api_interface
         self.hf_inference_client = hf_inference_client
 
-    async def _get_url_html_task_operator(self) -> URLTaskEntry:
+    def _get_url_html_task_operator(self) -> URLTaskEntry:
         operator = URLHTMLTaskOperator(
             adb_client=self.adb_client,
             url_request_interface=self.url_request_interface,
@@ -64,7 +65,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_record_type_task_operator(self) -> URLTaskEntry:
+    def _get_url_record_type_task_operator(self) -> URLTaskEntry:
         operator = URLRecordTypeTaskOperator(
             adb_client=self.adb_client,
             classifier=OpenAIRecordClassifier()
@@ -77,7 +78,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_agency_identification_task_operator(self) -> URLTaskEntry:
+    def _get_agency_identification_task_operator(self) -> URLTaskEntry:
         operator = AgencyIdentificationTaskOperator(
             adb_client=self.adb_client,
             loader=AgencyIdentificationSubtaskLoader(
@@ -95,7 +96,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_submit_approved_url_task_operator(self) -> URLTaskEntry:
+    def _get_submit_approved_url_task_operator(self) -> URLTaskEntry:
         operator = SubmitApprovedURLTaskOperator(
             adb_client=self.adb_client,
             pdap_client=self.pdap_client
@@ -108,7 +109,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_miscellaneous_metadata_task_operator(self) -> URLTaskEntry:
+    def _get_url_miscellaneous_metadata_task_operator(self) -> URLTaskEntry:
         operator = URLMiscellaneousMetadataTaskOperator(
             adb_client=self.adb_client
         )
@@ -120,7 +121,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_404_probe_task_operator(self) -> URLTaskEntry:
+    def _get_url_404_probe_task_operator(self) -> URLTaskEntry:
         operator = URL404ProbeTaskOperator(
             adb_client=self.adb_client,
             url_request_interface=self.url_request_interface
@@ -133,7 +134,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_auto_relevance_task_operator(self) -> URLTaskEntry:
+    def _get_url_auto_relevance_task_operator(self) -> URLTaskEntry:
         operator = URLAutoRelevantTaskOperator(
             adb_client=self.adb_client,
             hf_client=self.hf_inference_client
@@ -146,7 +147,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_probe_task_operator(self) -> URLTaskEntry:
+    def _get_url_probe_task_operator(self) -> URLTaskEntry:
         operator = URLProbeTaskOperator(
             adb_client=self.adb_client,
             url_request_interface=self.url_request_interface
@@ -159,7 +160,7 @@ class URLTaskOperatorLoader:
             )
         )
 
-    async def _get_url_root_url_task_operator(self) -> URLTaskEntry:
+    def _get_url_root_url_task_operator(self) -> URLTaskEntry:
         operator = URLRootURLTaskOperator(
             adb_client=self.adb_client
         )
@@ -171,16 +172,29 @@ class URLTaskOperatorLoader:
             )
         )
 
+    def _get_url_screenshot_task_operator(self) -> URLTaskEntry:
+        operator = URLScreenshotTaskOperator(
+            adb_client=self.adb_client,
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.env.bool(
+                "URL_SCREENSHOT_TASK_FLAG",
+                default=True
+            )
+        )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
-            await self._get_url_root_url_task_operator(),
-            await self._get_url_probe_task_operator(),
-            await self._get_url_html_task_operator(),
-            await self._get_url_404_probe_task_operator(),
-            await self._get_url_record_type_task_operator(),
-            await self._get_agency_identification_task_operator(),
-            await self._get_url_miscellaneous_metadata_task_operator(),
-            await self._get_submit_approved_url_task_operator(),
-            await self._get_url_auto_relevance_task_operator()
+            self._get_url_root_url_task_operator(),
+            self._get_url_probe_task_operator(),
+            self._get_url_html_task_operator(),
+            self._get_url_404_probe_task_operator(),
+            self._get_url_record_type_task_operator(),
+            self._get_agency_identification_task_operator(),
+            self._get_url_miscellaneous_metadata_task_operator(),
+            self._get_submit_approved_url_task_operator(),
+            self._get_url_auto_relevance_task_operator(),
+            self._get_url_screenshot_task_operator()
         ]
