@@ -51,7 +51,7 @@ class URLTaskOperatorLoader:
         self.muckrock_api_interface = muckrock_api_interface
         self.hf_inference_client = hf_inference_client
 
-    async def _get_url_html_task_operator(self) -> URLTaskEntry:
+    def _get_url_html_task_operator(self) -> URLTaskEntry:
         operator = URLHTMLTaskOperator(
             adb_client=self.adb_client,
             url_request_interface=self.url_request_interface,
@@ -175,7 +175,6 @@ class URLTaskOperatorLoader:
     def _get_url_screenshot_task_operator(self) -> URLTaskEntry:
         operator = URLScreenshotTaskOperator(
             adb_client=self.adb_client,
-            url_request_interface=self.url_request_interface
         )
         return URLTaskEntry(
             operator=operator,
@@ -188,14 +187,14 @@ class URLTaskOperatorLoader:
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
-            await self._get_url_root_url_task_operator(),
-            await self._get_url_probe_task_operator(),
-            await self._get_url_html_task_operator(),
-            await self._get_url_404_probe_task_operator(),
-            await self._get_url_record_type_task_operator(),
-            await self._get_agency_identification_task_operator(),
-            await self._get_url_miscellaneous_metadata_task_operator(),
-            await self._get_submit_approved_url_task_operator(),
-            await self._get_url_auto_relevance_task_operator(),
-            await self._get_url_screenshot_task_operator()
+            self._get_url_root_url_task_operator(),
+            self._get_url_probe_task_operator(),
+            self._get_url_html_task_operator(),
+            self._get_url_404_probe_task_operator(),
+            self._get_url_record_type_task_operator(),
+            self._get_agency_identification_task_operator(),
+            self._get_url_miscellaneous_metadata_task_operator(),
+            self._get_submit_approved_url_task_operator(),
+            self._get_url_auto_relevance_task_operator(),
+            self._get_url_screenshot_task_operator()
         ]

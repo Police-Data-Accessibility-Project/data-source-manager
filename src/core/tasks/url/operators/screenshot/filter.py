@@ -3,4 +3,11 @@ from src.core.tasks.url.operators.screenshot.models.subsets import URLScreenshot
 
 
 def filter_success_outcomes(outcomes: list[URLScreenshotOutcome]) -> URLScreenshotOutcomeSubsets:
-    raise NotImplementedError
+    success: list[URLScreenshotOutcome] = []
+    failed: list[URLScreenshotOutcome] = []
+    for outcome in outcomes:
+        if outcome.success:
+            success.append(outcome)
+        else:
+            failed.append(outcome)
+    return URLScreenshotOutcomeSubsets(success=success, failed=failed)

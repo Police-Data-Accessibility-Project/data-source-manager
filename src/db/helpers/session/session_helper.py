@@ -5,7 +5,7 @@ functions for workings with a SQLAlchemy session
 from typing import Any, Optional, Sequence
 
 import sqlalchemy as sa
-from sqlalchemy import update, ColumnElement, Row
+from sqlalchemy import update, ColumnElement, Row, Select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -190,6 +190,14 @@ async def bulk_insert(
         models=models_to_add,
         return_ids=return_ids
     )
+
+async def results_exist(
+    session: AsyncSession,
+    query: Select
+) -> bool:
+    query = query.limit(1)
+    result: sa.Row | None = await one_or_none(session=session, query=query)
+    return result is not None
 
 async def bulk_update(
     session: AsyncSession,

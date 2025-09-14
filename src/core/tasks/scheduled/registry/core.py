@@ -34,7 +34,7 @@ class ScheduledJobRegistry:
             id=entry.operator.task_type.value,
             func=func,
             trigger=IntervalTrigger(
-                minutes=entry.interval.value,
+                minutes=entry.interval_minutes,
                 start_date=datetime.now() + timedelta(minutes=minute_lag)
             ),
             misfire_grace_time=60,

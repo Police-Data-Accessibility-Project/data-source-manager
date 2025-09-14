@@ -10,5 +10,5 @@ class ScheduledTaskEntry(BaseModel):
         arbitrary_types_allowed = True
 
     operator: ScheduledTaskOperatorBase
-    interval: IntervalEnum
+    interval_minutes: int
     enabled: bool

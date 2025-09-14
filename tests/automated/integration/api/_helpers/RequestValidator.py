@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Optional, Annotated
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from pydantic import BaseModel
 from starlette.testclient import TestClient
 
@@ -463,3 +463,9 @@ class RequestValidator:
             url="/metrics/urls/aggregate/pending",
         )
         return GetMetricsURLsAggregatedPendingResponseDTO(**data)
+
+    async def get_url_screenshot(self, url_id: int) -> Response:
+        return self.client.get(
+            url=f"/url/{url_id}/screenshot",
+            headers={"Authorization": f"Bearer token"}
+        )

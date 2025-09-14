@@ -33,7 +33,6 @@ async def get_urls(
 async def get_url_screenshot(
     url_id: int,
     async_core: AsyncCore = Depends(get_async_core),
-    access_info: AccessInfo = Depends(get_access_info),
 ) -> Response:
 
     raw_result: bytes = await get_url_screenshot_wrapper(

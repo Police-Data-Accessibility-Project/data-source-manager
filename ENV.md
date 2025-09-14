@@ -28,6 +28,14 @@ Please ensure these are properly defined in a `.env` file in the root directory.
 
 [^1:] The user account in question will require elevated permissions to access certain endpoints. At a minimum, the user will require the `source_collector` and `db_write` permissions.
 
+# Variables With Defaults
+
+The following environment variables have default values that will be used if not otherwise defined.
+
+| Variable                      | Description                                                      | Default |
+|-------------------------------|------------------------------------------------------------------|---------|
+| `URL_TASKS_FREQUENCY_MINUTES` | The frequency for the `RUN_URL_TASKS` Scheduled Task, in minutes | `60`    |
+
 # Flags
 
 Flags are used to enable/disable certain features. They are set to `1` to enable the feature and `0` to disable the feature. By default, all flags are enabled.
@@ -77,6 +85,7 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_AUTO_RELEVANCE_TASK_FLAG`      | Automatically assigns Relevances to URLs.              |
 | `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                          |
 | `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                  |
+| `URL_SCREENSHOT_TASK_FLAG`          | Takes screenshots of URLs.                             |
 
 ### Agency ID Subtasks
 

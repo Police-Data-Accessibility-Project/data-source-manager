@@ -19,20 +19,31 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 URL_SCREENSHOT_TABLE_NAME = "url_screenshot"
+SCREENSHOT_ERROR_TABLE_NAME = "error_url_screenshot"
 
 
 
 def upgrade() -> None:
     _add_url_screenshot_task()
     _add_url_screenshot_table()
+    _add_screenshot_error_table()
 
 
 
 def downgrade() -> None:
     _remove_url_screenshot_task()
     _remove_url_screenshot_table()
+    _remove_screenshot_error_table()
 
 
+def _add_screenshot_error_table():
+    op.create_table(
+        SCREENSHOT_ERROR_TABLE_NAME,
+        url_id_column(),
+        sa.Column('error', sa.String(), nullable=False),
+        created_at_column(),
+        sa.PrimaryKeyConstraint('url_id')
+    )
 
 
 def _add_url_screenshot_table():
@@ -49,6 +60,10 @@ def _add_url_screenshot_table():
 
 def _remove_url_screenshot_table():
     op.drop_table(URL_SCREENSHOT_TABLE_NAME)
+
+
+def _remove_screenshot_error_table():
+    op.drop_table(SCREENSHOT_ERROR_TABLE_NAME)
 
 
 def _add_url_screenshot_task():

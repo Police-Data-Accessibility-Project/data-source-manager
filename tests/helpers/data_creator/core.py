@@ -20,6 +20,7 @@ from src.db.enums import TaskType
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -545,3 +546,19 @@ class DBDataCreator:
             )
             links.append(link)
         await self.adb_client.add_all(links)
+
+    async def create_web_metadata(
+        self,
+        url_ids: list[int],
+        status_code: int = 200,
+    ):
+        web_metadata: list[URLWebMetadata] = [
+            URLWebMetadata(
+                url_id=url_id,
+                status_code=status_code,
+                accessed=True,
+                content_type="text/html",
+            )
+            for url_id in url_ids
+        ]
+        await self.adb_client.add_all(web_metadata)
