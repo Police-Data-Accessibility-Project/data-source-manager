@@ -31,7 +31,7 @@ def manager(
     mock_loader.load_entries.return_value = [
         ScheduledTaskEntry(
             operator=PopulateBacklogSnapshotTaskOperator(adb_client=adb_client_test),
-            interval=IntervalEnum.DAILY,
+            interval_minutes=IntervalEnum.DAILY.value,
             enabled=True
         )
     ]
