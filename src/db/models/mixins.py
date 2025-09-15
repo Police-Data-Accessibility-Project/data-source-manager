@@ -38,6 +38,15 @@ class BatchDependentMixin:
         nullable=False
     )
 
+class LocationDependentMixin:
+    location_id = Column(
+        Integer,
+        ForeignKey(
+            'locations.id',
+            ondelete="CASCADE",
+        ),
+        nullable=False
+    )
 
 class AgencyDependentMixin:
     agency_id = Column(
