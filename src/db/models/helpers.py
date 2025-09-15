@@ -41,3 +41,24 @@ CURRENT_TIME_SERVER_DEFAULT = func.now()
 
 def url_id_primary_key_constraint() -> PrimaryKeyConstraint:
     return PrimaryKeyConstraint('url_id')
+
+def county_column(nullable: bool = False) -> Column[int]:
+    return Column(
+        Integer(),
+        ForeignKey('counties.id', ondelete='CASCADE'),
+        nullable=nullable
+    )
+
+def locality_column(nullable: bool = False) -> Column[int]:
+    return Column(
+        Integer(),
+        ForeignKey('localities.id', ondelete='CASCADE'),
+        nullable=nullable
+    )
+
+def us_state_column(nullable: bool = False) -> Column[int]:
+    return Column(
+        Integer(),
+        ForeignKey('us_states.id', ondelete='CASCADE'),
+        nullable=nullable
+    )
