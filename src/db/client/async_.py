@@ -13,9 +13,9 @@ from src.api.endpoints.annotate._shared.queries.get_next_url_for_user_annotation
     GetNextURLForUserAnnotationQueryBuilder
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.get.queries.next_for_annotation import GetNextURLAgencyForAnnotationQueryBuilder
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.query import GetNextURLForAllAnnotationQueryBuilder
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.query import GetNextUrlForRelevanceAnnotationQueryBuilder
@@ -991,42 +991,6 @@ class AsyncDatabaseClient:
         self, batch_id: int | None = None
     ) -> GetNextURLForAllAnnotationResponse:
         return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(batch_id))
-
-    @session_manager
-    async def add_all_annotations_to_url(
-        self,
-        session,
-        user_id: int,
-        url_id: int,
-        post_info: AllAnnotationPostInfo
-    ):
-
-        # Add relevant annotation
-        relevant_suggestion = UserRelevantSuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            suggested_status=post_info.suggested_status.value
-        )
-        session.add(relevant_suggestion)
-
-        # If not relevant, do nothing else
-        if not post_info.suggested_status == SuggestedStatus.RELEVANT:
-            return
-
-        record_type_suggestion = UserRecordTypeSuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            record_type=post_info.record_type.value
-        )
-        session.add(record_type_suggestion)
-
-        agency_suggestion = UserUrlAgencySuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            agency_id=post_info.agency.suggested_agency,
-            is_new=post_info.agency.is_new
-        )
-        session.add(agency_suggestion)
 
     async def upload_manual_batch(
         self,

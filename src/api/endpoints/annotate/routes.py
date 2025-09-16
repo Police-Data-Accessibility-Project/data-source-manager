@@ -1,12 +1,10 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, Path, Query
 
 from src.api.dependencies import get_async_core
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.dtos.record_type.post import RecordTypeAnnotationPostInfo
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseOuterInfo

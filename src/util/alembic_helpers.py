@@ -127,6 +127,14 @@ def url_id_column(name: str = 'url_id') -> sa.Column:
         comment='A foreign key to the `urls` table.'
     )
 
+def user_id_column(name: str = 'user_id') -> sa.Column:
+    return sa.Column(
+        name,
+        sa.Integer(),
+        nullable=False,
+    )
+
+
 def location_id_column(name: str = 'location_id') -> sa.Column:
     return sa.Column(
         name,

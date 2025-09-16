@@ -1,10 +1,10 @@
-from sqlalchemy import Select, and_
+from sqlalchemy import Select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
 from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse, \
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
 from src.collectors.enums import URLStatus
@@ -13,8 +13,12 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
+from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.views.unvalidated_url import UnvalidatedURL
+from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.statement_composer import StatementComposer
 
@@ -32,7 +36,18 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         self,
         session: AsyncSession
     ) -> GetNextURLForAllAnnotationResponse:
-        query = Select(URL)
+        query = (
+            Select(URL)
+            # URL Must be unvalidated
+            .join(
+                UnvalidatedURL,
+                UnvalidatedURL.url_id == URL.id
+            )
+            .join(
+                URLAnnotationFlagsView,
+                URLAnnotationFlagsView.url_id == URL.id
+            )
+        )
         if self.batch_id is not None:
             query = query.join(LinkBatchURL).where(LinkBatchURL.batch_id == self.batch_id)
         query = (
@@ -40,32 +55,29 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             .where(
                 and_(
                     URL.status == URLStatus.OK.value,
-                    StatementComposer.user_suggestion_not_exists(UserUrlAgencySuggestion),
-                    StatementComposer.user_suggestion_not_exists(UserRecordTypeSuggestion),
-                    StatementComposer.user_suggestion_not_exists(UserRelevantSuggestion),
+                    # Must be missing at least some annotations
+                    or_(
+                        URLAnnotationFlagsView.has_user_agency_suggestion.is_(False),
+                        URLAnnotationFlagsView.has_user_record_type_suggestion.is_(False),
+                        URLAnnotationFlagsView.has_user_relevant_suggestion.is_(False),
+                        URLAnnotationFlagsView.has_user_location_suggestion.is_(False),
+                    )
+
                 )
             )
         )
-
-
-        load_options = [
+        # Add load options
+        query = query.options(
             URL.html_content,
             URL.auto_agency_subtasks,
             URL.auto_relevant_suggestion,
-            URL.auto_record_type_suggestion
-        ]
-        select_in_loads = [
-            selectinload(load_option) for load_option in load_options
-        ]
-
-        # Add load options
-        query = query.options(
-            *select_in_loads
+            URL.auto_record_type_suggestion,
+            URL.auto_agency_subtasks.suggestions,
         )
 
         query = query.order_by(URL.id.asc()).limit(1)
         raw_results = await session.execute(query)
-        url = raw_results.scalars().one_or_none()
+        url: URL | None = raw_results.scalars().one_or_none()
         if url is None:
             return GetNextURLForAllAnnotationResponse(
                 next_annotation=None
@@ -75,15 +87,13 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             url.html_content
         )
 
+        auto_relevant: AutoRelevantSuggestion | None = None
         if url.auto_relevant_suggestion is not None:
             auto_relevant = url.auto_relevant_suggestion
-        else:
-            auto_relevant = None
 
+        auto_record_type: AutoRecordTypeSuggestion | None = None
         if url.auto_record_type_suggestion is not None:
             auto_record_type = url.auto_record_type_suggestion.record_type
-        else:
-            auto_record_type = None
 
         agency_suggestions = await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
 

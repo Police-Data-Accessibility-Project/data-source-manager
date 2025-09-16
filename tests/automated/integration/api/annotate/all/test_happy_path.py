@@ -1,7 +1,7 @@
 import pytest
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import SuggestedStatus, RecordType
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion

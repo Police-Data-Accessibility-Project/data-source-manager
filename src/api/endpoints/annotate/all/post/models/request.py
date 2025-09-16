@@ -11,6 +11,7 @@ class AllAnnotationPostInfo(BaseModel):
     suggested_status: SuggestedStatus
     record_type: RecordType | None = None
     agency: URLAgencyAnnotationPostInfo | None = None
+    location_ids: list[int]
 
     @model_validator(mode="after")
     def allow_record_type_and_agency_only_if_relevant(self):

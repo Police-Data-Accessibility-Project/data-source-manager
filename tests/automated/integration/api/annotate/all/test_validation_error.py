@@ -1,6 +1,6 @@
 import pytest
 
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import SuggestedStatus, RecordType
 from src.core.exceptions import FailedValidationException
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review

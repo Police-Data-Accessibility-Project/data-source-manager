@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 from src.util.alembic_helpers import switch_enum_type, url_id_column, location_id_column, created_at_column, id_column, \
-    task_id_column, agency_id_column
+    task_id_column, agency_id_column, user_id_column
 
 # revision identifiers, used by Alembic.
 revision: str = '93cbaa3b8e9b'
@@ -20,23 +20,118 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 USER_LOCATION_SUGGESTIONS_TABLE_NAME = 'user_location_suggestions'
-AUTO_LOCATION_ID_SUBTASK_TABLE_NAME = 'auto_location_id_subtask'
+AUTO_LOCATION_ID_SUBTASK_TABLE_NAME = 'auto_location_id_subtasks'
 LOCATION_ID_SUBTASK_SUGGESTIONS_TABLE_NAME = 'location_id_subtask_suggestions'
 LOCATION_ID_TASK_TYPE = 'location_id'
 LOCATION_ID_SUBTASK_TYPE_NAME = 'location_id_subtask_type'
+
+
+def _create_new_url_annotation_flags_view():
+    op.execute("""DROP VIEW IF EXISTS url_annotation_flags;""")
+    op.execute(
+        f"""
+        CREATE OR REPLACE VIEW url_annotation_flags AS
+        (
+        SELECT u.id as url_id,
+                EXISTS (SELECT 1 FROM public.auto_record_type_suggestions    a WHERE a.url_id = u.id) AS has_auto_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.auto_relevant_suggestions       a WHERE a.url_id = u.id) AS has_auto_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.url_auto_agency_id_subtasks     a WHERE a.url_id = u.id) AS has_auto_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.auto_location_id_subtasks       a WHERE a.url_id = u.id) AS has_auto_location_suggestion,
+                EXISTS (SELECT 1 FROM public.user_record_type_suggestions    a WHERE a.url_id = u.id) AS has_user_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.user_relevant_suggestions       a WHERE a.url_id = u.id) AS has_user_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.user_url_agency_suggestions     a WHERE a.url_id = u.id) AS has_user_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.user_location_suggestions       a WHERE a.url_id = u.id) AS has_user_location_suggestion,
+                EXISTS (SELECT 1 FROM public.link_urls_agency                a WHERE a.url_id = u.id) AS has_confirmed_agency,
+                EXISTS (SELECT 1 FROM public.reviewing_user_url              a WHERE a.url_id = u.id) AS was_reviewed
+        FROM urls u
+            )
+        """
+    )
+
+def _create_old_url_annotation_flags_view():
+    op.execute("""DROP VIEW IF EXISTS url_annotation_flags;""")
+    op.execute(
+        f"""
+        CREATE OR REPLACE VIEW url_annotation_flags AS
+        (
+        SELECT u.id as url_id,
+                EXISTS (SELECT 1 FROM public.auto_record_type_suggestions    a WHERE a.url_id = u.id) AS has_auto_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.auto_relevant_suggestions       a WHERE a.url_id = u.id) AS has_auto_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.url_auto_agency_id_subtasks     a WHERE a.url_id = u.id) AS has_auto_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.user_record_type_suggestions    a WHERE a.url_id = u.id) AS has_user_record_type_suggestion,
+                EXISTS (SELECT 1 FROM public.user_relevant_suggestions       a WHERE a.url_id = u.id) AS has_user_relevant_suggestion,
+                EXISTS (SELECT 1 FROM public.user_url_agency_suggestions     a WHERE a.url_id = u.id) AS has_user_agency_suggestion,
+                EXISTS (SELECT 1 FROM public.link_urls_agency                a WHERE a.url_id = u.id) AS has_confirmed_agency,
+                EXISTS (SELECT 1 FROM public.reviewing_user_url              a WHERE a.url_id = u.id) AS was_reviewed
+        FROM urls u
+            )
+        """
+    )
+
 
 def upgrade() -> None:
     _add_location_id_task_type()
     _create_user_location_suggestions_table()
     _create_auto_location_id_subtask_table()
     _create_location_id_subtask_suggestions_table()
+    _create_new_url_annotation_flags_view()
+    _create_locations_expanded_view()
+
+
+
 
 def downgrade() -> None:
+    _drop_locations_expanded_view()
+    _create_old_url_annotation_flags_view()
     _drop_location_id_subtask_suggestions_table()
     _drop_auto_location_id_subtask_table()
     _drop_user_location_suggestions_table()
     _drop_location_id_task_type()
     _drop_location_id_subtask_type()
+
+def _drop_locations_expanded_view():
+    op.execute("""
+    drop view if exists public.locations_expanded;
+    """)
+
+def _create_locations_expanded_view():
+    op.execute("""
+    create or replace view public.locations_expanded
+        (id, type, state_name, state_iso, county_name, county_fips, locality_name, locality_id, state_id, county_id,
+         display_name, full_display_name)
+    as
+    SELECT
+        locations.id,
+        locations.type,
+        us_states.state_name,
+        us_states.state_iso,
+        counties.name   AS county_name,
+        counties.fips   AS county_fips,
+        localities.name AS locality_name,
+        localities.id   AS locality_id,
+        us_states.id    AS state_id,
+        counties.id     AS county_id,
+        CASE
+            WHEN locations.type = 'Locality'::location_type THEN localities.name
+            WHEN locations.type = 'County'::location_type THEN counties.name::character varying
+            WHEN locations.type = 'State'::location_type THEN us_states.state_name::character varying
+            ELSE NULL::character varying
+            END         AS display_name,
+        CASE
+            WHEN locations.type = 'Locality'::location_type THEN concat(localities.name, ', ', counties.name, ', ',
+                                                                        us_states.state_name)::character varying
+            WHEN locations.type = 'County'::location_type
+                THEN concat(counties.name, ', ', us_states.state_name)::character varying
+            WHEN locations.type = 'State'::location_type THEN us_states.state_name::character varying
+            ELSE NULL::character varying
+            END         AS full_display_name
+    FROM
+        locations
+            LEFT JOIN us_states ON locations.state_id = us_states.id
+            LEFT JOIN counties ON locations.county_id = counties.id
+            LEFT JOIN localities ON locations.locality_id = localities.id;
+        
+    """)
 
 def _add_location_id_task_type():
     switch_enum_type(
@@ -72,12 +167,14 @@ def _create_user_location_suggestions_table():
     op.create_table(
         USER_LOCATION_SUGGESTIONS_TABLE_NAME,
         url_id_column(),
+        user_id_column(),
         location_id_column(),
         created_at_column(),
         sa.PrimaryKeyConstraint(
             'url_id',
+            'user_id',
             'location_id',
-            name='user_location_suggestions_url_id_location_id_pk'
+            name='user_location_suggestions_pk'
         )
     )
 
@@ -117,7 +214,7 @@ def _create_location_id_subtask_suggestions_table():
             'subtask_id',
             sa.Integer(),
             sa.ForeignKey(
-                'auto_location_id_subtask.id',
+                f'{AUTO_LOCATION_ID_SUBTASK_TABLE_NAME}.id',
                 ondelete='CASCADE'
             ),
             primary_key=True
