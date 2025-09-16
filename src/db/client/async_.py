@@ -131,6 +131,7 @@ from src.db.queries.implementations.core.get.html_content_info import GetHTMLCon
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
 from src.db.queries.implementations.core.metrics.urls.aggregated.pending import \
     GetMetricsURLSAggregatedPendingQueryBuilder
+from src.db.queries.implementations.location.get import GetLocationQueryBuilder
 from src.db.statement_composer import StatementComposer
 from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
@@ -1264,4 +1265,18 @@ class AsyncDatabaseClient:
     async def get_urls_without_probe(self) -> list[URLMapping]:
         return await self.run_query_builder(
             GetURLsWithoutProbeQueryBuilder()
+        )
+
+    async def get_location_id(
+        self,
+        us_state_id: int,
+        county_id: int | None = None,
+        locality_id: int | None = None
+    ) -> int | None:
+        return await self.run_query_builder(
+            GetLocationQueryBuilder(
+                us_state_id=us_state_id,
+                county_id=county_id,
+                locality_id=locality_id
+            )
         )

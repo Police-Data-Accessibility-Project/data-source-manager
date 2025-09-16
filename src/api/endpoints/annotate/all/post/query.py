@@ -25,6 +25,7 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> None:
         # Add relevant annotation
+        # TODO: Modify UserRelevantSuggestion to use `URLValidatedType` instead of `SuggestedStatus`
         relevant_suggestion = UserRelevantSuggestion(
             url_id=self.url_id,
             user_id=self.user_id,
