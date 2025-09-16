@@ -132,7 +132,8 @@ async def get_next_url_for_all_annotations(
         batch_id: int | None = batch_query
 ) -> GetNextURLForAllAnnotationResponse:
     return await async_core.get_next_url_for_all_annotations(
-        batch_id=batch_id
+        batch_id=batch_id,
+        user_id=access_info.user_id
     )
 
 @annotate_router.post("/all/{url_id}")
@@ -152,5 +153,6 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         post_info=all_annotation_post_info
     )
     return await async_core.get_next_url_for_all_annotations(
-        batch_id=batch_id
+        batch_id=batch_id,
+        user_id=access_info.user_id
     )

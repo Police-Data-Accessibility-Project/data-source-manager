@@ -34,26 +34,33 @@ FROM
         LEFT JOIN counties ON locations.county_id = counties.id
         LEFT JOIN localities ON locations.locality_id = localities.id;
 """
-from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy import Column, String, Integer
 
 from src.db.models.helpers import enum_column
 from src.db.models.impl.location.location.enums import LocationType
 from src.db.models.mixins import ViewMixin, LocationDependentMixin
-from src.db.models.templates_.base import Base
+from src.db.models.templates_.with_id import WithIDBase
 
 
 class LocationExpandedView(
-    Base,
+    WithIDBase,
     ViewMixin,
     LocationDependentMixin
 ):
 
-
     __tablename__ = "locations_expanded"
     __table_args__ = (
-        PrimaryKeyConstraint("location_id"),
         {"info": "view"}
     )
 
     type = enum_column(LocationType, name="location_type", nullable=False)
-    # TODO: Complete later
+    state_name = Column(String)
+    state_iso = Column(String)
+    county_name = Column(String)
+    county_fips = Column(String)
+    locality_name = Column(String)
+    locality_id = Column(Integer)
+    state_id = Column(Integer)
+    county_id = Column(Integer)
+    display_name = Column(String)
+    full_display_name = Column(String)

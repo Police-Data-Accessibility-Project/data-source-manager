@@ -14,8 +14,7 @@ from src.api.endpoints.annotate._shared.queries.get_next_url_for_user_annotation
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.get.queries.next_for_annotation import GetNextURLAgencyForAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.get.query import GetNextURLForAllAnnotationQueryBuilder
-from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.query import GetNextUrlForRelevanceAnnotationQueryBuilder
@@ -988,9 +987,14 @@ class AsyncDatabaseClient:
         await self.execute(statement)
 
     async def get_next_url_for_all_annotations(
-        self, batch_id: int | None = None
+        self,
+        user_id: int,
+        batch_id: int | None = None
     ) -> GetNextURLForAllAnnotationResponse:
-        return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(batch_id))
+        return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(
+            batch_id=batch_id,
+            user_id=user_id
+        ))
 
     async def upload_manual_batch(
         self,

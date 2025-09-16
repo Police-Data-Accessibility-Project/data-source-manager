@@ -34,7 +34,8 @@ async def test_annotate_all_post_batch_filtering(api_test_helper):
             record_type=RecordType.ACCIDENT_REPORTS,
             agency=URLAgencyAnnotationPostInfo(
                 is_new=True
-            )
+            ),
+            location_ids=[]
         )
     )
 

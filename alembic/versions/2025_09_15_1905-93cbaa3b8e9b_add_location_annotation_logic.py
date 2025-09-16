@@ -26,6 +26,163 @@ LOCATION_ID_TASK_TYPE = 'location_id'
 LOCATION_ID_SUBTASK_TYPE_NAME = 'location_id_subtask_type'
 
 
+
+def upgrade() -> None:
+    _add_location_id_task_type()
+    _create_user_location_suggestions_table()
+    _create_auto_location_id_subtask_table()
+    _create_location_id_subtask_suggestions_table()
+    _create_new_url_annotation_flags_view()
+    _create_locations_expanded_view()
+    _create_state_location_trigger()
+    _create_county_location_trigger()
+    _create_locality_location_trigger()
+
+
+
+
+
+
+def downgrade() -> None:
+    _drop_locations_expanded_view()
+    _create_old_url_annotation_flags_view()
+    _drop_location_id_subtask_suggestions_table()
+    _drop_auto_location_id_subtask_table()
+    _drop_user_location_suggestions_table()
+    _drop_location_id_task_type()
+    _drop_location_id_subtask_type()
+    _drop_state_location_trigger()
+    _drop_county_location_trigger()
+    _drop_locality_location_trigger()
+
+
+def _create_state_location_trigger():
+    # Function
+    op.execute("""
+    create function insert_state_location() returns trigger
+        language plpgsql
+    as
+    $$
+    BEGIN
+        -- Insert a new location of type 'State' when a new state is added
+        INSERT INTO locations (type, state_id)
+        VALUES ('State', NEW.id);
+        RETURN NEW;
+    END;
+    $$; 
+    """)
+
+    # Trigger
+    op.execute("""
+    create trigger after_state_insert
+    after insert
+    on us_states
+    for each row
+    execute procedure insert_state_location();
+    """)
+
+
+def _create_county_location_trigger():
+    # Function
+    op.execute("""
+    create function insert_county_location() returns trigger
+        language plpgsql
+    as
+    $$
+    BEGIN
+        -- Insert a new location of type 'County' when a new county is added
+        INSERT INTO locations (type, state_id, county_id)
+        VALUES ('County', NEW.state_id, NEW.id);
+        RETURN NEW;
+    END;
+    $$;
+    """)
+
+    # Trigger
+    op.execute("""
+    create trigger after_county_insert
+        after insert
+        on counties
+        for each row
+    execute procedure insert_county_location();
+    """)
+
+
+def _create_locality_location_trigger():
+    # Function
+    op.execute("""
+    create function insert_locality_location() returns trigger
+        language plpgsql
+    as
+    $$
+    DECLARE
+        v_state_id BIGINT;
+    BEGIN
+        -- Get the state_id from the associated county
+        SELECT c.state_id INTO v_state_id
+        FROM counties c
+        WHERE c.id = NEW.county_id;
+    
+        -- Insert a new location of type 'Locality' when a new locality is added
+        INSERT INTO locations (type, state_id, county_id, locality_id)
+        VALUES ('Locality', v_state_id, NEW.county_id, NEW.id);
+    
+        RETURN NEW;
+    END;
+    $$;
+    """)
+
+    # Trigger
+    op.execute("""
+    create trigger after_locality_insert
+        after insert
+        on localities
+        for each row
+    execute procedure insert_locality_location();
+
+    """)
+
+
+def _drop_state_location_trigger():
+    # Trigger
+    op.execute("""
+    drop trigger if exists after_state_insert on us_states;
+    """)
+
+    # Function
+    op.execute("""
+    drop function if exists insert_state_location;
+    """)
+
+
+
+
+def _drop_locality_location_trigger():
+    # Trigger
+    op.execute("""
+    drop trigger if exists after_locality_insert on localities;
+    """)
+
+    # Function
+    op.execute("""
+    drop function if exists insert_locality_location;
+    """)
+
+
+
+def _drop_county_location_trigger():
+    # Trigger
+    op.execute("""
+    drop trigger if exists after_county_insert on counties;
+    """)
+
+    # Function
+    op.execute("""
+    drop function if exists insert_county_location;
+    """)
+
+
+
 def _create_new_url_annotation_flags_view():
     op.execute("""DROP VIEW IF EXISTS url_annotation_flags;""")
     op.execute(
@@ -68,26 +225,6 @@ def _create_old_url_annotation_flags_view():
         """
     )
 
-
-def upgrade() -> None:
-    _add_location_id_task_type()
-    _create_user_location_suggestions_table()
-    _create_auto_location_id_subtask_table()
-    _create_location_id_subtask_suggestions_table()
-    _create_new_url_annotation_flags_view()
-    _create_locations_expanded_view()
-
-
-
-
-def downgrade() -> None:
-    _drop_locations_expanded_view()
-    _create_old_url_annotation_flags_view()
-    _drop_location_id_subtask_suggestions_table()
-    _drop_auto_location_id_subtask_table()
-    _drop_user_location_suggestions_table()
-    _drop_location_id_task_type()
-    _drop_location_id_subtask_type()
 
 def _drop_locations_expanded_view():
     op.execute("""

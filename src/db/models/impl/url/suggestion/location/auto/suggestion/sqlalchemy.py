@@ -11,7 +11,7 @@ class LocationIDSubtaskSuggestion(
     __tablename__ = 'location_id_subtask_suggestions'
     subtask_id = Column(
         Integer,
-        ForeignKey('auto_location_id_subtask.id'),
+        ForeignKey('auto_location_id_subtasks.id'),
         nullable=False,
         primary_key=True,
     )

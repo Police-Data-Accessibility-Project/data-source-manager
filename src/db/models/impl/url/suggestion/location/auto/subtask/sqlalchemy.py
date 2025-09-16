@@ -15,7 +15,7 @@ class AutoLocationIDSubtask(
     URLDependentMixin,
 ):
 
-    __tablename__ = 'auto_location_id_subtask'
+    __tablename__ = 'auto_location_id_subtasks'
 
     locations_found = Column(Boolean(), nullable=False)
     type = enum_column(

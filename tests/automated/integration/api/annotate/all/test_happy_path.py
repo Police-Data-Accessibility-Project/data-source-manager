@@ -29,12 +29,14 @@ async def test_annotate_all(api_test_helper):
 
     # First, get a valid URL to annotate
     get_response_1 = await ath.request_validator.get_next_url_for_all_annotations()
+    assert get_response_1.next_annotation is not None
 
     # Apply the second batch id as a filter and see that a different URL is returned
     get_response_2 = await ath.request_validator.get_next_url_for_all_annotations(
         batch_id=setup_info_2.batch_id
     )
 
+    assert get_response_2.next_annotation is not None
     assert get_response_1.next_annotation.url_info.url_id != get_response_2.next_annotation.url_info.url_id
 
     # Annotate the first and submit
@@ -47,7 +49,8 @@ async def test_annotate_all(api_test_helper):
             agency=URLAgencyAnnotationPostInfo(
                 is_new=False,
                 suggested_agency=agency_id
-            )
+            ),
+            location_ids=[]
         )
     )
     assert post_response_1.next_annotation is not None
@@ -60,6 +63,7 @@ async def test_annotate_all(api_test_helper):
         url_id=url_mapping_2.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=SuggestedStatus.NOT_RELEVANT,
+            location_ids=[]
         )
     )
     assert post_response_2.next_annotation is None
