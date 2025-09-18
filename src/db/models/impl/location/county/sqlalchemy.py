@@ -11,7 +11,7 @@ class County(
     __tablename__ = "counties"
 
     name: Mapped[str]
-    state_id = us_state_column()
+    state_id: Mapped[int] = us_state_column()
     fips: Mapped[str] = Column(String(5), nullable=True)
     lat: Mapped[float] = Column(Float, nullable=True)
     lng: Mapped[float] = Column(Float, nullable=True)

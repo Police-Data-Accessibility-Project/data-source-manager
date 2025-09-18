@@ -7,5 +7,4 @@ class SearchAgencyByLocationParams(BaseModel):
     iso: str = Field(
         description="US State ISO Code",
         max_length=2,
-
     )

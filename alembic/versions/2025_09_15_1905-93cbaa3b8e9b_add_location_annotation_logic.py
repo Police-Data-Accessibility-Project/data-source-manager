@@ -22,8 +22,9 @@ depends_on: Union[str, Sequence[str], None] = None
 USER_LOCATION_SUGGESTIONS_TABLE_NAME = 'user_location_suggestions'
 AUTO_LOCATION_ID_SUBTASK_TABLE_NAME = 'auto_location_id_subtasks'
 LOCATION_ID_SUBTASK_SUGGESTIONS_TABLE_NAME = 'location_id_subtask_suggestions'
-LOCATION_ID_TASK_TYPE = 'location_id'
+LOCATION_ID_TASK_TYPE = 'Location ID'
 LOCATION_ID_SUBTASK_TYPE_NAME = 'location_id_subtask_type'
+
 
 
 
@@ -37,11 +38,7 @@ def upgrade() -> None:
     _create_state_location_trigger()
     _create_county_location_trigger()
     _create_locality_location_trigger()
-
-
-
-
-
+    _add_pg_trgm_extension()
 
 def downgrade() -> None:
     _drop_locations_expanded_view()
@@ -54,6 +51,17 @@ def downgrade() -> None:
     _drop_state_location_trigger()
     _drop_county_location_trigger()
     _drop_locality_location_trigger()
+    _drop_pg_trgm_extension()
+
+def _drop_pg_trgm_extension():
+    op.execute("""
+    drop extension if exists pg_trgm;
+        """)
+
+def _add_pg_trgm_extension():
+    op.execute("""
+    create extension if not exists pg_trgm;
+    """)
 
 
 def _create_state_location_trigger():

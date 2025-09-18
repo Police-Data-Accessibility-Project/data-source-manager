@@ -25,38 +25,6 @@ class PDAPClient:
     ):
         self.access_manager = access_manager
 
-    async def search_agency_by_location(
-        self,
-        params: list[SearchAgencyByLocationParams]
-    ) -> list[SearchAgencyByLocationResponse]:
-        request_url: str = self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.SOURCE_COLLECTOR,
-            subdomains=["agencies", "search", "location"]
-        )
-        headers: dict[str, str] = await self.access_manager.jwt_header()
-        headers['Content-Type']: str = "application/json"
-
-        json_params: list[dict[str, Any]] = [
-            param.model_dump(mode='json')
-            for param in params
-        ]
-
-        request_info = RequestInfo(
-            type_=RequestType.POST,
-            url=request_url,
-            headers=headers,
-            json_={
-                "requests": json_params
-            }
-        )
-        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
-
-        outer_response = SearchAgencyByLocationOuterResponse(
-            **response_info.data
-        )
-
-        return outer_response.responses
-
     async def match_agency(
         self,
         name: str,

@@ -2,8 +2,7 @@ from datetime import datetime
 
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus, RecordType
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.models.us_state import \
-    USState
+from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
@@ -15,6 +14,8 @@ from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
 from tests.helpers.data_creator.generate import generate_batch, generate_urls, generate_validated_flags, \
     generate_url_data_sources, generate_batch_url_links
+from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
+from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 
 
@@ -83,8 +84,8 @@ async def create_state(
 ) -> USStateCreationInfo:
 
     us_state_insert_model = USState(
-        name=name,
-        iso=iso,
+        state_name=name,
+        state_iso=iso,
     )
     us_state_id: int = await adb_client.add(
         us_state_insert_model,
@@ -98,3 +99,48 @@ async def create_state(
         location_id=location_id,
     )
 
+async def create_county(
+    adb_client: AsyncDatabaseClient,
+    state_id: int,
+    name: str
+) -> CountyCreationInfo:
+    county_insert_model = County(
+        name=name,
+        state_id=state_id,
+    )
+    county_id: int = await adb_client.add(
+        county_insert_model,
+        return_id=True
+    )
+    location_id: int = await adb_client.get_location_id(
+        us_state_id=state_id,
+        county_id=county_id
+    )
+    return CountyCreationInfo(
+        county_id=county_id,
+        location_id=location_id,
+    )
+
+async def create_locality(
+    adb_client: AsyncDatabaseClient,
+    state_id: int,
+    county_id: int,
+    name: str
+) -> LocalityCreationInfo:
+    locality_insert_model = Locality(
+        name=name,
+        county_id=county_id,
+    )
+    locality_id: int = await adb_client.add(
+        locality_insert_model,
+        return_id=True
+    )
+    location_id: int = await adb_client.get_location_id(
+        us_state_id=state_id,
+        county_id=county_id,
+        locality_id=locality_id
+    )
+    return LocalityCreationInfo(
+        locality_id=locality_id,
+        location_id=location_id,
+    )

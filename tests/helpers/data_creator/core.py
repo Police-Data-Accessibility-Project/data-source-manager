@@ -42,10 +42,13 @@ from tests.helpers.data_creator.commands.impl.urls_.query import URLsDBDataCreat
 from tests.helpers.data_creator.commands.impl.urls_v2.core import URLsV2Command
 from tests.helpers.data_creator.commands.impl.urls_v2.response import URLsV2Response
 from tests.helpers.data_creator.create import create_urls, create_batch, create_batch_url_links, create_validated_flags, \
-    create_url_data_sources
+    create_url_data_sources, create_state, create_county, create_locality
 from tests.helpers.data_creator.models.clients import DBDataCreatorClientContainer
 from tests.helpers.data_creator.models.creation_info.batch.v1 import BatchURLCreationInfo
 from tests.helpers.data_creator.models.creation_info.batch.v2 import BatchURLCreationInfoV2
+from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
+from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
+from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.simple_test_data_functions import generate_test_name
 
 
@@ -562,3 +565,38 @@ class DBDataCreator:
             for url_id in url_ids
         ]
         await self.adb_client.add_all(web_metadata)
+
+    async def create_us_state(
+        self,
+        name: str,
+        iso:str
+    ) -> USStateCreationInfo:
+        return await create_state(
+            adb_client=self.adb_client,
+            name=name,
+            iso=iso,
+        )
+
+    async def create_county(
+        self,
+        state_id: int,
+        name: str,
+    ) -> CountyCreationInfo:
+        return await create_county(
+            adb_client=self.adb_client,
+            state_id=state_id,
+            name=name,
+        )
+
+    async def create_locality(
+        self,
+        state_id: int,
+        county_id: int,
+        name: str,
+    ) -> LocalityCreationInfo:
+        return await create_locality(
+            adb_client=self.adb_client,
+            state_id=state_id,
+            county_id=county_id,
+            name=name,
+        )

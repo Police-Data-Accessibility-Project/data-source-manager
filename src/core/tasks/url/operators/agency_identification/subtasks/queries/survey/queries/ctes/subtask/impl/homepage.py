@@ -2,7 +2,7 @@ from sqlalchemy import select, exists
 
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.queries.ctes.consolidated import \
     CONSOLIDATED_CTE
-from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.container import \
+from src.core.tasks.url.operators._shared.subtask.container import \
     SubtaskCTEContainer
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.helpers import \
     get_exists_subtask_query

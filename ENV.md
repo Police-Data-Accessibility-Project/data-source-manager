@@ -91,12 +91,21 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 
 Agency ID Subtasks are collectively disabled by the `URL_AGENCY_IDENTIFICATION_TASK_FLAG` flag.
 
-| Flag                                | Description                                                        |
-|-------------------------------------|--------------------------------------------------------------------|
-| `AGENCY_ID_HOMEPAGE_MATCH_FLAG` | Enables the homepage match subtask for agency identification. |
+| Flag                                | Description                                                       |
+|-------------------------------------|-------------------------------------------------------------------|
+| `AGENCY_ID_HOMEPAGE_MATCH_FLAG`     | Enables the homepage match subtask for agency identification.     |
 | `AGENCY_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for agency identification. |
-| `AGENCY_ID_CKAN_FLAG` | Enables the CKAN subtask for agency identification. |
-| `AGENCY_ID_MUCKROCK_FLAG` | Enables the MuckRock subtask for agency identification. |
+| `AGENCY_ID_CKAN_FLAG`               | Enables the CKAN subtask for agency identification.               |
+| `AGENCY_ID_MUCKROCK_FLAG`           | Enables the MuckRock subtask for agency identification.           |
+
+
+### Location ID Subtasks
+
+Location ID Subtasks are collectively disabled by the `URL_LOCATION_IDENTIFICATION_TASK_FLAG` flag
+
+| Flag                                  | Description                                                         | 
+|---------------------------------------|---------------------------------------------------------------------| 
+| `LOCATION_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for location identification. |
 
 
 ## Foreign Data Wrapper (FDW)

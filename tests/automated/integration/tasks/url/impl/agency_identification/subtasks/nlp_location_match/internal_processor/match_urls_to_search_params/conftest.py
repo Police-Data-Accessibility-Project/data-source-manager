@@ -4,7 +4,7 @@ import pytest
 
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.core import \
     AgencyIDSubtaskInternalProcessor
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
     NLPProcessor
 from src.external.pdap.client import PDAPClient
 

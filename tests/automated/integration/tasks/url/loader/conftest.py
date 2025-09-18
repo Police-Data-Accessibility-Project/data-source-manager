@@ -4,7 +4,7 @@ import pytest
 
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.loader import URLTaskOperatorLoader
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
     NLPProcessor
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.db.client.async_ import AsyncDatabaseClient

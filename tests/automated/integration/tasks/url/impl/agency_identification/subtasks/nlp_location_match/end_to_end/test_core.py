@@ -1,10 +1,8 @@
-from unittest.mock import AsyncMock, MagicMock
-
 import pytest
 
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.models.input import \
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.input import \
     NLPLocationMatchSubtaskInput
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.core import \
     AgencyIDSubtaskInternalProcessor

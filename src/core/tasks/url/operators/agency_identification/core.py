@@ -1,5 +1,5 @@
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
-from src.core.tasks.url.operators.agency_identification.exceptions import SubtaskError
+from src.core.tasks.url.operators._shared.exceptions import SubtaskError
 from src.core.tasks.url.operators.agency_identification.subtasks.flags.core import SubtaskFlagger
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info import AgencyIDSubtaskRunInfo

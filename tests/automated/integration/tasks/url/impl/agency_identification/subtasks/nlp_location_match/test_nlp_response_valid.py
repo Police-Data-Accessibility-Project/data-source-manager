@@ -1,8 +1,8 @@
 import pytest
 
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.models.response import \
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models import \
     NLPLocationMatchResponse
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.models.us_state import \
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models.us_state import \
     USState
 
 US_STATE = USState(

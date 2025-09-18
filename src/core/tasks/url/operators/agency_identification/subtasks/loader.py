@@ -6,7 +6,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.
     MuckrockAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.core import \
     NLPLocationMatchSubtaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
     NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
