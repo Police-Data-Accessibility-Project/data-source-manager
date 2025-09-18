@@ -57,16 +57,10 @@ class AgencyIdentificationTaskOperator(
         """Get subtask based on collector type."""
         return await self.loader.load_subtask(subtask_type, task_id=self.task_id)
 
-    @staticmethod
-    async def run_subtask(
-        subtask_operator: AgencyIDSubtaskOperatorBase,
-    ) -> AgencyIDSubtaskRunInfo:
-        return await subtask_operator.run()
-
     async def inner_task_logic(self) -> None:
         subtask_operator: AgencyIDSubtaskOperatorBase = await self.load_subtask(self._subtask)
         print(f"Running Subtask: {self._subtask.value}")
-        run_info: AgencyIDSubtaskRunInfo = await self.run_subtask(subtask_operator)
+        run_info: AgencyIDSubtaskRunInfo = await subtask_operator.run()
         await self.link_urls_to_task(run_info.linked_url_ids)
         if not run_info.is_success:
             raise SubtaskError(run_info.error)

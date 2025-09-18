@@ -1,7 +1,5 @@
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.constants import \
     ITERATIONS_PER_SUBTASK
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.core import \
-    AgencyIDSubtaskInternalProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.input import \
@@ -30,8 +28,6 @@ class NLPLocationMatchSubtaskOperator(AgencyIDSubtaskOperatorBase):
     async def run_subtask_iteration(self, inputs: list[NLPLocationMatchSubtaskInput]) -> None:
         self.linked_urls.extend([input_.url_id for input_ in inputs])
         subtask_data_list: list[AutoAgencyIDSubtaskData] = []
-
-        # TODO: Get NLP Annotations
 
         # TODO: Process and Convert NLP Annotations
 

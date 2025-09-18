@@ -2,8 +2,7 @@ from operator import and_
 
 from sqlalchemy import select
 
-from src.core.tasks.url.operators._shared.subtask.container import \
-    SubtaskCTEContainer
+from src.core.tasks.url.operators._shared.container.subtask.eligible import URLsSubtaskEligibleCTEContainer
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.helpers import \
     get_exists_subtask_query
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -27,6 +26,6 @@ cte = (
     .cte("nlp_location_eligible")
 )
 
-NLP_LOCATION_CONTAINER = SubtaskCTEContainer(
+NLP_LOCATION_CONTAINER = URLsSubtaskEligibleCTEContainer(
     cte,
 )

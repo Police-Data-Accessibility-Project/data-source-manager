@@ -11,12 +11,15 @@ from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.
     EligibleContainer
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
+from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
+from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.utils.compression import decompress_html
 
 
 class GetNLPLocationMatchSubtaskInputQueryBuilder(QueryBuilderBase):
 
+    # TODO: Change
     async def run(
         self,
         session: AsyncSession
@@ -28,8 +31,12 @@ class GetNLPLocationMatchSubtaskInputQueryBuilder(QueryBuilderBase):
                 URLCompressedHTML.compressed_html
             )
             .join(
-                URLCompressedHTML,
-                URLCompressedHTML.url_id == container.url_id,
+                AutoLocationIDSubtask,
+                AutoLocationIDSubtask.url_id == container.url_id,
+            )
+            .join(
+                LocationIDSubtaskSuggestion,
+                LocationIDSubtaskSuggestion.subtask_id == AutoLocationIDSubtask.id
             )
             .where(
                 container.nlp_location,
