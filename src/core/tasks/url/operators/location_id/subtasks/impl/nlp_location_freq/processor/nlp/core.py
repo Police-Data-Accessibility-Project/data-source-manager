@@ -5,7 +5,7 @@ from spacy import Language
 from spacy.tokens import Doc
 
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.check import \
-    is_name_us_state, is_iso_us_state
+    is_name_us_state, is_iso_us_state, is_blacklisted_word
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.constants import \
     INVALID_LOCATION_CHARACTERS, INVALID_SCAN_ISOS
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.convert import \
@@ -61,6 +61,8 @@ class NLPProcessor:
                 continue
             text: str = ent.text
             if any(char in text for char in INVALID_LOCATION_CHARACTERS):
+                continue
+            if is_blacklisted_word(text):
                 continue
             if is_name_us_state(text):
                 us_state: USState | None = convert_us_state_name_to_us_state(text)

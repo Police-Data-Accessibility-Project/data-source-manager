@@ -1,6 +1,6 @@
 import pytest
 
-from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models import \
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models.response import \
     NLPLocationMatchResponse
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models.us_state import \
     USState

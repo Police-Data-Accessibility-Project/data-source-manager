@@ -13,6 +13,7 @@ class AllAnnotationPostInfo(BaseModel):
     agency: URLAgencyAnnotationPostInfo | None = None
     location_ids: list[int]
 
+    # TODO (SM422): Break up into multiple validation types
     @model_validator(mode="after")
     def allow_record_type_and_agency_only_if_relevant(self):
         suggested_status = self.suggested_status

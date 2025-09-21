@@ -7,11 +7,11 @@ Create Date: 2025-09-15 19:05:27.872875
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from src.util.alembic_helpers import switch_enum_type, url_id_column, location_id_column, created_at_column, id_column, \
-    task_id_column, agency_id_column, user_id_column
+    task_id_column, user_id_column
 
 # revision identifiers, used by Alembic.
 revision: str = '93cbaa3b8e9b'
@@ -362,7 +362,6 @@ def _create_location_id_subtask_suggestions_table():
                 f'{AUTO_LOCATION_ID_SUBTASK_TABLE_NAME}.id',
                 ondelete='CASCADE'
             ),
-            primary_key=True
         ),
         location_id_column(),
         sa.Column(
@@ -371,6 +370,11 @@ def _create_location_id_subtask_suggestions_table():
             nullable=False
         ),
         created_at_column(),
+        sa.PrimaryKeyConstraint(
+            'subtask_id',
+            'location_id',
+            name='location_id_subtask_suggestions_pk'
+        )
     )
 
 

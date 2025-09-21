@@ -68,7 +68,8 @@ def convert_search_location_responses_to_subtask_data_list(
         )
         pydantic_model: AutoLocationIDSubtaskPydantic = convert_search_agency_response_to_subtask_pydantic(
             url_id=url_id,
-            task_id=task_id
+            task_id=task_id,
+            suggestions=suggestions
         )
         subtask_data = AutoLocationIDSubtaskData(
             pydantic_model=pydantic_model,
@@ -80,14 +81,15 @@ def convert_search_location_responses_to_subtask_data_list(
 
 def convert_search_agency_response_to_subtask_pydantic(
     url_id: int,
-    task_id: int
+    task_id: int,
+    suggestions: list[LocationSuggestion]
 ) -> AutoLocationIDSubtaskPydantic:
 
     return AutoLocationIDSubtaskPydantic(
         task_id=task_id,
         url_id=url_id,
         type=LocationIDSubtaskType.NLP_LOCATION_FREQUENCY,
-        locations_found=True
+        locations_found=len(suggestions) > 0,
     )
 
 def _convert_search_agency_response_to_agency_suggestions(

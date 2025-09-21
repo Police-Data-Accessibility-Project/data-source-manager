@@ -27,8 +27,7 @@ from src.core.tasks.scheduled.manager import AsyncScheduledTaskManager
 from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 from src.core.tasks.url.manager import TaskManager
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
-    NLPProcessor
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.enums import \
     SpacyModelType
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser

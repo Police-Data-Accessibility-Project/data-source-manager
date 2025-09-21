@@ -15,4 +15,12 @@ INVALID_LOCATION_CHARACTERS: set[str] = {
 INVALID_SCAN_ISOS: set[str] = {
     "IN",
     "OR",
+    "ME",
+    "ID"
+}
+
+BLACKLISTED_WORDS: set[str] = {
+    "the united states",
+    "download",
+    "geoplatform"
 }

@@ -49,6 +49,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                 UnvalidatedURL.url_id == URL.id
             )
             # Must not have been previously annotated by user
+            # TODO (SM422): Remove where conditional on whether it already has user suggestions
             .join(
                 prev_annotated_cte.cte,
                 prev_annotated_cte.url_id == URL.id
@@ -73,6 +74,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             joinedload(URL.auto_record_type_suggestion),
         )
 
+        # TODO (SM422): Add order by highest number of suggestions (auto or user), desc
         query = query.order_by(URL.id.asc()).limit(1)
         raw_results = (await session.execute(query)).unique()
         url: URL | None = raw_results.scalars().one_or_none()

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
@@ -18,7 +18,7 @@ class AutoLocationIDSubtask(
     __tablename__ = 'auto_location_id_subtasks'
 
     locations_found = Column(Boolean(), nullable=False)
-    type = enum_column(
+    type: Mapped[LocationIDSubtaskType] = enum_column(
         LocationIDSubtaskType,
         name='auto_location_id_subtask_type'
     )

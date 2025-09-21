@@ -12,6 +12,7 @@ from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
+from tests.helpers.counter import COUNTER, next_int
 from tests.helpers.data_creator.generate import generate_batch, generate_urls, generate_validated_flags, \
     generate_url_data_sources, generate_batch_url_links
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
@@ -107,6 +108,7 @@ async def create_county(
     county_insert_model = County(
         name=name,
         state_id=state_id,
+        fips=str(next_int()),
     )
     county_id: int = await adb_client.add(
         county_insert_model,

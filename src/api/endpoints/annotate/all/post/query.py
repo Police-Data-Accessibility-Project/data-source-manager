@@ -34,7 +34,7 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         session.add(relevant_suggestion)
 
         # If not relevant, do nothing else
-        # TODO: 1: Update to account for change in SuggestedStatus
+        # TODO (SM422): Update to account for change in SuggestedStatus
         if not self.post_info.suggested_status == SuggestedStatus.RELEVANT:
             return
 

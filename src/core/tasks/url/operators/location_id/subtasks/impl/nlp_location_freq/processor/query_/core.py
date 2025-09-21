@@ -51,7 +51,11 @@ class SearchSimilarLocationsQueryBuilder(QueryBuilderBase):
         lateral_top_5 = (
             select(
                 vals.c.request_id,
-                LocationExpandedView.location_id,
+                LocationExpandedView.id.label("location_id"),
+                func.row_number().over(
+                    partition_by=vals.c.request_id,
+                    order_by=similarity.desc(),
+                ).label("rank"),
                 similarity.label("similarity"),
             )
             .join(
@@ -61,18 +65,23 @@ class SearchSimilarLocationsQueryBuilder(QueryBuilderBase):
             .order_by(
                 similarity.desc(),
             )
-            .limit(5)
             .lateral("lateral_top_5")
         )
 
-        final = select(
-            vals.c.request_id,
-            lateral_top_5.c.location_id,
-            lateral_top_5.c.similarity,
-        ).join(
-            lateral_top_5,
-            vals.c.request_id == lateral_top_5.c.request_id,
+        final = (
+            select(
+                vals.c.request_id,
+                lateral_top_5.c.location_id,
+                lateral_top_5.c.similarity,
+            ).join(
+                lateral_top_5,
+                vals.c.request_id == lateral_top_5.c.request_id,
+            )
+            .where(
+                lateral_top_5.c.rank <= 5,
+            )
         )
+
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=final)
         request_id_to_locations: dict[int, list[SearchSimilarLocationsLocationInfo]] = (

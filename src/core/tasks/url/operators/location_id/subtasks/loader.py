@@ -1,6 +1,6 @@
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import NLPProcessor
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.core import \
     NLPLocationFrequencySubtaskOperator
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
 from src.core.tasks.url.operators.location_id.subtasks.templates.subtask import LocationIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType

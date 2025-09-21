@@ -30,7 +30,7 @@ class URLsSubtaskEligibleCTEContainer:
         return self.cte.c['id']
 
     @property
-    def eligible_query(self) -> ColumnElement[int]:
+    def eligible_query(self) -> ColumnElement[bool]:
         return (
             exists()
             .where(

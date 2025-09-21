@@ -2,10 +2,11 @@ from collections import defaultdict
 
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.mappings.url_id_nlp_response import \
     URLToNLPResponseMapping
-from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.subsets.nlp_responses import \
-    NLPResponseSubsets
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.subsets import NLPResponseSubsets
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.models.response import \
     NLPLocationMatchResponse
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.query_.models.response import \
+    SearchSimilarLocationsLocationInfo
 from src.core.tasks.url.operators.location_id.subtasks.models.subtask import AutoLocationIDSubtaskData
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 
@@ -57,3 +58,8 @@ def filter_top_n_suggestions(
             reverse=True  # Descending order
         )
         subtask_data.suggestions = suggestions_sorted[:n]
+
+def filter_out_responses_with_zero_similarity(
+    entries: list[SearchSimilarLocationsLocationInfo]
+) -> list[SearchSimilarLocationsLocationInfo]:
+    return [entry for entry in entries if entry.similarity > 0]

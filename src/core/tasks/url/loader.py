@@ -7,12 +7,12 @@ from environs import Env
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
-    NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
+from src.core.tasks.url.operators.location_id.core import LocationIdentificationTaskOperator
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
 from src.core.tasks.url.operators.location_id.subtasks.loader import LocationIdentificationSubtaskLoader
 from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
@@ -86,7 +86,6 @@ class URLTaskOperatorLoader:
                 pdap_client=self.pdap_client,
                 muckrock_api_interface=self.muckrock_api_interface,
                 adb_client=self.adb_client,
-                nlp_processor=self.nlp_processor
             )
         )
         return URLTaskEntry(
@@ -186,7 +185,7 @@ class URLTaskOperatorLoader:
         )
 
     def _get_location_id_task_operator(self) -> URLTaskEntry:
-        operator = URLLocationIDTaskOperator(
+        operator = LocationIdentificationTaskOperator(
             adb_client=self.adb_client,
             loader=LocationIdentificationSubtaskLoader(
                 adb_client=self.adb_client,

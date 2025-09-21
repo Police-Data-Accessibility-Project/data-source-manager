@@ -1,17 +1,16 @@
 from collections import defaultdict
 
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.input_ import \
+    NLPLocationFrequencySubtaskInput
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.subsets import NLPResponseSubsets
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.filter import \
-    filter_valid_and_invalid_nlp_responses, filter_top_n_suggestions
+    filter_valid_and_invalid_nlp_responses, filter_top_n_suggestions, filter_out_responses_with_zero_similarity
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.mappings.url_id_search_response import \
     URLToSearchResponseMapping
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.mapper import \
     URLRequestIDMapper
-from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.input import \
-    NLPLocationMatchSubtaskInput
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.mappings.url_id_nlp_response import \
     URLToNLPResponseMapping
-from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.models.subsets.nlp_responses import \
-    NLPResponseSubsets
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.convert import \
     convert_invalid_url_nlp_mappings_to_subtask_data_list, convert_search_location_responses_to_subtask_data_list, \
     convert_urls_to_search_params
@@ -27,7 +26,7 @@ from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.pr
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.query_.models.params import \
     SearchSimilarLocationsParams
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.query_.models.response import \
-    SearchSimilarLocationsResponse
+    SearchSimilarLocationsResponse, SearchSimilarLocationsOuterResponse
 from src.core.tasks.url.operators.location_id.subtasks.models.subtask import AutoLocationIDSubtaskData
 from src.db.client.async_ import AsyncDatabaseClient
 
@@ -46,12 +45,12 @@ class NLPLocationFrequencySubtaskInternalProcessor:
 
     async def process(
         self,
-        inputs: list[NLPLocationMatchSubtaskInput]
+        inputs: list[NLPLocationFrequencySubtaskInput]
     ) -> list[AutoLocationIDSubtaskData]:
         subtask_data_list: list[AutoLocationIDSubtaskData] = []
 
         url_to_nlp_mappings: list[URLToNLPResponseMapping] = \
-            self._match_urls_to_nlp_responses(inputs)
+            self._parse_all_url_htmls_for_locations(inputs)
 
         # Filter out valid and invalid NLP responses
         nlp_response_subsets: NLPResponseSubsets = \
@@ -104,11 +103,12 @@ class NLPLocationFrequencySubtaskInternalProcessor:
 
         url_id_to_search_responses: dict[int, list[SearchSimilarLocationsResponse]] = defaultdict(list)
 
-        responses: list[SearchSimilarLocationsResponse] = await self._adb_client.run_query_builder(
+        outer_response: SearchSimilarLocationsOuterResponse = await self._adb_client.run_query_builder(
             SearchSimilarLocationsQueryBuilder(
                 params=params,
             )
         )
+        responses: list[SearchSimilarLocationsResponse] = outer_response.responses
         # Map responses to URL IDs via request IDs
         for response in responses:
             request_id: int = response.request_id
@@ -118,6 +118,9 @@ class NLPLocationFrequencySubtaskInternalProcessor:
         # Reconcile URL IDs to search responses
         response_mappings: list[URLToSearchResponseMapping] = []
         for url_id, responses in url_id_to_search_responses.items():
+            for response in responses:
+                response.results = filter_out_responses_with_zero_similarity(response.results)
+
             mapping = URLToSearchResponseMapping(
                 url_id=url_id,
                 search_responses=responses,
@@ -126,13 +129,13 @@ class NLPLocationFrequencySubtaskInternalProcessor:
 
         return response_mappings
 
-    def _match_urls_to_nlp_responses(
+    def _parse_all_url_htmls_for_locations(
         self,
-        inputs: list[NLPLocationMatchSubtaskInput]
+        inputs: list[NLPLocationFrequencySubtaskInput]
     ) -> list[URLToNLPResponseMapping]:
         url_to_nlp_mappings: list[URLToNLPResponseMapping] = []
         for input_ in inputs:
-            nlp_response: NLPLocationMatchResponse = self._get_location_match(input_.html)
+            nlp_response: NLPLocationMatchResponse = self._parse_for_locations(input_.html)
             mapping = URLToNLPResponseMapping(
                 url_id=input_.url_id,
                 nlp_response=nlp_response,
@@ -140,7 +143,7 @@ class NLPLocationFrequencySubtaskInternalProcessor:
             url_to_nlp_mappings.append(mapping)
         return url_to_nlp_mappings
 
-    def _get_location_match(
+    def _parse_for_locations(
         self,
         html: str
     ) -> NLPLocationMatchResponse:

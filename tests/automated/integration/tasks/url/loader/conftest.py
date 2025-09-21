@@ -4,9 +4,8 @@ import pytest
 
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.loader import URLTaskOperatorLoader
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
-    NLPProcessor
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.pdap.client import PDAPClient
