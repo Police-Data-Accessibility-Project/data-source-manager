@@ -1,12 +1,10 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, Path, Query
 
 from src.api.dependencies import get_async_core
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.dtos.record_type.post import RecordTypeAnnotationPostInfo
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseOuterInfo
@@ -134,7 +132,8 @@ async def get_next_url_for_all_annotations(
         batch_id: int | None = batch_query
 ) -> GetNextURLForAllAnnotationResponse:
     return await async_core.get_next_url_for_all_annotations(
-        batch_id=batch_id
+        batch_id=batch_id,
+        user_id=access_info.user_id
     )
 
 @annotate_router.post("/all/{url_id}")
@@ -154,5 +153,6 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         post_info=all_annotation_post_info
     )
     return await async_core.get_next_url_for_all_annotations(
-        batch_id=batch_id
+        batch_id=batch_id,
+        user_id=access_info.user_id
     )

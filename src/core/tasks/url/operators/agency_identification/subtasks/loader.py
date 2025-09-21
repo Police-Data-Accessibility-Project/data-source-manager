@@ -6,8 +6,6 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.
     MuckrockAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.core import \
     NLPLocationMatchSubtaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
-    NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
@@ -22,11 +20,9 @@ class AgencyIdentificationSubtaskLoader:
         pdap_client: PDAPClient,
         muckrock_api_interface: MuckrockAPIInterface,
         adb_client: AsyncDatabaseClient,
-        nlp_processor: NLPProcessor
     ):
         self._pdap_client = pdap_client
         self._muckrock_api_interface = muckrock_api_interface
-        self._nlp_processor = nlp_processor
         self.adb_client = adb_client
 
     def _load_muckrock_subtask(self, task_id: int) -> MuckrockAgencyIDSubtaskOperator:
@@ -54,8 +50,6 @@ class AgencyIdentificationSubtaskLoader:
         return NLPLocationMatchSubtaskOperator(
             task_id=task_id,
             adb_client=self.adb_client,
-            pdap_client=self._pdap_client,
-            processor=self._nlp_processor
         )
 
 

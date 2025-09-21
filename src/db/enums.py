@@ -48,6 +48,7 @@ class TaskType(PyEnum):
     IA_PROBE = "Internet Archives Probe"
     IA_SAVE = "Internet Archives Archive"
     SCREENSHOT = "Screenshot"
+    LOCATION_ID = "Location ID"
 
     # Scheduled Tasks
     PUSH_TO_HUGGINGFACE = "Push to Hugging Face"

@@ -1,6 +1,6 @@
 import pytest
 
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor import \
     NLPProcessor
 
 SAMPLE_HTML: str = """

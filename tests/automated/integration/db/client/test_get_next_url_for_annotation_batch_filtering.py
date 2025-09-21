@@ -92,7 +92,8 @@ async def test_get_next_url_for_annotation_batch_filtering(
 
     # All annotations
     result_with_batch_id = await db_data_creator.adb_client.get_next_url_for_all_annotations(
-        batch_id=setup_info_2.batch_id
+        batch_id=setup_info_2.batch_id,
+        user_id=1
     )
 
     assert result_with_batch_id.next_annotation.url_info.url == url_2.url
@@ -100,7 +101,8 @@ async def test_get_next_url_for_annotation_batch_filtering(
 
     # If no batch id is provided, return first valid URL
     result_no_batch_id = await db_data_creator.adb_client.get_next_url_for_all_annotations(
-        batch_id=None
+        batch_id=None,
+        user_id=1
     )
 
     assert result_no_batch_id.next_annotation.url_info.url == url_1.url

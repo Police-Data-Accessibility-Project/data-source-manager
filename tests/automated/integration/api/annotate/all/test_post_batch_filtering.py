@@ -1,7 +1,7 @@
 import pytest
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import SuggestedStatus, RecordType
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
@@ -34,7 +34,8 @@ async def test_annotate_all_post_batch_filtering(api_test_helper):
             record_type=RecordType.ACCIDENT_REPORTS,
             agency=URLAgencyAnnotationPostInfo(
                 is_new=True
-            )
+            ),
+            location_ids=[]
         )
     )
 

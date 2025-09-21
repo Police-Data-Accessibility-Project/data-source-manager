@@ -37,6 +37,13 @@ def url_id_column() -> Column[int]:
         nullable=False
     )
 
+def location_id_column() -> Column[int]:
+    return Column(
+        Integer(),
+        ForeignKey('locations.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
 CURRENT_TIME_SERVER_DEFAULT = func.now()
 
 def url_id_primary_key_constraint() -> PrimaryKeyConstraint:

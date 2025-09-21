@@ -7,6 +7,7 @@ from src.db.models.helpers import enum_column
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
+from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
@@ -55,14 +56,20 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     auto_agency_subtasks = relationship(
         "URLAutoAgencyIDSubtask"
     )
+    auto_location_subtasks = relationship(
+        AutoLocationIDSubtask
+    )
+    # TODO (SM422): Remove uselist=False, pluralize
     user_agency_suggestion = relationship(
         "UserUrlAgencySuggestion", uselist=False, back_populates="url")
     auto_record_type_suggestion = relationship(
         "AutoRecordTypeSuggestion", uselist=False, back_populates="url")
+    # TODO (SM422): Remove uselist=False, pluralize
     user_record_type_suggestion = relationship(
         "UserRecordTypeSuggestion", uselist=False, back_populates="url")
     auto_relevant_suggestion = relationship(
         "AutoRelevantSuggestion", uselist=False, back_populates="url")
+    # TODO (SM422): Remove uselist=False, pluralize
     user_relevant_suggestion = relationship(
         "UserRelevantSuggestion", uselist=False, back_populates="url")
     reviewing_user = relationship(

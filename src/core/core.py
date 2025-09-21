@@ -7,8 +7,9 @@ from sqlalchemy.exc import IntegrityError
 
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseOuterInfo
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
@@ -271,10 +272,12 @@ class AsyncCore:
 
     async def get_next_url_for_all_annotations(
             self,
-            batch_id: Optional[int]
+            user_id: int,
+            batch_id: int | None
     ) -> GetNextURLForAllAnnotationResponse:
         return await self.adb_client.get_next_url_for_all_annotations(
-            batch_id=batch_id
+            batch_id=batch_id,
+            user_id=user_id
         )
 
     async def submit_url_for_all_annotations(
@@ -283,10 +286,12 @@ class AsyncCore:
             url_id: int,
             post_info: AllAnnotationPostInfo
     ):
-        await self.adb_client.add_all_annotations_to_url(
-            user_id=user_id,
-            url_id=url_id,
-            post_info=post_info
+        await self.adb_client.run_query_builder(
+            AddAllAnnotationsToURLQueryBuilder(
+                user_id=user_id,
+                url_id=url_id,
+                post_info=post_info
+            )
         )
 
     async def approve_url(

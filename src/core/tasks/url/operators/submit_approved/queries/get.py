@@ -2,14 +2,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.submit_approved.queries.cte import VALIDATED_URLS_WITHOUT_DS_ALIAS
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
+from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.helpers.session import session_helper as sh
+
 
 class GetValidatedURLsQueryBuilder(QueryBuilderBase):
 

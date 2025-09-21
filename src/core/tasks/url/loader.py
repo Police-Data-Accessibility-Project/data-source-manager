@@ -7,12 +7,13 @@ from environs import Env
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
-from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_location_match_.processor.nlp.core import \
-    NLPProcessor
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
+from src.core.tasks.url.operators.location_id.core import LocationIdentificationTaskOperator
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
+from src.core.tasks.url.operators.location_id.subtasks.loader import LocationIdentificationSubtaskLoader
 from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
 from src.core.tasks.url.operators.probe_404.core import URL404ProbeTaskOperator
@@ -85,7 +86,6 @@ class URLTaskOperatorLoader:
                 pdap_client=self.pdap_client,
                 muckrock_api_interface=self.muckrock_api_interface,
                 adb_client=self.adb_client,
-                nlp_processor=self.nlp_processor
             )
         )
         return URLTaskEntry(
@@ -184,6 +184,22 @@ class URLTaskOperatorLoader:
             )
         )
 
+    def _get_location_id_task_operator(self) -> URLTaskEntry:
+        operator = LocationIdentificationTaskOperator(
+            adb_client=self.adb_client,
+            loader=LocationIdentificationSubtaskLoader(
+                adb_client=self.adb_client,
+                nlp_processor=self.nlp_processor
+            )
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.env.bool(
+                "URL_LOCATION_IDENTIFICATION_TASK_FLAG",
+                default=True
+            )
+        )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
@@ -196,5 +212,6 @@ class URLTaskOperatorLoader:
             self._get_url_miscellaneous_metadata_task_operator(),
             self._get_submit_approved_url_task_operator(),
             self._get_url_auto_relevance_task_operator(),
-            self._get_url_screenshot_task_operator()
+            self._get_url_screenshot_task_operator(),
+            self._get_location_id_task_operator()
         ]

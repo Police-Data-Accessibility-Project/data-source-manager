@@ -1,8 +1,8 @@
 from sqlalchemy import select, CTE, Column
 
-from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.exists.impl.high_confidence_annotations import \
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.exists.high_confidence_annotations import \
     HIGH_CONFIDENCE_ANNOTATIONS_EXISTS_CONTAINER
-from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.exists.impl.validated import \
+from src.core.tasks.url.operators._shared.ctes.validated import \
     VALIDATED_EXISTS_CONTAINER
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.impl.ckan import \
     CKAN_SUBTASK_CONTAINER

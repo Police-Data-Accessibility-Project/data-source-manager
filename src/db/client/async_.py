@@ -13,9 +13,8 @@ from src.api.endpoints.annotate._shared.queries.get_next_url_for_user_annotation
     GetNextURLForUserAnnotationQueryBuilder
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
 from src.api.endpoints.annotate.agency.get.queries.next_for_annotation import GetNextURLAgencyForAnnotationQueryBuilder
-from src.api.endpoints.annotate.all.get.dto import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.get.query import GetNextURLForAllAnnotationQueryBuilder
-from src.api.endpoints.annotate.all.post.dto import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseInfo
 from src.api.endpoints.annotate.relevance.get.query import GetNextUrlForRelevanceAnnotationQueryBuilder
@@ -132,6 +131,7 @@ from src.db.queries.implementations.core.get.html_content_info import GetHTMLCon
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
 from src.db.queries.implementations.core.metrics.urls.aggregated.pending import \
     GetMetricsURLSAggregatedPendingQueryBuilder
+from src.db.queries.implementations.location.get import GetLocationQueryBuilder
 from src.db.statement_composer import StatementComposer
 from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
@@ -988,45 +988,14 @@ class AsyncDatabaseClient:
         await self.execute(statement)
 
     async def get_next_url_for_all_annotations(
-        self, batch_id: int | None = None
-    ) -> GetNextURLForAllAnnotationResponse:
-        return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(batch_id))
-
-    @session_manager
-    async def add_all_annotations_to_url(
         self,
-        session,
         user_id: int,
-        url_id: int,
-        post_info: AllAnnotationPostInfo
-    ):
-
-        # Add relevant annotation
-        relevant_suggestion = UserRelevantSuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            suggested_status=post_info.suggested_status.value
-        )
-        session.add(relevant_suggestion)
-
-        # If not relevant, do nothing else
-        if not post_info.suggested_status == SuggestedStatus.RELEVANT:
-            return
-
-        record_type_suggestion = UserRecordTypeSuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            record_type=post_info.record_type.value
-        )
-        session.add(record_type_suggestion)
-
-        agency_suggestion = UserUrlAgencySuggestion(
-            url_id=url_id,
-            user_id=user_id,
-            agency_id=post_info.agency.suggested_agency,
-            is_new=post_info.agency.is_new
-        )
-        session.add(agency_suggestion)
+        batch_id: int | None = None
+    ) -> GetNextURLForAllAnnotationResponse:
+        return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(
+            batch_id=batch_id,
+            user_id=user_id
+        ))
 
     async def upload_manual_batch(
         self,
@@ -1296,4 +1265,18 @@ class AsyncDatabaseClient:
     async def get_urls_without_probe(self) -> list[URLMapping]:
         return await self.run_query_builder(
             GetURLsWithoutProbeQueryBuilder()
+        )
+
+    async def get_location_id(
+        self,
+        us_state_id: int,
+        county_id: int | None = None,
+        locality_id: int | None = None
+    ) -> int | None:
+        return await self.run_query_builder(
+            GetLocationQueryBuilder(
+                us_state_id=us_state_id,
+                county_id=county_id,
+                locality_id=locality_id
+            )
         )

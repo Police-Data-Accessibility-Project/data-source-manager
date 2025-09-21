@@ -42,6 +42,7 @@ class RecordType(Enum):
     # Info About Agencies
     ANNUAL_AND_MONTHLY_REPORTS = "Annual & Monthly Reports"
     BUDGETS_AND_FINANCES = "Budgets & Finances"
+    # TODO SM422: Remove below
     CONTACT_INFO_AND_AGENCY_META = "Contact Info & Agency Meta"
     GEOGRAPHIC = "Geographic"
     LIST_OF_DATA_SOURCES = "List of Data Sources"
@@ -83,6 +84,7 @@ class SubmitResponseStatus(Enum):
     FAILURE = "FAILURE"
     ALREADY_EXISTS = "already_exists"
 
+# TODO (SM422): Replace use of SuggestedStatus with URLValidationType
 class SuggestedStatus(Enum):
     """
     Possible values for user_relevant_suggestions:suggested_status

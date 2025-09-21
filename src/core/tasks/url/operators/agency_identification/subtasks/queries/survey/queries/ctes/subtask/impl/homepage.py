@@ -1,9 +1,8 @@
 from sqlalchemy import select, exists
 
+from src.core.tasks.url.operators._shared.container.subtask.eligible import URLsSubtaskEligibleCTEContainer
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.queries.ctes.consolidated import \
     CONSOLIDATED_CTE
-from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.container import \
-    SubtaskCTEContainer
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.helpers import \
     get_exists_subtask_query
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -29,6 +28,6 @@ cte = (
     .cte("homepage_eligible")
 )
 
-HOMEPAGE_SUBTASK_CONTAINER = SubtaskCTEContainer(
+HOMEPAGE_SUBTASK_CONTAINER = URLsSubtaskEligibleCTEContainer(
     cte,
 )
