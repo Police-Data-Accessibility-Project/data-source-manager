@@ -1,17 +1,15 @@
-from collections import Counter
-
 import pytest
 
-from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationUserSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.core.enums import SuggestedStatus, RecordType
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
@@ -57,12 +55,9 @@ async def test_annotate_all(
     post_response_1 = await ath.request_validator.post_all_annotations_and_get_next(
         url_id=url_mapping_1.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
-            suggested_status=SuggestedStatus.RELEVANT,
+            suggested_status=URLType.DATA_SOURCE,
             record_type=RecordType.ACCIDENT_REPORTS,
-            agency=URLAgencyAnnotationPostInfo(
-                is_new=False,
-                suggested_agency=agency_id
-            ),
+            agency_ids=[agency_id],
             location_ids=[
                 california.location_id,
                 pennsylvania.location_id,
@@ -78,8 +73,9 @@ async def test_annotate_all(
     post_response_2 = await ath.request_validator.post_all_annotations_and_get_next(
         url_id=url_mapping_2.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
-            suggested_status=SuggestedStatus.NOT_RELEVANT,
-            location_ids=[]
+            suggested_status=URLType.NOT_RELEVANT,
+            location_ids=[],
+            agency_ids=[]
         )
     )
     assert post_response_2.next_annotation is None
@@ -91,15 +87,15 @@ async def test_annotate_all(
     # Check that all annotations are present in the database
 
     # Should be two relevance annotations, one True and one False
-    all_relevance_suggestions: list[UserRelevantSuggestion] = await adb_client.get_all(UserRelevantSuggestion)
+    all_relevance_suggestions: list[UserURLTypeSuggestion] = await adb_client.get_all(UserURLTypeSuggestion)
     assert len(all_relevance_suggestions) == 2
-    assert all_relevance_suggestions[0].suggested_status == SuggestedStatus.RELEVANT.value
-    assert all_relevance_suggestions[1].suggested_status == SuggestedStatus.NOT_RELEVANT.value
+    assert all_relevance_suggestions[0].type == URLType.DATA_SOURCE
+    assert all_relevance_suggestions[1].type == URLType.NOT_RELEVANT
 
     # Should be one agency
     all_agency_suggestions = await adb_client.get_all(UserUrlAgencySuggestion)
     assert len(all_agency_suggestions) == 1
-    assert all_agency_suggestions[0].is_new == False
+    assert all_agency_suggestions[0].is_new is None
     assert all_agency_suggestions[0].agency_id == agency_id
 
     # Should be one record type

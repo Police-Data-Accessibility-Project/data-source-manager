@@ -1,4 +1,6 @@
-from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
+from collections import Counter
+
+from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo, AgencySuggestionAndUserCount
 from src.api.endpoints.review.next.dto import FinalReviewAnnotationAgencyInfo, FinalReviewAnnotationAgencyAutoInfo
 from src.core.enums import SuggestionType
 from src.db.models.impl.agency.sqlalchemy import Agency
@@ -11,7 +13,7 @@ from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestio
 def convert_agency_info_to_final_review_annotation_agency_info(
     subtasks: list[URLAutoAgencyIDSubtask],
     confirmed_agencies: list[LinkURLAgency],
-    user_agency_suggestion: UserUrlAgencySuggestion
+    user_agency_suggestions: list[UserUrlAgencySuggestion]
 ) -> FinalReviewAnnotationAgencyInfo:
 
     confirmed_agency_info: list[GetNextURLForAgencyAgencyInfo] = (
@@ -26,15 +28,15 @@ def convert_agency_info_to_final_review_annotation_agency_info(
         )
     )
 
-    agency_user_info: GetNextURLForAgencyAgencyInfo | None = (
+    agency_user_suggestions: list[AgencySuggestionAndUserCount] = (
         _convert_user_url_agency_suggestion_to_final_review_annotation_agency_user_info(
-            user_agency_suggestion
+            user_agency_suggestions
         )
     )
 
     return FinalReviewAnnotationAgencyInfo(
         confirmed=confirmed_agency_info,
-        user=agency_user_info,
+        user=agency_user_suggestions,
         auto=agency_auto_info
     )
 
@@ -52,19 +54,29 @@ def _convert_confirmed_agencies_to_final_review_annotation_agency_info(
     return results
 
 def _convert_user_url_agency_suggestion_to_final_review_annotation_agency_user_info(
-    user_url_agency_suggestion: UserUrlAgencySuggestion
-) -> GetNextURLForAgencyAgencyInfo | None:
-    suggestion = user_url_agency_suggestion
-    if suggestion is None:
-        return None
-    if suggestion.is_new:
-        return GetNextURLForAgencyAgencyInfo(
-            suggestion_type=SuggestionType.NEW_AGENCY,
+    user_url_agency_suggestions: list[UserUrlAgencySuggestion]
+) -> list[AgencySuggestionAndUserCount]:
+    agency_id_count: Counter[int] = Counter()
+    agency_id_to_agency: dict[int, GetNextURLForAgencyAgencyInfo] = {}
+    for suggestion in user_url_agency_suggestions:
+        agency_id_count[suggestion.agency_id] += 1
+        agency_id_to_agency[suggestion.agency_id] = _convert_agency_to_get_next_url_for_agency_agency_info(
+            suggestion_type=SuggestionType.USER_SUGGESTION,
+            agency=suggestion.agency
         )
-    return _convert_agency_to_get_next_url_for_agency_agency_info(
-        suggestion_type=SuggestionType.USER_SUGGESTION,
-        agency=suggestion.agency
-    )
+
+    suggestions_and_counts: list[AgencySuggestionAndUserCount] = []
+    for agency_id, count in agency_id_count.items():
+        suggestions_and_counts.append(
+            AgencySuggestionAndUserCount(
+                suggestion=agency_id_to_agency[agency_id],
+                user_count=count
+            )
+        )
+
+    suggestions_and_counts.sort(key=lambda x: x.user_count, reverse=True)
+
+    return suggestions_and_counts
 
 def _convert_agency_to_get_next_url_for_agency_agency_info(
     suggestion_type: SuggestionType,

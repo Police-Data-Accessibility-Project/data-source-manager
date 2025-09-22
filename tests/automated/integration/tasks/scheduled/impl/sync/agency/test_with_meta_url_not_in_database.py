@@ -5,7 +5,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.agency.sqlalchemy import Agency
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -63,5 +63,5 @@ async def test_with_meta_url_not_in_database(
     # Confirm 2 Validated Flags
     flags: list[FlagURLValidated] = await db_client.get_all(FlagURLValidated)
     assert len(flags) == 2
-    assert all(flag.type == URLValidatedType.META_URL for flag in flags)
+    assert all(flag.type == URLType.META_URL for flag in flags)
     assert set(flag.url_id for flag in flags) == set(url.id for url in urls)

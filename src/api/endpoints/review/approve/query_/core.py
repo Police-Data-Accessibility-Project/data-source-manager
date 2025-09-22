@@ -9,7 +9,7 @@ from src.api.endpoints.review.approve.query_.util import update_if_not_none
 from src.collectors.enums import URLStatus
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -167,6 +167,6 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
     ) -> None:
         flag = FlagURLValidated(
             url_id=url.id,
-            type=URLValidatedType.DATA_SOURCE
+            type=URLType.DATA_SOURCE
         )
         session.add(flag)

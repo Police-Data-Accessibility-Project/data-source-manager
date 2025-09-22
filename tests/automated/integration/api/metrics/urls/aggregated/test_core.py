@@ -5,7 +5,7 @@ import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -49,8 +49,8 @@ async def test_get_urls_aggregated_metrics(api_test_helper):
     )
     url_mappings_2_ok: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=4, status=URLStatus.OK)
     url_mappings_2_error: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=2, status=URLStatus.ERROR)
-    url_mappings_2_validated: list[URLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLValidatedType.DATA_SOURCE)
-    url_mappings_2_not_relevant: list[URLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLValidatedType.NOT_RELEVANT)
+    url_mappings_2_validated: list[URLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLType.DATA_SOURCE)
+    url_mappings_2_not_relevant: list[URLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLType.NOT_RELEVANT)
     url_ids_2_validated: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_validated]
     url_ids_2_not_relevant: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_not_relevant]
     await ddc.create_batch_url_links(

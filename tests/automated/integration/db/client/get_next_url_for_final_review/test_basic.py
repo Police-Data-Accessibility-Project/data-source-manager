@@ -1,8 +1,9 @@
 import pytest
 
-from src.core.enums import SuggestedStatus, RecordType
-from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.core import DBDataCreator
+from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
 @pytest.mark.asyncio
@@ -38,11 +39,11 @@ async def test_get_next_url_for_final_review_basic(db_data_creator: DBDataCreato
     annotation_info = result.annotations
     relevant_info = annotation_info.relevant
     assert relevant_info.auto.is_relevant == True
-    assert relevant_info.user == SuggestedStatus.NOT_RELEVANT
+    assert relevant_info.user == {URLType.NOT_RELEVANT: 1}
 
     record_type_info = annotation_info.record_type
     assert record_type_info.auto == RecordType.ARREST_RECORDS
-    assert record_type_info.user == RecordType.ACCIDENT_REPORTS
+    assert record_type_info.user == {RecordType.ACCIDENT_REPORTS: 1}
 
     agency_info = annotation_info.agency
     auto_agency_suggestions = agency_info.auto
@@ -50,4 +51,4 @@ async def test_get_next_url_for_final_review_basic(db_data_creator: DBDataCreato
     assert len(auto_agency_suggestions.suggestions) == 3
 
     # Check user agency suggestion exists and is correct
-    assert agency_info.user.pdap_agency_id == setup_info.user_agency_id
+    assert agency_info.user[0].suggestion.pdap_agency_id == setup_info.user_agency_id

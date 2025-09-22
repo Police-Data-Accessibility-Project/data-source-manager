@@ -6,7 +6,7 @@ from src.core.tasks.scheduled.impl.huggingface.queries.get.convert import conver
 from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLoadingToHuggingFaceOutput
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
@@ -47,8 +47,8 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
             )
             .where(
                 FlagURLValidated.type.in_(
-                    (URLValidatedType.DATA_SOURCE,
-                     URLValidatedType.NOT_RELEVANT)
+                    (URLType.DATA_SOURCE,
+                     URLType.NOT_RELEVANT)
                 )
             )
         )
@@ -63,7 +63,7 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
                 url_id=result[label_url_id],
                 url=result[label_url],
                 relevant=convert_validated_type_to_relevant(
-                    URLValidatedType(result[label_type])
+                    URLType(result[label_type])
                 ),
                 record_type_fine=result[label_record_type_fine],
                 record_type_coarse=convert_fine_to_coarse_record_type(

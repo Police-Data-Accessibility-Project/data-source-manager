@@ -5,7 +5,7 @@ from src.core.enums import RecordType
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -33,7 +33,7 @@ async def test_url_in_db_overwritten_by_ds(
     url_ids: list[int] = await set_up_urls(
         adb_client=adb_client_test,
         record_type=RecordType.COMPLAINTS_AND_MISCONDUCT,
-        validated_type=URLValidatedType.DATA_SOURCE,
+        validated_type=URLType.DATA_SOURCE,
     )
     # Link URLs to 2 existing agencies
     links: list[LinkURLAgency] = []
@@ -89,6 +89,6 @@ async def test_url_in_db_overwritten_by_ds(
     # Confirm validated types overwritten
     flags: list[FlagURLValidated] = await adb_client_test.get_all(FlagURLValidated)
     assert len(flags) == 2
-    assert all([flag.type == URLValidatedType.NOT_RELEVANT for flag in flags])
+    assert all([flag.type == URLType.NOT_RELEVANT for flag in flags])
     assert set(flag.url_id for flag in flags) == set(url_ids)
 

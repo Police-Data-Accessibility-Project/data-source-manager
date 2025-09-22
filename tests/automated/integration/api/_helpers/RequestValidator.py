@@ -5,14 +5,8 @@ from fastapi import HTTPException, Response
 from pydantic import BaseModel
 from starlette.testclient import TestClient
 
-from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
-from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.api.endpoints.annotate.dtos.record_type.post import RecordTypeAnnotationPostInfo
-from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseOuterInfo
-from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseOuterInfo
-from src.api.endpoints.annotate.relevance.post.dto import RelevanceAnnotationPostInfo
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
@@ -33,13 +27,13 @@ from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterRespo
 from src.api.endpoints.review.reject.dto import FinalReviewRejectionInfo
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
-from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
+from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
-from src.db.enums import TaskType
-from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.collectors.enums import CollectorType
+from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.core.enums import BatchStatus
+from src.db.enums import TaskType
 from src.util.helper_functions import update_if_not_none
 
 
@@ -249,57 +243,6 @@ class RequestValidator:
             url=f"/batch/{batch_id}/abort"
         )
         return MessageResponse(**data)
-
-    def get_next_relevance_annotation(self) -> GetNextRelevanceAnnotationResponseOuterInfo:
-        data = self.get(
-            url=f"/annotate/relevance"
-        )
-        return GetNextRelevanceAnnotationResponseOuterInfo(**data)
-
-    def get_next_record_type_annotation(self) -> GetNextRecordTypeAnnotationResponseOuterInfo:
-        data = self.get(
-            url=f"/annotate/record-type"
-        )
-        return GetNextRecordTypeAnnotationResponseOuterInfo(**data)
-
-    def post_record_type_annotation_and_get_next(
-            self,
-            url_id: int,
-            record_type_annotation_post_info: RecordTypeAnnotationPostInfo
-    ) -> GetNextRecordTypeAnnotationResponseOuterInfo:
-        data = self.post_v2(
-            url=f"/annotate/record-type/{url_id}",
-            json=record_type_annotation_post_info.model_dump(mode='json')
-        )
-        return GetNextRecordTypeAnnotationResponseOuterInfo(**data)
-
-    def post_relevance_annotation_and_get_next(
-            self,
-            url_id: int,
-            relevance_annotation_post_info: RelevanceAnnotationPostInfo
-    ) -> GetNextRelevanceAnnotationResponseOuterInfo:
-        data = self.post_v2(
-            url=f"/annotate/relevance/{url_id}",
-            json=relevance_annotation_post_info.model_dump(mode='json')
-        )
-        return GetNextRelevanceAnnotationResponseOuterInfo(**data)
-
-    async def get_next_agency_annotation(self) -> GetNextURLForAgencyAnnotationResponse:
-        data = self.get(
-            url=f"/annotate/agency"
-        )
-        return GetNextURLForAgencyAnnotationResponse(**data)
-
-    async def post_agency_annotation_and_get_next(
-            self,
-            url_id: int,
-            agency_annotation_post_info: URLAgencyAnnotationPostInfo
-    ) -> GetNextURLForAgencyAnnotationResponse:
-        data = self.post(
-            url=f"/annotate/agency/{url_id}",
-            json=agency_annotation_post_info.model_dump(mode='json')
-        )
-        return GetNextURLForAgencyAnnotationResponse(**data)
 
     def get_urls(self, page: int = 1, errors: bool = False) -> GetURLsResponseInfo:
         data = self.get(

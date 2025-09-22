@@ -1,7 +1,7 @@
 """
     CREATE OR REPLACE VIEW meta_url_view AS
         SELECT
-            urls.id
+            urls.id as url_id
         FROM urls
         INNER JOIN flag_url_validated fuv on fuv.url_id = urls.id
         where fuv.type = 'meta url'

@@ -13,11 +13,6 @@ class GetNextURLForAgencyAgencyInfo(BaseModel):
     county: str | None = None
     locality: str | None = None
 
-class GetNextURLForAgencyAnnotationInnerResponse(AnnotationInnerResponseInfoBase):
-    agency_suggestions: list[
-        GetNextURLForAgencyAgencyInfo
-    ]
-
-class GetNextURLForAgencyAnnotationResponse(BaseModel):
-    next_annotation: GetNextURLForAgencyAnnotationInnerResponse | None
-
+class AgencySuggestionAndUserCount(BaseModel):
+    suggestion: GetNextURLForAgencyAgencyInfo
+    user_count: int

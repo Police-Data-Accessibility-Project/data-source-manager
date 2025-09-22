@@ -10,7 +10,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -24,7 +24,7 @@ class GetURLsBreakdownPendingMetricsQueryBuilder(QueryBuilderBase):
                 case((UserRecordTypeSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_record_type_annotation"
                 ),
-                case((UserRelevantSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
+                case((UserURLTypeSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_relevant_annotation"
                 ),
                 case((UserUrlAgencySuggestion.url_id != None, literal(True)), else_=literal(False)).label(
@@ -32,7 +32,7 @@ class GetURLsBreakdownPendingMetricsQueryBuilder(QueryBuilderBase):
                 ),
             )
             .outerjoin(UserRecordTypeSuggestion, URL.id == UserRecordTypeSuggestion.url_id)
-            .outerjoin(UserRelevantSuggestion, URL.id == UserRelevantSuggestion.url_id)
+            .outerjoin(UserURLTypeSuggestion, URL.id == UserURLTypeSuggestion.url_id)
             .outerjoin(UserUrlAgencySuggestion, URL.id == UserUrlAgencySuggestion.url_id)
         ).cte("flags")
 

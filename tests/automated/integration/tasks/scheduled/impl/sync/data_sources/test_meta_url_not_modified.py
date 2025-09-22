@@ -5,7 +5,7 @@ from src.core.enums import RecordType
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -30,7 +30,7 @@ async def test_meta_url_not_modified(
     original_url_ids: list[int] = await set_up_urls(
         adb_client=adb_client_test,
         record_type=RecordType.CONTACT_INFO_AND_AGENCY_META,
-        validated_type=URLValidatedType.META_URL,
+        validated_type=URLType.META_URL,
     )
     # Link URLs to existing agencies
     await db_data_creator.create_url_agency_links(
@@ -81,8 +81,8 @@ async def test_meta_url_not_modified(
     flags: list[FlagURLValidated] = await adb_client_test.get_all(FlagURLValidated)
     assert len(flags) == 4
     assert set([flag.type for flag in flags]) == {
-        URLValidatedType.META_URL,
-        URLValidatedType.DATA_SOURCE,
+        URLType.META_URL,
+        URLType.DATA_SOURCE,
     }
     assert set(flag.url_id for flag in flags) == set(all_url_ids)
 

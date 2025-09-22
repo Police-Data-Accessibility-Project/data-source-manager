@@ -6,7 +6,7 @@ from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
 from src.db.models.impl.url.core.enums import URLSource
@@ -50,7 +50,7 @@ async def create_urls(
 async def create_validated_flags(
     adb_client: AsyncDatabaseClient,
     url_ids: list[int],
-    validation_type: URLValidatedType,
+    validation_type: URLType,
 ) -> None:
     validated_flags: list[FlagURLValidatedPydantic] = generate_validated_flags(
         url_ids=url_ids,

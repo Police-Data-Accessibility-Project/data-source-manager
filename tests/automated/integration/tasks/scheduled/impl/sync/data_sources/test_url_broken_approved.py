@@ -8,7 +8,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -72,7 +72,7 @@ async def test_url_broken_approved(
     # Confirm presence of validated flag
     flags: list[FlagURLValidated] = await adb_client_test.get_all(FlagURLValidated)
     assert len(flags) == 2
-    assert all([flag.type == URLValidatedType.DATA_SOURCE for flag in flags])
+    assert all([flag.type == URLType.DATA_SOURCE for flag in flags])
     assert set(flag.url_id for flag in flags) == set(url_ids)
 
     # Confirm presence of sync status row

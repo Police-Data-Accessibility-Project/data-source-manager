@@ -19,4 +19,4 @@ class UserRecordTypeSuggestion(UpdatedAtMixin, CreatedAtMixin, URLDependentMixin
 
     # Relationships
 
-    url = relationship("URL", back_populates="user_record_type_suggestion")
+    url = relationship("URL", back_populates="user_record_type_suggestions")

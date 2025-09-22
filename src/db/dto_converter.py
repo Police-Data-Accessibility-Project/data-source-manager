@@ -1,3 +1,5 @@
+from collections import Counter
+
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
 from src.api.endpoints.review.next.dto import FinalReviewAnnotationRelevantInfo, FinalReviewAnnotationRecordTypeInfo, \
@@ -15,7 +17,7 @@ from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestio
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 
 
 class DTOConverter:
@@ -26,7 +28,7 @@ class DTOConverter:
 
     @staticmethod
     def final_review_annotation_relevant_info(
-        user_suggestion: UserRelevantSuggestion,
+        user_suggestions: list[UserURLTypeSuggestion],
         auto_suggestion: AutoRelevantSuggestion
     ) -> FinalReviewAnnotationRelevantInfo:
 
@@ -36,15 +38,17 @@ class DTOConverter:
             model_name=auto_suggestion.model_name
 
         ) if auto_suggestion else None
-        user_value = user_suggestion.suggested_status if user_suggestion else None
+
+        user_types = [suggestion.type for suggestion in user_suggestions]
+        counter = Counter(user_types)
         return FinalReviewAnnotationRelevantInfo(
             auto=auto_value,
-            user=user_value
+            user=dict(counter)
         )
 
     @staticmethod
     def final_review_annotation_record_type_info(
-        user_suggestion: UserRecordTypeSuggestion,
+        user_suggestions: list[UserRecordTypeSuggestion],
         auto_suggestion: AutoRecordTypeSuggestion
     ):
 
@@ -52,10 +56,10 @@ class DTOConverter:
             auto_value = None
         else:
             auto_value = RecordType(auto_suggestion.record_type)
-        if user_suggestion is None:
-            user_value = None
-        else:
-            user_value = RecordType(user_suggestion.record_type)
+
+        record_types: list[RecordType] = [suggestion.record_type for suggestion in user_suggestions]
+        counter = Counter(record_types)
+        user_value = dict(counter)
 
         return FinalReviewAnnotationRecordTypeInfo(
             auto=auto_value,

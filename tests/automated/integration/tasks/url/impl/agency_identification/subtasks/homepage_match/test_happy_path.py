@@ -6,7 +6,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
 from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
 from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
@@ -46,7 +46,7 @@ async def test_homepage_match(
     # Create 1 Meta URL for single agency case
     single_meta_url_id: int = (await db_data_creator.create_validated_urls(
         count=1,
-        validation_type=URLValidatedType.META_URL
+        validation_type=URLType.META_URL
     ))[0].url_id
     # Link single meta URL to single agency
     await db_data_creator.create_url_agency_links(
@@ -62,7 +62,7 @@ async def test_homepage_match(
     # Create 2 Meta URLs and agencies for multi agency case
     multi_meta_urls: list[URLMapping] = await db_data_creator.create_validated_urls(
         count=2,
-        validation_type=URLValidatedType.META_URL
+        validation_type=URLType.META_URL
     )
     multi_meta_url_ids: list[int] = [url_mapping.url_id for url_mapping in multi_meta_urls]
     # Link multi meta URLs to agencies

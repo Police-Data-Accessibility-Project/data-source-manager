@@ -3,24 +3,24 @@ from http import HTTPStatus
 from typing import Optional, Any
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
+from src.collectors.enums import CollectorType, URLStatus
+from src.core.enums import BatchStatus, SuggestionType, RecordType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
+from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.client.sync import DatabaseClient
+from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.mapping import URLMapping
+from src.db.enums import TaskType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
-from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
-from src.db.client.sync import DatabaseClient
-from src.db.enums import TaskType
-from src.collectors.enums import CollectorType, URLStatus
-from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
-from src.core.enums import BatchStatus, SuggestionType, RecordType, SuggestedStatus
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
@@ -168,7 +168,7 @@ class DBDataCreator:
             self,
             url_id: int,
             user_id: int | None = None,
-            suggested_status: SuggestedStatus = SuggestedStatus.RELEVANT
+            suggested_status: URLType = URLType.DATA_SOURCE
     ) -> None:
         await self.run_command(
             UserRelevantSuggestionCommand(
@@ -388,7 +388,7 @@ class DBDataCreator:
     async def create_validated_urls(
         self,
         record_type: RecordType = RecordType.RESOURCES,
-        validation_type: URLValidatedType = URLValidatedType.DATA_SOURCE,
+        validation_type: URLType = URLType.DATA_SOURCE,
         count: int = 1
     ) -> list[URLMapping]:
         url_mappings: list[URLMapping] = await self.create_urls(
@@ -414,7 +414,7 @@ class DBDataCreator:
         url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]
         await self.create_validated_flags(
             url_ids=url_ids,
-            validation_type=URLValidatedType.DATA_SOURCE
+            validation_type=URLType.DATA_SOURCE
         )
         await self.create_url_data_sources(url_ids=url_ids)
         return url_mappings
@@ -473,7 +473,7 @@ class DBDataCreator:
     async def create_validated_flags(
         self,
         url_ids: list[int],
-        validation_type: URLValidatedType,
+        validation_type: URLType,
     ) -> None:
         await create_validated_flags(
             adb_client=self.adb_client,
