@@ -3,11 +3,12 @@ from typing import Optional
 from pydantic import BaseModel
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.core.enums import SuggestedStatus, RecordType
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 
 
 class AnnotationInfo(BaseModel):
-    user_relevant: Optional[SuggestedStatus] = None
+    user_relevant: Optional[URLType] = None
     auto_relevant: Optional[bool] = None
     user_record_type: Optional[RecordType] = None
     auto_record_type: Optional[RecordType] = None

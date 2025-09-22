@@ -1,7 +1,8 @@
 import pytest
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.core.enums import SuggestedStatus, RecordType
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
@@ -26,19 +27,19 @@ async def setup_test_batches(db_data_creator):
     batches = [
         create_batch(
             annotation_info=AnnotationInfo(
-                user_relevant=SuggestedStatus.NOT_RELEVANT
+                user_relevant=URLType.DATA_SOURCE
             )
         ),
         create_batch(
             annotation_info=AnnotationInfo(
-                user_relevant=SuggestedStatus.RELEVANT,
+                user_relevant=URLType.DATA_SOURCE,
                 user_record_type=RecordType.ARREST_RECORDS
             ),
             count=2
         ),
         create_batch(
             annotation_info=AnnotationInfo(
-                user_relevant=SuggestedStatus.RELEVANT,
+                user_relevant=URLType.DATA_SOURCE,
                 user_record_type=RecordType.CALLS_FOR_SERVICE,
                 user_agency=URLAgencyAnnotationPostInfo(
                     suggested_agency=await db_data_creator.agency()
@@ -59,7 +60,7 @@ async def setup_test_batches(db_data_creator):
         ),
         create_batch(
             annotation_info=AnnotationInfo(
-                user_relevant=SuggestedStatus.NOT_RELEVANT,
+                user_relevant=URLType.DATA_SOURCE,
                 user_record_type=RecordType.PERSONNEL_RECORDS,
                 user_agency=URLAgencyAnnotationPostInfo(
                     suggested_agency=await db_data_creator.agency()
@@ -69,7 +70,7 @@ async def setup_test_batches(db_data_creator):
         ),
         create_batch(
             annotation_info=AnnotationInfo(
-                user_relevant=SuggestedStatus.RELEVANT,
+                user_relevant=URLType.DATA_SOURCE,
                 user_agency=URLAgencyAnnotationPostInfo(
                     is_new=True
                 )

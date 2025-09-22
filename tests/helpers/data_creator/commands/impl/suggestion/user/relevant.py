@@ -3,8 +3,9 @@ from typing import final
 
 from typing_extensions import override
 
-from src.core.enums import SuggestedStatus
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
+
 
 @final
 class UserRelevantSuggestionCommand(DBDataCreatorCommandBase):
@@ -13,7 +14,7 @@ class UserRelevantSuggestionCommand(DBDataCreatorCommandBase):
         self,
         url_id: int,
         user_id: int | None = None,
-        suggested_status: SuggestedStatus = SuggestedStatus.RELEVANT
+        suggested_status: URLType = URLType.DATA_SOURCE
     ):
         super().__init__()
         self.url_id = url_id

@@ -1,8 +1,9 @@
 import pytest
 
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.core.enums import SuggestedStatus, RecordType
+from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
@@ -21,8 +22,9 @@ async def test_annotate_all_validation_error(api_test_helper):
         response = await ath.request_validator.post_all_annotations_and_get_next(
             url_id=url_mapping_1.url_id,
             all_annotations_post_info=AllAnnotationPostInfo(
-                suggested_status=SuggestedStatus.NOT_RELEVANT,
+                suggested_status=URLType.NOT_RELEVANT,
                 record_type=RecordType.ACCIDENT_REPORTS,
-                location_ids=[]
+                location_ids=[],
+                agency_ids=[]
             )
         )

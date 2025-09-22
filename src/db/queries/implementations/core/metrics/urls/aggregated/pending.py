@@ -8,7 +8,7 @@ from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
@@ -17,7 +17,7 @@ class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
 
     @property
     def has_user_relevant_annotation(self):
-        return self.get_exists_for_model(UserRelevantSuggestion)
+        return self.get_exists_for_model(UserURLTypeSuggestion)
 
     @property
     def has_user_record_type_annotation(self):

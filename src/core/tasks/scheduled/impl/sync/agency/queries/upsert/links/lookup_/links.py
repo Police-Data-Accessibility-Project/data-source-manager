@@ -4,7 +4,7 @@ from sqlalchemy import select, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
@@ -34,7 +34,7 @@ class LookupMetaURLLinksQueryBuilder(QueryBuilderBase):
                 FlagURLValidated.url_id == URL.id,
             )
             .where(
-                FlagURLValidated.type == URLValidatedType.META_URL,
+                FlagURLValidated.type == URLType.META_URL,
                 LinkURLAgency.agency_id.in_(self.agency_ids),
             )
         )

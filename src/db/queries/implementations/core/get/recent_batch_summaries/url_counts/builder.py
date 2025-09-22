@@ -3,7 +3,7 @@ from sqlalchemy.sql.functions import count, coalesce, func
 
 from src.collectors.enums import URLStatus, CollectorType
 from src.core.enums import BatchStatus
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL

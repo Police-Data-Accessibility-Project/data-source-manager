@@ -1,6 +1,6 @@
 from src.core.enums import RecordType
 from src.core.tasks.scheduled.impl.sync.agency.queries.upsert.meta_urls.update.params import UpdateMetaURLsParams
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 
 
 def filter_urls_with_non_meta_record_type(
@@ -31,7 +31,7 @@ def filter_urls_with_non_meta_url_validation_flag(
     for param in params:
         if param.validation_type is None:
             continue
-        if param.validation_type != URLValidatedType.META_URL:
+        if param.validation_type != URLType.META_URL:
             url_ids.append(param.url_id)
 
     return url_ids

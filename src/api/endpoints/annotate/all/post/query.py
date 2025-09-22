@@ -1,11 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.core.enums import SuggestedStatus
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -25,17 +25,18 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> None:
         # Add relevant annotation
-        # TODO: Modify UserRelevantSuggestion to use `URLValidatedType` instead of `SuggestedStatus`
-        relevant_suggestion = UserRelevantSuggestion(
+        relevant_suggestion = UserURLTypeSuggestion(
             url_id=self.url_id,
             user_id=self.user_id,
-            suggested_status=self.post_info.suggested_status.value
+            type=self.post_info.suggested_status
         )
         session.add(relevant_suggestion)
 
         # If not relevant, do nothing else
-        # TODO (SM422): Update to account for change in SuggestedStatus
-        if not self.post_info.suggested_status == SuggestedStatus.RELEVANT:
+        if not self.post_info.suggested_status in [
+            URLType.META_URL,
+            URLType.DATA_SOURCE
+        ]:
             return
 
         locations: list[UserLocationSuggestion] = []
@@ -54,10 +55,10 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         )
         session.add(record_type_suggestion)
 
-        agency_suggestion = UserUrlAgencySuggestion(
-            url_id=self.url_id,
-            user_id=self.user_id,
-            agency_id=self.post_info.agency.suggested_agency,
-            is_new=self.post_info.agency.is_new
-        )
-        session.add(agency_suggestion)
+        for agency_id in self.post_info.agency_ids:
+            agency_suggestion = UserUrlAgencySuggestion(
+                url_id=self.url_id,
+                user_id=self.user_id,
+                agency_id=agency_id,
+            )
+            session.add(agency_suggestion)

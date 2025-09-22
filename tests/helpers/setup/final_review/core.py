@@ -1,7 +1,8 @@
 from typing import Optional
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.core.enums import RecordType, SuggestedStatus
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.final_review.model import FinalReviewSetupInfo
 
@@ -46,7 +47,7 @@ async def setup_for_get_next_url_for_final_review(
     async def add_relevant_suggestion(relevant: bool):
         await db_data_creator.user_relevant_suggestion(
             url_id=url_mapping.url_id,
-            suggested_status=SuggestedStatus.RELEVANT if relevant else SuggestedStatus.NOT_RELEVANT
+            suggested_status=URLType.DATA_SOURCE if relevant else URLType.NOT_RELEVANT
         )
 
     await db_data_creator.auto_relevant_suggestions(

@@ -38,13 +38,13 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
             URL.html_content,
             URL.auto_record_type_suggestion,
             URL.auto_relevant_suggestion,
-            URL.user_relevant_suggestion,
-            URL.user_record_type_suggestion,
+            URL.user_relevant_suggestions,
+            URL.user_record_type_suggestions,
             URL.optional_data_source_metadata,
         ]
         # The below relationships are joined to entities that are joined to the URL
         self.double_join_relationships = [
-            (URL.user_agency_suggestion, UserUrlAgencySuggestion.agency),
+            (URL.user_agency_suggestions, UserUrlAgencySuggestion.agency),
             (URL.confirmed_agencies, LinkURLAgency.agency)
         ]
 
@@ -191,16 +191,16 @@ class GetNextURLForFinalReviewQueryBuilder(QueryBuilderBase):
                 description=result.description,
                 annotations=FinalReviewAnnotationInfo(
                     relevant=DTOConverter.final_review_annotation_relevant_info(
-                        user_suggestion=result.user_relevant_suggestion,
+                        user_suggestions=result.user_relevant_suggestions,
                         auto_suggestion=result.auto_relevant_suggestion
                     ),
                     record_type=DTOConverter.final_review_annotation_record_type_info(
-                        user_suggestion=result.user_record_type_suggestion,
+                        user_suggestions=result.user_record_type_suggestions,
                         auto_suggestion=result.auto_record_type_suggestion
                     ),
                     agency=convert_agency_info_to_final_review_annotation_agency_info(
                         subtasks=result.auto_agency_subtasks,
-                        user_agency_suggestion=result.user_agency_suggestion,
+                        user_agency_suggestions=result.user_agency_suggestions,
                         confirmed_agencies=result.confirmed_agencies
                     )
                 ),

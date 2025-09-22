@@ -5,7 +5,7 @@ from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.helpers.connect import get_postgres_connection_string
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.data_creator.create import create_batch, create_url_data_sources, create_urls, \
     create_batch_url_links, create_validated_flags
@@ -48,12 +48,12 @@ async def test_get_batches_aggregated_metrics(
         await create_validated_flags(
             adb_client=adb_client,
             url_ids=urls_validated + urls_submitted,
-            validation_type=URLValidatedType.DATA_SOURCE,
+            validation_type=URLType.DATA_SOURCE,
         )
         await create_validated_flags(
             adb_client=adb_client,
             url_ids=urls_not_relevant,
-            validation_type=URLValidatedType.NOT_RELEVANT,
+            validation_type=URLType.NOT_RELEVANT,
         )
         await create_url_data_sources(
             adb_client=adb_client,

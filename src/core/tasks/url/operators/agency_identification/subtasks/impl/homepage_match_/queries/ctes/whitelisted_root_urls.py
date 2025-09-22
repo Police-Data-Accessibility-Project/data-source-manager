@@ -1,7 +1,7 @@
 from sqlalchemy import CTE, select, func
 
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
@@ -32,7 +32,7 @@ WHITELISTED_ROOT_URLS_CTE: CTE = (
     )
     .where(
         # The connected URLs must be Meta URLs
-        FlagURLValidated.type == URLValidatedType.META_URL,
+        FlagURLValidated.type == URLType.META_URL,
         # Root URL can't be "https://catalog.data.gov"
         URL.url != "https://catalog.data.gov"
     )

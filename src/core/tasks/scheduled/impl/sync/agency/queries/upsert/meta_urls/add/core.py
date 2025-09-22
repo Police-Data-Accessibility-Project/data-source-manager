@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.enums import RecordType
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
@@ -49,7 +49,7 @@ class AddMetaURLsQueryBuilder(QueryBuilderBase):
             flag_inserts.append(
                 FlagURLValidatedPydantic(
                     url_id=url_id,
-                    type=URLValidatedType.META_URL
+                    type=URLType.META_URL
                 )
             )
         await sh.bulk_insert(session, models=flag_inserts)

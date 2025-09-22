@@ -1,7 +1,7 @@
 from sqlalchemy import update
 
 from src.core.enums import RecordType
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -21,7 +21,7 @@ class UpdateMetaURLsUpdateURLAndValidationFlagsRequester(RequesterBase):
                 FlagURLValidated.url_id.in_(url_ids)
             )
             .values(
-                type=URLValidatedType.META_URL
+                type=URLType.META_URL
             )
         )
         await self.session.execute(query)
@@ -31,7 +31,7 @@ class UpdateMetaURLsUpdateURLAndValidationFlagsRequester(RequesterBase):
         for url_id in url_ids:
             flag = FlagURLValidatedPydantic(
                 url_id=url_id,
-                type=URLValidatedType.META_URL,
+                type=URLType.META_URL,
             )
             inserts.append(flag)
 

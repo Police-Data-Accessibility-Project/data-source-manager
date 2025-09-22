@@ -8,16 +8,9 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload, QueryableAttribute
 
-from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
-from src.api.endpoints.annotate._shared.queries.get_next_url_for_user_annotation import \
-    GetNextURLForUserAnnotationQueryBuilder
-from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAnnotationResponse
-from src.api.endpoints.annotate.agency.get.queries.next_for_annotation import GetNextURLAgencyForAnnotationQueryBuilder
+
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
-from src.api.endpoints.annotate.dtos.record_type.response import GetNextRecordTypeAnnotationResponseInfo
-from src.api.endpoints.annotate.relevance.get.dto import GetNextRelevanceAnnotationResponseInfo
-from src.api.endpoints.annotate.relevance.get.query import GetNextUrlForRelevanceAnnotationQueryBuilder
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.api.endpoints.batch.duplicates.query import GetDuplicatesByBatchIDQueryBuilder
@@ -51,7 +44,7 @@ from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.api.endpoints.url.get.query import GetURLsQueryBuilder
 from src.collectors.enums import URLStatus, CollectorType
 from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
-from src.core.enums import BatchStatus, RecordType, SuggestedStatus
+from src.core.enums import BatchStatus, RecordType
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
@@ -100,6 +93,7 @@ from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.duplicate.pydantic.info import DuplicateInfo
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.task_url import LinkTaskURL
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
@@ -123,7 +117,7 @@ from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSug
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
 from src.db.queries.base.builder import QueryBuilderBase
@@ -300,22 +294,6 @@ class AsyncDatabaseClient:
         result = await session.execute(statement)
         return result.unique().scalar_one_or_none()
 
-    async def get_next_url_for_user_annotation(
-        self,
-        user_suggestion_model_to_exclude: UserSuggestionModel,
-        auto_suggestion_relationship: QueryableAttribute,
-        batch_id: int | None,
-        check_if_annotated_not_relevant: bool = False
-    ) -> URL:
-        return await self.run_query_builder(
-            builder=GetNextURLForUserAnnotationQueryBuilder(
-                user_suggestion_model_to_exclude=user_suggestion_model_to_exclude,
-                auto_suggestion_relationship=auto_suggestion_relationship,
-                batch_id=batch_id,
-                check_if_annotated_not_relevant=check_if_annotated_not_relevant
-            )
-        )
-
     async def get_tdos_for_auto_relevancy(self) -> list[URLRelevantTDO]:
         return await self.run_query_builder(builder=GetAutoRelevantTDOsQueryBuilder())
 
@@ -325,77 +303,28 @@ class AsyncDatabaseClient:
         session: AsyncSession,
         url_id: int,
         user_id: int,
-        suggested_status: SuggestedStatus
+        suggested_status: URLType
     ):
         prior_suggestion = await self.get_user_suggestion(
             session,
-            model=UserRelevantSuggestion,
+            model=UserURLTypeSuggestion,
             user_id=user_id,
             url_id=url_id
         )
         if prior_suggestion is not None:
-            prior_suggestion.suggested_status = suggested_status.value
+            prior_suggestion.type = suggested_status.value
             return
 
-        suggestion = UserRelevantSuggestion(
+        suggestion = UserURLTypeSuggestion(
             url_id=url_id,
             user_id=user_id,
-            suggested_status=suggested_status.value
+            type=suggested_status.value
         )
         session.add(suggestion)
-
-    async def get_next_url_for_relevance_annotation(
-        self,
-        batch_id: int | None,
-        user_id: int | None = None,
-    ) -> GetNextRelevanceAnnotationResponseInfo | None:
-        return await self.run_query_builder(GetNextUrlForRelevanceAnnotationQueryBuilder(batch_id))
 
     # endregion relevant
 
     # region record_type
-
-    @session_manager
-    async def get_next_url_for_record_type_annotation(
-        self,
-        session: AsyncSession,
-        user_id: int,
-        batch_id: int | None
-    ) -> GetNextRecordTypeAnnotationResponseInfo | None:
-
-        url = await GetNextURLForUserAnnotationQueryBuilder(
-            user_suggestion_model_to_exclude=UserRecordTypeSuggestion,
-            auto_suggestion_relationship=URL.auto_record_type_suggestion,
-            batch_id=batch_id,
-            check_if_annotated_not_relevant=True
-        ).run(session)
-        if url is None:
-            return None
-
-        # Next, get all HTML content for the URL
-        html_response_info = DTOConverter.html_content_list_to_html_response_info(
-            url.html_content
-        )
-
-        if url.auto_record_type_suggestion is not None:
-            suggestion = url.auto_record_type_suggestion.record_type
-        else:
-            suggestion = None
-
-        return GetNextRecordTypeAnnotationResponseInfo(
-            url_info=URLMapping(
-                url=url.url,
-                url_id=url.id
-            ),
-            suggested_record_type=suggestion,
-            html_info=html_response_info,
-            batch_info=await GetAnnotationBatchInfoQueryBuilder(
-                batch_id=batch_id,
-                models=[
-                    UserUrlAgencySuggestion,
-                ]
-            ).run(session)
-        )
 
     @session_manager
     async def add_auto_record_type_suggestions(
@@ -716,20 +645,6 @@ class AsyncDatabaseClient:
             )
         return GetTasksResponse(
             tasks=final_results
-        )
-
-
-
-    async def get_next_url_agency_for_annotation(
-        self,
-        user_id: int,
-        batch_id: int | None
-    ) -> GetNextURLForAgencyAnnotationResponse:
-        return await self.run_query_builder(
-            builder=GetNextURLAgencyForAnnotationQueryBuilder(
-                user_id=user_id,
-                batch_id=batch_id
-            )
         )
 
     @session_manager

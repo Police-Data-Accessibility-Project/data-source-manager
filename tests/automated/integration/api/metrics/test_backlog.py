@@ -1,14 +1,9 @@
 import pendulum
 import pytest
 
-from src.collectors.enums import CollectorType, URLStatus
-from src.core.enums import SuggestedStatus
+from src.collectors.enums import URLStatus
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
-from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
-from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
-from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
-from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.core import DBDataCreator
 
 
@@ -31,7 +26,7 @@ async def test_get_backlog_metrics(api_test_helper):
     submitted_url_ids_1: list[int] = url_ids_1[:2]
     await ddc.create_validated_flags(
         url_ids=submitted_url_ids_1,
-        validation_type=URLValidatedType.DATA_SOURCE
+        validation_type=URLType.DATA_SOURCE
     )
     await ddc.create_url_data_sources(url_ids=submitted_url_ids_1)
 
@@ -49,7 +44,7 @@ async def test_get_backlog_metrics(api_test_helper):
     await ddc.create_batch_url_links(url_ids=not_relevant_url_ids_2, batch_id=batch_2_id)
     await ddc.create_validated_flags(
         url_ids=not_relevant_url_ids_2[:4],
-        validation_type=URLValidatedType.NOT_RELEVANT
+        validation_type=URLType.NOT_RELEVANT
     )
     error_url_mappings_2: list[URLMapping] = await ddc.create_urls(
         status=URLStatus.ERROR,
@@ -72,7 +67,7 @@ async def test_get_backlog_metrics(api_test_helper):
     await ddc.create_batch_url_links(url_ids=url_ids_3, batch_id=batch_3_id)
     await ddc.create_validated_flags(
         url_ids=url_ids_3[:5],
-        validation_type=URLValidatedType.DATA_SOURCE
+        validation_type=URLType.DATA_SOURCE
     )
 
 

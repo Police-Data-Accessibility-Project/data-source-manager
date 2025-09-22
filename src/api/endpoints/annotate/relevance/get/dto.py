@@ -15,11 +15,3 @@ class RelevanceAnnotationResponseInfo(BaseModel):
     model_name: str | None = Field(
         title="The name of the model that made the annotation"
     )
-
-class GetNextRelevanceAnnotationResponseInfo(AnnotationInnerResponseInfoBase):
-    annotation: RelevanceAnnotationResponseInfo | None = Field(
-        title="The auto-labeler's annotation for relevance"
-    )
-
-class GetNextRelevanceAnnotationResponseOuterInfo(BaseModel):
-    next_annotation: GetNextRelevanceAnnotationResponseInfo | None

@@ -6,7 +6,7 @@ from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -82,4 +82,4 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
     # Confirm presence of FlagURLValidated
     flag_url_validated = await adb_client.get_all(FlagURLValidated)
     assert len(flag_url_validated) == 1
-    assert flag_url_validated[0].type == URLValidatedType.DATA_SOURCE
+    assert flag_url_validated[0].type == URLType.DATA_SOURCE

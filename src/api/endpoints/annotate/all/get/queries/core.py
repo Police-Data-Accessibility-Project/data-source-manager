@@ -1,4 +1,4 @@
-from sqlalchemy import Select, and_, or_
+from sqlalchemy import Select, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -9,8 +9,6 @@ from src.api.endpoints.annotate.all.get.models.location import LocationAnnotatio
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.all.get.queries.location_.core import GetLocationSuggestionsQueryBuilder
-from src.api.endpoints.annotate.all.get.queries.previously_annotated.core import \
-    URLPreviouslyAnnotatedByUserCTEContainer
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
 from src.collectors.enums import URLStatus
 from src.db.dto_converter import DTOConverter
@@ -20,7 +18,9 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
+from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.models.views.unvalidated_url import UnvalidatedURL
+from src.db.models.views.url_anno_count import URLAnnotationCount
 from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 
@@ -40,7 +40,6 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         self,
         session: AsyncSession
     ) -> GetNextURLForAllAnnotationResponse:
-        prev_annotated_cte = URLPreviouslyAnnotatedByUserCTEContainer(user_id=self.user_id)
         query = (
             Select(URL)
             # URL Must be unvalidated
@@ -48,15 +47,13 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                 UnvalidatedURL,
                 UnvalidatedURL.url_id == URL.id
             )
-            # Must not have been previously annotated by user
-            # TODO (SM422): Remove where conditional on whether it already has user suggestions
-            .join(
-                prev_annotated_cte.cte,
-                prev_annotated_cte.url_id == URL.id
-            )
             .join(
                 URLAnnotationFlagsView,
                 URLAnnotationFlagsView.url_id == URL.id
+            )
+            .join(
+                URLAnnotationCount,
+                URLAnnotationCount.url_id == URL.id
             )
         )
         if self.batch_id is not None:
@@ -65,6 +62,14 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             query
             .where(
                     URL.status == URLStatus.OK.value,
+                    # Must not have been previously annotated by user
+                    ~exists(
+                        select(UserURLTypeSuggestion.id)
+                        .where(
+                            UserURLTypeSuggestion.url_id == URL.id,
+                            UserURLTypeSuggestion.user_id == self.user_id,
+                        )
+                    )
             )
         )
         # Add load options
@@ -74,8 +79,10 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             joinedload(URL.auto_record_type_suggestion),
         )
 
-        # TODO (SM422): Add order by highest number of suggestions (auto or user), desc
-        query = query.order_by(URL.id.asc()).limit(1)
+        query = query.order_by(
+            URLAnnotationCount.total_anno_count.desc(),
+            URL.id.asc()
+        ).limit(1)
         raw_results = (await session.execute(query)).unique()
         url: URL | None = raw_results.scalars().one_or_none()
         if url is None:

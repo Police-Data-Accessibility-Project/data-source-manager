@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.convert import convert_to_link_url_agency_models
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
 from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.agency.params import UpdateLinkURLAgencyParams
@@ -45,7 +45,7 @@ class URLAgencyLinkUpdateQueryBuilder(QueryBuilderBase):
                 LinkURLAgency.url_id.in_(
                     self.existing_url_ids
                 ),
-                FlagURLValidated.type != URLValidatedType.META_URL
+                FlagURLValidated.type != URLType.META_URL
             )
         )
         links = await session.scalars(query)

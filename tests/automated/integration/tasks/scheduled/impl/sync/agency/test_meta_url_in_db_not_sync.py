@@ -6,7 +6,7 @@ from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskO
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.agency.sqlalchemy import Agency
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -34,7 +34,7 @@ async def test_meta_url_in_db_not_sync(
     agency_id: int = 1
     await db_data_creator.create_agency(agency_id)
     meta_url_mapping: URLMapping = (await db_data_creator.create_validated_urls(
-        validation_type=URLValidatedType.META_URL,
+        validation_type=URLType.META_URL,
         record_type=RecordType.CONTACT_INFO_AND_AGENCY_META
     ))[0]
     meta_url_id: int = meta_url_mapping.url_id
@@ -71,7 +71,7 @@ async def test_meta_url_in_db_not_sync(
     # Confirm 1 Validated Flag
     flags: list[FlagURLValidated] = await db_client.get_all(FlagURLValidated)
     assert len(flags) == 1
-    assert all(flag.type == URLValidatedType.META_URL for flag in flags)
+    assert all(flag.type == URLType.META_URL for flag in flags)
     assert all(flag.url_id == meta_url_id for flag in flags)
 
 

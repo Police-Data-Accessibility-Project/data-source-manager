@@ -2,7 +2,7 @@ import pytest
 
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
 from src.external.pdap.client import PDAPClient
 from tests.helpers.asserts import assert_task_run_success
@@ -27,7 +27,7 @@ async def test_validated_meta_url_not_included(
 
     dbdc = db_data_creator
     url_1: int = (await dbdc.create_validated_urls(
-        validation_type=URLValidatedType.META_URL
+        validation_type=URLType.META_URL
     ))[0].url_id
 
     # Test task operator does not meet prerequisites

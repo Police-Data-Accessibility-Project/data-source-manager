@@ -1,25 +1,24 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
-from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
+from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo, AgencySuggestionAndUserCount
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
-from src.core.enums import RecordType, SuggestedStatus
+from src.core.enums import RecordType
 from src.core.tasks.url.operators.html.scraper.parser.dtos.response_html import ResponseHTMLInfo
+from src.db.models.impl.flag.url_validated.enums import URLType
 
 
 class FinalReviewAnnotationRelevantInfo(BaseModel):
     auto: RelevanceAnnotationResponseInfo | None = Field(title="Whether the auto-labeler has marked the URL as relevant")
-    user: SuggestedStatus | None = Field(
-        title="The status marked by a user, if any",
+    user: dict[URLType, int] = Field(
+        title="How users have labeled the URLType"
     )
 
 class FinalReviewAnnotationRecordTypeInfo(BaseModel):
     auto: RecordType | None = Field(
         title="The record type suggested by the auto-labeler"
     )
-    user: RecordType | None = Field(
-        title="The record type suggested by a user",
+    user: dict[RecordType, int] = Field(
+        title="The record types suggested by other users",
     )
 
 # region Agency
@@ -36,8 +35,8 @@ class FinalReviewAnnotationAgencyInfo(BaseModel):
     )
     auto: FinalReviewAnnotationAgencyAutoInfo | None = Field(
         title="A single agency or a list of agencies suggested by the auto-labeler",)
-    user: GetNextURLForAgencyAgencyInfo | None = Field(
-        title="A single agency suggested by a user",
+    user: list[AgencySuggestionAndUserCount] = Field(
+        title="Agencies suggested by users",
     )
 # endregion
 

@@ -1,28 +1,25 @@
 from sqlalchemy import Column, UniqueConstraint, Integer
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
+from src.db.models.helpers import enum_column
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin, URLDependentMixin
 from src.db.models.templates_.with_id import WithIDBase
 
 
-class UserRelevantSuggestion(
+class UserURLTypeSuggestion(
     UpdatedAtMixin,
     CreatedAtMixin,
     URLDependentMixin,
     WithIDBase
 ):
-    __tablename__ = "user_relevant_suggestions"
+    __tablename__ = "user_url_type_suggestions"
 
     user_id = Column(Integer, nullable=False)
-    suggested_status = Column(
-        postgresql.ENUM(
-            'relevant',
-            'not relevant',
-            'individual record',
-            'broken page/404 not found',
-            name='suggested_status'
-        ),
+    type: Mapped[URLType | None] = enum_column(
+        URLType,
+        name="url_type",
         nullable=True
     )
 
@@ -32,4 +29,4 @@ class UserRelevantSuggestion(
 
     # Relationships
 
-    url = relationship("URL", back_populates="user_relevant_suggestion")
+    url = relationship("URL", back_populates="user_relevant_suggestions")

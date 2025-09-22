@@ -1,4 +1,5 @@
 """
+CREATE OR REPLACE VIEW unvalidated_url_view AS
 select
     u.id as url_id
 from

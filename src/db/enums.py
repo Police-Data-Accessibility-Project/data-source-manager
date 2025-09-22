@@ -49,6 +49,7 @@ class TaskType(PyEnum):
     IA_SAVE = "Internet Archives Archive"
     SCREENSHOT = "Screenshot"
     LOCATION_ID = "Location ID"
+    AUTO_VALIDATE = "Auto Validate"
 
     # Scheduled Tasks
     PUSH_TO_HUGGINGFACE = "Push to Hugging Face"

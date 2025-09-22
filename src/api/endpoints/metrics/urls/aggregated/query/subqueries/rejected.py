@@ -1,6 +1,6 @@
 from sqlalchemy import select, func
 
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 
@@ -13,6 +13,6 @@ REJECTED_SUBQUERY = (
         URL.id == FlagURLValidated.url_id,
     )
     .where(
-        FlagURLValidated.type == URLValidatedType.NOT_RELEVANT,
+        FlagURLValidated.type == URLType.NOT_RELEVANT,
     )
 )

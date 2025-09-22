@@ -59,19 +59,16 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     auto_location_subtasks = relationship(
         AutoLocationIDSubtask
     )
-    # TODO (SM422): Remove uselist=False, pluralize
-    user_agency_suggestion = relationship(
-        "UserUrlAgencySuggestion", uselist=False, back_populates="url")
+    user_agency_suggestions = relationship(
+        "UserUrlAgencySuggestion", back_populates="url")
     auto_record_type_suggestion = relationship(
         "AutoRecordTypeSuggestion", uselist=False, back_populates="url")
-    # TODO (SM422): Remove uselist=False, pluralize
-    user_record_type_suggestion = relationship(
-        "UserRecordTypeSuggestion", uselist=False, back_populates="url")
+    user_record_type_suggestions = relationship(
+        "UserRecordTypeSuggestion", back_populates="url")
     auto_relevant_suggestion = relationship(
         "AutoRelevantSuggestion", uselist=False, back_populates="url")
-    # TODO (SM422): Remove uselist=False, pluralize
-    user_relevant_suggestion = relationship(
-        "UserRelevantSuggestion", uselist=False, back_populates="url")
+    user_relevant_suggestions = relationship(
+        "UserURLTypeSuggestion", back_populates="url")
     reviewing_user = relationship(
         "ReviewingUserURL", uselist=False, back_populates="url")
     optional_data_source_metadata = relationship(

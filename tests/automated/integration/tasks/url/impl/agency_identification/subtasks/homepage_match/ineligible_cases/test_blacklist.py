@@ -2,7 +2,7 @@ import pytest
 
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.core import DBDataCreator
 
 
@@ -29,7 +29,7 @@ async def test_blacklist(
     # Create Meta URLs
     meta_urls: list[URLMapping] = await db_data_creator.create_validated_urls(
         count=3,
-        validation_type=URLValidatedType.META_URL
+        validation_type=URLType.META_URL
     )
 
     # Create 3 agencies

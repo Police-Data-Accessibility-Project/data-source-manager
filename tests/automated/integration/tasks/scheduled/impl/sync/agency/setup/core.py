@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from unittest.mock import patch, AsyncMock
 
 from src.core.enums import RecordType
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInfo, AgenciesSyncResponseInnerInfo
 from tests.helpers.data_creator.core import DBDataCreator
@@ -26,7 +26,7 @@ def set_up_mock_pdap_client_responses(
 async def set_up_urls(
     db_data_creator: DBDataCreator,
     record_type: RecordType,
-    validated_type: URLValidatedType | None = None,
+    validated_type: URLType | None = None,
     agency_ids: list[int] | None = None,
 ) -> list[int]:
     """Create 2 Test URLs in database."""

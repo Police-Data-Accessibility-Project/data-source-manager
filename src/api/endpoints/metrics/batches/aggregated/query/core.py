@@ -17,7 +17,7 @@ from src.api.endpoints.metrics.batches.aggregated.query.validated_.query import 
 from src.collectors.enums import URLStatus, CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.flag.url_validated.enums import URLValidatedType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
