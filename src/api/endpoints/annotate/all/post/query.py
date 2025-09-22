@@ -48,12 +48,14 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
             ))
         session.add_all(locations)
 
-        record_type_suggestion = UserRecordTypeSuggestion(
-            url_id=self.url_id,
-            user_id=self.user_id,
-            record_type=self.post_info.record_type.value
-        )
-        session.add(record_type_suggestion)
+        # TODO (TEST): Add test for submitting Meta URL validation
+        if self.post_info.record_type is not None:
+            record_type_suggestion = UserRecordTypeSuggestion(
+                url_id=self.url_id,
+                user_id=self.user_id,
+                record_type=self.post_info.record_type.value
+            )
+            session.add(record_type_suggestion)
 
         for agency_id in self.post_info.agency_ids:
             agency_suggestion = UserUrlAgencySuggestion(
