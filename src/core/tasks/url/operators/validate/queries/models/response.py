@@ -5,11 +5,12 @@ from src.core.exceptions import FailedValidationException
 from src.db.models.impl.flag.url_validated.enums import URLType
 
 
-class AllAnnotationPostInfo(BaseModel):
-    suggested_status: URLType
-    record_type: RecordType | None = None
-    agency_ids: list[int]
-    location_ids: list[int]
+class GetURLsForAutoValidationResponse(BaseModel):
+    url_id: int
+    location_id: int | None
+    agency_id: int | None
+    url_type: URLType
+    record_type: RecordType | None
 
     @model_validator(mode="after")
     def forbid_record_type_if_meta_url_or_individual_record(self):
@@ -21,6 +22,7 @@ class AllAnnotationPostInfo(BaseModel):
         if self.record_type is not None:
             raise FailedValidationException("record_type must be None if suggested_status is META_URL")
         return self
+
 
     @model_validator(mode="after")
     def require_record_type_if_data_source(self):
@@ -36,9 +38,10 @@ class AllAnnotationPostInfo(BaseModel):
             URLType.INDIVIDUAL_RECORD,
         ]:
             return self
-        if len(self.location_ids) == 0:
-            raise FailedValidationException("location_ids must be provided if suggested_status is META_URL or DATA_SOURCE")
+        if self.location_id is None:
+            raise FailedValidationException("location_id must be provided if suggested_status is META_URL or DATA_SOURCE")
         return self
+
 
     @model_validator(mode="after")
     def require_agency_id_if_relevant(self):
@@ -48,8 +51,8 @@ class AllAnnotationPostInfo(BaseModel):
             URLType.INDIVIDUAL_RECORD,
         ]:
             return self
-        if len(self.agency_ids) == 0:
-            raise FailedValidationException("agencies must be provided if suggested_status is META_URL or DATA_SOURCE")
+        if self.agency_id is None:
+            raise FailedValidationException("agency_id must be provided if suggested_status is META_URL or DATA_SOURCE")
         return self
 
     @model_validator(mode="after")
@@ -58,9 +61,9 @@ class AllAnnotationPostInfo(BaseModel):
             return self
         if self.record_type is not None:
             raise FailedValidationException("record_type must be None if suggested_status is NOT RELEVANT")
-        if len(self.agency_ids) > 0:
+        if self.agency_id is not None:
             raise FailedValidationException("agency_ids must be empty if suggested_status is NOT RELEVANT")
-        if len(self.location_ids) > 0:
+        if self.location_id is not None:
             raise FailedValidationException("location_ids must be empty if suggested_status is NOT RELEVANT")
         return self
 
@@ -72,3 +75,4 @@ class AllAnnotationPostInfo(BaseModel):
         if self.record_type == RecordType.CONTACT_INFO_AND_AGENCY_META:
             raise FailedValidationException("Contact Info & Agency Meta Record Type is Deprecated.")
         return self
+

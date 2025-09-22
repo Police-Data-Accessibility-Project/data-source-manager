@@ -16,6 +16,8 @@ class AutoValidateURLTaskOperator(URLTaskOperatorBase):
 
         # Get URLs for auto validation
 
+        # TODO: Sort URLs according to URL type, and apply appropriate validations
+
         # Link
 
         # Add Validation Objects (Flag and ValidationType)
