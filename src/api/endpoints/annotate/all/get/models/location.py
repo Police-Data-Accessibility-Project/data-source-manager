@@ -6,10 +6,10 @@ class LocationAnnotationAutoSuggestion(BaseModel):
     location_name: str = Field(
         title="The full name of the location"
     )
-    confidence: float = Field(
+    confidence: int = Field(
         title="The confidence of the location",
         ge=0,
-        le=1,
+        le=100,
     )
 
 
