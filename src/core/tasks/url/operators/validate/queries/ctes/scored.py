@@ -28,7 +28,7 @@ class ScoredCTEContainer:
                     )
                 ).label("num_labels_with_that_vote")
             )
-            .cte("scored")
+            .cte(f"scored_{counts_cte.cte.name}")
         )
 
     @property

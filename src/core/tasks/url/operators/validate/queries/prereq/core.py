@@ -31,9 +31,24 @@ class AutoValidatePrerequisitesQueryBuilder(QueryBuilderBase):
             select(
                 UnvalidatedURL.url_id,
             )
+            .select_from(
+                UnvalidatedURL
+            )
+            .outerjoin(
+                agency.query,
+                UnvalidatedURL.url_id == agency.url_id,
+            )
+            .outerjoin(
+                location.query,
+                UnvalidatedURL.url_id == location.url_id,
+            )
             .outerjoin(
                 url_type.query,
                 UnvalidatedURL.url_id == url_type.url_id,
+            )
+            .outerjoin(
+                record_type.query,
+                UnvalidatedURL.url_id == record_type.url_id,
             )
         )
         query = add_where_condition(

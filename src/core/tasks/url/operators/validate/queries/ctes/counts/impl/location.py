@@ -19,6 +19,6 @@ LOCATION_VALIDATION_COUNTS_CTE = ValidatedCountsCTEContainer(
                 UserLocationSuggestion.url_id,
                 UserLocationSuggestion.location_id
             )
-            .cte("counts")
+            .cte("counts_location")
         )
 )

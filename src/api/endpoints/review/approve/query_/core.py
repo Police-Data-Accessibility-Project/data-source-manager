@@ -14,6 +14,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from src.db.queries.base.builder import QueryBuilderBase
 
@@ -34,7 +35,7 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
 
         url = await self._get_url(session)
 
-        await self._optionally_update_record_type(url)
+        await self._optionally_update_record_type(session)
 
         # Get existing agency ids
         existing_agencies = url.confirmed_agencies or []
@@ -88,14 +89,15 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
                 self.approval_info.supplying_entity
             )
 
-    async def _optionally_update_record_type(self, url: URL) -> None:
-        update_if_not_none(
-            url,
-            "record_type",
-            self.approval_info.record_type.value
-            if self.approval_info.record_type is not None else None,
-            required=True
+    async def _optionally_update_record_type(self, session: AsyncSession) -> None:
+        if self.approval_info.record_type is None:
+            return
+
+        record_type = URLRecordType(
+            url_id=self.approval_info.url_id,
+            record_type=self.approval_info.record_type.value
         )
+        session.add(record_type)
 
     async def _get_url(self, session: AsyncSession) -> URL:
         query = (

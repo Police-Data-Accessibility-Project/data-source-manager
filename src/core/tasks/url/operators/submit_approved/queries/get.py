@@ -33,7 +33,8 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
             .options(
                 selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.optional_data_source_metadata),
                 selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.confirmed_agencies),
-                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.reviewing_user)
+                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.reviewing_user),
+                selectinload(VALIDATED_URLS_WITHOUT_DS_ALIAS.record_type),
             ).limit(100)
         )
         return query
@@ -58,7 +59,7 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
             name=url.name,
             agency_ids=agency_ids,
             description=url.description,
-            record_type=url.record_type,
+            record_type=url.record_type.record_type,
             record_formats=record_formats,
             data_portal_type=data_portal_type,
             supplying_entity=supplying_entity,

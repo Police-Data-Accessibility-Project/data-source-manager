@@ -19,6 +19,6 @@ AGENCY_VALIDATION_COUNTS_CTE = ValidatedCountsCTEContainer(
                 UserUrlAgencySuggestion.url_id,
                 UserUrlAgencySuggestion.agency_id
             )
-            .cte("counts")
+            .cte("counts_agency")
         )
 )

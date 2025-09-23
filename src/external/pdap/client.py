@@ -1,18 +1,10 @@
-from datetime import date
 from typing import Any
 
 from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType, ResponseInfo
 
-from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
-from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
 from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
-from src.external.pdap.dtos.search_agency_by_location.params import SearchAgencyByLocationParams
-from src.external.pdap.dtos.search_agency_by_location.response import SearchAgencyByLocationResponse, \
-    SearchAgencyByLocationOuterResponse
-from src.external.pdap.dtos.sync.agencies import AgenciesSyncResponseInnerInfo, AgenciesSyncResponseInfo
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
-from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInfo, DataSourcesSyncResponseInnerInfo
 from src.external.pdap.dtos.unique_url_duplicate import UniqueURLDuplicateInfo
 from src.external.pdap.enums import MatchAgencyResponseStatus
 
@@ -154,67 +146,3 @@ class PDAPClient:
             results.append(response_object)
 
         return results
-
-    async def sync_agencies(
-        self,
-        params: AgencySyncParameters
-    ) -> AgenciesSyncResponseInfo:
-        url: str = self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.SOURCE_COLLECTOR,
-            subdomains=[
-                "agencies",
-                "sync"
-            ]
-        )
-        headers: dict[str, str] = await self.access_manager.jwt_header()
-        headers['Content-Type']: str = "application/json"
-        request_params: dict[str, Any] = {
-            "page": params.page
-        }
-        if params.cutoff_date is not None:
-            request_params["updated_at"]: date = params.cutoff_date
-
-        request_info = RequestInfo(
-            type_=RequestType.GET,
-            url=url,
-            headers=headers,
-            params=request_params
-        )
-        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
-        return AgenciesSyncResponseInfo(
-            agencies=[
-                AgenciesSyncResponseInnerInfo(**entry)
-                for entry in response_info.data["agencies"]
-            ]
-        )
-
-    async def sync_data_sources(
-        self,
-        params: DataSourcesSyncParameters
-    ) -> DataSourcesSyncResponseInfo:
-        url: str = self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.SOURCE_COLLECTOR,
-            subdomains=[
-                "data-sources",
-                "sync"
-            ]
-        )
-        headers: dict[str, str] = await self.access_manager.jwt_header()
-        headers['Content-Type']: str = "application/json"
-        params_dict: dict[str, Any] = {"page": params.page}
-        if params.cutoff_date is not None:
-            params_dict["updated_at"]: date = params.cutoff_date
-
-        request_info = RequestInfo(
-            type_=RequestType.GET,
-            url=url,
-            headers=headers,
-            params=params_dict
-        )
-        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
-        return DataSourcesSyncResponseInfo(
-            data_sources=[
-                DataSourcesSyncResponseInnerInfo(**entry)
-                for entry in response_info.data["data_sources"]
-            ]
-        )

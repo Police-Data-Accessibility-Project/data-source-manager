@@ -115,7 +115,7 @@ def task_id_column() -> sa.Column:
         comment='A foreign key to the `tasks` table.'
     )
 
-def url_id_column(name: str = 'url_id') -> sa.Column:
+def url_id_column(name: str = 'url_id', primary_key: bool = False) -> sa.Column:
     return sa.Column(
         name,
         sa.Integer(),
@@ -123,6 +123,7 @@ def url_id_column(name: str = 'url_id') -> sa.Column:
             'urls.id',
             ondelete='CASCADE'
         ),
+        primary_key=primary_key,
         nullable=False,
         comment='A foreign key to the `urls` table.'
     )

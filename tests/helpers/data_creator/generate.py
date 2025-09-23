@@ -41,7 +41,6 @@ def generate_batch_url_links(
 def generate_urls(
     status: URLStatus = URLStatus.OK,
     source: URLSource = URLSource.COLLECTOR,
-    record_type: RecordType | None = RecordType.RESOURCES,
     collector_metadata: dict | None = None,
     count: int = 1
 ) -> list[URLInsertModel]:
@@ -54,7 +53,6 @@ def generate_urls(
             source=source,
             name=f"Example {val}",
             collector_metadata=collector_metadata,
-            record_type=record_type,
         ))
     return results
 

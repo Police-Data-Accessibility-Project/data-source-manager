@@ -94,7 +94,7 @@ async def test_manual_batch(api_test_helper):
 
     def check_url(url: URL, url_only: bool):
         assert url.url is not None
-        other_attributes = ["name", "description", "collector_metadata", "record_type"]
+        other_attributes = ["name", "description", "collector_metadata"]
         return check_attributes(url, other_attributes, url_only)
 
 

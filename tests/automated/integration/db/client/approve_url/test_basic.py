@@ -7,6 +7,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 from tests.helpers.data_creator.core import DBDataCreator
@@ -42,10 +43,13 @@ async def test_approve_url_basic(db_data_creator: DBDataCreator):
     assert len(urls) == 1
     url = urls[0]
     assert url.id == url_mapping.url_id
-    assert url.record_type == RecordType.ARREST_RECORDS
     assert url.status == URLStatus.OK
     assert url.name == "Test Name"
     assert url.description == "Test Description"
+
+    record_types: list[URLRecordType] = await adb_client.get_all(URLRecordType)
+    assert len(record_types) == 1
+    assert record_types[0].record_type == RecordType.ARREST_RECORDS
 
     # Confirm presence of validated flag
     validated_flags: list[FlagURLValidated] = await adb_client.get_all(FlagURLValidated)

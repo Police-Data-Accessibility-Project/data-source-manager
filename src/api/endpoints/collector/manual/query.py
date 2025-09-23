@@ -10,6 +10,7 @@ from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -37,9 +38,9 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
         session.add(batch)
         await session.flush()
 
-        batch_id = batch.id
-        url_ids = []
-        duplicate_urls = []
+        batch_id: int = batch.id
+        url_ids: list[int] = []
+        duplicate_urls: list[str] = []
 
         for entry in self.dto.entries:
             url = URL(
@@ -48,9 +49,9 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,
                 status=URLStatus.OK.value,
-                record_type=entry.record_type.value if entry.record_type is not None else None,
                 source=URLSource.MANUAL
             )
+
 
             async with session.begin_nested():
                 try:
@@ -60,6 +61,15 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
                     duplicate_urls.append(entry.url)
                     continue
             await session.flush()
+
+            if entry.record_type is not None:
+                record_type = URLRecordType(
+                    url_id=url.id,
+                    record_type=entry.record_type,
+                )
+                session.add(record_type)
+
+
             link = LinkBatchURL(
                 batch_id=batch_id,
                 url_id=url.id

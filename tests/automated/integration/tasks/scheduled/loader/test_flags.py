@@ -7,8 +7,6 @@ from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFace
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
-from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskOperator
-from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
@@ -23,14 +21,6 @@ class FlagTestParams(BaseModel):
     operator: type[ScheduledTaskOperatorBase]
 
 params: list[FlagTestParams] = [
-    FlagTestParams(
-        env_var="SYNC_AGENCIES_TASK_FLAG",
-        operator=SyncAgenciesTaskOperator
-    ),
-    FlagTestParams(
-        env_var="SYNC_DATA_SOURCES_TASK_FLAG",
-        operator=SyncDataSourcesTaskOperator
-    ),
     FlagTestParams(
         env_var="PUSH_TO_HUGGING_FACE_TASK_FLAG",
         operator=PushToHuggingFaceTaskOperator

@@ -19,6 +19,6 @@ RECORD_TYPE_COUNTS_CTE = ValidatedCountsCTEContainer(
                 UserRecordTypeSuggestion.url_id,
                 UserRecordTypeSuggestion.record_type
             )
-            .cte("counts")
+            .cte("counts_record_type")
         )
 )

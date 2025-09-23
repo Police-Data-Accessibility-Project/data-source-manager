@@ -11,6 +11,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
@@ -56,10 +57,13 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
     assert len(urls) == 1
     url = urls[0]
     assert url.id == url_mapping.url_id
-    assert url.record_type == RecordType.ARREST_RECORDS
     assert url.status == URLStatus.OK
     assert url.name == "New Test Name"
     assert url.description == "New Test Description"
+
+    record_types: list[URLRecordType] = await adb_client.get_all(URLRecordType)
+    assert len(record_types) == 1
+    assert record_types[0].record_type == RecordType.ARREST_RECORDS
 
     optional_metadata = await adb_client.get_all(URLOptionalDataSourceMetadata)
     assert len(optional_metadata) == 1

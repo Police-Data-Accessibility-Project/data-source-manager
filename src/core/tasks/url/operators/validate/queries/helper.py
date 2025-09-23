@@ -1,4 +1,4 @@
-from sqlalchemy import Exists, exists, Select, or_, and_
+from sqlalchemy import Exists, exists, Select, or_, and_, select
 
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.base import ValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
@@ -11,8 +11,12 @@ from src.db.models.views.unvalidated_url import UnvalidatedURL
 
 
 def url_exists(cte_container: ValidationCTEContainer) -> Exists:
-    return exists().where(
-        cte_container.url_id == UnvalidatedURL.url_id,
+    return exists(
+        select(cte_container.url_id)
+        .correlate(UnvalidatedURL)
+        .where(
+            cte_container.url_id == UnvalidatedURL.url_id,
+        )
     )
 
 def add_where_condition(
@@ -35,7 +39,7 @@ def add_where_condition(
                 ),
                 and_(
                     url_type.url_type.in_(
-                        (URLType.META_URL.value, URLType.INDIVIDUAL_RECORD)
+                        (URLType.META_URL.value, URLType.INDIVIDUAL_RECORD.value)
                     ),
                     url_exists(agency),
                     url_exists(location),

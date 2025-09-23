@@ -60,8 +60,6 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | Flag                                | Description                                                        |
 |-------------------------------------|--------------------------------------------------------------------|
 | `SCHEDULED_TASKS_FLAG`              | All scheduled tasks. Disabling disables all other scheduled tasks. |
-| `SYNC_AGENCIES_TASK_FLAG`           | Synchonize agencies from Data Sources App.             |
-| `SYNC_DATA_SOURCES_TASK_FLAG`       | Synchonize data sources from Data Sources App.         |
 | `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                            |
 | `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                        |
 | `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                      |
