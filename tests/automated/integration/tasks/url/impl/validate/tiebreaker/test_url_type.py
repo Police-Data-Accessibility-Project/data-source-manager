@@ -9,10 +9,12 @@ Then add an additional NOT RELEVANT suggestion and confirm it is validated as NO
 import pytest
 
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
 async def test_url_type(
     operator: AutoValidateURLTaskOperator,
+    db_data_creator: DBDataCreator,
 ):
     raise NotImplementedError

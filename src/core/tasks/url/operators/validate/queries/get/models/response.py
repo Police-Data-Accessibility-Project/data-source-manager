@@ -13,11 +13,8 @@ class GetURLsForAutoValidationResponse(BaseModel):
     record_type: RecordType | None
 
     @model_validator(mode="after")
-    def forbid_record_type_if_meta_url_or_individual_record(self):
-        if self.suggested_status not in [
-            URLType.META_URL,
-            URLType.INDIVIDUAL_RECORD,
-        ]:
+    def forbid_record_type_if_not_data_source(self):
+        if self.url_type == URLType.DATA_SOURCE:
             return self
         if self.record_type is not None:
             raise FailedValidationException("record_type must be None if suggested_status is META_URL")
@@ -26,13 +23,13 @@ class GetURLsForAutoValidationResponse(BaseModel):
 
     @model_validator(mode="after")
     def require_record_type_if_data_source(self):
-        if self.suggested_status == URLType.DATA_SOURCE and self.record_type is None:
+        if self.url_type == URLType.DATA_SOURCE and self.record_type is None:
             raise FailedValidationException("record_type must be provided if suggested_status is DATA_SOURCE")
         return self
 
     @model_validator(mode="after")
     def require_location_if_relevant(self):
-        if self.suggested_status not in [
+        if self.url_type not in [
             URLType.META_URL,
             URLType.DATA_SOURCE,
             URLType.INDIVIDUAL_RECORD,
@@ -45,7 +42,7 @@ class GetURLsForAutoValidationResponse(BaseModel):
 
     @model_validator(mode="after")
     def require_agency_id_if_relevant(self):
-        if self.suggested_status not in [
+        if self.url_type not in [
             URLType.META_URL,
             URLType.DATA_SOURCE,
             URLType.INDIVIDUAL_RECORD,
@@ -57,7 +54,7 @@ class GetURLsForAutoValidationResponse(BaseModel):
 
     @model_validator(mode="after")
     def forbid_all_else_if_not_relevant(self):
-        if self.suggested_status != URLType.NOT_RELEVANT:
+        if self.url_type != URLType.NOT_RELEVANT:
             return self
         if self.record_type is not None:
             raise FailedValidationException("record_type must be None if suggested_status is NOT RELEVANT")

@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-from src.util.alembic_helpers import url_id_column, created_at_column
+from src.util.alembic_helpers import url_id_column, created_at_column, id_column
 
 # revision identifiers, used by Alembic.
 revision: str = 'e6a1a1b3bad4'
@@ -24,19 +24,70 @@ URL_RECORD_TYPE_TABLE_NAME = "url_record_type"
 
 
 
-
 def upgrade() -> None:
     _create_url_record_type_table()
     _migrate_url_record_types_to_url_record_type_table()
     _drop_record_type_column()
+    _drop_agencies_sync_state()
+    _drop_data_sources_sync_state()
 
+def _drop_agencies_sync_state():
+    op.drop_table("agencies_sync_state")
+
+
+def _drop_data_sources_sync_state():
+    op.drop_table("data_sources_sync_state")
+
+
+def _create_data_sources_sync_state():
+    table = op.create_table(
+        "data_sources_sync_state",
+        id_column(),
+        sa.Column('last_full_sync_at', sa.DateTime(), nullable=True),
+        sa.Column('current_cutoff_date', sa.Date(), nullable=True),
+        sa.Column('current_page', sa.Integer(), nullable=True),
+    )
+    # Add row to `data_sources_sync_state` table
+    op.bulk_insert(
+        table,
+        [
+            {
+                "last_full_sync_at": None,
+                "current_cutoff_date": None,
+                "current_page": None
+            }
+        ]
+    )
+
+
+def _create_agencies_sync_state():
+    table = op.create_table(
+        'agencies_sync_state',
+        id_column(),
+        sa.Column('last_full_sync_at', sa.DateTime(), nullable=True),
+        sa.Column('current_cutoff_date', sa.Date(), nullable=True),
+        sa.Column('current_page', sa.Integer(), nullable=True),
+    )
+
+    # Add row to `agencies_sync_state` table
+    op.bulk_insert(
+        table,
+        [
+            {
+                "last_full_sync_at": None,
+                "current_cutoff_date": None,
+                "current_page": None
+            }
+        ]
+    )
 
 
 def downgrade() -> None:
     _add_record_type_column()
     _migrate_url_record_types_from_url_record_type_table()
     _drop_url_record_type_table()
-
+    _create_agencies_sync_state()
+    _create_data_sources_sync_state()
 
 def _drop_record_type_column():
     op.drop_column("urls", "record_type")

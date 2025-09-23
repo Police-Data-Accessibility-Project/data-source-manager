@@ -1,4 +1,4 @@
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import select, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,7 @@ from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_ty
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.helper import add_where_condition
-from src.core.tasks.url.operators.validate.queries.models.response import GetURLsForAutoValidationResponse
+from src.core.tasks.url.operators.validate.queries.get.models.response import GetURLsForAutoValidationResponse
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.helpers.session import session_helper as sh
