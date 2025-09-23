@@ -1,63 +1,56 @@
 import pytest
 
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
-from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.flag.auto_validated.sqlalchemy import FlagURLAutoValidated
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from tests.helpers.data_creator.core import DBDataCreator
+from tests.automated.integration.tasks.url.impl.validate.helper import TestValidateTaskHelper
 from tests.helpers.run import run_task_and_confirm_success
 
 
 @pytest.mark.asyncio
 async def test_not_relevant(
     operator: AutoValidateURLTaskOperator,
-    db_data_creator: DBDataCreator,
+    helper: TestValidateTaskHelper
 ):
     """
     Add URL with 2 NOT RELEVANT suggestions. Check validated as NOT RELEVANT
     """
-    # Assert operator does not yet meet task prerequisites
-    assert not await operator.meets_task_prerequisites()
-
-    # Add one URL
-    url_id: int = (await db_data_creator.create_urls(count=1))[0].url_id
 
     # Assert operator does not yet meet task prerequisites
     assert not await operator.meets_task_prerequisites()
 
     # Add one NOT RELEVANT suggestion
-    await db_data_creator.user_relevant_suggestion(
-        suggested_status=URLType.NOT_RELEVANT,
-        url_id=url_id,
-        user_id=1,
+    await helper.add_url_type_suggestions(
+        url_type=URLType.NOT_RELEVANT,
     )
 
     # Assert operator does not yet meet task prerequisites
     assert not await operator.meets_task_prerequisites()
 
     # Add second NOT RELEVANT suggestion
-    await db_data_creator.user_relevant_suggestion(
-        suggested_status=URLType.NOT_RELEVANT,
-        url_id=url_id,
-        user_id=2,
+    await helper.add_url_type_suggestions(
+        url_type=URLType.NOT_RELEVANT,
     )
 
     # Assert operator now meets task prerequisites
     assert await operator.meets_task_prerequisites()
 
+    # Add different suggestion to create tie
+    await helper.add_url_type_suggestions(
+        url_type=URLType.META_URL,
+        count=2
+    )
+    assert not await operator.meets_task_prerequisites()
+
+    # Add tiebreaker
+    await helper.add_url_type_suggestions(
+        url_type=URLType.NOT_RELEVANT
+    )
+
     await run_task_and_confirm_success(operator)
 
     # Assert URL validated as NOT RELEVANT
-    adb_client: AsyncDatabaseClient = operator.adb_client
-    validated_flags: list[FlagURLValidated] = await adb_client.get_all(FlagURLValidated)
-    assert len(validated_flags) == 1
-    validated_flag: FlagURLValidated = validated_flags[0]
-    assert validated_flag.url_id == url_id
-    assert validated_flag.type == URLType.NOT_RELEVANT
+    await helper.check_url_validated(
+        url_type=URLType.NOT_RELEVANT,
+    )
 
-    # Assert flagged as auto validated
-    auto_validated_flags: list[FlagURLAutoValidated] = await adb_client.get_all(FlagURLAutoValidated)
-    assert len(auto_validated_flags) == 1
-    auto_validated_flag: FlagURLAutoValidated = auto_validated_flags[0]
-    assert auto_validated_flag.url_id == url_id
+    await helper.check_auto_validated()
