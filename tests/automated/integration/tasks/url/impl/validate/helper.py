@@ -103,7 +103,7 @@ class TestValidateTaskHelper:
         for i in range(count):
             await self.db_data_creator.add_user_location_suggestion(
                 url_id=self.url_id,
-                user_id=i,
+                user_id=next_int(),
                 location_id=location_id,
             )
 

@@ -21,7 +21,7 @@ async def helper(
     db_data_creator: DBDataCreator,
     pittsburgh_locality: LocalityCreationInfo
 ) -> TestValidateTaskHelper:
-    url_id: int = (await db_data_creator.create_urls(count=1))[0].url_id
+    url_id: int = (await db_data_creator.create_urls(count=1, record_type=None))[0].url_id
     agency_id: int = await db_data_creator.agency()
     return TestValidateTaskHelper(
         db_data_creator,

@@ -1,10 +1,8 @@
-# TODO: Add URL with 2 INDIVIDUAL RECORD suggestions. Check validated as INDIVIDUAL RECORD
 import pytest
 
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.automated.integration.tasks.url.impl.validate.helper import TestValidateTaskHelper
-from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.run import run_task_and_confirm_success
 
 
@@ -13,6 +11,9 @@ async def test_individual_record(
     operator: AutoValidateURLTaskOperator,
     helper: TestValidateTaskHelper
 ):
+    """
+    Add URL with 2 INDIVIDUAL RECORD suggestions. Check validated as INDIVIDUAL RECORD
+    """
     # Add two INDIVIDUAL record suggestions
     await helper.add_url_type_suggestions(
         url_type=URLType.INDIVIDUAL_RECORD,
