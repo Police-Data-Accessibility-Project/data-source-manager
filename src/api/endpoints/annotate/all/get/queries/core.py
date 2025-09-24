@@ -16,7 +16,9 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
+from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.models.views.unvalidated_url import UnvalidatedURL
@@ -68,6 +70,31 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                         .where(
                             UserURLTypeSuggestion.url_id == URL.id,
                             UserURLTypeSuggestion.user_id == self.user_id,
+                        )
+                    ),
+                    ~exists(
+                        select(UserUrlAgencySuggestion.id)
+                        .where(
+                            UserUrlAgencySuggestion.url_id == URL.id,
+                            UserUrlAgencySuggestion.user_id == self.user_id,
+                        )
+                    ),
+                    ~exists(
+                        select(
+                            UserLocationSuggestion.url_id
+                        )
+                        .where(
+                            UserLocationSuggestion.url_id == URL.id,
+                            UserLocationSuggestion.user_id == self.user_id,
+                        )
+                    ),
+                    ~exists(
+                        select(
+                            UserRecordTypeSuggestion.url_id
+                        )
+                        .where(
+                            UserRecordTypeSuggestion.url_id == URL.id,
+                            UserRecordTypeSuggestion.user_id == self.user_id,
                         )
                     )
             )
