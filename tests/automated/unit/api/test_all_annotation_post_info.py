@@ -42,8 +42,8 @@ class TestAllAnnotationPostInfoParams(BaseModel):
         TestAllAnnotationPostInfoParams(
             suggested_status=URLType.INDIVIDUAL_RECORD,
             record_type=None,
-            agency_ids=[],
-            location_ids=[],
+            agency_ids=[1, 2],
+            location_ids=[3, 4],
             raise_exception=False
         ),
         # Error Paths - Meta URL

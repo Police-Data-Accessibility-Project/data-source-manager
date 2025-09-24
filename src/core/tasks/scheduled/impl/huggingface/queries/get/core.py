@@ -10,6 +10,7 @@ from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.utils.compression import decompress_html
 
@@ -33,9 +34,13 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
             select(
                 URL.id.label(label_url_id),
                 URL.url.label(label_url),
-                URL.record_type.label(label_record_type_fine),
+                URLRecordType.record_type.label(label_record_type_fine),
                 URLCompressedHTML.compressed_html.label(label_html),
                 FlagURLValidated.type.label(label_type)
+            )
+            .join(
+                URLRecordType,
+                URL.id == URLRecordType.url_id
             )
             .join(
                 URLCompressedHTML,

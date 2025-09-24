@@ -47,19 +47,6 @@ from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
 from src.core.enums import BatchStatus, RecordType
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
-from src.core.tasks.scheduled.impl.sync.agency.dtos.parameters import AgencySyncParameters
-from src.core.tasks.scheduled.impl.sync.agency.queries.get_sync_params import GetAgenciesSyncParametersQueryBuilder
-from src.core.tasks.scheduled.impl.sync.agency.queries.mark_full_sync import get_mark_full_agencies_sync_query
-from src.core.tasks.scheduled.impl.sync.agency.queries.update_sync_progress import \
-    get_update_agencies_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.data_sources.params import DataSourcesSyncParameters
-from src.core.tasks.scheduled.impl.sync.data_sources.queries.get_sync_params import \
-    GetDataSourcesSyncParametersQueryBuilder
-from src.core.tasks.scheduled.impl.sync.data_sources.queries.mark_full_sync import get_mark_full_data_sources_sync_query
-from src.core.tasks.scheduled.impl.sync.data_sources.queries.update_sync_progress import \
-    get_update_data_sources_sync_progress_query
-from src.core.tasks.scheduled.impl.sync.data_sources.queries.upsert.core import \
-    UpsertURLsFromDataSourcesQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
 from src.core.tasks.url.operators.auto_relevant.queries.get_tdos import GetAutoRelevantTDOsQueryBuilder
@@ -131,7 +118,6 @@ from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.upsert import BulkUpsertableModel
 from src.db.utils.compression import decompress_html, compress_html
-from src.external.pdap.dtos.sync.data_sources import DataSourcesSyncResponseInnerInfo
 
 
 class AsyncDatabaseClient:
@@ -1102,38 +1088,6 @@ class AsyncDatabaseClient:
 
     async def get_urls_aggregated_pending_metrics(self):
         return await self.run_query_builder(GetMetricsURLSAggregatedPendingQueryBuilder())
-
-    async def get_agencies_sync_parameters(self) -> AgencySyncParameters:
-        return await self.run_query_builder(
-            GetAgenciesSyncParametersQueryBuilder()
-        )
-
-    async def get_data_sources_sync_parameters(self) -> DataSourcesSyncParameters:
-        return await self.run_query_builder(
-            GetDataSourcesSyncParametersQueryBuilder()
-        )
-
-    async def upsert_urls_from_data_sources(
-        self,
-        data_sources: list[DataSourcesSyncResponseInnerInfo]
-    ) -> None:
-        await self.run_query_builder(
-            UpsertURLsFromDataSourcesQueryBuilder(
-                sync_infos=data_sources
-            )
-        )
-
-    async def update_agencies_sync_progress(self, page: int) -> None:
-        await self.execute(get_update_agencies_sync_progress_query(page))
-
-    async def update_data_sources_sync_progress(self, page: int) -> None:
-        await self.execute(get_update_data_sources_sync_progress_query(page))
-
-    async def mark_full_data_sources_sync(self) -> None:
-        await self.execute(get_mark_full_data_sources_sync_query())
-
-    async def mark_full_agencies_sync(self) -> None:
-        await self.execute(get_mark_full_agencies_sync_query())
 
     @session_manager
     async def get_html_for_url(

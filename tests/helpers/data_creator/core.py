@@ -25,6 +25,7 @@ from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
+from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
@@ -618,6 +619,19 @@ class DBDataCreator:
             for url_id in url_ids
         ]
         await self.adb_client.add_all(compressed_html_inserts)
+
+    async def add_user_location_suggestion(
+        self,
+        url_id: int,
+        user_id: int,
+        location_id: int,
+    ):
+        suggestion = UserLocationSuggestion(
+            url_id=url_id,
+            user_id=user_id,
+            location_id=location_id,
+        )
+        await self.adb_client.add(suggestion)
 
     async def add_location_suggestion(
         self,

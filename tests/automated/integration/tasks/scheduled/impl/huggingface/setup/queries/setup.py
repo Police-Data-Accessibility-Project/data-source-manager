@@ -5,6 +5,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.utils.compression import compress_html
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.data import get_test_url, get_test_html
@@ -39,11 +40,15 @@ class SetupTestPushToHuggingFaceEntryQueryBuilder(QueryBuilderBase):
                 status=URLStatus.OK,
                 name=name,
                 description=description,
-                record_type=self.inp.record_type,
                 source=URLSource.COLLECTOR
             )
             session.add(url)
             await session.flush()
+            record_type = URLRecordType(
+                url_id=url.id,
+                record_type=self.inp.record_type,
+            )
+            session.add(record_type)
             url_ids.append(url.id)
             if self.inp.status in (
                 PushToHuggingFaceTestSetupStatusEnum.DATA_SOURCE,

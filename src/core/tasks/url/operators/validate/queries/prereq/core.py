@@ -1,53 +1,54 @@
-from typing import Sequence
-
-from sqlalchemy import select, RowMapping
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.exceptions import FailedValidationException
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.location import LocationValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_type import \
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
-from src.core.tasks.url.operators.validate.queries.get.models.response import GetURLsForAutoValidationResponse
 from src.core.tasks.url.operators.validate.queries.helper import add_where_condition
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.views.unvalidated_url import UnvalidatedURL
 from src.db.queries.base.builder import QueryBuilderBase
 
 
-class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
+class AutoValidatePrerequisitesQueryBuilder(QueryBuilderBase):
+    """
+    Checks to see if any URL meets any of the following prerequisites
+    - Is a DATA SOURCE URL with consensus on all fields
+    - Is a META URL with consensus on url_type, agency, and location fields
+    - Is a NOT RELEVANT or SINGLE PAGE URL with consensus on url_type
+    """
 
-
-    async def run(self, session: AsyncSession) -> list[GetURLsForAutoValidationResponse]:
+    async def run(self, session: AsyncSession) -> bool:
         agency = AgencyValidationCTEContainer()
         location = LocationValidationCTEContainer()
         url_type = URLTypeValidationCTEContainer()
         record_type = RecordTypeValidationCTEContainer()
 
+
         query = (
             select(
-                URL.id.label("url_id"),
-                location.location_id,
-                agency.agency_id,
-                url_type.url_type,
-                record_type.record_type,
+                UnvalidatedURL.url_id,
+            )
+            .select_from(
+                UnvalidatedURL
             )
             .outerjoin(
                 agency.query,
-                URL.id == agency.url_id,
+                UnvalidatedURL.url_id == agency.url_id,
             )
             .outerjoin(
                 location.query,
-                URL.id == location.url_id,
+                UnvalidatedURL.url_id == location.url_id,
             )
             .outerjoin(
                 url_type.query,
-                URL.id == url_type.url_id,
+                UnvalidatedURL.url_id == url_type.url_id,
             )
             .outerjoin(
                 record_type.query,
-                URL.id == record_type.url_id,
+                UnvalidatedURL.url_id == record_type.url_id,
             )
         )
         query = add_where_condition(
@@ -56,15 +57,8 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
             location=location,
             url_type=url_type,
             record_type=record_type,
-        )
+        ).limit(1)
 
-        mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
-        responses: list[GetURLsForAutoValidationResponse] = []
-        for mapping in mappings:
-            try:
-                response = GetURLsForAutoValidationResponse(**mapping)
-                responses.append(response)
-            except FailedValidationException as e:
-                raise FailedValidationException(
-                    f"Failed to validate URL {mapping['url_id']}") from e
-        return responses
+        return await sh.results_exist(session, query=query)
+
+

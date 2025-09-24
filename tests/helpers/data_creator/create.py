@@ -12,6 +12,7 @@ from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
+from src.db.models.impl.url.record_type.pydantic import URLRecordTypePydantic
 from tests.helpers.counter import COUNTER, next_int
 from tests.helpers.data_creator.generate import generate_batch, generate_urls, generate_validated_flags, \
     generate_url_data_sources, generate_batch_url_links
@@ -40,11 +41,20 @@ async def create_urls(
     urls: list[URLInsertModel] = generate_urls(
         status=status,
         source=source,
-        record_type=record_type,
         collector_metadata=collector_metadata,
         count=count,
     )
     url_ids = await adb_client.bulk_insert(urls, return_ids=True)
+    if record_type is not None:
+        record_types: list[URLRecordTypePydantic] = [
+            URLRecordTypePydantic(
+                url_id=url_id,
+                record_type=record_type,
+            )
+            for url_id in url_ids
+        ]
+        await adb_client.bulk_insert(record_types)
+
     return [URLMapping(url_id=url_id, url=url.url) for url_id, url in zip(url_ids, urls)]
 
 async def create_validated_flags(

@@ -30,7 +30,6 @@ async def test_approval_url_error(db_data_creator: DBDataCreator):
 
     # Create kwarg dictionary with all required approval info fields
     kwarg_dict = {
-        "record_type": RecordType.ARREST_RECORDS,
         "agency_ids": [await db_data_creator.agency()],
         "name": "Test Name",
     }

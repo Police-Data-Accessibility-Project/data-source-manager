@@ -7,6 +7,7 @@ from src.db.models.helpers import enum_column
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
@@ -27,11 +28,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
             name='url_status',
             nullable=False
     )
-    record_type = enum_column(
-        RecordType,
-        name='record_type',
-        nullable=True
-    )
+
     source = enum_column(
         URLSource,
         name='url_source',
@@ -43,6 +40,10 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         "Batch",
         secondary="link_batch_urls",
         back_populates="urls",
+        uselist=False,
+    )
+    record_type = relationship(
+        URLRecordType,
         uselist=False,
     )
     duplicates = relationship("Duplicate", back_populates="original_url")

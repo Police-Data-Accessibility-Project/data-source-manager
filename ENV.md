@@ -60,8 +60,6 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | Flag                                | Description                                                        |
 |-------------------------------------|--------------------------------------------------------------------|
 | `SCHEDULED_TASKS_FLAG`              | All scheduled tasks. Disabling disables all other scheduled tasks. |
-| `SYNC_AGENCIES_TASK_FLAG`           | Synchonize agencies from Data Sources App.             |
-| `SYNC_DATA_SOURCES_TASK_FLAG`       | Synchonize data sources from Data Sources App.         |
 | `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                            |
 | `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                        |
 | `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                      |
@@ -86,6 +84,7 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                          |
 | `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                  |
 | `URL_SCREENSHOT_TASK_FLAG`          | Takes screenshots of URLs.                             |
+| `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                          |
 
 ### Agency ID Subtasks
 

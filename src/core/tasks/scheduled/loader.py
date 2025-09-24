@@ -8,8 +8,6 @@ from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFace
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
-from src.core.tasks.scheduled.impl.sync.agency.operator import SyncAgenciesTaskOperator
-from src.core.tasks.scheduled.impl.sync.data_sources.operator import SyncDataSourcesTaskOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient
@@ -68,22 +66,6 @@ class ScheduledTaskOperatorLoader:
                 operator=DeleteOldLogsTaskOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.env.bool("DELETE_OLD_LOGS_TASK_FLAG", default=True)
-            ),
-            ScheduledTaskEntry(
-                operator=SyncDataSourcesTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.env.bool("SYNC_DATA_SOURCES_TASK_FLAG", default=True)
-            ),
-            ScheduledTaskEntry(
-                operator=SyncAgenciesTaskOperator(
-                    adb_client=self.async_core.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.env.bool("SYNC_AGENCIES_TASK_FLAG", default=True)
             ),
             ScheduledTaskEntry(
                 operator=RunURLTasksTaskOperator(async_core=self.async_core),

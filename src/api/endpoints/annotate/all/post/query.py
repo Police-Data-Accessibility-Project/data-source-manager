@@ -33,10 +33,7 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         session.add(relevant_suggestion)
 
         # If not relevant, do nothing else
-        if not self.post_info.suggested_status in [
-            URLType.META_URL,
-            URLType.DATA_SOURCE
-        ]:
+        if self.post_info.suggested_status == URLType.NOT_RELEVANT:
             return
 
         locations: list[UserLocationSuggestion] = []
