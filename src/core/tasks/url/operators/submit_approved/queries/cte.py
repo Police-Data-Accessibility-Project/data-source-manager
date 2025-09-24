@@ -15,6 +15,7 @@ VALIDATED_URLS_WITHOUT_DS_SQ =(
     )
     .where(
         URL.status == URLStatus.OK,
+        URL.name.isnot(None),
         FlagURLValidated.type == URLType.DATA_SOURCE,
         ~exists().where(
             URLDataSource.url_id == URL.id
