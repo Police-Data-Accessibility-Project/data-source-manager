@@ -3,16 +3,18 @@ from typing import Sequence
 from sqlalchemy import select, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.exceptions import FailedValidationException
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.location import LocationValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_type import \
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
-from src.core.tasks.url.operators.validate.queries.helper import add_where_condition
 from src.core.tasks.url.operators.validate.queries.get.models.response import GetURLsForAutoValidationResponse
+from src.core.tasks.url.operators.validate.queries.helper import add_where_condition
+from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.helpers.session import session_helper as sh
+
 
 class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
 
@@ -57,6 +59,12 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
-        return [
-            GetURLsForAutoValidationResponse(**mapping) for mapping in mappings
-        ]
+        responses: list[GetURLsForAutoValidationResponse] = []
+        for mapping in mappings:
+            try:
+                response = GetURLsForAutoValidationResponse(**mapping)
+                responses.append(response)
+            except FailedValidationException as e:
+                raise FailedValidationException(
+                    f"Failed to validate URL {mapping['url_id']}") from e
+        return responses

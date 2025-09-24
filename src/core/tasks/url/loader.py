@@ -22,6 +22,7 @@ from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai i
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
+from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.pdap.client import PDAPClient
@@ -200,6 +201,18 @@ class URLTaskOperatorLoader:
             )
         )
 
+    def _get_auto_validate_task_operator(self) -> URLTaskEntry:
+        operator = AutoValidateURLTaskOperator(
+            adb_client=self.adb_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.env.bool(
+                "URL_AUTO_VALIDATE_TASK_FLAG",
+                default=True
+            )
+        )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
@@ -213,5 +226,6 @@ class URLTaskOperatorLoader:
             self._get_submit_approved_url_task_operator(),
             self._get_url_auto_relevance_task_operator(),
             self._get_url_screenshot_task_operator(),
-            self._get_location_id_task_operator()
+            self._get_location_id_task_operator(),
+            self._get_auto_validate_task_operator()
         ]

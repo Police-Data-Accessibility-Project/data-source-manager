@@ -1,23 +1,12 @@
-from sqlalchemy import Exists, exists, Select, or_, and_, select
+from sqlalchemy import Select, or_, and_
 
-from src.core.tasks.url.operators.validate.queries.ctes.consensus.base import ValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.location import LocationValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_type import \
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.views.unvalidated_url import UnvalidatedURL
 
-
-def url_exists(cte_container: ValidationCTEContainer) -> Exists:
-    return exists(
-        select(cte_container.url_id)
-        .correlate(UnvalidatedURL)
-        .where(
-            cte_container.url_id == UnvalidatedURL.url_id,
-        )
-    )
 
 def add_where_condition(
     query: Select,
@@ -29,20 +18,20 @@ def add_where_condition(
     return (
         query
         .where(
-            url_exists(url_type),
+            url_type.url_type.isnot(None),
             or_(
                 and_(
                     url_type.url_type == URLType.DATA_SOURCE.value,
-                    url_exists(agency),
-                    url_exists(location),
-                    url_exists(record_type),
+                    agency.agency_id.isnot(None),
+                    location.location_id.isnot(None),
+                    record_type.record_type.isnot(None),
                 ),
                 and_(
                     url_type.url_type.in_(
                         (URLType.META_URL.value, URLType.INDIVIDUAL_RECORD.value)
                     ),
-                    url_exists(agency),
-                    url_exists(location),
+                    agency.agency_id.isnot(None),
+                    location.location_id.isnot(None),
                 ),
                 url_type.url_type == URLType.NOT_RELEVANT.value
                 ),

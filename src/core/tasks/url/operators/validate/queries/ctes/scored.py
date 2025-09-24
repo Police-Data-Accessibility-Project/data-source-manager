@@ -17,10 +17,6 @@ class ScoredCTEContainer:
                 func.max(counts_cte.votes).over(
                     partition_by=counts_cte.url_id
                 ).label("max_votes"),
-                func.dense_rank().over(
-                    partition_by=counts_cte.entity,
-                    order_by=counts_cte.votes.desc()
-                ).label("rnk"),
                 func.count().over(
                     partition_by=(
                         counts_cte.url_id,
@@ -50,10 +46,6 @@ class ScoredCTEContainer:
     @property
     def max_votes(self) -> Column[int]:
         return self._cte.c.max_votes
-
-    @property
-    def rnk(self) -> Column[int]:
-        return self._cte.c.rnk
 
     @property
     def num_labels_with_that_vote(self) -> Column[int]:
