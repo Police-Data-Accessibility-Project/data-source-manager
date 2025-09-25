@@ -6,9 +6,20 @@ from typing_extensions import override
 from src.core.enums import SuggestionType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
+from tests.helpers.simple_test_data_functions import generate_test_name
+
 
 @final
 class AgencyCommand(DBDataCreatorCommandBase):
+
+    def __init__(
+        self,
+        name: str | None = None
+    ):
+        super().__init__()
+        if name is None:
+            name = generate_test_name()
+        self.name = name
 
     @override
     async def run(self) -> int:
@@ -19,7 +30,7 @@ class AgencyCommand(DBDataCreatorCommandBase):
                     url_id=-1,
                     suggestion_type=SuggestionType.UNKNOWN,
                     pdap_agency_id=agency_id,
-                    agency_name=f"Test Agency {agency_id}",
+                    agency_name=self.name,
                     state=f"Test State {agency_id}",
                     county=f"Test County {agency_id}",
                     locality=f"Test Locality {agency_id}"

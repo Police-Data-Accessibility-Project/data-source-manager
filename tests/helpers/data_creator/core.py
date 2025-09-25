@@ -156,8 +156,8 @@ class DBDataCreator:
             urls=[iui.url for iui in iuis.url_mappings]
         )
 
-    async def agency(self) -> int:
-        return await self.run_command(AgencyCommand())
+    async def agency(self, name: str | None = None) -> int:
+        return await self.run_command(AgencyCommand(name))
 
     async def auto_relevant_suggestions(self, url_id: int, relevant: bool = True):
         await self.run_command(
