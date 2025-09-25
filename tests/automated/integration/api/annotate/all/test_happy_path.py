@@ -3,11 +3,13 @@ import pytest
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationUserSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
+from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
+from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
@@ -41,6 +43,10 @@ async def test_annotate_all(
     # Get a valid URL to annotate
     get_response_1 = await ath.request_validator.get_next_url_for_all_annotations()
     assert get_response_1.next_annotation is not None
+    assert len(get_response_1.next_annotation.name_suggestions) == 1
+    name_suggestion = get_response_1.next_annotation.name_suggestions[0]
+    assert name_suggestion.name is not None
+    assert name_suggestion.endorsement_count == 0
 
     # Apply the second batch id as a filter and see that a different URL is returned
     get_response_2 = await ath.request_validator.get_next_url_for_all_annotations(
@@ -61,7 +67,10 @@ async def test_annotate_all(
             location_ids=[
                 california.location_id,
                 pennsylvania.location_id,
-            ]
+            ],
+            name_info=AnnotationPostNameInfo(
+                new_name="New Name"
+            )
         )
     )
     assert post_response_1.next_annotation is not None
@@ -75,7 +84,10 @@ async def test_annotate_all(
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.NOT_RELEVANT,
             location_ids=[],
-            agency_ids=[]
+            agency_ids=[],
+            name_info=AnnotationPostNameInfo(
+                existing_name_id=setup_info_2.name_suggestion_id
+            )
         )
     )
     assert post_response_2.next_annotation is None
@@ -136,4 +148,9 @@ async def test_annotate_all(
     for user_suggestion in user_suggestions:
         assert user_suggestion.user_count == 1
 
+    # Confirm 3 name suggestions
+    name_suggestions: list[URLNameSuggestion] = await adb_client.get_all(URLNameSuggestion)
+    assert len(name_suggestions) == 3
+    suggested_names: set[str] = {name_suggestion.suggestion for name_suggestion in name_suggestions}
+    assert "New Name" in suggested_names
 

@@ -11,7 +11,7 @@ class AllAnnotationPostInfo(BaseModel):
     record_type: RecordType | None = None
     agency_ids: list[int]
     location_ids: list[int]
-    AnnotationPostNameInfo = AnnotationPostNameInfo()
+    name_info: AnnotationPostNameInfo = AnnotationPostNameInfo()
 
     @model_validator(mode="after")
     def forbid_record_type_if_meta_url_or_individual_record(self):

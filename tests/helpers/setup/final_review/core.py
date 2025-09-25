@@ -60,6 +60,10 @@ async def setup_for_get_next_url_for_final_review(
         record_type=RecordType.ARREST_RECORDS
     )
 
+    name_suggestion_id: int = await db_data_creator.name_suggestion(
+        url_id=url_mapping.url_id,
+    )
+
     if include_user_annotations:
         await add_relevant_suggestion(False)
         await add_record_type_suggestion(RecordType.ACCIDENT_REPORTS)
@@ -70,5 +74,6 @@ async def setup_for_get_next_url_for_final_review(
     return FinalReviewSetupInfo(
         batch_id=batch_id,
         url_mapping=url_mapping,
-        user_agency_id=user_agency_id
+        user_agency_id=user_agency_id,
+        name_suggestion_id=name_suggestion_id
     )

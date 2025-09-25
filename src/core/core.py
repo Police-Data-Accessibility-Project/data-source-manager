@@ -3,9 +3,7 @@ from typing import Optional
 
 from fastapi import HTTPException
 from pydantic import BaseModel
-from sqlalchemy.exc import IntegrityError
 
-from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
@@ -35,8 +33,7 @@ from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.collectors.enums import CollectorType
 from src.collectors.manager import AsyncCollectorManager
-from src.core.enums import BatchStatus, RecordType, AnnotationType
-from src.core.error_manager.core import ErrorManager
+from src.core.enums import BatchStatus
 from src.core.tasks.url.manager import TaskManager
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType

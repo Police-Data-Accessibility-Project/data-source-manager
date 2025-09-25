@@ -10,6 +10,7 @@ from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
+from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
@@ -62,7 +63,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         AutoLocationIDSubtask
     )
     name_suggestions = relationship(
-        NameAnnotationSuggestion, back_populates="url"
+        URLNameSuggestion
     )
     user_agency_suggestions = relationship(
         "UserUrlAgencySuggestion", back_populates="url")
