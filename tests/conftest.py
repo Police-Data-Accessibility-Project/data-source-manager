@@ -94,16 +94,11 @@ def setup_and_teardown():
 
 
         yield
-        try:
-            runner.downgrade("base")
-        except Exception as e:
-            print("Exception while downgrading: ", e)
-            print("Resetting schema")
-            runner.reset_schema()
-            runner.stamp("base")
-        finally:
-            live_connection.close()
-            engine.dispose()
+
+        runner.reset_schema()
+        runner.stamp("base")
+        live_connection.close()
+        engine.dispose()
 
 @pytest.fixture
 def wiped_database():

@@ -1,0 +1,3 @@
+
+
+MAX_SUGGESTION_LENGTH: int = 100
