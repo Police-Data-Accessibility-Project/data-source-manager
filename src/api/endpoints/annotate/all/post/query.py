@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
+from src.api.endpoints.annotate.all.post.requester import AddAllAnnotationsToURLRequester
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
@@ -24,40 +25,24 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
 
     async def run(self, session: AsyncSession) -> None:
-        # Add relevant annotation
-        relevant_suggestion = UserURLTypeSuggestion(
+        requester = AddAllAnnotationsToURLRequester(
+            session=session,
             url_id=self.url_id,
-            user_id=self.user_id,
-            type=self.post_info.suggested_status
+            user_id=self.user_id
         )
-        session.add(relevant_suggestion)
+
+        # Add relevant annotation
+        requester.add_relevant_annotation(self.post_info.suggested_status)
 
         # If not relevant, do nothing else
         if self.post_info.suggested_status == URLType.NOT_RELEVANT:
             return
 
-        locations: list[UserLocationSuggestion] = []
-        for location_id in self.post_info.location_ids:
-            locations.append(UserLocationSuggestion(
-                url_id=self.url_id,
-                user_id=self.user_id,
-                location_id=location_id
-            ))
-        session.add_all(locations)
+        requester.add_location_ids(self.post_info.location_ids)
 
         # TODO (TEST): Add test for submitting Meta URL validation
-        if self.post_info.record_type is not None:
-            record_type_suggestion = UserRecordTypeSuggestion(
-                url_id=self.url_id,
-                user_id=self.user_id,
-                record_type=self.post_info.record_type.value
-            )
-            session.add(record_type_suggestion)
+        requester.optionally_add_record_type(self.post_info.record_type)
 
-        for agency_id in self.post_info.agency_ids:
-            agency_suggestion = UserUrlAgencySuggestion(
-                url_id=self.url_id,
-                user_id=self.user_id,
-                agency_id=agency_id,
-            )
-            session.add(agency_suggestion)
+        requester.add_agency_ids(self.post_info.agency_ids)
+
+        await requester.optionally_add_name_suggestion(self.post_info.name_info)

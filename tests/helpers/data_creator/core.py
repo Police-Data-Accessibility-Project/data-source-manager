@@ -26,6 +26,8 @@ from src.db.models.impl.url.suggestion.location.auto.subtask.enums import Locati
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
+from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
+from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
@@ -674,3 +676,15 @@ class DBDataCreator:
             for agency_id in agency_ids
         ]
         await self.adb_client.add_all(links)
+
+    async def name_suggestion(
+        self,
+        url_id: int,
+        source: NameSuggestionSource = NameSuggestionSource.HTML_METADATA_TITLE,
+    ) -> int:
+        suggestion = URLNameSuggestion(
+            url_id=url_id,
+            source=source,
+            suggestion=f"Test Name {next_int()}",
+        )
+        return await self.adb_client.add(suggestion, return_id=True)

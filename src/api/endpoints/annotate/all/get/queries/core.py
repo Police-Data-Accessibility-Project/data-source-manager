@@ -6,9 +6,11 @@ from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
 from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationResponseOuterInfo
+from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.all.get.queries.location_.core import GetLocationSuggestionsQueryBuilder
+from src.api.endpoints.annotate.all.get.queries.name.core import GetNameSuggestionsQueryBuilder
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
 from src.collectors.enums import URLStatus
 from src.db.dto_converter import DTOConverter
@@ -104,6 +106,7 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             joinedload(URL.html_content),
             joinedload(URL.auto_relevant_suggestion),
             joinedload(URL.auto_record_type_suggestion),
+            joinedload(URL.name_suggestions),
         )
 
         query = query.order_by(
@@ -133,6 +136,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
         location_suggestions: LocationAnnotationResponseOuterInfo = \
             await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
+        name_suggestions: list[NameAnnotationSuggestion] = \
+            await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
 
         return GetNextURLForAllAnnotationResponse(
             next_annotation=GetNextURLForAllAnnotationInnerResponse(
@@ -155,5 +160,6 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                     ]
                 ).run(session),
                 location_suggestions=location_suggestions,
+                name_suggestions=name_suggestions
             )
         )
