@@ -8,6 +8,7 @@ from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
+from src.core.tasks.url.operators.auto_name.core import AutoNameURLTaskOperator
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
@@ -213,6 +214,18 @@ class URLTaskOperatorLoader:
             )
         )
 
+    def _get_auto_name_task_operator(self) -> URLTaskEntry:
+        operator = AutoNameURLTaskOperator(
+            adb_client=self.adb_client,
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.env.bool(
+                "URL_AUTO_NAME_TASK_FLAG",
+                default=True
+            )
+        )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
@@ -227,5 +240,6 @@ class URLTaskOperatorLoader:
             self._get_url_auto_relevance_task_operator(),
             self._get_url_screenshot_task_operator(),
             self._get_location_id_task_operator(),
-            self._get_auto_validate_task_operator()
+            self._get_auto_validate_task_operator(),
+            self._get_auto_name_task_operator(),
         ]

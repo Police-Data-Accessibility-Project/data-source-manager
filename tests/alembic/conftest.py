@@ -43,17 +43,11 @@ def alembic_runner(connection, alembic_config) -> Generator[AlembicRunner, Any, 
         connection=connection,
         session=scoped_session(sessionmaker(bind=connection)),
     )
-    try:
-        runner.downgrade("base")
-    except Exception as e:
-        runner.reset_schema()
-        runner.stamp("base")
+    runner.reset_schema()
+    runner.stamp("base")
     print("Running test")
     yield runner
     print("Test complete")
     runner.session.close()
-    try:
-        runner.downgrade("base")
-    except Exception as e:
-        runner.reset_schema()
-        runner.stamp("base")
+    runner.reset_schema()
+    runner.stamp("base")

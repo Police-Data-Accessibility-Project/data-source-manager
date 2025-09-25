@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
+from src.core.tasks.url.operators.auto_name.core import AutoNameURLTaskOperator
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
@@ -59,6 +60,10 @@ params = [
     FlagTestParams(
         env_var="URL_ROOT_URL_TASK_FLAG",
         operator=URLRootURLTaskOperator
+    ),
+    FlagTestParams(
+        env_var="URL_AUTO_NAME_TASK_FLAG",
+        operator=AutoNameURLTaskOperator
     )
 ]
 

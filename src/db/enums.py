@@ -50,6 +50,7 @@ class TaskType(PyEnum):
     SCREENSHOT = "Screenshot"
     LOCATION_ID = "Location ID"
     AUTO_VALIDATE = "Auto Validate"
+    AUTO_NAME = "Auto Name"
 
     # Scheduled Tasks
     PUSH_TO_HUGGINGFACE = "Push to Hugging Face"

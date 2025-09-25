@@ -85,6 +85,7 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                  |
 | `URL_SCREENSHOT_TASK_FLAG`          | Takes screenshots of URLs.                             |
 | `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                          |
+| `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                              |
 
 ### Agency ID Subtasks
 
