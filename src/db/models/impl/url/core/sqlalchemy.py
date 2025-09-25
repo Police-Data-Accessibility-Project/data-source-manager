@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Text, String, JSON
 from sqlalchemy.orm import relationship
 
+from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.models.helpers import enum_column
@@ -59,6 +60,9 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     )
     auto_location_subtasks = relationship(
         AutoLocationIDSubtask
+    )
+    name_suggestions = relationship(
+        NameAnnotationSuggestion, back_populates="url"
     )
     user_agency_suggestions = relationship(
         "UserUrlAgencySuggestion", back_populates="url")

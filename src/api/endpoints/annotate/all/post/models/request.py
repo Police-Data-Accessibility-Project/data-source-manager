@@ -1,5 +1,6 @@
 from pydantic import BaseModel, model_validator
 
+from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
 from src.db.models.impl.flag.url_validated.enums import URLType
@@ -10,6 +11,7 @@ class AllAnnotationPostInfo(BaseModel):
     record_type: RecordType | None = None
     agency_ids: list[int]
     location_ids: list[int]
+    AnnotationPostNameInfo = AnnotationPostNameInfo()
 
     @model_validator(mode="after")
     def forbid_record_type_if_meta_url_or_individual_record(self):

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String
+from sqlalchemy.orm import Mapped
 
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.suggestion.location.auto.subtask.constants import MAX_SUGGESTION_LENGTH
@@ -16,7 +17,7 @@ class URLNameSuggestion(
     __tablename__ = "url_name_suggestions"
 
     suggestion = Column(String(MAX_SUGGESTION_LENGTH), nullable=False)
-    source = enum_column(
+    source: Mapped[NameSuggestionSource] = enum_column(
         NameSuggestionSource,
         name="suggestion_source_enum"
     )
