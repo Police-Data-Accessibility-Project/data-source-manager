@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AnnotationPostNameInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     new_name: str | None = None
     existing_name_id: int | None = None
 

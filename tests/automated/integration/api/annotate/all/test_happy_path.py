@@ -7,6 +7,7 @@ from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameIn
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
@@ -153,4 +154,8 @@ async def test_annotate_all(
     assert len(name_suggestions) == 3
     suggested_names: set[str] = {name_suggestion.suggestion for name_suggestion in name_suggestions}
     assert "New Name" in suggested_names
+
+    # Confirm 2 link user name suggestions
+    link_user_name_suggestions: list[LinkUserNameSuggestion] = await adb_client.get_all(LinkUserNameSuggestion)
+    assert len(link_user_name_suggestions) == 2
 
