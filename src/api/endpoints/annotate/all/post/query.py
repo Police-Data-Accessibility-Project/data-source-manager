@@ -34,6 +34,9 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         # Add relevant annotation
         requester.add_relevant_annotation(self.post_info.suggested_status)
 
+        await requester.optionally_add_name_suggestion(self.post_info.name_info)
+
+
         # If not relevant, do nothing else
         if self.post_info.suggested_status == URLType.NOT_RELEVANT:
             return
@@ -44,5 +47,3 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         requester.optionally_add_record_type(self.post_info.record_type)
 
         requester.add_agency_ids(self.post_info.agency_ids)
-
-        await requester.optionally_add_name_suggestion(self.post_info.name_info)
