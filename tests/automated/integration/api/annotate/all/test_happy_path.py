@@ -33,11 +33,11 @@ async def test_annotate_all(
 
     # Set up URLs
     setup_info_1 =  await setup_for_get_next_url_for_final_review(
-        db_data_creator=ath.db_data_creator, include_user_annotations=False
+        db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
     url_mapping_1 = setup_info_1.url_mapping
     setup_info_2 = await setup_for_get_next_url_for_final_review(
-        db_data_creator=ath.db_data_creator, include_user_annotations=False
+        db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
     url_mapping_2 = setup_info_2.url_mapping
 

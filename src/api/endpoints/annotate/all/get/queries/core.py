@@ -7,8 +7,13 @@ from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyI
 from src.api.endpoints.annotate.agency.get.queries.agency_suggestion_.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.record_type import RecordTypeAnnotationSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
+from src.api.endpoints.annotate.all.get.models.url_type import URLTypeAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.queries.convert import \
+    convert_user_url_type_suggestion_to_url_type_annotation_suggestion, \
+    convert_user_record_type_suggestion_to_record_type_annotation_suggestion
 from src.api.endpoints.annotate.all.get.queries.location_.core import GetLocationSuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.queries.name.core import GetNameSuggestionsQueryBuilder
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
@@ -104,8 +109,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         # Add load options
         query = query.options(
             joinedload(URL.html_content),
-            joinedload(URL.auto_relevant_suggestion),
-            joinedload(URL.auto_record_type_suggestion),
+            joinedload(URL.user_relevant_suggestions),
+            joinedload(URL.user_record_type_suggestions),
             joinedload(URL.name_suggestions),
         )
 
@@ -124,20 +129,21 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             url.html_content
         )
 
-        auto_relevant: AutoRelevantSuggestion | None = None
-        if url.auto_relevant_suggestion is not None:
-            auto_relevant = url.auto_relevant_suggestion
-
-        auto_record_type: AutoRecordTypeSuggestion | None = None
-        if url.auto_record_type_suggestion is not None:
-            auto_record_type = url.auto_record_type_suggestion.record_type
-
+        url_type_suggestions: list[URLTypeAnnotationSuggestion] = \
+            convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
+                url.user_relevant_suggestions
+            )
+        record_type_suggestions: list[RecordTypeAnnotationSuggestion] = \
+            convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
+                url.user_record_type_suggestions
+            )
         agency_suggestions: list[GetNextURLForAgencyAgencyInfo] = \
             await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
         location_suggestions: LocationAnnotationResponseOuterInfo = \
             await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
         name_suggestions: list[NameAnnotationSuggestion] = \
             await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
+
 
         return GetNextURLForAllAnnotationResponse(
             next_annotation=GetNextURLForAllAnnotationInnerResponse(
@@ -146,12 +152,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                     url=url.url
                 ),
                 html_info=html_response_info,
-                suggested_relevant=RelevanceAnnotationResponseInfo(
-                    is_relevant=auto_relevant.relevant,
-                    confidence=auto_relevant.confidence,
-                    model_name=auto_relevant.model_name
-                ) if auto_relevant is not None else None,
-                suggested_record_type=auto_record_type,
+                url_type_suggestions=url_type_suggestions,
+                record_type_suggestions=record_type_suggestions,
                 agency_suggestions=agency_suggestions,
                 batch_info=await GetAnnotationBatchInfoQueryBuilder(
                     batch_id=self.batch_id,
