@@ -38,6 +38,7 @@ def _update_locations_expanded_view():
                    WHEN locations.type = 'Locality'::location_type THEN localities.name
                    WHEN locations.type = 'County'::location_type THEN counties.name::character varying
                    WHEN locations.type = 'State'::location_type THEN us_states.state_name::character varying
+                   WHEN locations.type = 'National'::location_type THEN 'United States'
                    ELSE NULL::character varying
                    END         AS display_name,
                CASE
