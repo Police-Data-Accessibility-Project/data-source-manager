@@ -59,6 +59,8 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
                 ).desc()
             )
 
+        query = query.limit(50)
+
         mappings: Sequence[RowMapping] = await sh.mappings(session, query)
 
         return [

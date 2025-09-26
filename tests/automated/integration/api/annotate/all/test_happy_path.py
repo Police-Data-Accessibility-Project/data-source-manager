@@ -33,11 +33,11 @@ async def test_annotate_all(
 
     # Set up URLs
     setup_info_1 =  await setup_for_get_next_url_for_final_review(
-        db_data_creator=ath.db_data_creator, include_user_annotations=False
+        db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
     url_mapping_1 = setup_info_1.url_mapping
     setup_info_2 = await setup_for_get_next_url_for_final_review(
-        db_data_creator=ath.db_data_creator, include_user_annotations=False
+        db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
     url_mapping_2 = setup_info_2.url_mapping
 
@@ -99,22 +99,25 @@ async def test_annotate_all(
 
     # Check that all annotations are present in the database
 
-    # Should be two relevance annotations, one True and one False
+    # Check URL Type Suggestions
     all_relevance_suggestions: list[UserURLTypeSuggestion] = await adb_client.get_all(UserURLTypeSuggestion)
-    assert len(all_relevance_suggestions) == 2
-    assert all_relevance_suggestions[0].type == URLType.DATA_SOURCE
-    assert all_relevance_suggestions[1].type == URLType.NOT_RELEVANT
+    assert len(all_relevance_suggestions) == 4
+    suggested_types: set[URLType] = {sugg.type for sugg in all_relevance_suggestions}
+    assert suggested_types == {URLType.DATA_SOURCE, URLType.NOT_RELEVANT}
 
     # Should be one agency
     all_agency_suggestions = await adb_client.get_all(UserUrlAgencySuggestion)
-    assert len(all_agency_suggestions) == 1
-    assert all_agency_suggestions[0].is_new is None
-    assert all_agency_suggestions[0].agency_id == agency_id
+    assert len(all_agency_suggestions) == 3
+    suggested_agency_ids: set[int] = {sugg.agency_id for sugg in all_agency_suggestions}
+    assert agency_id in suggested_agency_ids
 
     # Should be one record type
     all_record_type_suggestions = await adb_client.get_all(UserRecordTypeSuggestion)
-    assert len(all_record_type_suggestions) == 1
-    assert all_record_type_suggestions[0].record_type == RecordType.ACCIDENT_REPORTS.value
+    assert len(all_record_type_suggestions) == 3
+    suggested_record_types: set[RecordType] = {
+        sugg.record_type for sugg in all_record_type_suggestions
+    }
+    assert RecordType.ACCIDENT_REPORTS.value in suggested_record_types
 
     # Confirm 3 Location Suggestions, with two belonging to California and one to Pennsylvania
     all_location_suggestions = await adb_client.get_all(UserLocationSuggestion)
