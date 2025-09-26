@@ -5,6 +5,8 @@ References an agency in the data sources database.
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
+from src.db.models.helpers import enum_column
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
@@ -23,6 +25,8 @@ class Agency(
     state = Column(String, nullable=True)
     county = Column(String, nullable=True)
     locality = Column(String, nullable=True)
+    agency_type = enum_column(AgencyType, name="agency_type_enum")
+    jurisdiction_type = enum_column(JurisdictionType, name="jurisdiction_type_enum")
 
     # Relationships
     automated_suggestions = relationship("AgencyIDSubtaskSuggestion")

@@ -75,6 +75,7 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.dtos.url.raw_html import RawHTMLInfo
 from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
@@ -652,6 +653,7 @@ class AsyncDatabaseClient:
             agency.state = suggestion.state
             agency.county = suggestion.county
             agency.locality = suggestion.locality
+            agency.agency_type = AgencyType.UNKNOWN
             session.add(agency)
 
     @session_manager
@@ -686,7 +688,8 @@ class AsyncDatabaseClient:
             if len(result.all()) == 0:
                 agency = Agency(
                     agency_id=agency_id,
-                    name=PLACEHOLDER_AGENCY_NAME
+                    name=PLACEHOLDER_AGENCY_NAME,
+                    agency_type=AgencyType.UNKNOWN,
                 )
                 await session.merge(agency)
 

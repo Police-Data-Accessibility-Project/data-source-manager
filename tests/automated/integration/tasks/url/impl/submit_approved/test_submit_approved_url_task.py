@@ -37,7 +37,8 @@ async def test_submit_approved_url_task(
 
     # Create URLs with status 'validated' in database and all requisite URL values
     # Ensure they have optional metadata as well
-    urls: list[str] = await setup_validated_urls(db_data_creator)
+    agency_id = await db_data_creator.agency()
+    urls: list[str] = await setup_validated_urls(db_data_creator, agency_id=agency_id)
     mock_make_request(mock_pdap_client, urls)
 
     # Check Task Operator does meet pre-requisites
@@ -107,7 +108,7 @@ async def test_submit_approved_url_task(
                     "data_portal_type": "Data Portal Type 1",
                     "last_approval_editor": 1,
                     "supplying_entity": "Supplying Entity 1",
-                    "agency_ids": [1, 2]
+                    "agency_ids": [agency_id]
                 },
                 {
                     "name": "URL 2 Name",
@@ -118,7 +119,7 @@ async def test_submit_approved_url_task(
                     "supplying_entity": None,
                     "record_formats": None,
                     "data_portal_type": None,
-                    "agency_ids": [3, 4]
+                    "agency_ids": [agency_id]
                 },
                 {
                     "name": "URL 3 Name",
@@ -129,7 +130,7 @@ async def test_submit_approved_url_task(
                     "supplying_entity": None,
                     "record_formats": None,
                     "data_portal_type": None,
-                    "agency_ids": [5, 6]
+                    "agency_ids": [agency_id]
                 }
             ]
         }
