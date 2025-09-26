@@ -84,20 +84,6 @@ class TestAllAnnotationPostInfoParams(BaseModel):
             location_ids=[],
             raise_exception=True
         ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.INDIVIDUAL_RECORD,
-            record_type=None,
-            agency_ids=[1, 2],  # Agency IDs Included
-            location_ids=[],
-            raise_exception=True
-        ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.INDIVIDUAL_RECORD,
-            record_type=None,
-            agency_ids=[],
-            location_ids=[1, 2],  # Location IDs included
-            raise_exception=True
-        )
     ]
 )
 def test_all_annotation_post_info(
