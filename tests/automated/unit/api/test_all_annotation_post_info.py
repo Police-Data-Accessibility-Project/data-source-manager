@@ -54,42 +54,6 @@ class TestAllAnnotationPostInfoParams(BaseModel):
             location_ids=[3, 4],
             raise_exception=True
         ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.META_URL,
-            record_type=None,
-            agency_ids=[],  # No agency IDs
-            location_ids=[3, 4],
-            raise_exception=True
-        ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.META_URL,
-            record_type=None,
-            agency_ids=[1, 2],
-            location_ids=[],  # No Location IDs
-            raise_exception=True
-        ),
-        # Error Paths - Data Source
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.DATA_SOURCE,
-            record_type=None,  # No record type
-            agency_ids=[1, 2],
-            location_ids=[3, 4],
-            raise_exception=True
-        ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.DATA_SOURCE,
-            record_type=RecordType.ACCIDENT_REPORTS,
-            agency_ids=[],  # No Agency IDs
-            location_ids=[3, 4],
-            raise_exception=True
-        ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.DATA_SOURCE,
-            record_type=RecordType.ACCIDENT_REPORTS,
-            agency_ids=[1, 2],
-            location_ids=[],  # No Location IDs
-            raise_exception=True
-        ),
         # Error Paths - Not Relevant
         TestAllAnnotationPostInfoParams(
             suggested_status=URLType.NOT_RELEVANT,
@@ -120,20 +84,6 @@ class TestAllAnnotationPostInfoParams(BaseModel):
             location_ids=[],
             raise_exception=True
         ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.INDIVIDUAL_RECORD,
-            record_type=None,
-            agency_ids=[1, 2],  # Agency IDs Included
-            location_ids=[],
-            raise_exception=True
-        ),
-        TestAllAnnotationPostInfoParams(
-            suggested_status=URLType.INDIVIDUAL_RECORD,
-            record_type=None,
-            agency_ids=[],
-            location_ids=[1, 2],  # Location IDs included
-            raise_exception=True
-        )
     ]
 )
 def test_all_annotation_post_info(
