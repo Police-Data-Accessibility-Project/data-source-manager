@@ -148,12 +148,12 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
             existing_agency = await session.execute(query)
             existing_agency = existing_agency.scalars().first()
             if existing_agency is None:
-                # If not, create it
-                agency = Agency(
-                    agency_id=new_agency_id,
-                    name=PLACEHOLDER_AGENCY_NAME,
+                # If not, raise an error
+                raise HTTPException(
+                    status_code=HTTP_400_BAD_REQUEST,
+                    detail="Agency not found"
                 )
-                session.add(agency)
+
 
             # If the new agency id is not in the existing agency ids, add it
             confirmed_url_agency = LinkURLAgency(

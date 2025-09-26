@@ -29,11 +29,8 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
     # Add confirmed agency
     await db_data_creator.confirmed_suggestions([url_mapping.url_id])
 
-    # Additionally, include an agency not yet included in the database
-    additional_agency = 999999
 
     agency_ids = [await db_data_creator.agency() for _ in range(3)]
-    agency_ids.append(additional_agency)
 
     result: GetNextURLForFinalReviewOuterResponse = await ath.request_validator.approve_and_get_next_source_for_review(
         approval_info=FinalReviewApprovalInfo(
@@ -73,15 +70,10 @@ async def test_approve_and_get_next_source_for_review(api_test_helper):
 
     # Get agencies
     confirmed_agencies = await adb_client.get_all(LinkURLAgency)
-    assert len(confirmed_agencies) == 4
+    assert len(confirmed_agencies) == 3
     for agency in confirmed_agencies:
         assert agency.agency_id in agency_ids
 
-    # Check that created agency has placeholder
-    agencies = await adb_client.get_all(Agency)
-    for agency in agencies:
-        if agency.agency_id == additional_agency:
-            assert agency.name == PLACEHOLDER_AGENCY_NAME
 
     # Confirm presence of FlagURLValidated
     flag_url_validated = await adb_client.get_all(FlagURLValidated)
