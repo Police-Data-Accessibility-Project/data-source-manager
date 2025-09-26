@@ -38,6 +38,7 @@ async def test_search_agency(
     assert responses[1]["agency_id"] == agency_b_id
     assert responses[2]["agency_id"] == agency_c_id
 
+    # Filter based on location ID
     responses = api_test_helper.request_validator.get_v2(
         url="/search/agency",
         params={
@@ -50,4 +51,13 @@ async def test_search_agency(
     assert responses[0]["agency_id"] == agency_a_id
     assert responses[1]["agency_id"] == agency_c_id
 
-
+    # Filter again based on location ID but with Allegheny County
+    # Confirm pittsburgh agencies are picked up
+    responses = api_test_helper.request_validator.get_v2(
+        url="/search/agency",
+        params={
+            "query": "A Agency",
+            "location_id": allegheny_county.location_id
+        }
+    )
+    assert len(responses) == 3
