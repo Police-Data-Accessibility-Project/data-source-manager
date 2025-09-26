@@ -25,36 +25,6 @@ class AllAnnotationPostInfo(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def require_record_type_if_data_source(self):
-        if self.suggested_status == URLType.DATA_SOURCE and self.record_type is None:
-            raise FailedValidationException("record_type must be provided if suggested_status is DATA_SOURCE")
-        return self
-
-    @model_validator(mode="after")
-    def require_location_if_relevant(self):
-        if self.suggested_status not in [
-            URLType.META_URL,
-            URLType.DATA_SOURCE,
-            URLType.INDIVIDUAL_RECORD,
-        ]:
-            return self
-        if len(self.location_ids) == 0:
-            raise FailedValidationException("location_ids must be provided if suggested_status is META_URL or DATA_SOURCE")
-        return self
-
-    @model_validator(mode="after")
-    def require_agency_id_if_relevant(self):
-        if self.suggested_status not in [
-            URLType.META_URL,
-            URLType.DATA_SOURCE,
-            URLType.INDIVIDUAL_RECORD,
-        ]:
-            return self
-        if len(self.agency_ids) == 0:
-            raise FailedValidationException("agencies must be provided if suggested_status is META_URL or DATA_SOURCE")
-        return self
-
-    @model_validator(mode="after")
     def forbid_all_else_if_not_relevant(self):
         if self.suggested_status != URLType.NOT_RELEVANT:
             return self
