@@ -26,7 +26,11 @@ class Agency(
     county = Column(String, nullable=True)
     locality = Column(String, nullable=True)
     agency_type = enum_column(AgencyType, name="agency_type_enum")
-    jurisdiction_type = enum_column(JurisdictionType, name="jurisdiction_type_enum")
+    jurisdiction_type = enum_column(
+        JurisdictionType,
+        name="jurisdiction_type_enum",
+        nullable=True,
+    )
 
     # Relationships
     automated_suggestions = relationship("AgencyIDSubtaskSuggestion")

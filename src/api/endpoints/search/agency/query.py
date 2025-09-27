@@ -32,6 +32,8 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
             select(
                 Agency.agency_id,
                 Agency.name.label("agency_name"),
+                Agency.jurisdiction_type,
+                Agency.agency_type,
                 LocationExpandedView.display_name.label("location_display_name")
             )
         )
