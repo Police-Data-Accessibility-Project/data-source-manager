@@ -5,6 +5,7 @@ from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameIn
 from src.core.enums import RecordType
 from src.db.models.impl.agency.suggestion.sqlalchemy import NewAgencySuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.link.url_new_agency_suggestion.sqlalchemy import LinkURLNewAgencySuggestion
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
@@ -98,7 +99,8 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
 
     async def optionally_add_new_agency_suggestion(
         self,
-        suggestion_info: AnnotationNewAgencySuggestionInfo | None
+        suggestion_info: AnnotationNewAgencySuggestionInfo | None,
+        url_id: int,
     ) -> None:
         if suggestion_info is None:
             return
@@ -109,3 +111,9 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
             agency_type=suggestion_info.agency_type,
         )
         self.session.add(new_agency_suggestion)
+        await self.session.flush()
+        link = LinkURLNewAgencySuggestion(
+            url_id=url_id,
+            suggestion_id=new_agency_suggestion.id,
+        )
+        self.session.add(link)
