@@ -48,4 +48,7 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
         requester.add_agency_ids(self.post_info.agency_info.agency_ids)
 
-        await requester.optionally_add_new_agency_suggestion(self.post_info.agency_info.new_agency_suggestion)
+        await requester.optionally_add_new_agency_suggestion(
+            self.post_info.agency_info.new_agency_suggestion,
+            url_id=self.url_id,
+        )
