@@ -35,6 +35,10 @@ async def test_meta_url(
     # Add two location suggestions
     await helper.add_location_suggestions(count=2)
 
+    assert not await operator.meets_task_prerequisites()
+
+    await helper.add_name_suggestion(count=2)
+
     # Assert operator now meets task prerequisites
     assert await operator.meets_task_prerequisites()
 
@@ -58,3 +62,4 @@ async def test_meta_url(
     await helper.check_url_validated(URLType.META_URL)
     await helper.check_auto_validated()
     await helper.check_agency_linked()
+    await helper.check_name()

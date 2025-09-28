@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import FailedValidationException
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.location import LocationValidationCTEContainer
+from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.name import NameValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_type import \
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
@@ -24,6 +25,7 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
         location = LocationValidationCTEContainer()
         url_type = URLTypeValidationCTEContainer()
         record_type = RecordTypeValidationCTEContainer()
+        name = NameValidationCTEContainer()
 
         query = (
             select(
@@ -32,6 +34,7 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
                 agency.agency_id,
                 url_type.url_type,
                 record_type.record_type,
+                name.name,
             )
             .outerjoin(
                 agency.query,
@@ -49,6 +52,10 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
                 record_type.query,
                 URL.id == record_type.url_id,
             )
+            .outerjoin(
+                name.query,
+                URL.id == name.url_id,
+            )
         )
         query = add_where_condition(
             query,
@@ -56,6 +63,7 @@ class GetURLsForAutoValidationQueryBuilder(QueryBuilderBase):
             location=location,
             url_type=url_type,
             record_type=record_type,
+            name=name,
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
