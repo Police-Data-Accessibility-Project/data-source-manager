@@ -37,6 +37,10 @@ async def test_data_source(
 
     await helper.add_record_type_suggestions(count=2)
 
+    assert not await operator.meets_task_prerequisites()
+
+    await helper.add_name_suggestion(count=2)
+
     assert await operator.meets_task_prerequisites()
 
     # Add different record type suggestion
@@ -59,4 +63,5 @@ async def test_data_source(
     await helper.check_auto_validated()
     await helper.check_agency_linked()
     await helper.check_record_type()
+    await helper.check_name()
 

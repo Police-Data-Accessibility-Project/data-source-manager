@@ -20,6 +20,7 @@ from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
+from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
@@ -684,10 +685,24 @@ class DBDataCreator:
         self,
         url_id: int,
         source: NameSuggestionSource = NameSuggestionSource.HTML_METADATA_TITLE,
+        name: str | None = None,
     ) -> int:
+        if name is None:
+            name = f"Test Name {next_int()}"
         suggestion = URLNameSuggestion(
             url_id=url_id,
             source=source,
-            suggestion=f"Test Name {next_int()}",
+            suggestion=name,
         )
         return await self.adb_client.add(suggestion, return_id=True)
+
+    async def user_name_endorsement(
+        self,
+        suggestion_id: int,
+        user_id: int,
+    ):
+        link = LinkUserNameSuggestion(
+            suggestion_id=suggestion_id,
+            user_id=user_id,
+        )
+        await self.adb_client.add(link)

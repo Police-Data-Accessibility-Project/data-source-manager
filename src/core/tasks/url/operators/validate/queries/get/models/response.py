@@ -11,6 +11,7 @@ class GetURLsForAutoValidationResponse(BaseModel):
     agency_id: int | None
     url_type: URLType
     record_type: RecordType | None
+    name: str | None
 
     @model_validator(mode="after")
     def forbid_record_type_if_not_data_source(self):

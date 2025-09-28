@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.agency import AgencyValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.location import LocationValidationCTEContainer
+from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.name import NameValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.record_type import \
     RecordTypeValidationCTEContainer
 from src.core.tasks.url.operators.validate.queries.ctes.consensus.impl.url_type import URLTypeValidationCTEContainer
@@ -25,6 +26,7 @@ class AutoValidatePrerequisitesQueryBuilder(QueryBuilderBase):
         location = LocationValidationCTEContainer()
         url_type = URLTypeValidationCTEContainer()
         record_type = RecordTypeValidationCTEContainer()
+        name = NameValidationCTEContainer()
 
 
         query = (
@@ -50,6 +52,10 @@ class AutoValidatePrerequisitesQueryBuilder(QueryBuilderBase):
                 record_type.query,
                 UnvalidatedURL.url_id == record_type.url_id,
             )
+            .outerjoin(
+                name.query,
+                UnvalidatedURL.url_id == name.url_id,
+            )
         )
         query = add_where_condition(
             query,
@@ -57,6 +63,7 @@ class AutoValidatePrerequisitesQueryBuilder(QueryBuilderBase):
             location=location,
             url_type=url_type,
             record_type=record_type,
+            name=name,
         ).limit(1)
 
         return await sh.results_exist(session, query=query)

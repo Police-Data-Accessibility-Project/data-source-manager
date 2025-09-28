@@ -28,6 +28,10 @@ async def test_individual_record(
 
     await helper.add_location_suggestions(count=2)
 
+    assert not await operator.meets_task_prerequisites()
+
+    await helper.add_name_suggestion(count=2)
+
     assert await operator.meets_task_prerequisites()
 
     # Add additional agency suggestions to create tie
@@ -50,4 +54,5 @@ async def test_individual_record(
     await helper.check_url_validated(URLType.INDIVIDUAL_RECORD)
     await helper.check_auto_validated()
     await helper.check_agency_linked()
+    await helper.check_name()
 

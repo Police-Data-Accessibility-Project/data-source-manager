@@ -1,11 +1,14 @@
 from typing import Any
 
+from sqlalchemy import update, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.url.operators.validate.queries.get.models.response import GetURLsForAutoValidationResponse
 from src.db.models.impl.flag.auto_validated.pydantic import FlagURLAutoValidatedPydantic
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
+from src.db.models.impl.url.core.pydantic.upsert import URLUpsertModel
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.record_type.pydantic import URLRecordTypePydantic
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.helpers.session import session_helper as sh
@@ -56,4 +59,27 @@ class InsertURLAutoValidationsQueryBuilder(QueryBuilderBase):
         ]:
             await sh.bulk_insert(session, models=inserts)
 
+        await self.update_urls(session)
 
+
+    async def update_urls(self, session: AsyncSession) -> Any:
+        id_to_name: dict[int, str] = {}
+        for response in self._responses:
+            if response.name is not None:
+                id_to_name[response.url_id] = response.name
+
+        if len(id_to_name) == 0:
+            return
+
+        stmt = (
+            update(URL)
+            .where(URL.id.in_(id_to_name.keys()))
+            .values(
+                name=case(
+                    {id_: val for id_, val in id_to_name.items()},
+                    value=URL.id
+                )
+            )
+        )
+
+        await session.execute(stmt)

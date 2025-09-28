@@ -5,7 +5,9 @@ from src.db.models.impl.flag.auto_validated.sqlalchemy import FlagURLAutoValidat
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from tests.conftest import db_data_creator
 from tests.helpers.counter import next_int
 from tests.helpers.data_creator.core import DBDataCreator
@@ -118,3 +120,26 @@ class TestValidateTaskHelper:
                 record_type=record_type,
                 user_id=next_int()
             )
+
+    async def add_name_suggestion(
+        self,
+        count: int = 1,
+    ) -> str:
+        name = f"Test Validate Task Name"
+        suggestion_id: int = await self.db_data_creator.name_suggestion(
+            url_id=self.url_id,
+            source=NameSuggestionSource.USER,
+            name=name,
+        )
+        for i in range(count):
+            await self.db_data_creator.user_name_endorsement(
+                suggestion_id=suggestion_id,
+                user_id=next_int(),
+            )
+        return name
+
+    async def check_name(self) -> None:
+        urls: list[URL] = await self.adb_client.get_all(URL)
+        assert len(urls) == 1
+        url: URL = urls[0]
+        assert url.name == "Test Validate Task Name"
