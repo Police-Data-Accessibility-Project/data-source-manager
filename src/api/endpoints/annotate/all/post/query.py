@@ -41,14 +41,15 @@ class AddAllAnnotationsToURLQueryBuilder(QueryBuilderBase):
         if self.post_info.suggested_status == URLType.NOT_RELEVANT:
             return
 
-        requester.add_location_ids(self.post_info.location_ids)
+        requester.add_location_ids(self.post_info.location_info.location_ids)
 
         # TODO (TEST): Add test for submitting Meta URL validation
         requester.optionally_add_record_type(self.post_info.record_type)
 
         requester.add_agency_ids(self.post_info.agency_info.agency_ids)
 
-        await requester.optionally_add_new_agency_suggestion(
-            self.post_info.agency_info.new_agency_suggestion,
-            url_id=self.url_id,
-        )
+        if self.post_info.location_info.not_found:
+            requester.add_not_found_location()
+
+        if self.post_info.agency_info.not_found:
+            requester.add_not_found_agency()

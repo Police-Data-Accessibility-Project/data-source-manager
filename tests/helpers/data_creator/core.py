@@ -21,6 +21,8 @@ from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocatio
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
+from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
@@ -706,3 +708,23 @@ class DBDataCreator:
             user_id=user_id,
         )
         await self.adb_client.add(link)
+
+    async def not_found_location_suggestion(
+        self,
+        url_id: int,
+    ) -> None:
+        suggestion = LinkUserSuggestionLocationNotFound(
+            url_id=url_id,
+            user_id=next_int(),
+        )
+        await self.adb_client.add(suggestion)
+
+    async def not_found_agency_suggestion(
+        self,
+        url_id: int,
+    ) -> None:
+        suggestion = LinkUserSuggestionAgencyNotFound(
+            url_id=url_id,
+            user_id=next_int(),
+        )
+        await self.adb_client.add(suggestion)

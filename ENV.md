@@ -72,20 +72,21 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag.
 
 
-| Flag                                | Description                                                        |
-|-------------------------------------|--------------------------------------------------------------------|
-| `URL_HTML_TASK_FLAG`                | URL HTML scraping task.                                |
-| `URL_RECORD_TYPE_TASK_FLAG`         | Automatically assigns Record Types to URLs.            |
-| `URL_AGENCY_IDENTIFICATION_TASK_FLAG` | Automatically assigns and suggests Agencies for URLs.  |
-| `URL_SUBMIT_APPROVED_TASK_FLAG`     | Submits approved URLs to the Data Sources App.         |
-| `URL_MISC_METADATA_TASK_FLAG`       | Adds misc metadata to URLs.                            |
-| `URL_404_PROBE_TASK_FLAG`           | Probes URLs for 404 errors.                            |
-| `URL_AUTO_RELEVANCE_TASK_FLAG`      | Automatically assigns Relevances to URLs.              |
-| `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                          |
-| `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                  |
-| `URL_SCREENSHOT_TASK_FLAG`          | Takes screenshots of URLs.                             |
-| `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                          |
-| `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                              |
+| Flag                                | Description                                           |
+|-------------------------------------|-------------------------------------------------------|
+| `URL_HTML_TASK_FLAG`                | URL HTML scraping task.                               |
+| `URL_RECORD_TYPE_TASK_FLAG`         | Automatically assigns Record Types to URLs.           |
+| `URL_AGENCY_IDENTIFICATION_TASK_FLAG` | Automatically assigns and suggests Agencies for URLs. |
+| `URL_SUBMIT_APPROVED_TASK_FLAG`     | Submits approved URLs to the Data Sources App.        |
+| `URL_MISC_METADATA_TASK_FLAG`       | Adds misc metadata to URLs.                           |
+| `URL_404_PROBE_TASK_FLAG`           | Probes URLs for 404 errors.                           |
+| `URL_AUTO_RELEVANCE_TASK_FLAG`      | Automatically assigns Relevances to URLs.             |
+| `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                         |
+| `URL_ROOT_URL_TASK_FLAG`            | Extracts and links Root URLs to URLs.                 |
+| `URL_SCREENSHOT_TASK_FLAG`          | Takes screenshots of URLs.                            |
+| `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                         |
+| `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                             |
+| `URL_SUSPEND_TASK_FLAG`             | Suspends URLs meeting suspension criteria.            |
 
 ### Agency ID Subtasks
 

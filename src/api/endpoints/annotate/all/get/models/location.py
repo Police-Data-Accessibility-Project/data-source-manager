@@ -23,7 +23,13 @@ class LocationAnnotationUserSuggestion(BaseModel):
         ge=1,
     )
 
+class LocationAnnotationUserSuggestionOuterInfo(BaseModel):
+    suggestions: list[LocationAnnotationUserSuggestion]
+    not_found_count: int = Field(
+        title="How many users listed the location as not found.",
+        ge=0,
+    )
 
 class LocationAnnotationResponseOuterInfo(BaseModel):
-    user: list[LocationAnnotationUserSuggestion]
+    user: LocationAnnotationUserSuggestionOuterInfo
     auto: list[LocationAnnotationAutoSuggestion]

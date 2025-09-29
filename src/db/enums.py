@@ -51,6 +51,7 @@ class TaskType(PyEnum):
     LOCATION_ID = "Location ID"
     AUTO_VALIDATE = "Auto Validate"
     AUTO_NAME = "Auto Name"
+    SUSPEND_URLS = "Suspend URLs"
 
     # Scheduled Tasks
     PUSH_TO_HUGGINGFACE = "Push to Hugging Face"

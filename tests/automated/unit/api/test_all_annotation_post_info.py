@@ -2,6 +2,7 @@ import pytest
 from pydantic import BaseModel
 
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
+from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
@@ -96,12 +97,12 @@ def test_all_annotation_post_info(
                 suggested_status=params.suggested_status,
                 record_type=params.record_type,
                 agency_info=AnnotationPostAgencyInfo(agency_ids=params.agency_ids),
-                location_ids=params.location_ids
+                location_info=AnnotationPostLocationInfo(location_ids=params.location_ids)
             )
     else:
         AllAnnotationPostInfo(
             suggested_status=params.suggested_status,
             record_type=params.record_type,
             agency_info=AnnotationPostAgencyInfo(agency_ids=params.agency_ids),
-            location_ids=params.location_ids
+            location_info=AnnotationPostLocationInfo(location_ids=params.location_ids)
         )

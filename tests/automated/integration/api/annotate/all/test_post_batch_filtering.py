@@ -1,6 +1,7 @@
 import pytest
 
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
+from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
@@ -31,8 +32,8 @@ async def test_annotate_all_post_batch_filtering(api_test_helper):
         batch_id=setup_info_3.batch_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.NOT_RELEVANT,
-            location_ids=[],
-            agency_info=AnnotationPostAgencyInfo(agency_ids=[])
+            location_info=AnnotationPostLocationInfo(),
+            agency_info=AnnotationPostAgencyInfo()
         )
     )
 
