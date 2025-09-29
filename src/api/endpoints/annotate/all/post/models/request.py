@@ -1,6 +1,7 @@
 from pydantic import BaseModel, model_validator, ConfigDict
 
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
+from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
@@ -13,7 +14,7 @@ class AllAnnotationPostInfo(BaseModel):
     suggested_status: URLType
     record_type: RecordType | None = None
     agency_info: AnnotationPostAgencyInfo
-    location_ids: list[int]
+    location_info: AnnotationPostLocationInfo
     name_info: AnnotationPostNameInfo = AnnotationPostNameInfo()
 
     @model_validator(mode="after")
@@ -35,7 +36,7 @@ class AllAnnotationPostInfo(BaseModel):
             raise FailedValidationException("record_type must be None if suggested_status is NOT RELEVANT")
         if not self.agency_info.empty:
             raise FailedValidationException("agency_info must be empty if suggested_status is NOT RELEVANT")
-        if len(self.location_ids) > 0:
+        if not self.location_info.empty:
             raise FailedValidationException("location_ids must be empty if suggested_status is NOT RELEVANT")
         return self
 

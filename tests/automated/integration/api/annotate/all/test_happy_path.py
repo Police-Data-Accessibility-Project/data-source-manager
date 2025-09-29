@@ -4,6 +4,7 @@ from src.api.endpoints.annotate.all.get.models.location import LocationAnnotatio
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
+from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
@@ -66,10 +67,12 @@ async def test_annotate_all(
             suggested_status=URLType.DATA_SOURCE,
             record_type=RecordType.ACCIDENT_REPORTS,
             agency_info=AnnotationPostAgencyInfo(agency_ids=[agency_id]),
-            location_ids=[
-                california.location_id,
-                pennsylvania.location_id,
-            ],
+            location_info=AnnotationPostLocationInfo(
+                location_ids=[
+                    california.location_id,
+                    pennsylvania.location_id,
+                ]
+            ),
             name_info=AnnotationPostNameInfo(
                 new_name="New Name"
             )
@@ -85,8 +88,8 @@ async def test_annotate_all(
         url_id=url_mapping_2.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.NOT_RELEVANT,
-            location_ids=[],
-            agency_info=AnnotationPostAgencyInfo(agency_ids=[]),
+            location_info=AnnotationPostLocationInfo(),
+            agency_info=AnnotationPostAgencyInfo(),
             name_info=AnnotationPostNameInfo(
                 existing_name_id=setup_info_2.name_suggestion_id
             )
@@ -138,7 +141,7 @@ async def test_annotate_all(
         )
     )
     user_suggestions: list[LocationAnnotationUserSuggestion] = \
-        response.next_annotation.location_suggestions.user
+        response.next_annotation.location_suggestions.user.suggestions
     assert len(user_suggestions) == 2
 
     response_location_ids: list[int] = [location_suggestion.location_id for location_suggestion in user_suggestions]

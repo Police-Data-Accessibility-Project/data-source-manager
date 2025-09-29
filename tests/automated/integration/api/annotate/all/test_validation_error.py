@@ -1,6 +1,7 @@
 import pytest
 
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
+from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
@@ -25,7 +26,7 @@ async def test_annotate_all_validation_error(api_test_helper):
             all_annotations_post_info=AllAnnotationPostInfo(
                 suggested_status=URLType.NOT_RELEVANT,
                 record_type=RecordType.ACCIDENT_REPORTS,
-                location_ids=[],
-                agency_info=AnnotationPostAgencyInfo(agency_ids=[])
+                location_info=AnnotationPostLocationInfo(),
+                agency_info=AnnotationPostAgencyInfo()
             )
         )

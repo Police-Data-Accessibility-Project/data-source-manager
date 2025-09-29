@@ -22,8 +22,16 @@ def upgrade() -> None:
     add_link_user_suggestion_agency_not_found_table()
     add_link_user_suggestion_location_not_found_table()
     add_flag_url_suspended_table()
+    add_url_suspend_task_type()
     remove_link_url_new_agency_suggestion_table()
     remove_new_agency_suggestions_table()
+
+def add_url_suspend_task_type():
+    op.execute(
+        """
+        ALTER TYPE task_type ADD VALUE 'Suspend URLs';
+        """
+    )
 
 def add_link_user_suggestion_agency_not_found_table():
     op.create_table(

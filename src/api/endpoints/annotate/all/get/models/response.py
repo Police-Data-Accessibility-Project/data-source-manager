@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import Field, BaseModel
 
 from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
+from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
 from src.api.endpoints.annotate.all.get.models.record_type import RecordTypeAnnotationSuggestion
@@ -13,7 +14,7 @@ from src.core.enums import RecordType
 
 
 class GetNextURLForAllAnnotationInnerResponse(AnnotationInnerResponseInfoBase):
-    agency_suggestions: list[GetNextURLForAgencyAgencyInfo] | None = Field(
+    agency_suggestions: AgencyAnnotationResponseOuterInfo | None = Field(
         title="The auto-labeler's suggestions for agencies"
     )
     location_suggestions: LocationAnnotationResponseOuterInfo | None = Field(

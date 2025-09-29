@@ -1,18 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
-from src.db.models.impl.agency.enums import JurisdictionType, AgencyType
-
-
-class AnnotationNewAgencySuggestionInfo(BaseModel):
-    name: str
-    location_id: int
-    jurisdiction_type: JurisdictionType | None
-    agency_type: AgencyType | None
 
 class AnnotationPostAgencyInfo(BaseModel):
-    new_agency_suggestion: AnnotationNewAgencySuggestionInfo | None = None
+    not_found: bool = False
     agency_ids: list[int] = []
 
     @property
     def empty(self) -> bool:
-        return self.new_agency_suggestion is None and len(self.agency_ids) == 0
+        return len(self.agency_ids) == 0
+
+    @model_validator(mode="after")
+    def forbid_not_found_if_agency_ids(self):
+        if self.not_found and len(self.agency_ids) > 0:
+            raise ValueError("not_found must be False if agency_ids is not empty")
+        return self
