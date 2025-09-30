@@ -14,6 +14,7 @@ from src.api.endpoints.metrics.routes import metrics_router
 from src.api.endpoints.review.routes import review_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
+from src.api.endpoints.submit.routes import submit_router
 from src.api.endpoints.task.routes import task_router
 from src.api.endpoints.url.routes import url_router
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
@@ -175,7 +176,8 @@ routers = [
     task_router,
     review_router,
     search_router,
-    metrics_router
+    metrics_router,
+    submit_router
 ]
 
 for router in routers:
