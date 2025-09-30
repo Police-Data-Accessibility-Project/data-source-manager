@@ -894,11 +894,13 @@ class AsyncDatabaseClient:
     async def get_next_url_for_all_annotations(
         self,
         user_id: int,
-        batch_id: int | None = None
+        batch_id: int | None = None,
+        url_id: int | None = None
     ) -> GetNextURLForAllAnnotationResponse:
         return await self.run_query_builder(GetNextURLForAllAnnotationQueryBuilder(
             batch_id=batch_id,
-            user_id=user_id
+            user_id=user_id,
+            url_id=url_id
         ))
 
     async def upload_manual_batch(

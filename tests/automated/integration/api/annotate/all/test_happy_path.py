@@ -137,7 +137,7 @@ async def test_annotate_all(
     response: GetNextURLForAllAnnotationResponse = await adb_client.run_query_builder(
         GetNextURLForAllAnnotationQueryBuilder(
             batch_id=None,
-            user_id=99
+            user_id=99,
         )
     )
     user_suggestions: list[LocationAnnotationUserSuggestion] = \
