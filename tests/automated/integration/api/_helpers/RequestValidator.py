@@ -26,6 +26,8 @@ from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.review.reject.dto import FinalReviewRejectionInfo
 from src.api.endpoints.search.dtos.response import SearchURLResponse
+from src.api.endpoints.submit.url.models.request import URLSubmissionRequest
+from src.api.endpoints.submit.url.models.response import URLSubmissionResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
 from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
@@ -420,3 +422,13 @@ class RequestValidator:
             url=f"/url/{url_id}/screenshot",
             headers={"Authorization": f"Bearer token"}
         )
+
+    async def submit_url(
+        self,
+        request: URLSubmissionRequest
+    ) -> URLSubmissionResponse:
+        response: dict = self.post_v2(
+            url="/submit/url",
+            json=request.model_dump(mode='json')
+        )
+        return URLSubmissionResponse(**response)
