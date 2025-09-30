@@ -174,11 +174,13 @@ class AsyncCore:
     async def get_next_url_for_all_annotations(
             self,
             user_id: int,
-            batch_id: int | None
+            batch_id: int | None,
+            url_id: int | None
     ) -> GetNextURLForAllAnnotationResponse:
         return await self.adb_client.get_next_url_for_all_annotations(
             batch_id=batch_id,
-            user_id=user_id
+            user_id=user_id,
+            url_id=url_id
         )
 
     async def submit_url_for_all_annotations(

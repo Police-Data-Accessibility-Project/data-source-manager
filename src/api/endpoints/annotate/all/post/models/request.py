@@ -13,8 +13,8 @@ class AllAnnotationPostInfo(BaseModel):
 
     suggested_status: URLType
     record_type: RecordType | None = None
-    agency_info: AnnotationPostAgencyInfo
-    location_info: AnnotationPostLocationInfo
+    agency_info: AnnotationPostAgencyInfo = AnnotationPostAgencyInfo()
+    location_info: AnnotationPostLocationInfo = AnnotationPostLocationInfo()
     name_info: AnnotationPostNameInfo = AnnotationPostNameInfo()
 
     @model_validator(mode="after")

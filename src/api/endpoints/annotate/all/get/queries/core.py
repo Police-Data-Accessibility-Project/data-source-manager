@@ -37,10 +37,12 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
     def __init__(
         self,
         batch_id: int | None,
-        user_id: int
+        user_id: int,
+        url_id: int | None = None
     ):
         super().__init__()
         self.batch_id = batch_id
+        self.url_id = url_id
         self.user_id = user_id
 
     async def run(
@@ -65,6 +67,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         )
         if self.batch_id is not None:
             query = query.join(LinkBatchURL).where(LinkBatchURL.batch_id == self.batch_id)
+        if self.url_id is not None:
+            query = query.where(URL.id == self.url_id)
         query = (
             query
             .where(

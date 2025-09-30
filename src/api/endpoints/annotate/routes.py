@@ -18,18 +18,24 @@ batch_query = Query(
                 "If not specified, defaults to first qualifying URL",
     default=None
 )
-
+url_id_query = Query(
+    description="The URL id to annotate. " +
+                "If not specified, defaults to first qualifying URL",
+    default=None
+)
 
 
 @annotate_router.get("/all")
 async def get_next_url_for_all_annotations(
         access_info: AccessInfo = Depends(get_access_info),
         async_core: AsyncCore = Depends(get_async_core),
-        batch_id: int | None = batch_query
+        batch_id: int | None = batch_query,
+        anno_url_id: int | None = url_id_query
 ) -> GetNextURLForAllAnnotationResponse:
     return await async_core.get_next_url_for_all_annotations(
         batch_id=batch_id,
-        user_id=access_info.user_id
+        user_id=access_info.user_id,
+        url_id=anno_url_id
     )
 
 @annotate_router.post("/all/{url_id}")
@@ -38,7 +44,8 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         all_annotation_post_info: AllAnnotationPostInfo,
         async_core: AsyncCore = Depends(get_async_core),
         access_info: AccessInfo = Depends(get_access_info),
-        batch_id: int | None = batch_query
+        batch_id: int | None = batch_query,
+        anno_url_id: int | None = url_id_query
 ) -> GetNextURLForAllAnnotationResponse:
     """
     Post URL annotation and get next URL to annotate
@@ -50,5 +57,6 @@ async def annotate_url_for_all_annotations_and_get_next_url(
     )
     return await async_core.get_next_url_for_all_annotations(
         batch_id=batch_id,
-        user_id=access_info.user_id
+        user_id=access_info.user_id,
+        url_id=anno_url_id
     )
