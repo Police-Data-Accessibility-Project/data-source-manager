@@ -5,6 +5,7 @@ from sqlalchemy.orm import selectinload
 from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
+from src.db.models.impl.task.enums import TaskStatus
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.enums import TaskType
@@ -59,7 +60,7 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
             errored_urls.append(url_error_info)
         return TaskInfo(
             task_type=TaskType(task.task_type),
-            task_status=BatchStatus(task.task_status),
+            task_status=TaskStatus(task.task_status),
             error_info=error,
             updated_at=task.updated_at,
             urls=url_infos,

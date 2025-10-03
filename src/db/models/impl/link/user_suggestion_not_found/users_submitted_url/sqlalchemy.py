@@ -10,7 +10,7 @@ class LinkUserSubmittedURL(
     URLDependentMixin,
     CreatedAtMixin,
 ):
-    __tablename__ = "link_user_submitted_url"
+    __tablename__ = "link_user_submitted_urls"
     __table_args__ = (
         PrimaryKeyConstraint("url_id", "user_id"),
         UniqueConstraint("url_id"),

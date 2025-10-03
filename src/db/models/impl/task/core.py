@@ -19,7 +19,8 @@ class Task(UpdatedAtMixin, WithIDBase):
         ), nullable=False)
     task_status = Column(
         PGEnum(
-            'ready to label',
+            'complete',
+            'in-process',
             'error',
             'aborted',
             'never_completed',

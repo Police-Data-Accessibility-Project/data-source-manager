@@ -2,7 +2,7 @@ import pytest
 
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 
-NUMBER_OF_TASK_OPERATORS: int = 14
+NUMBER_OF_TASK_OPERATORS: int = 15
 
 @pytest.mark.asyncio
 async def test_happy_path(

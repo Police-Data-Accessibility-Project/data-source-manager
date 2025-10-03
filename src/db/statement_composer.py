@@ -12,6 +12,7 @@ from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.task_url import LinkTaskURL
 from src.db.models.impl.task.core import Task
+from src.db.models.impl.task.enums import TaskStatus
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.scrape_info.sqlalchemy import URLScrapeInfo
@@ -32,7 +33,7 @@ class StatementComposer:
             join(Task, LinkTaskURL.task_id == Task.id).
             where(LinkTaskURL.url_id == URL.id).
             where(Task.task_type == TaskType.HTML.value).
-            where(Task.task_status == BatchStatus.READY_TO_LABEL.value)
+            where(Task.task_status == TaskStatus.COMPLETE.value)
          )
         query = (
             select(URL)

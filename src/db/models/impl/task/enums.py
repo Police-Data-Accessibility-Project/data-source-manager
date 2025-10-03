@@ -1,4 +1,4 @@
-from sqlalchemy import Enum
+from enum import Enum
 
 
 class TaskStatus(Enum):

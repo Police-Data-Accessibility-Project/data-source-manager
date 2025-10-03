@@ -48,12 +48,12 @@ def upgrade() -> None:
     """)
     op.execute("""
             ALTER TABLE tasks
-              ALTER COLUMN status DROP DEFAULT,
-              ALTER COLUMN status TYPE task_status_enum
+              ALTER COLUMN task_status DROP DEFAULT,
+              ALTER COLUMN task_status TYPE task_status_enum
               USING (
-                CASE status::text                               -- old enum -> text
+                CASE task_status::text                               -- old enum -> text
                   WHEN 'ready to label'  THEN 'complete'::task_status_enum
-                  ELSE status::text::task_status_enum
+                  ELSE task_status::text::task_status_enum
                 END
               );
     """)

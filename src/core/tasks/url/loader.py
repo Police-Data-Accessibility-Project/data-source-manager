@@ -23,6 +23,7 @@ from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai i
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
+from src.core.tasks.url.operators.submit_meta_urls.core import SubmitMetaURLsTaskOperator
 from src.core.tasks.url.operators.suspend.core import SuspendURLTaskOperator
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
@@ -55,6 +56,12 @@ class URLTaskOperatorLoader:
         self.muckrock_api_interface = muckrock_api_interface
         self.hf_inference_client = hf_inference_client
 
+    def setup_flag(self, name: str) -> bool:
+        return self.env.bool(
+            name,
+            default=True
+        )
+
     def _get_url_html_task_operator(self) -> URLTaskEntry:
         operator = URLHTMLTaskOperator(
             adb_client=self.adb_client,
@@ -63,10 +70,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_HTML_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_HTML_TASK_FLAG")
         )
 
     def _get_url_record_type_task_operator(self) -> URLTaskEntry:
@@ -76,10 +80,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_RECORD_TYPE_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_RECORD_TYPE_TASK_FLAG")
         )
 
     def _get_agency_identification_task_operator(self) -> URLTaskEntry:
@@ -93,10 +94,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_AGENCY_IDENTIFICATION_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_AGENCY_IDENTIFICATION_TASK_FLAG")
         )
 
     def _get_submit_approved_url_task_operator(self) -> URLTaskEntry:
@@ -106,10 +104,17 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_SUBMIT_APPROVED_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_SUBMIT_APPROVED_TASK_FLAG")
+        )
+
+    def _get_submit_meta_urls_task_operator(self) -> URLTaskEntry:
+        operator = SubmitMetaURLsTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("URL_SUBMIT_META_URLS_TASK_FLAG")
         )
 
     def _get_url_miscellaneous_metadata_task_operator(self) -> URLTaskEntry:
@@ -118,10 +123,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_MISC_METADATA_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_MISC_METADATA_TASK_FLAG")
         )
 
     def _get_url_404_probe_task_operator(self) -> URLTaskEntry:
@@ -131,10 +133,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_404_PROBE_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_404_PROBE_TASK_FLAG")
         )
 
     def _get_url_auto_relevance_task_operator(self) -> URLTaskEntry:
@@ -144,10 +143,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_AUTO_RELEVANCE_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_AUTO_RELEVANCE_TASK_FLAG")
         )
 
     def _get_url_probe_task_operator(self) -> URLTaskEntry:
@@ -157,10 +153,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_PROBE_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_PROBE_TASK_FLAG")
         )
 
     def _get_url_root_url_task_operator(self) -> URLTaskEntry:
@@ -169,10 +162,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_ROOT_URL_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_ROOT_URL_TASK_FLAG")
         )
 
     def _get_url_screenshot_task_operator(self) -> URLTaskEntry:
@@ -181,10 +171,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_SCREENSHOT_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_SCREENSHOT_TASK_FLAG")
         )
 
     def _get_location_id_task_operator(self) -> URLTaskEntry:
@@ -197,10 +184,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_LOCATION_IDENTIFICATION_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_LOCATION_IDENTIFICATION_TASK_FLAG")
         )
 
     def _get_auto_validate_task_operator(self) -> URLTaskEntry:
@@ -209,10 +193,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_AUTO_VALIDATE_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_AUTO_VALIDATE_TASK_FLAG")
         )
 
     def _get_auto_name_task_operator(self) -> URLTaskEntry:
@@ -221,10 +202,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_AUTO_NAME_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_AUTO_NAME_TASK_FLAG")
         )
 
     def _get_suspend_url_task_operator(self) -> URLTaskEntry:
@@ -233,10 +211,7 @@ class URLTaskOperatorLoader:
         )
         return URLTaskEntry(
             operator=operator,
-            enabled=self.env.bool(
-                "URL_SUSPEND_TASK_FLAG",
-                default=True
-            )
+            enabled=self.setup_flag("URL_SUSPEND_TASK_FLAG")
         )
 
 
@@ -250,6 +225,7 @@ class URLTaskOperatorLoader:
             self._get_agency_identification_task_operator(),
             self._get_url_miscellaneous_metadata_task_operator(),
             self._get_submit_approved_url_task_operator(),
+            self._get_submit_meta_urls_task_operator(),
             self._get_url_auto_relevance_task_operator(),
             self._get_url_screenshot_task_operator(),
             self._get_location_id_task_operator(),

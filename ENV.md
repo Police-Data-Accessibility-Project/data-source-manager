@@ -89,6 +89,7 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                         |
 | `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                             |
 | `URL_SUSPEND_TASK_FLAG`             | Suspends URLs meeting suspension criteria.            |
+| `URL_SUBMIT_META_URLS_TASK_FLAG`    | Submits meta URLs to the Data Sources App.            |
 
 ### Agency ID Subtasks
 

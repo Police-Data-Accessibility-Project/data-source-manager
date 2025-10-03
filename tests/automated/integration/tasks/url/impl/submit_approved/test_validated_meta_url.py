@@ -12,7 +12,6 @@ from tests.helpers.asserts import assert_task_run_success
 async def test_validated_meta_url_not_included(
     db_data_creator,
     mock_pdap_client: PDAPClient,
-    monkeypatch
 ):
     """
     If a validated Meta URL is included in the database

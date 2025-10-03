@@ -15,7 +15,7 @@ class SubmitMetaURLsPrerequisitesCTEContainer:
             select(
                 URL.id.label("url_id"),
                 URL.url,
-                Agency.agency_id,
+                LinkURLAgency.agency_id,
             )
             # Validated as Meta URL
             .join(
@@ -34,7 +34,7 @@ class SubmitMetaURLsPrerequisitesCTEContainer:
                     )
                     .where(
                         URLDSMetaURL.url_id == URL.id,
-                        URLDSMetaURL.agency_id == Agency.agency_id
+                        URLDSMetaURL.agency_id == LinkURLAgency.agency_id
                     )
                 )
             )

@@ -15,6 +15,6 @@ class URLDSMetaURL(
     ds_meta_url_id = Column(Integer)
 
     __table_args__ = (
-        PrimaryKeyConstraint("url_id"),
+        PrimaryKeyConstraint("url_id", "agency_id"),
         UniqueConstraint("ds_meta_url_id"),
     )

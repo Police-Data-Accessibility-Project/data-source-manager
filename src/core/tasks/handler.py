@@ -7,6 +7,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
+from src.db.models.impl.task.enums import TaskStatus
 
 
 class TaskHandler:
@@ -42,13 +43,14 @@ class TaskHandler:
             case TaskOperatorOutcome.SUCCESS:
                 await self.adb_client.update_task_status(
                     task_id=run_info.task_id,
-                    status=BatchStatus.READY_TO_LABEL
+                    status=TaskStatus.COMPLETE
                 )
 
     async def handle_task_error(self, run_info: TaskOperatorRunInfo):  #
         await self.adb_client.update_task_status(
             task_id=run_info.task_id,
-            status=BatchStatus.ERROR)
+            status=TaskStatus.ERROR
+        )
         await self.adb_client.add_task_error(
             task_id=run_info.task_id,
             error=run_info.message

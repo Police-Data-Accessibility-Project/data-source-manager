@@ -50,7 +50,9 @@ async def submit_meta_urls(
             SubmitMetaURLsResponse(
                 url=meta_url["url"],
                 status=SubmitMetaURLsStatus(meta_url["status"]),
+                agency_id=meta_url["agency_id"],
                 meta_url_id=meta_url["meta_url_id"],
                 error=meta_url["error"]
             )
         )
+    return responses
