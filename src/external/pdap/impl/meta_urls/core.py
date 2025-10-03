@@ -37,7 +37,7 @@ async def submit_meta_urls(
         url=url,
         headers=headers,
         json_={
-            "data_sources": meta_urls_json
+            "meta_urls": meta_urls_json
         }
     )
 
