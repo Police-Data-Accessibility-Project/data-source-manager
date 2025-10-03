@@ -89,6 +89,7 @@ from src.db.models.impl.log.pydantic.info import LogInfo
 from src.db.models.impl.log.pydantic.output import LogOutputInfo
 from src.db.models.impl.log.sqlalchemy import Log
 from src.db.models.impl.task.core import Task
+from src.db.models.impl.task.enums import TaskStatus
 from src.db.models.impl.task.error import TaskError
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.pydantic.info import URLInfo
@@ -545,7 +546,13 @@ class AsyncDatabaseClient:
         return task.id
 
     @session_manager
-    async def update_task_status(self, session: AsyncSession, task_id: int, status: BatchStatus):
+    async def update_task_status(
+        self,
+        session:
+        AsyncSession,
+        task_id: int,
+        status: TaskStatus
+    ):
         task = await session.get(Task, task_id)
         task.task_status = status.value
 

@@ -6,6 +6,7 @@ from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
+from src.db.models.impl.task.enums import TaskStatus
 
 
 class TaskOperatorBase(ABC):
@@ -60,7 +61,7 @@ class TaskOperatorBase(ABC):
         raise NotImplementedError
 
     async def handle_task_error(self, e):
-        await self.adb_client.update_task_status(task_id=self.task_id, status=BatchStatus.ERROR)
+        await self.adb_client.update_task_status(task_id=self.task_id, status=TaskStatus.ERROR)
         await self.adb_client.add_task_error(
             task_id=self.task_id,
             error=str(e)

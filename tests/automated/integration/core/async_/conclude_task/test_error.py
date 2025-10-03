@@ -2,6 +2,7 @@ import pytest
 
 from src.core.enums import BatchStatus
 from src.core.tasks.url.enums import TaskOperatorOutcome
+from src.db.models.impl.task.enums import TaskStatus
 from tests.automated.integration.core.async_.conclude_task.helpers import setup_run_info
 from tests.automated.integration.core.async_.conclude_task.setup_info import TestAsyncCoreSetupInfo
 from tests.automated.integration.core.async_.helpers import setup_async_core
@@ -25,5 +26,5 @@ async def test_conclude_task_error(
 
     task_info = await ddc.adb_client.get_task_info(task_id=setup.task_id)
 
-    assert task_info.task_status == BatchStatus.ERROR
+    assert task_info.task_status == TaskStatus.ERROR
     assert task_info.error_info == "test error"

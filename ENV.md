@@ -57,15 +57,17 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 
 ### Scheduled Task Flags
 
-| Flag                                | Description                                                        |
-|-------------------------------------|--------------------------------------------------------------------|
-| `SCHEDULED_TASKS_FLAG`              | All scheduled tasks. Disabling disables all other scheduled tasks. |
-| `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                            |
-| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                        |
-| `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                      |
-| `RUN_URL_TASKS_TASK_FLAG`           | Runs URL tasks.                                        |
-| `IA_PROBE_TASK_FLAG`            | Extracts and links Internet Archives metadata to URLs. |
-| `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                       |
+| Flag                                | Description                                                                   |
+|-------------------------------------|-------------------------------------------------------------------------------|
+| `SCHEDULED_TASKS_FLAG`              | All scheduled tasks. Disabling disables all other scheduled tasks.            |
+| `PUSH_TO_HUGGING_FACE_TASK_FLAG`    | Pushes data to HuggingFace.                                                   |
+| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG` | Populates the backlog snapshot.                                               |
+| `DELETE_OLD_LOGS_TASK_FLAG`         | Deletes old logs.                                                             |
+| `RUN_URL_TASKS_TASK_FLAG`           | Runs URL tasks.                                                               |
+| `IA_PROBE_TASK_FLAG`            | Extracts and links Internet Archives metadata to URLs.                        |
+| `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                                              |
+| `MARK_TASK_NEVER_COMPLETED_TASK_FLAG` | Marks tasks that were started but never completed (usually due to a restart). |
+| `DELETE_STALE_SCREENSHOTS_TASK_FLAG` | Deletes stale screenshots for URLs already validated.                         |
 
 ### URL Task Flags
 
@@ -87,6 +89,7 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                         |
 | `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                             |
 | `URL_SUSPEND_TASK_FLAG`             | Suspends URLs meeting suspension criteria.            |
+| `URL_SUBMIT_META_URLS_TASK_FLAG`    | Submits meta URLs to the Data Sources App.            |
 
 ### Agency ID Subtasks
 
