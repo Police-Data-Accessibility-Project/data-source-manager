@@ -40,6 +40,7 @@ class TaskType(PyEnum):
     AGENCY_IDENTIFICATION = "Agency Identification"
     MISC_METADATA = "Misc Metadata"
     SUBMIT_APPROVED = "Submit Approved URLs"
+    SUBMIT_META_URLS = "Submit Meta URLs"
     DUPLICATE_DETECTION = "Duplicate Detection"
     IDLE = "Idle"
     PROBE_404 = "404 Probe"

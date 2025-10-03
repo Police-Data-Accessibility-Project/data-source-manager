@@ -89,7 +89,7 @@ class PDAPClient:
         is_duplicate: bool = (len(duplicates) != 0)
         return is_duplicate
 
-    async def submit_urls(
+    async def submit_data_source_urls(
         self,
         tdos: list[SubmitApprovedURLTDO]
     ) -> list[SubmittedURLInfo]:
@@ -146,3 +146,7 @@ class PDAPClient:
             results.append(response_object)
 
         return results
+
+    async def submit_meta_urls(
+        self
+    ):

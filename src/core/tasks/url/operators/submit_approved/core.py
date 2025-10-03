@@ -31,7 +31,7 @@ class SubmitApprovedURLTaskOperator(URLTaskOperatorBase):
         await self.link_urls_to_task(url_ids=[tdo.url_id for tdo in tdos])
 
         # Submit each URL, recording errors if they exist
-        submitted_url_infos = await self.pdap_client.submit_urls(tdos)
+        submitted_url_infos = await self.pdap_client.submit_data_source_urls(tdos)
 
         error_infos = await self.get_error_infos(submitted_url_infos)
         success_infos = await self.get_success_infos(submitted_url_infos)
