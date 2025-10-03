@@ -7,6 +7,8 @@ from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 from src.external.pdap.dtos.unique_url_duplicate import UniqueURLDuplicateInfo
 from src.external.pdap.enums import MatchAgencyResponseStatus
+from src.external.pdap.impl.meta_urls.core import submit_meta_urls
+from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
 
 
 class PDAPClient:
@@ -148,5 +150,10 @@ class PDAPClient:
         return results
 
     async def submit_meta_urls(
-        self
+        self,
+        requests: list[SubmitMetaURLsRequest]
     ):
+        return await submit_meta_urls(
+            self.access_manager,
+            requests=requests
+        )

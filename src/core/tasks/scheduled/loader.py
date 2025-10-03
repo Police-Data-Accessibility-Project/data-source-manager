@@ -4,9 +4,12 @@ from src.core.core import AsyncCore
 from src.core.tasks.scheduled.enums import IntervalEnum
 from src.core.tasks.scheduled.impl.backlog.operator import PopulateBacklogSnapshotTaskOperator
 from src.core.tasks.scheduled.impl.delete_logs.operator import DeleteOldLogsTaskOperator
+from src.core.tasks.scheduled.impl.delete_stale_screenshots.operator import DeleteStaleScreenshotsTaskOperator
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
+from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
+from src.core.tasks.scheduled.impl.mark_never_completed.query import MarkTaskNeverCompletedQueryBuilder
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
@@ -37,6 +40,9 @@ class ScheduledTaskOperatorLoader:
         self.env = Env()
         self.env.read_env()
 
+    def setup_flag(self, name: str) -> bool:
+        return self.env.bool(name, default=True)
+
 
     async def load_entries(self) -> list[ScheduledTaskEntry]:
         scheduled_task_flag = self.env.bool("SCHEDULED_TASKS_FLAG", default=True)
@@ -52,7 +58,7 @@ class ScheduledTaskOperatorLoader:
                     ia_client=self.ia_client
                 ),
                 interval_minutes=IntervalEnum.TEN_MINUTES.value,
-                enabled=self.env.bool("IA_PROBE_TASK_FLAG", default=True),
+                enabled=self.setup_flag("IA_PROBE_TASK_FLAG"),
             ),
             ScheduledTaskEntry(
                 operator=InternetArchivesSaveTaskOperator(
@@ -60,12 +66,12 @@ class ScheduledTaskOperatorLoader:
                     ia_client=self.ia_client
                 ),
                 interval_minutes=IntervalEnum.TEN_MINUTES.value,
-                enabled=self.env.bool("IA_SAVE_TASK_FLAG", default=True),
+                enabled=self.setup_flag("IA_SAVE_TASK_FLAG"),
             ),
             ScheduledTaskEntry(
                 operator=DeleteOldLogsTaskOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.env.bool("DELETE_OLD_LOGS_TASK_FLAG", default=True)
+                enabled=self.setup_flag("DELETE_OLD_LOGS_TASK_FLAG")
             ),
             ScheduledTaskEntry(
                 operator=RunURLTasksTaskOperator(async_core=self.async_core),
@@ -73,13 +79,12 @@ class ScheduledTaskOperatorLoader:
                     "URL_TASKS_FREQUENCY_MINUTES",
                     default=IntervalEnum.HOURLY.value
                 ),
-                enabled=self.env.bool("RUN_URL_TASKS_TASK_FLAG", default=True)
-
+                enabled=self.setup_flag("RUN_URL_TASKS_TASK_FLAG")
             ),
             ScheduledTaskEntry(
                 operator=PopulateBacklogSnapshotTaskOperator(adb_client=self.async_core.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.env.bool("POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG", default=True)
+                enabled=self.setup_flag("POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG")
             ),
             ScheduledTaskEntry(
                 operator=PushToHuggingFaceTaskOperator(
@@ -87,10 +92,16 @@ class ScheduledTaskOperatorLoader:
                     hf_client=self.hf_client
                 ),
                 interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.env.bool(
-                    "PUSH_TO_HUGGING_FACE_TASK_FLAG",
-                    default=True
-                )
+                enabled=self.setup_flag("PUSH_TO_HUGGING_FACE_TASK_FLAG")
+            ),
+            ScheduledTaskEntry(
+                operator=MarkTaskNeverCompletedOperator(adb_client=self.adb_client),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("MARK_TASK_NEVER_COMPLETED_TASK_FLAG")
+            ),
+            ScheduledTaskEntry(
+                operator=DeleteStaleScreenshotsTaskOperator(adb_client=self.adb_client),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("DELETE_STALE_SCREENSHOTS_TASK_FLAG")
             )
-
         ]

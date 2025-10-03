@@ -16,7 +16,7 @@ async def test_needs_cleaning(
 ):
     response: URLSubmissionResponse = await api_test_helper.request_validator.submit_url(
         request=URLSubmissionRequest(
-            url="www.example.com#fragment"
+            url="www.example.com#fdragment"
         )
     )
 

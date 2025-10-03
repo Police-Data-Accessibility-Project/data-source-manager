@@ -2,6 +2,7 @@ from typing import Any
 
 from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType, ResponseInfo
 
+from src.external.pdap.impl.meta_urls.enums import SubmitMetaURLsStatus
 from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
 from src.external.pdap.impl.meta_urls.response import SubmitMetaURLsResponse
 
@@ -47,5 +48,9 @@ async def submit_meta_urls(
     for meta_url in meta_urls_response_json:
         responses.append(
             SubmitMetaURLsResponse(
-                url_id=url_id_dict[meta_url["url"]],
+                url=meta_url["url"],
+                status=SubmitMetaURLsStatus(meta_url["status"]),
                 meta_url_id=meta_url["meta_url_id"],
+                error=meta_url["error"]
+            )
+        )

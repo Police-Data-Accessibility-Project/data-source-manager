@@ -60,6 +60,8 @@ class TaskType(PyEnum):
     SYNC_DATA_SOURCES = "Sync Data Sources"
     POPULATE_BACKLOG_SNAPSHOT = "Populate Backlog Snapshot"
     DELETE_OLD_LOGS = "Delete Old Logs"
+    DELETE_STALE_SCREENSHOTS = "Delete Stale Screenshots"
+    MARK_TASK_NEVER_COMPLETED = "Mark Task Never Completed"
     RUN_URL_TASKS = "Run URL Task Cycles"
 
 class ChangeLogOperationType(PyEnum):
