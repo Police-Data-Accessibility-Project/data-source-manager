@@ -75,5 +75,5 @@ class SubmitMetaURLsTaskOperator(URLTaskOperatorBase):
                     )
                 )
 
-            await self.adb_client.bulk_insert(errors)
-            await self.adb_client.bulk_insert(inserts)
+        await self.adb_client.bulk_insert(errors)
+        await self.adb_client.bulk_insert(inserts)
