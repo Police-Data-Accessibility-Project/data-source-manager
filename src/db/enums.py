@@ -63,6 +63,7 @@ class TaskType(PyEnum):
     DELETE_STALE_SCREENSHOTS = "Delete Stale Screenshots"
     MARK_TASK_NEVER_COMPLETED = "Mark Task Never Completed"
     RUN_URL_TASKS = "Run URL Task Cycles"
+    TASK_CLEANUP = "Task Cleanup"
 
 class ChangeLogOperationType(PyEnum):
     INSERT = "INSERT"

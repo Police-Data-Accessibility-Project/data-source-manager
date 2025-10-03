@@ -11,6 +11,7 @@ from src.core.tasks.scheduled.impl.internet_archives.save.operator import Intern
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
 from src.core.tasks.scheduled.impl.mark_never_completed.query import MarkTaskNeverCompletedQueryBuilder
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
+from src.core.tasks.scheduled.impl.task_cleanup.operator import TaskCleanupOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient
@@ -103,5 +104,10 @@ class ScheduledTaskOperatorLoader:
                 operator=DeleteStaleScreenshotsTaskOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.setup_flag("DELETE_STALE_SCREENSHOTS_TASK_FLAG")
+            ),
+            ScheduledTaskEntry(
+                operator=TaskCleanupOperator(adb_client=self.adb_client),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("TASK_CLEANUP_TASK_FLAG")
             )
         ]

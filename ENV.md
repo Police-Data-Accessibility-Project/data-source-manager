@@ -68,6 +68,7 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | `IA_SAVE_TASK_FLAG`             | Saves URLs to Internet Archives.                                              |
 | `MARK_TASK_NEVER_COMPLETED_TASK_FLAG` | Marks tasks that were started but never completed (usually due to a restart). |
 | `DELETE_STALE_SCREENSHOTS_TASK_FLAG` | Deletes stale screenshots for URLs already validated.                         |
+| `TASK_CLEANUP_TASK_FLAG` | Cleans up tasks that are no longer needed. |
 
 ### URL Task Flags
 
