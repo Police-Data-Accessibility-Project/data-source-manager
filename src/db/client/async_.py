@@ -32,8 +32,6 @@ from src.api.endpoints.metrics.urls.breakdown.query.core import GetURLsBreakdown
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.core import ApproveURLQueryBuilder
 from src.api.endpoints.review.enums import RejectionReason
-from src.api.endpoints.review.next.core import GetNextURLForFinalReviewQueryBuilder
-from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.review.reject.query import RejectURLQueryBuilder
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
@@ -598,9 +596,6 @@ class AsyncDatabaseClient:
             if agency is None:
                 agency = Agency(agency_id=suggestion.pdap_agency_id)
             agency.name = suggestion.agency_name
-            agency.state = suggestion.state
-            agency.county = suggestion.county
-            agency.locality = suggestion.locality
             agency.agency_type = AgencyType.UNKNOWN
             session.add(agency)
 
@@ -654,19 +649,6 @@ class AsyncDatabaseClient:
         statement = select(URL).where(exists().where(LinkURLAgency.url_id == URL.id))
         results = await session.execute(statement)
         return list(results.scalars().all())
-
-    @session_manager
-    async def get_next_url_for_final_review(
-        self,
-        session: AsyncSession,
-        batch_id: Optional[int]
-    ) -> GetNextURLForFinalReviewOuterResponse:
-
-        builder = GetNextURLForFinalReviewQueryBuilder(
-            batch_id=batch_id
-        )
-        result = await builder.run(session)
-        return result
 
     async def approve_url(
         self,

@@ -22,9 +22,6 @@ class Agency(
 
     agency_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    state = Column(String, nullable=True)
-    county = Column(String, nullable=True)
-    locality = Column(String, nullable=True)
     agency_type = enum_column(AgencyType, name="agency_type_enum")
     jurisdiction_type = enum_column(
         JurisdictionType,

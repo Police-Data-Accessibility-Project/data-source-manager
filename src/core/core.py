@@ -162,15 +162,6 @@ class AsyncCore:
 
     #region Annotations and Review
 
-
-    async def get_next_source_for_review(
-            self,
-            batch_id: Optional[int]
-    ) -> GetNextURLForFinalReviewOuterResponse:
-        return await self.adb_client.get_next_url_for_final_review(
-            batch_id=batch_id
-        )
-
     async def get_next_url_for_all_annotations(
             self,
             user_id: int,
@@ -195,28 +186,6 @@ class AsyncCore:
                 url_id=url_id,
                 post_info=post_info
             )
-        )
-
-    async def approve_url(
-            self,
-            approval_info: FinalReviewApprovalInfo,
-            access_info: AccessInfo
-    ):
-        await self.adb_client.approve_url(
-            approval_info=approval_info,
-            user_id=access_info.user_id
-        )
-
-    async def reject_url(
-            self,
-            url_id: int,
-            access_info: AccessInfo,
-            rejection_reason: RejectionReason
-    ):
-        await self.adb_client.reject_url(
-            url_id=url_id,
-            user_id=access_info.user_id,
-            rejection_reason=rejection_reason
         )
 
     async def upload_manual_batch(
