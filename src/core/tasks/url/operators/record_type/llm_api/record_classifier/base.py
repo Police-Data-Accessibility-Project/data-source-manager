@@ -70,8 +70,3 @@ class RecordClassifierBase(ABC):
             response_format=self.response_format
         )
         return self.post_process_response(response)
-
-        result_str = response.choices[0].message.content
-
-        result_dict = json.loads(result_str)
-        return result_dict["record_type"]

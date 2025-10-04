@@ -30,16 +30,7 @@ class Batch(WithIDBase):
         nullable=False
     )
     date_generated = Column(TIMESTAMP, nullable=False, server_default=CURRENT_TIME_SERVER_DEFAULT)
-    # How often URLs ended up approved in the database
-    strategy_success_rate = Column(Float)
-    # Percentage of metadata identified by models
-    metadata_success_rate = Column(Float)
-    # Rate of matching to agencies
-    agency_match_rate = Column(Float)
-    # Rate of matching to record types
-    record_type_match_rate = Column(Float)
-    # Rate of matching to record categories
-    record_category_match_rate = Column(Float)
+
     # Time taken to generate the batch
     # TODO: Add means to update after execution
     compute_time = Column(Float)
