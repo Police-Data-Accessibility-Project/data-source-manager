@@ -722,11 +722,6 @@ class AsyncDatabaseClient:
             status=batch_info.status.value,
             parameters=batch_info.parameters,
             compute_time=batch_info.compute_time,
-            strategy_success_rate=0,
-            metadata_success_rate=0,
-            agency_match_rate=0,
-            record_type_match_rate=0,
-            record_category_match_rate=0,
         )
         if batch_info.date_generated is not None:
             batch.date_generated = batch_info.date_generated
