@@ -5,6 +5,8 @@ from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.probe.convert import convert_tdo_to_web_metadata_list
 from src.core.tasks.url.operators.probe.filter import filter_non_redirect_tdos, filter_redirect_tdos
 from src.core.tasks.url.operators.probe.queries.insert_redirects.query import InsertRedirectsQueryBuilder
+from src.core.tasks.url.operators.probe.queries.urls.not_probed.exists import HasURLsWithoutProbeQueryBuilder
+from src.core.tasks.url.operators.probe.queries.urls.not_probed.get.query import GetURLsWithoutProbeQueryBuilder
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.external.url_request.core import URLRequestInterface
 from src.db.client.async_ import AsyncDatabaseClient
@@ -30,10 +32,12 @@ class URLProbeTaskOperator(URLTaskOperatorBase):
 
     @override
     async def meets_task_prerequisites(self) -> bool:
-        return await self.adb_client.has_urls_without_probe()
+        return await self.has_urls_without_probe()
 
     async def get_urls_without_probe(self) -> list[URLProbeTDO]:
-        url_mappings: list[URLMapping] = await self.adb_client.get_urls_without_probe()
+        url_mappings: list[URLMapping] = await self.adb_client.run_query_builder(
+            GetURLsWithoutProbeQueryBuilder()
+        )
         return [URLProbeTDO(url_mapping=url_mapping) for url_mapping in url_mappings]
 
     @override
@@ -73,4 +77,8 @@ class URLProbeTaskOperator(URLTaskOperatorBase):
         await self.adb_client.run_query_builder(query_builder)
 
 
+    async def has_urls_without_probe(self) -> bool:
+        return await self.adb_client.run_query_builder(
+            HasURLsWithoutProbeQueryBuilder()
+        )
 

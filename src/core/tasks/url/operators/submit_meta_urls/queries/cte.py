@@ -1,5 +1,7 @@
 from sqlalchemy import select, exists, Column, CTE
 
+from src.db.enums import TaskType
+from src.db.helpers.query import no_url_task_error
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -36,7 +38,8 @@ class SubmitMetaURLsPrerequisitesCTEContainer:
                         URLDSMetaURL.url_id == URL.id,
                         URLDSMetaURL.agency_id == LinkURLAgency.agency_id
                     )
-                )
+                ),
+                no_url_task_error(TaskType.SUBMIT_META_URLS)
             )
             .cte("submit_meta_urls_prerequisites")
         )

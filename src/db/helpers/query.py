@@ -17,6 +17,13 @@ def not_exists_url(
         model.url_id == URL.id
     )
 
+def exists_url(
+    model: type[URLDependentMixin]
+) -> ColumnElement[bool]:
+    return exists().where(
+        model.url_id == URL.id
+    )
+
 def no_url_task_error(task_type: TaskType) -> ColumnElement[bool]:
     return ~exists().where(
         URLTaskError.url_id == URL.id,

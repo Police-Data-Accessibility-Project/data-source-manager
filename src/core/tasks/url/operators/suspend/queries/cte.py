@@ -1,5 +1,6 @@
 from sqlalchemy import select, func, Select, exists, or_
 
+from src.db.helpers.query import no_url_task_error
 from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
@@ -29,7 +30,7 @@ class GetURLsForSuspensionCTEContainer:
                     .where(
                         FlagURLSuspended.url_id == UnvalidatedURL.url_id
                     )
-                )
+                ),
             )
             .group_by(
                 UnvalidatedURL.url_id

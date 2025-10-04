@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.functions import count
 
 from src.collectors.enums import URLStatus
+from src.db.enums import TaskType
+from src.db.helpers.query import not_exists_url, no_url_task_error, exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.state.huggingface import HuggingFaceUploadState
@@ -36,12 +38,9 @@ class CheckValidURLsUpdatedRequester:
                 URLCompressedHTML,
                 URL.id == URLCompressedHTML.url_id
             )
-            .outerjoin(
-                FlagURLValidated,
-                URL.id == FlagURLValidated.url_id
-            )
             .where(
-                FlagURLValidated.url_id.isnot(None)
+                exists_url(FlagURLValidated),
+                no_url_task_error(TaskType.PUSH_TO_HUGGINGFACE)
             )
         )
         if last_upload_at is not None:

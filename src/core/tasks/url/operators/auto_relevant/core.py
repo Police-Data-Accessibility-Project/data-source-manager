@@ -1,5 +1,7 @@
 from src.core.tasks.url.operators.auto_relevant.models.annotation import RelevanceAnnotationInfo
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
+from src.core.tasks.url.operators.auto_relevant.queries.get import GetAutoRelevantTDOsQueryBuilder
+from src.core.tasks.url.operators.auto_relevant.queries.prereq import AutoRelevantPrerequisitesQueryBuilder
 from src.core.tasks.url.operators.auto_relevant.sort import separate_success_and_error_subsets
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
@@ -26,10 +28,12 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
         return TaskType.RELEVANCY
 
     async def meets_task_prerequisites(self) -> bool:
-        return await self.adb_client.has_urls_with_html_data_and_without_auto_relevant_suggestion()
+        return await self.adb_client.run_query_builder(
+            builder=AutoRelevantPrerequisitesQueryBuilder()
+        )
 
     async def get_tdos(self) -> list[URLRelevantTDO]:
-        return await self.adb_client.get_tdos_for_auto_relevancy()
+        return await self.adb_client.run_query_builder(builder=GetAutoRelevantTDOsQueryBuilder())
 
     async def inner_task_logic(self) -> None:
         tdos = await self.get_tdos()

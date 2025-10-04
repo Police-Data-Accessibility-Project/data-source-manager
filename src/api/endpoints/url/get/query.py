@@ -43,7 +43,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 error_result = GetURLsResponseErrorInfo(
                     task=error.task_type,
                     error=error.error,
-                    updated_at=error.updated_at
+                    updated_at=error.created_at
                 )
                 error_results.append(error_result)
             final_results.append(

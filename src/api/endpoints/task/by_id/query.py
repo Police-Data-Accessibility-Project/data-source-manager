@@ -28,10 +28,11 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
                 selectinload(Task.urls)
                 .selectinload(URL.batch),
                 selectinload(Task.url_errors),
+                selectinload(Task.errors)
             )
         )
         task = result.scalars().first()
-        error = task.url_errors[0].error if len(task.url_errors) > 0 else None
+        error = task.errors[0].error if len(task.errors) > 0 else None
         # Get error info if any
         # Get URLs
         urls = task.urls

@@ -2,6 +2,8 @@ from sqlalchemy import CTE, select, exists
 from sqlalchemy.orm import aliased
 
 from src.collectors.enums import URLStatus
+from src.db.enums import TaskType
+from src.db.helpers.query import not_exists_url, no_url_task_error
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -17,9 +19,8 @@ VALIDATED_URLS_WITHOUT_DS_SQ =(
         URL.status == URLStatus.OK,
         URL.name.isnot(None),
         FlagURLValidated.type == URLType.DATA_SOURCE,
-        ~exists().where(
-            URLDataSource.url_id == URL.id
-        )
+        not_exists_url(URLDataSource),
+        no_url_task_error(TaskType.SUBMIT_APPROVED)
     )
     .subquery()
 )

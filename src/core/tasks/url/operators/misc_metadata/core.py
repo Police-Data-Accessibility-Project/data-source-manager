@@ -1,5 +1,9 @@
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
+from src.core.tasks.url.operators.misc_metadata.queries.get_pending_urls_missing_miscellaneous_data import \
+    GetPendingURLsMissingMiscellaneousDataQueryBuilder
+from src.core.tasks.url.operators.misc_metadata.queries.has_pending_urls_missing_miscellaneous_data import \
+    HasPendingURsMissingMiscellaneousDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.tasks.url.subtasks.miscellaneous_metadata.auto_googler import AutoGooglerMiscMetadataSubtask
 from src.core.tasks.url.subtasks.miscellaneous_metadata.base import \
@@ -24,7 +28,7 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
         return TaskType.MISC_METADATA
 
     async def meets_task_prerequisites(self) -> bool:
-        return await self.adb_client.has_pending_urls_missing_miscellaneous_metadata()
+        return await self.adb_client.run_query_builder(HasPendingURsMissingMiscellaneousDataQueryBuilder())
 
     async def get_subtask(
             self,
@@ -56,7 +60,7 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
             tdo.description = tdo.html_metadata_info.description
 
     async def inner_task_logic(self) -> None:
-        tdos: list[URLMiscellaneousMetadataTDO] = await self.adb_client.get_pending_urls_missing_miscellaneous_metadata()
+        tdos: list[URLMiscellaneousMetadataTDO] = await self.get_pending_urls_missing_miscellaneous_metadata()
         await self.link_urls_to_task(url_ids=[tdo.url_id for tdo in tdos])
 
         task_errors: list[URLTaskErrorSmall] = []
@@ -75,3 +79,8 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
 
         await self.adb_client.add_miscellaneous_metadata(tdos)
         await self.add_task_errors(task_errors)
+
+    async def get_pending_urls_missing_miscellaneous_metadata(
+        self,
+    ) -> list[URLMiscellaneousMetadataTDO]:
+        return await self.adb_client.run_query_builder(GetPendingURLsMissingMiscellaneousDataQueryBuilder())

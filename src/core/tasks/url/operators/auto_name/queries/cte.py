@@ -1,6 +1,7 @@
 from sqlalchemy import select, exists, CTE, Column
 
-from src.db.enums import URLHTMLContentType
+from src.db.enums import URLHTMLContentType, TaskType
+from src.db.helpers.query import no_url_task_error
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
@@ -29,7 +30,8 @@ class AutoNamePrerequisiteCTEContainer:
                         URLNameSuggestion.url_id == URL.id,
                         URLNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE.value,
                     )
-                )
+                ),
+                no_url_task_error(TaskType.AUTO_NAME)
             ).cte("auto_name_prerequisites")
         )
 

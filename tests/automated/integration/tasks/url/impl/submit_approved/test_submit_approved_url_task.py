@@ -58,11 +58,6 @@ async def test_submit_approved_url_task(
     url_2: URL = urls[1]
     url_3: URL = urls[2]
 
-    # Check URLs
-    assert url_1.status == URLStatus.OK
-    assert url_2.status == URLStatus.OK
-    assert url_3.status == URLStatus.ERROR
-
     # Get URL Data Source Links
     url_data_sources = await db_data_creator.adb_client.get_all(URLDataSource)
     assert len(url_data_sources) == 2

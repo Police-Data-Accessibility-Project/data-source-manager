@@ -7,6 +7,7 @@ from src.core.enums import RecordType
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
+from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
@@ -102,7 +103,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         back_populates="url"
     )
     compressed_html = relationship(
-        "URLCompressedHTML",
+        URLCompressedHTML,
         uselist=False,
         back_populates="url"
     )
