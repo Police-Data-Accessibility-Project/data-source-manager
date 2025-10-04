@@ -517,9 +517,6 @@ class DBDataCreator:
         agency = Agency(
             agency_id=agency_id,
             name=generate_test_name(agency_id),
-            state=None,
-            county=None,
-            locality=None,
             agency_type=AgencyType.UNKNOWN
         )
         await self.adb_client.add_all([agency])
@@ -532,9 +529,6 @@ class DBDataCreator:
             agency = Agency(
                 agency_id=agency_id,
                 name=generate_test_name(agency_id),
-                state=None,
-                county=None,
-                locality=None,
                 agency_type=AgencyType.UNKNOWN
             )
             agencies.append(agency)

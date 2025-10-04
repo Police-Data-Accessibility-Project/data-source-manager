@@ -11,7 +11,6 @@ from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
 from src.api.endpoints.collector.routes import collector_router
 from src.api.endpoints.metrics.routes import metrics_router
-from src.api.endpoints.review.routes import review_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
 from src.api.endpoints.submit.routes import submit_router
@@ -174,7 +173,6 @@ routers = [
     annotate_router,
     url_router,
     task_router,
-    review_router,
     search_router,
     metrics_router,
     submit_router
