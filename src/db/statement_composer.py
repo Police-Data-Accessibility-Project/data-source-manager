@@ -116,13 +116,3 @@ class StatementComposer:
     @staticmethod
     def count_distinct(field, label):
         return func.count(func.distinct(field)).label(label)
-
-    @staticmethod
-    def add_limit_and_page_offset(query: Select, page: int):
-        zero_offset_page = page - 1
-        rows_offset = zero_offset_page * STANDARD_ROW_LIMIT
-        return query.offset(
-            rows_offset
-        ).limit(
-            STANDARD_ROW_LIMIT
-        )
