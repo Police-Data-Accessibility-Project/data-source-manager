@@ -4,7 +4,7 @@ import pytest
 
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.automated.integration.tasks.scheduled.impl.internet_archives.save.setup import setup_valid_entries
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 
@@ -38,7 +38,7 @@ async def test_error(operator: InternetArchivesSaveTaskOperator):
     assert_task_ran_without_error(run_info)
 
     # Confirm URL Error info was added
-    url_error_list: list[URLErrorInfo] = await operator.adb_client.get_all(URLErrorInfo)
+    url_error_list: list[URLTaskError] = await operator.adb_client.get_all(URLTaskError)
     assert len(url_error_list) == 2
     assert {url_error.url_id for url_error in url_error_list} == set(url_ids)
     assert {url_error.error for url_error in url_error_list} == {

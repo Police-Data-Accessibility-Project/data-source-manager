@@ -24,7 +24,6 @@ from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserName
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.core.enums import URLSource
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
@@ -32,6 +31,7 @@ from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy impor
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
@@ -321,22 +321,23 @@ class DBDataCreator:
         )
         await self.run_command(command)
 
-    async def error_info(
+    async def task_errors(
             self,
             url_ids: list[int],
             task_id: Optional[int] = None
     ) -> None:
         if task_id is None:
             task_id = await self.task()
-        error_infos = []
+        task_errors = []
         for url_id in url_ids:
-            url_error_info = URLErrorInfoPydantic(
+            task_error = URLTaskErrorPydantic(
                 url_id=url_id,
                 error="test error",
-                task_id=task_id
+                task_id=task_id,
+                task_type=TaskType.HTML
             )
-            error_infos.append(url_error_info)
-        await self.adb_client.add_url_error_infos(error_infos)
+            task_errors.append(task_error)
+        await self.adb_client.bulk_insert(task_errors)
 
 
     async def agency_auto_suggestions(

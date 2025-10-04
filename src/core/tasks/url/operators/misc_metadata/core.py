@@ -1,16 +1,14 @@
-from typing import Optional
-
-from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
-from src.db.enums import TaskType
 from src.collectors.enums import CollectorType
-from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
+from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.tasks.url.subtasks.miscellaneous_metadata.auto_googler import AutoGooglerMiscMetadataSubtask
-from src.core.tasks.url.subtasks.miscellaneous_metadata.ckan import CKANMiscMetadataSubtask
 from src.core.tasks.url.subtasks.miscellaneous_metadata.base import \
     MiscellaneousMetadataSubtaskBase
+from src.core.tasks.url.subtasks.miscellaneous_metadata.ckan import CKANMiscMetadataSubtask
 from src.core.tasks.url.subtasks.miscellaneous_metadata.muckrock import MuckrockMiscMetadataSubtask
+from src.db.client.async_ import AsyncDatabaseClient
+from src.db.enums import TaskType
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
@@ -61,7 +59,7 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
         tdos: list[URLMiscellaneousMetadataTDO] = await self.adb_client.get_pending_urls_missing_miscellaneous_metadata()
         await self.link_urls_to_task(url_ids=[tdo.url_id for tdo in tdos])
 
-        error_infos = []
+        task_errors: list[URLTaskErrorSmall] = []
         for tdo in tdos:
             subtask = await self.get_subtask(tdo.collector_type)
             try:
@@ -69,12 +67,11 @@ class URLMiscellaneousMetadataTaskOperator(URLTaskOperatorBase):
                     subtask.process(tdo)
                 await self.html_default_logic(tdo)
             except Exception as e:
-                error_info = URLErrorInfoPydantic(
-                    task_id=self.task_id,
+                error_info = URLTaskErrorSmall(
                     url_id=tdo.url_id,
                     error=str(e),
                 )
-                error_infos.append(error_info)
+                task_errors.append(error_info)
 
         await self.adb_client.add_miscellaneous_metadata(tdos)
-        await self.adb_client.add_url_error_infos(error_infos)
+        await self.add_task_errors(task_errors)

@@ -9,7 +9,7 @@ async def task_setup(ath: APITestHelper) -> int:
     url_ids = [url.url_id for url in iui.url_mappings]
 
     task_id = await ath.db_data_creator.task(url_ids=url_ids)
-    await ath.db_data_creator.error_info(url_ids=[url_ids[0]], task_id=task_id)
+    await ath.db_data_creator.task_errors(url_ids=[url_ids[0]], task_id=task_id)
 
     return task_id
 

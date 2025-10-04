@@ -1,10 +1,10 @@
-from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
-from src.db.enums import TaskType
-from src.core.tasks.url.operators.record_type.tdo import URLRecordTypeTDO
-from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.enums import RecordType
+from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai import OpenAIRecordClassifier
+from src.core.tasks.url.operators.record_type.tdo import URLRecordTypeTDO
+from src.db.client.async_ import AsyncDatabaseClient
+from src.db.enums import TaskType
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class URLRecordTypeTaskOperator(URLTaskOperatorBase):
@@ -42,15 +42,14 @@ class URLRecordTypeTaskOperator(URLTaskOperatorBase):
         await self.update_errors_in_database(error_subset)
 
     async def update_errors_in_database(self, tdos: list[URLRecordTypeTDO]):
-        error_infos = []
+        task_errors: list[URLTaskErrorSmall] = []
         for tdo in tdos:
-            error_info = URLErrorInfoPydantic(
-                task_id=self.task_id,
+            error_info = URLTaskErrorSmall(
                 url_id=tdo.url_with_html.url_id,
                 error=tdo.error
             )
-            error_infos.append(error_info)
-        await self.adb_client.add_url_error_infos(error_infos)
+            task_errors.append(error_info)
+        await self.add_task_errors(task_errors)
 
     async def put_results_into_database(self, tdos: list[URLRecordTypeTDO]):
         suggestions = []

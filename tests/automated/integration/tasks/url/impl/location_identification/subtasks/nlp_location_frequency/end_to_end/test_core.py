@@ -10,11 +10,11 @@ from src.core.tasks.url.operators.location_id.subtasks.models.subtask import Aut
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.link.task_url import LinkTaskURL
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
 from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
 from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.helpers.asserts import assert_task_run_success
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
@@ -101,7 +101,7 @@ async def test_nlp_location_match(
 
 
     # Confirm one URL error info
-    error_infos: list[URLErrorInfo] = await adb_client.get_all(URLErrorInfo)
+    error_infos: list[URLTaskError] = await adb_client.get_all(URLTaskError)
     assert len(error_infos) == 1
     assert error_infos[0].task_id == operator._task_id
     assert error_infos[0].url_id == error_url_id

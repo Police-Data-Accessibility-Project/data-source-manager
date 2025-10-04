@@ -1,8 +1,8 @@
-from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
-from src.db.enums import TaskType
-from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
+from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
+from src.db.client.async_ import AsyncDatabaseClient
+from src.db.enums import TaskType
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.pdap.client import PDAPClient
 
 
@@ -31,16 +31,16 @@ class SubmitApprovedURLTaskOperator(URLTaskOperatorBase):
         await self.link_urls_to_task(url_ids=[tdo.url_id for tdo in tdos])
 
         # Submit each URL, recording errors if they exist
-        submitted_url_infos = await self.pdap_client.submit_data_source_urls(tdos)
+        submitted_url_infos: list[SubmittedURLInfo] = await self.pdap_client.submit_data_source_urls(tdos)
 
-        error_infos = await self.get_error_infos(submitted_url_infos)
+        task_errors: list[URLTaskErrorSmall] = await self.get_error_infos(submitted_url_infos)
         success_infos = await self.get_success_infos(submitted_url_infos)
 
         # Update the database for successful submissions
         await self.adb_client.mark_urls_as_submitted(infos=success_infos)
 
         # Update the database for failed submissions
-        await self.adb_client.add_url_error_infos(error_infos)
+        await self.add_task_errors(task_errors)
 
     async def get_success_infos(self, submitted_url_infos):
         success_infos = [
@@ -49,17 +49,19 @@ class SubmitApprovedURLTaskOperator(URLTaskOperatorBase):
         ]
         return success_infos
 
-    async def get_error_infos(self, submitted_url_infos):
-        error_infos: list[URLErrorInfoPydantic] = []
+    async def get_error_infos(
+        self,
+        submitted_url_infos: list[SubmittedURLInfo]
+    ) -> list[URLTaskErrorSmall]:
+        task_errors: list[URLTaskErrorSmall] = []
         error_response_objects = [
             response_object for response_object in submitted_url_infos
             if response_object.request_error is not None
         ]
         for error_response_object in error_response_objects:
-            error_info = URLErrorInfoPydantic(
-                task_id=self.task_id,
+            error_info = URLTaskErrorSmall(
                 url_id=error_response_object.url_id,
                 error=error_response_object.request_error,
             )
-            error_infos.append(error_info)
-        return error_infos
+            task_errors.append(error_info)
+        return task_errors

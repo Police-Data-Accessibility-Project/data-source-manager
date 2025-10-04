@@ -7,6 +7,8 @@ from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.task.enums import TaskStatus
+from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class TaskOperatorBase(ABC):
@@ -66,3 +68,18 @@ class TaskOperatorBase(ABC):
             task_id=self.task_id,
             error=str(e)
         )
+
+    async def add_task_errors(
+        self,
+        errors: list[URLTaskErrorSmall]
+    ) -> None:
+        inserts: list[URLTaskErrorPydantic] = [
+            URLTaskErrorPydantic(
+                task_id=self.task_id,
+                url_id=error.url_id,
+                task_type=self.task_type,
+                error=error.error
+            )
+            for error in errors
+        ]
+        await self.adb_client.bulk_insert(inserts)

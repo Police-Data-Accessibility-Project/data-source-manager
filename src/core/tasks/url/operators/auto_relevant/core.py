@@ -4,8 +4,9 @@ from src.core.tasks.url.operators.auto_relevant.sort import separate_success_and
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.enums import TaskType
+from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.huggingface.inference.models.input import BasicInput
 
@@ -77,14 +78,13 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
         await self.adb_client.add_user_relevant_suggestions(inputs)
 
     async def update_errors_in_database(self, tdos: list[URLRelevantTDO]) -> None:
-        error_infos = []
+        task_errors: list[URLTaskErrorSmall] = []
         for tdo in tdos:
-            error_info = URLErrorInfoPydantic(
-                task_id=self.task_id,
+            error_info = URLTaskErrorSmall(
                 url_id=tdo.url_id,
                 error=tdo.error
             )
-            error_infos.append(error_info)
-        await self.adb_client.add_url_error_infos(error_infos)
+            task_errors.append(error_info)
+        await self.add_task_errors(task_errors)
 
 

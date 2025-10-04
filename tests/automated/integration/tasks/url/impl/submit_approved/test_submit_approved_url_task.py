@@ -1,17 +1,16 @@
 import pytest
 from deepdiff import DeepDiff
+from pdap_access_manager import RequestInfo, RequestType, DataSourcesNamespaces
 
-from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
-from src.db.enums import TaskType
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.enums import TaskOperatorOutcome
+from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
+from src.external.pdap.client import PDAPClient
 from tests.automated.integration.tasks.url.impl.submit_approved.mock import mock_make_request
 from tests.automated.integration.tasks.url.impl.submit_approved.setup import setup_validated_urls
-from pdap_access_manager import RequestInfo, RequestType, DataSourcesNamespaces
-from src.external.pdap.client import PDAPClient
 
 
 @pytest.mark.asyncio
@@ -78,7 +77,7 @@ async def test_submit_approved_url_task(
     assert url_data_source_2.data_source_id == 34
 
     # Check that errored URL has entry in url_error_info
-    url_errors = await db_data_creator.adb_client.get_all(URLErrorInfo)
+    url_errors = await db_data_creator.adb_client.get_all(URLTaskError)
     assert len(url_errors) == 1
     url_error = url_errors[0]
     assert url_error.url_id == url_3.id

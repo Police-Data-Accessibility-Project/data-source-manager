@@ -6,7 +6,7 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.url.ds_meta_url.pydantic import URLDSMetaURLPydantic
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.impl.meta_urls.enums import SubmitMetaURLsStatus
 from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
@@ -53,7 +53,7 @@ class SubmitMetaURLsTaskOperator(URLTaskOperatorBase):
         responses: list[SubmitMetaURLsResponse] = \
             await self.pdap_client.submit_meta_urls(requests)
 
-        errors: list[URLErrorInfoPydantic] = []
+        errors: list[URLTaskErrorSmall] = []
         inserts: list[URLDSMetaURLPydantic] = []
 
         for response in responses:
@@ -68,12 +68,11 @@ class SubmitMetaURLsTaskOperator(URLTaskOperatorBase):
                 )
             else:
                 errors.append(
-                    URLErrorInfoPydantic(
+                    URLTaskErrorSmall(
                         url_id=url_id,
-                        task_id=self.task_id,
                         error=response.error,
                     )
                 )
 
-        await self.adb_client.bulk_insert(errors)
+        await self.add_task_errors(errors)
         await self.adb_client.bulk_insert(inserts)

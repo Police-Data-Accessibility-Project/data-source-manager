@@ -5,9 +5,9 @@ from abc import ABC
 from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info import AgencyIDSubtaskRunInfo
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
 from src.db.models.impl.url.suggestion.agency.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class AgencyIDSubtaskOperatorBase(ABC):
@@ -66,17 +66,14 @@ class AgencyIDSubtaskOperatorBase(ABC):
             models=suggestions,
         )
 
-        error_infos: list[URLErrorInfoPydantic] = []
+        error_infos: list[URLTaskErrorSmall] = []
         for subtask_info in subtask_data_list:
             if not subtask_info.has_error:
                 continue
-            error_info = URLErrorInfoPydantic(
+            error_info = URLTaskErrorSmall(
                 url_id=subtask_info.url_id,
                 error=subtask_info.error,
-                task_id=self.task_id,
             )
             error_infos.append(error_info)
 
-        await self.adb_client.bulk_insert(
-            models=error_infos,
-        )
+        await self.add_task_errors(error_infos)

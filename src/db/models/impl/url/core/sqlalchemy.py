@@ -11,6 +11,7 @@ from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
@@ -50,7 +51,10 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     )
     duplicates = relationship("Duplicate", back_populates="original_url")
     html_content = relationship("URLHTMLContent", back_populates="url", cascade="all, delete-orphan")
-    error_info = relationship("URLErrorInfo", back_populates="url", cascade="all, delete-orphan")
+    task_errors = relationship(
+        URLTaskError,
+        cascade="all, delete-orphan"
+    )
     tasks = relationship(
         "Task",
         secondary="link_task_urls",
