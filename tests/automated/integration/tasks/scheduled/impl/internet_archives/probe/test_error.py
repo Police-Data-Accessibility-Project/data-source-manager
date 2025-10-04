@@ -3,10 +3,10 @@ import pytest
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
-from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.automated.integration.tasks.scheduled.impl.internet_archives.probe.setup import add_urls
+from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 
 
 @pytest.mark.asyncio
@@ -54,7 +54,7 @@ async def test_error(operator: InternetArchivesProbeTaskOperator) -> None:
     assert len(metadata_list) == 0
 
     # Confirm presence of URL Error Info
-    url_error_info_list: list[URLErrorInfo] = await adb_client.get_all(URLErrorInfo)
+    url_error_info_list: list[URLTaskError] = await adb_client.get_all(URLTaskError)
     assert len(url_error_info_list) == 2
     assert {url_error_info.url_id for url_error_info in url_error_info_list} == set(url_ids)
     assert {url_error_info.error for url_error_info in url_error_info_list} == {

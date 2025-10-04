@@ -3,11 +3,9 @@ from unittest.mock import AsyncMock
 import pytest
 
 from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
-from src.core.tasks.url.operators.screenshot.models.outcome import URLScreenshotOutcome
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.url.error.url_screenshot.sqlalchemy import ErrorURLScreenshot
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.external.url_request.dtos.screenshot_response import URLScreenshotResponse
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.run import run_task_and_confirm_success
@@ -66,7 +64,7 @@ async def test_core(
     assert screenshots[0].url_id == screenshot_mapping.url_id
 
     # Get errors from database, confirm only one
-    errors: list[ErrorURLScreenshot] = await db_data_creator.adb_client.get_all(ErrorURLScreenshot)
+    errors: list[URLTaskError] = await db_data_creator.adb_client.get_all(URLTaskError)
     assert len(errors) == 1
     assert errors[0].url_id == error_mapping.url_id
 

@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
+from src.core.tasks.url.operators.auto_relevant.queries.cte import AutoRelevantPrerequisitesCTEContainer
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
@@ -16,24 +17,16 @@ from src.db.utils.compression import decompress_html
 
 class GetAutoRelevantTDOsQueryBuilder(QueryBuilderBase):
 
-    def __init__(self):
-        super().__init__()
-
     async def run(self, session: AsyncSession) -> list[URLRelevantTDO]:
+        cte = AutoRelevantPrerequisitesCTEContainer()
         query = (
-            select(URL)
+            select(cte.url_alias)
             .options(
-                selectinload(URL.compressed_html)
-            )
-            .join(URLCompressedHTML)
-            .outerjoin(AutoRelevantSuggestion)
-            .where(
-                URL.status == URLStatus.OK.value,
-                AutoRelevantSuggestion.id.is_(None),
+                selectinload(cte.url_alias.compressed_html)
             )
         )
 
-        query = query.limit(100).order_by(URL.id)
+        query = query.limit(100).order_by(cte.url_alias.id)
         raw_result = await session.execute(query)
         urls: Sequence[Row[URL]] = raw_result.unique().scalars().all()
         tdos = []

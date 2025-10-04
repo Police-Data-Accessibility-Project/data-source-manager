@@ -1,7 +1,6 @@
 from src.core.tasks.url.operators.screenshot.models.outcome import URLScreenshotOutcome
-from src.db.models.impl.url.error.url_screenshot.pydantic import ErrorURLScreenshotPydantic
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.screenshot.pydantic import URLScreenshotPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 def convert_to_url_screenshot_pydantic(
@@ -17,12 +16,12 @@ def convert_to_url_screenshot_pydantic(
         results.append(result)
     return results
 
-def convert_to_error_url_screenshot_pydantic(
+def convert_to_task_error(
     outcomes: list[URLScreenshotOutcome]
-) -> list[ErrorURLScreenshotPydantic]:
-    results: list[ErrorURLScreenshotPydantic] = []
+) -> list[URLTaskErrorSmall]:
+    results: list[URLTaskErrorSmall] = []
     for outcome in outcomes:
-        result = ErrorURLScreenshotPydantic(
+        result = URLTaskErrorSmall(
             url_id=outcome.url_id,
             error=outcome.error,
         )

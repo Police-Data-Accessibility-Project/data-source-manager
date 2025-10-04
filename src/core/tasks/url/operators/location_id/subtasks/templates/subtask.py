@@ -6,9 +6,11 @@ from src.core.tasks.url.operators.location_id.subtasks.models.run_info import Lo
 from src.core.tasks.url.operators.location_id.subtasks.models.subtask import AutoLocationIDSubtaskData
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
+from src.db.enums import TaskType
 from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
 from src.db.models.impl.url.suggestion.location.auto.suggestion.pydantic import LocationIDSubtaskSuggestionPydantic
+from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class LocationIDSubtaskOperatorBase(ABC):
@@ -68,17 +70,29 @@ class LocationIDSubtaskOperatorBase(ABC):
             models=suggestions,
         )
 
-        error_infos: list[URLErrorInfoPydantic] = []
+        error_infos: list[URLTaskErrorSmall] = []
         for subtask_info in subtask_data_list:
             if not subtask_info.has_error:
                 continue
-            error_info = URLErrorInfoPydantic(
+            error_info = URLTaskErrorSmall(
                 url_id=subtask_info.url_id,
                 error=subtask_info.error,
-                task_id=self.task_id,
             )
             error_infos.append(error_info)
 
-        await self.adb_client.bulk_insert(
-            models=error_infos,
-        )
+        await self.add_task_errors(error_infos)
+
+    async def add_task_errors(
+        self,
+        errors: list[URLTaskErrorSmall]
+    ) -> None:
+        inserts: list[URLTaskErrorPydantic] = [
+            URLTaskErrorPydantic(
+                task_id=self.task_id,
+                url_id=error.url_id,
+                task_type=TaskType.LOCATION_ID,
+                error=error.error
+            )
+            for error in errors
+        ]
+        await self.adb_client.bulk_insert(inserts)

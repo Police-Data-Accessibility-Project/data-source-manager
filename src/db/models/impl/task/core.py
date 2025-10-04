@@ -35,5 +35,5 @@ class Task(UpdatedAtMixin, WithIDBase):
         secondary="link_task_urls",
         back_populates="tasks"
     )
-    error = relationship(TaskError, back_populates="task")
-    errored_urls = relationship("URLErrorInfo", back_populates="task")
+    errors = relationship(TaskError)
+    url_errors = relationship("URLTaskError")

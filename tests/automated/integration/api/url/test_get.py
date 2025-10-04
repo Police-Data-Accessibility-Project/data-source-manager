@@ -26,7 +26,7 @@ async def test_get_urls(api_test_helper: APITestHelper):
     url_ids = [iui.url_mappings[1].url_id, iui.url_mappings[2].url_id]
 
     # Add errors
-    await db_data_creator.error_info(url_ids=url_ids)
+    await db_data_creator.task_errors(url_ids=url_ids)
 
 
     data: GetURLsResponseInfo = api_test_helper.request_validator.get_urls()

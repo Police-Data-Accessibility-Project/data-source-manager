@@ -2,19 +2,19 @@ from tqdm.asyncio import tqdm_asyncio
 
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
 from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
-from src.core.tasks.scheduled.impl.internet_archives.probe.queries.prereq import \
-    CheckURLInternetArchivesTaskPrerequisitesQueryBuilder
-from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
 from src.core.tasks.scheduled.impl.internet_archives.probe.convert import convert_ia_url_mapping_to_ia_metadata
 from src.core.tasks.scheduled.impl.internet_archives.probe.filter import filter_into_subsets
 from src.core.tasks.scheduled.impl.internet_archives.probe.models.subset import IAURLMappingSubsets
 from src.core.tasks.scheduled.impl.internet_archives.probe.queries.get import GetURLsForInternetArchivesTaskQueryBuilder
+from src.core.tasks.scheduled.impl.internet_archives.probe.queries.prereq import \
+    CheckURLInternetArchivesTaskPrerequisitesQueryBuilder
+from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.flag.checked_for_ia.pydantic import FlagURLCheckedForInternetArchivesPydantic
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.internet_archives.probe.pydantic import URLInternetArchiveMetadataPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.internet_archives.client import InternetArchivesClient
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
 from src.util.progress_bar import get_progress_bar_disabled
@@ -60,16 +60,15 @@ class InternetArchivesProbeTaskOperator(
         await self._add_ia_metadata_to_db(mapper, ia_mappings=subsets.has_metadata)
 
     async def _add_errors_to_db(self, mapper: URLMapper, ia_mappings: list[InternetArchivesURLMapping]) -> None:
-        url_error_info_list: list[URLErrorInfoPydantic] = []
+        url_error_info_list: list[URLTaskErrorSmall] = []
         for ia_mapping in ia_mappings:
             url_id = mapper.get_id(ia_mapping.url)
-            url_error_info = URLErrorInfoPydantic(
+            url_error_info = URLTaskErrorSmall(
                 url_id=url_id,
                 error=ia_mapping.error,
-                task_id=self.task_id
             )
             url_error_info_list.append(url_error_info)
-        await self.adb_client.bulk_insert(url_error_info_list)
+        await self.add_task_errors(url_error_info_list)
 
     async def _get_url_mappings(self) -> list[URLMapping]:
         return await self.adb_client.run_query_builder(

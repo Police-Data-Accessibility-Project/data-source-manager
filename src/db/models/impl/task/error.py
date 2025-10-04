@@ -11,7 +11,7 @@ class TaskError(UpdatedAtMixin, TaskDependentMixin, WithIDBase):
     error = Column(Text, nullable=False)
 
     # Relationships
-    task = relationship("Task", back_populates="error")
+    task = relationship("Task")
 
     __table_args__ = (UniqueConstraint(
         "task_id",

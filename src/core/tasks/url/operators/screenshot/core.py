@@ -1,6 +1,6 @@
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.screenshot.convert import convert_to_url_screenshot_pydantic, \
-    convert_to_error_url_screenshot_pydantic
+    convert_to_task_error
 from src.core.tasks.url.operators.screenshot.filter import filter_success_outcomes
 from src.core.tasks.url.operators.screenshot.get import get_url_screenshots
 from src.core.tasks.url.operators.screenshot.models.outcome import URLScreenshotOutcome
@@ -10,9 +10,8 @@ from src.core.tasks.url.operators.screenshot.queries.prereq import URLsForScreen
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping import URLMapping
 from src.db.enums import TaskType
-from src.db.models.impl.url.error.url_screenshot.pydantic import ErrorURLScreenshotPydantic
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.screenshot.pydantic import URLScreenshotPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
 class URLScreenshotTaskOperator(URLTaskOperatorBase):
@@ -42,10 +41,10 @@ class URLScreenshotTaskOperator(URLTaskOperatorBase):
         await self.adb_client.bulk_insert(insert_models)
 
     async def upload_errors(self, outcomes: list[URLScreenshotOutcome]) -> None:
-        insert_models: list[ErrorURLScreenshotPydantic] = convert_to_error_url_screenshot_pydantic(
+        insert_models: list[URLTaskErrorSmall] = convert_to_task_error(
             outcomes=outcomes,
         )
-        await self.adb_client.bulk_insert(insert_models)
+        await self.add_task_errors(insert_models)
 
     async def inner_task_logic(self) -> None:
         url_mappings: list[URLMapping] = await self.get_urls_without_screenshot()

@@ -1,8 +1,8 @@
-from sqlalchemy import CTE, select, exists, Column
+from sqlalchemy import CTE, select, Column
 
-from src.db.helpers.query import url_not_validated, not_exists_url
+from src.db.enums import TaskType
+from src.db.helpers.query import url_not_validated, not_exists_url, no_url_task_error
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.error.url_screenshot.sqlalchemy import ErrorURLScreenshot
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 
@@ -22,7 +22,7 @@ class URLScreenshotPrerequisitesCTEContainer:
             .where(
                 url_not_validated(),
                 not_exists_url(URLScreenshot),
-                not_exists_url(ErrorURLScreenshot),
+                no_url_task_error(TaskType.SCREENSHOT),
                 URLWebMetadata.status_code == 200,
             )
             .cte("url_screenshot_prerequisites")

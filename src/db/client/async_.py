@@ -6,8 +6,7 @@ from typing import Optional, Type, Any, List, Sequence
 from sqlalchemy import select, exists, func, Select, and_, update, delete, Row
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import selectinload, QueryableAttribute
-
+from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
@@ -48,22 +47,14 @@ from src.core.enums import BatchStatus, RecordType
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
-from src.core.tasks.url.operators.auto_relevant.queries.get_tdos import GetAutoRelevantTDOsQueryBuilder
 from src.core.tasks.url.operators.html.queries.get import \
     GetPendingURLsWithoutHTMLDataQueryBuilder
-from src.core.tasks.url.operators.misc_metadata.queries.get_pending_urls_missing_miscellaneous_data import \
-    GetPendingURLsMissingMiscellaneousDataQueryBuilder
-from src.core.tasks.url.operators.misc_metadata.queries.has_pending_urls_missing_miscellaneous_data import \
-    HasPendingURsMissingMiscellaneousDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.core.tasks.url.operators.probe.queries.urls.not_probed.exists import HasURLsWithoutProbeQueryBuilder
 from src.core.tasks.url.operators.probe.queries.urls.not_probed.get.query import GetURLsWithoutProbeQueryBuilder
 from src.core.tasks.url.operators.probe_404.tdo import URL404ProbeTDO
-from src.core.tasks.url.operators.submit_approved.queries.get import GetValidatedURLsQueryBuilder
-from src.core.tasks.url.operators.submit_approved.queries.has_validated import HasValidatedURLsQueryBuilder
 from src.core.tasks.url.operators.submit_approved.queries.mark_submitted import MarkURLsAsSubmittedQueryBuilder
-from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
+from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.client.types import UserSuggestionModel
 from src.db.config_manager import ConfigManager
@@ -75,7 +66,7 @@ from src.db.dtos.url.mapping import URLMapping
 from src.db.dtos.url.raw_html import RawHTMLInfo
 from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
+from src.db.models.impl.agency.enums import AgencyType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
@@ -95,8 +86,6 @@ from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
-from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
-from src.db.models.impl.url.error_info.sqlalchemy import URLErrorInfo
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
@@ -107,6 +96,7 @@ from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSug
 from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
 from src.db.queries.base.builder import QueryBuilderBase
@@ -282,9 +272,6 @@ class AsyncDatabaseClient:
         result = await session.execute(statement)
         return result.unique().scalar_one_or_none()
 
-    async def get_tdos_for_auto_relevancy(self) -> list[URLRelevantTDO]:
-        return await self.run_query_builder(builder=GetAutoRelevantTDOsQueryBuilder())
-
     @session_manager
     async def add_user_relevant_suggestion(
         self,
@@ -365,37 +352,6 @@ class AsyncDatabaseClient:
 
     # endregion record_type
 
-    @session_manager
-    async def add_url_error_infos(self, session: AsyncSession, url_error_infos: list[URLErrorInfoPydantic]):
-        for url_error_info in url_error_infos:
-            statement = select(URL).where(URL.id == url_error_info.url_id)
-            scalar_result = await session.scalars(statement)
-            url = scalar_result.first()
-            url.status = URLStatus.ERROR.value
-
-            url_error = URLErrorInfo(**url_error_info.model_dump())
-            session.add(url_error)
-
-    @session_manager
-    async def get_urls_with_errors(self, session: AsyncSession) -> list[URLErrorInfoPydantic]:
-        statement = (select(URL, URLErrorInfo.error, URLErrorInfo.updated_at, URLErrorInfo.task_id)
-                     .join(URLErrorInfo)
-                     .where(URL.status == URLStatus.ERROR.value)
-                     .order_by(URL.id))
-        scalar_result = await session.execute(statement)
-        results = scalar_result.all()
-        final_results = []
-        for url, error, updated_at, task_id in results:
-            final_results.append(
-                URLErrorInfoPydantic(
-                    url_id=url.id,
-                    error=error,
-                    updated_at=updated_at,
-                    task_id=task_id
-                )
-            )
-
-        return final_results
 
     @session_manager
     async def add_html_content_infos(self, session: AsyncSession, html_content_infos: list[URLHTMLContentInfo]):
@@ -407,14 +363,6 @@ class AsyncDatabaseClient:
         statement = statement.limit(1)
         scalar_result = await session.scalars(statement)
         return bool(scalar_result.first())
-
-    async def has_pending_urls_missing_miscellaneous_metadata(self) -> bool:
-        return await self.run_query_builder(HasPendingURsMissingMiscellaneousDataQueryBuilder())
-
-    async def get_pending_urls_missing_miscellaneous_metadata(
-        self,
-    ) -> list[URLMiscellaneousMetadataTDO]:
-        return await self.run_query_builder(GetPendingURLsMissingMiscellaneousDataQueryBuilder())
 
     @session_manager
     async def add_miscellaneous_metadata(self, session: AsyncSession, tdos: list[URLMiscellaneousMetadataTDO]):
@@ -492,13 +440,6 @@ class AsyncDatabaseClient:
         statement = statement.limit(1)
         scalar_result = await session.scalars(statement)
         return bool(scalar_result.first())
-
-    @session_manager
-    async def has_urls_with_html_data_and_without_auto_relevant_suggestion(self, session: AsyncSession) -> bool:
-        return await self.has_urls_with_html_data_and_without_models(
-            session=session,
-            model=AutoRelevantSuggestion
-        )
 
     @session_manager
     async def has_urls_with_html_data_and_without_auto_record_type_suggestion(self, session: AsyncSession) -> bool:
@@ -590,8 +531,8 @@ class AsyncDatabaseClient:
     async def get_tasks(
         self,
         session: AsyncSession,
-        task_type: Optional[TaskType] = None,
-        task_status: Optional[BatchStatus] = None,
+        task_type: TaskType | None = None,
+        task_status: BatchStatus | None = None,
         page: int = 1
     ) -> GetTasksResponse:
         url_count_subquery = self.statement_composer.simple_count_subquery(
@@ -601,7 +542,7 @@ class AsyncDatabaseClient:
         )
 
         url_error_count_subquery = self.statement_composer.simple_count_subquery(
-            URLErrorInfo,
+            URLTaskError,
             'task_id',
             'url_error_count'
         )
@@ -843,12 +784,6 @@ class AsyncDatabaseClient:
         batch.duplicate_url_count = duplicate_url_count
         batch.status = batch_status.value
         batch.compute_time = compute_time
-
-    async def has_validated_urls(self) -> bool:
-        return await self.run_query_builder(HasValidatedURLsQueryBuilder())
-
-    async def get_validated_urls(self) -> list[SubmitApprovedURLTDO]:
-        return await self.run_query_builder(GetValidatedURLsQueryBuilder())
 
     async def mark_urls_as_submitted(self, infos: list[SubmittedURLInfo]):
         await self.run_query_builder(MarkURLsAsSubmittedQueryBuilder(infos))
@@ -1137,16 +1072,6 @@ class AsyncDatabaseClient:
 
     async def get_current_database_time(self) -> datetime:
         return await self.scalar(select(func.now()))
-
-    async def has_urls_without_probe(self) -> bool:
-        return await self.run_query_builder(
-            HasURLsWithoutProbeQueryBuilder()
-        )
-
-    async def get_urls_without_probe(self) -> list[URLMapping]:
-        return await self.run_query_builder(
-            GetURLsWithoutProbeQueryBuilder()
-        )
 
     async def get_location_id(
         self,
