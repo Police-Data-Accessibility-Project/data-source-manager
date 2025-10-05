@@ -83,7 +83,7 @@ class InternetArchivesClient:
     async def _save_url(self, url: str) -> int:
         async with self.session.post(
             f"http://web.archive.org/save",
-            json={
+            data={
                 "url": url,
                 "skip_first_archive": 1
             },
