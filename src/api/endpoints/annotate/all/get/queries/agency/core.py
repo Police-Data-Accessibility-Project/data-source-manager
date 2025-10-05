@@ -16,15 +16,18 @@ class GetAgencySuggestionsQueryBuilder(QueryBuilderBase):
 
     def __init__(
         self,
-        url_id: int
+        url_id: int,
+        location_id: int | None = None
     ):
         super().__init__()
         self.url_id = url_id
+        self.location_id = location_id
 
     async def run(self, session: AsyncSession) -> AgencyAnnotationResponseOuterInfo:
         requester = GetAgencySuggestionsRequester(
             session,
-            url_id=self.url_id
+            url_id=self.url_id,
+            location_id=self.location_id
         )
 
         user_suggestions: list[AgencyAnnotationUserSuggestion] = \

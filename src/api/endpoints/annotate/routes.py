@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Query
 
 from src.api.dependencies import get_async_core
+from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.queries.agency.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.core import AsyncCore
 from src.security.dtos.access_info import AccessInfo
@@ -59,4 +61,18 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         batch_id=batch_id,
         user_id=access_info.user_id,
         url_id=anno_url_id
+    )
+
+@annotate_router.get("/suggestions/agencies/{url_id}")
+async def get_agency_suggestions(
+    url_id: int,
+    async_core: AsyncCore = Depends(get_async_core),
+    access_info: AccessInfo = Depends(get_access_info),
+    location_id: int | None = Query(default=None)
+) -> AgencyAnnotationResponseOuterInfo:
+    return await async_core.adb_client.run_query_builder(
+        GetAgencySuggestionsQueryBuilder(
+            url_id=url_id,
+            location_id=location_id
+        )
     )

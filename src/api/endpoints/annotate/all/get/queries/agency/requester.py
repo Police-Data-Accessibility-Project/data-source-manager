@@ -9,6 +9,7 @@ from src.api.endpoints.annotate.all.get.queries.agency.suggestions_with_highest_
     SuggestionsWithHighestConfidenceCTE
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.templates.requester import RequesterBase
@@ -16,9 +17,15 @@ from src.db.templates.requester import RequesterBase
 
 class GetAgencySuggestionsRequester(RequesterBase):
 
-    def __init__(self, session: AsyncSession, url_id: int):
+    def __init__(
+        self,
+        session: AsyncSession,
+        url_id: int,
+        location_id: int
+    ):
         super().__init__(session)
         self.url_id = url_id
+        self.location_id = location_id
 
     async def get_user_agency_suggestions(self) -> list[AgencyAnnotationUserSuggestion]:
         query = (
@@ -31,7 +38,22 @@ class GetAgencySuggestionsRequester(RequesterBase):
                 Agency,
                 Agency.agency_id == UserUrlAgencySuggestion.agency_id
             )
-            .where(
+
+        )
+
+        if self.location_id is not None:
+            query = (
+                query.join(
+                    LinkAgencyLocation,
+                    LinkAgencyLocation.agency_id == UserUrlAgencySuggestion.agency_id
+                )
+                .where(
+                    LinkAgencyLocation.location_id == self.location_id
+                )
+            )
+
+        query = (
+            query.where(
                 UserUrlAgencySuggestion.url_id == self.url_id
             )
             .group_by(
@@ -64,11 +86,25 @@ class GetAgencySuggestionsRequester(RequesterBase):
                 cte.confidence,
                 Agency.name.label("agency_name"),
             )
-            .outerjoin(
+            .join(
                 Agency,
                 Agency.agency_id == cte.agency_id
             )
-            .where(
+        )
+
+        if self.location_id is not None:
+            query = (
+                query.join(
+                    LinkAgencyLocation,
+                    LinkAgencyLocation.agency_id == cte.agency_id
+                )
+                .where(
+                    LinkAgencyLocation.location_id == self.location_id
+                )
+            )
+
+        query = (
+            query.where(
                 cte.url_id == self.url_id
             )
             .order_by(
