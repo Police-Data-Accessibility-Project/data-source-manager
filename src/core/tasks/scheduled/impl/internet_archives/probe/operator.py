@@ -5,6 +5,8 @@ from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
 from src.core.tasks.scheduled.impl.internet_archives.probe.convert import convert_ia_url_mapping_to_ia_metadata
 from src.core.tasks.scheduled.impl.internet_archives.probe.filter import filter_into_subsets
 from src.core.tasks.scheduled.impl.internet_archives.probe.models.subset import IAURLMappingSubsets
+from src.core.tasks.scheduled.impl.internet_archives.probe.queries.delete import \
+    DeleteOldUnsuccessfulIACheckedFlagsQueryBuilder
 from src.core.tasks.scheduled.impl.internet_archives.probe.queries.get import GetURLsForInternetArchivesTaskQueryBuilder
 from src.core.tasks.scheduled.impl.internet_archives.probe.queries.prereq import \
     CheckURLInternetArchivesTaskPrerequisitesQueryBuilder
@@ -45,6 +47,10 @@ class InternetArchivesProbeTaskOperator(
         )
 
     async def inner_task_logic(self) -> None:
+        await self.adb_client.run_query_builder(
+            DeleteOldUnsuccessfulIACheckedFlagsQueryBuilder()
+        )
+
         url_mappings: list[URLMapping] = await self._get_url_mappings()
         if len(url_mappings) == 0:
             return
