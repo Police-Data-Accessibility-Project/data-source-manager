@@ -10,6 +10,7 @@ from starlette.responses import RedirectResponse
 from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
 from src.api.endpoints.collector.routes import collector_router
+from src.api.endpoints.contributions.routes import contributions_router
 from src.api.endpoints.metrics.routes import metrics_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
@@ -175,7 +176,8 @@ routers = [
     task_router,
     search_router,
     metrics_router,
-    submit_router
+    submit_router,
+    contributions_router
 ]
 
 for router in routers:
