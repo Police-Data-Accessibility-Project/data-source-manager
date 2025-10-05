@@ -1,13 +1,14 @@
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.orm import Mapped
 
-from src.db.models.mixins import URLDependentMixin
+from src.db.models.mixins import URLDependentMixin, CreatedAtMixin
 from src.db.models.templates_.base import Base
 from src.db.models.templates_.with_id import WithIDBase
 
 
 class FlagURLCheckedForInternetArchives(
     URLDependentMixin,
+    CreatedAtMixin,
     Base
 ):
 
