@@ -54,7 +54,7 @@ class GetLocationSuggestionsRequester(RequesterBase):
     ) -> list[LocationAnnotationAutoSuggestion]:
         query = (
             select(
-                LocationExpandedView.display_name.label("location_name"),
+                LocationExpandedView.full_display_name.label("location_name"),
                 LocationIDSubtaskSuggestion.location_id,
                 LocationIDSubtaskSuggestion.confidence,
             )
