@@ -19,7 +19,9 @@ class DeleteStaleScreenshotsQueryBuilder(QueryBuilderBase):
             .where(
                 exists(
                     select(
-                        FlagURLValidated,
+                        FlagURLValidated
+                    )
+                    .where(
                         FlagURLValidated.url_id == URLScreenshot.url_id,
                     )
                 )
