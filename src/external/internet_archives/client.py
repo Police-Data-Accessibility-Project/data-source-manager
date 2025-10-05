@@ -82,7 +82,11 @@ class InternetArchivesClient:
 
     async def _save_url(self, url: str) -> int:
         async with self.session.post(
-            f"http://web.archive.org/save/{url}",
+            f"http://web.archive.org/save",
+            json={
+                "url": url,
+                "skip_first_archive": 1
+            },
             headers={
                 "Authorization": f"LOW {self.s3_keys}"
             }

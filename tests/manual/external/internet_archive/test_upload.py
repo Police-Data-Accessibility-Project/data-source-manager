@@ -3,7 +3,7 @@ from aiohttp import ClientSession
 
 from src.external.internet_archives.client import InternetArchivesClient
 
-BASE_URL = "example.com"
+BASE_URL = "https://www.muckrock.com/foi/allegheny-county-306/policy-documents-170293/"
 
 @pytest.mark.asyncio
 async def test_upload():
