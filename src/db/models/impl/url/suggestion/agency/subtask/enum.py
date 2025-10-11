@@ -6,6 +6,7 @@ class AutoAgencyIDSubtaskType(Enum):
     NLP_LOCATION_MATCH = "nlp_location_match"
     MUCKROCK = "muckrock_match"
     CKAN = "ckan_match"
+    BATCH_LINK = "batch_link"
 
 class SubtaskDetailCode(Enum):
     NO_DETAILS = "no details"

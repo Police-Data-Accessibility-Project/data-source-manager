@@ -3,6 +3,7 @@ from src.db.models.impl.url.suggestion.location.auto.subtask.enums import Locati
 
 SUBTASK_HIERARCHY: list[LocationIDSubtaskType] = [
     LocationIDSubtaskType.NLP_LOCATION_FREQUENCY,
+    LocationIDSubtaskType.BATCH_LINK
 ]
 
 SUBTASK_HIERARCHY_MAPPING: dict[LocationIDSubtaskType, int] = {

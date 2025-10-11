@@ -5,7 +5,8 @@ SUBTASK_HIERARCHY: list[AutoAgencyIDSubtaskType] = [
     AutoAgencyIDSubtaskType.CKAN,
     AutoAgencyIDSubtaskType.MUCKROCK,
     AutoAgencyIDSubtaskType.HOMEPAGE_MATCH,
-    AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH
+    AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH,
+    AutoAgencyIDSubtaskType.BATCH_LINK
 ]
 
 SUBTASK_HIERARCHY_MAPPING: dict[AutoAgencyIDSubtaskType, int] = {

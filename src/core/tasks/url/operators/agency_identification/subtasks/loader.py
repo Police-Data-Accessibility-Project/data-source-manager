@@ -1,4 +1,6 @@
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
+from src.core.tasks.url.operators.agency_identification.subtasks.impl.batch_link.core import \
+    AgencyBatchLinkSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.core import CKANAgencyIDSubtaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.core import \
     HomepageMatchSubtaskOperator
@@ -52,6 +54,15 @@ class AgencyIdentificationSubtaskLoader:
             adb_client=self.adb_client,
         )
 
+    def _load_batch_link_subtask(
+        self,
+        task_id: int
+    ) -> AgencyBatchLinkSubtaskOperator:
+        return AgencyBatchLinkSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
+        )
+
 
     async def load_subtask(
         self,
@@ -68,4 +79,6 @@ class AgencyIdentificationSubtaskLoader:
                 return self._load_nlp_location_match_subtask(task_id)
             case AutoAgencyIDSubtaskType.HOMEPAGE_MATCH:
                 return self._load_homepage_match_subtask(task_id)
+            case AutoAgencyIDSubtaskType.BATCH_LINK:
+                return self._load_batch_link_subtask(task_id)
         raise ValueError(f"Unknown subtask type: {subtask_type}")

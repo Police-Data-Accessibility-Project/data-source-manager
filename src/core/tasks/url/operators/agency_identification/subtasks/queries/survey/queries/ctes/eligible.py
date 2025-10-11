@@ -4,6 +4,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.
     HIGH_CONFIDENCE_ANNOTATIONS_EXISTS_CONTAINER
 from src.core.tasks.url.operators._shared.ctes.validated import \
     VALIDATED_EXISTS_CONTAINER
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.impl.batch_link import \
+    BATCH_LINK_SUBTASK_CONTAINER
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.impl.ckan import \
     CKAN_SUBTASK_CONTAINER
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.impl.homepage import \
@@ -24,6 +26,7 @@ class EligibleContainer:
                 MUCKROCK_SUBTASK_CONTAINER.eligible_query.label("muckrock"),
                 HOMEPAGE_SUBTASK_CONTAINER.eligible_query.label("homepage"),
                 NLP_LOCATION_CONTAINER.eligible_query.label("nlp_location"),
+                BATCH_LINK_SUBTASK_CONTAINER.eligible_query.label("batch_link"),
             )
             .where(
                 HIGH_CONFIDENCE_ANNOTATIONS_EXISTS_CONTAINER.not_exists_query,
@@ -43,6 +46,10 @@ class EligibleContainer:
     @property
     def ckan(self) -> Column[bool]:
         return self._cte.c['ckan']
+
+    @property
+    def batch_link(self) -> Column[bool]:
+        return self._cte.c['batch_link']
 
     @property
     def muckrock(self) -> Column[bool]:

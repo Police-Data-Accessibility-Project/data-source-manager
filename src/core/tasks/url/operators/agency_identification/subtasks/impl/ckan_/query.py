@@ -3,13 +3,10 @@ from typing import Sequence
 from sqlalchemy import select, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.collectors.enums import CollectorType
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.params import CKANAgencyIDSubtaskParams
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.eligible import \
     EligibleContainer
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 

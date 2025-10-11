@@ -21,5 +21,6 @@ ELIGIBLE_COUNTS_QUERY = (
         sum_count(container.muckrock, AutoAgencyIDSubtaskType.MUCKROCK),
         sum_count(container.homepage, AutoAgencyIDSubtaskType.HOMEPAGE_MATCH),
         sum_count(container.nlp_location, AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH),
+        sum_count(container.batch_link, AutoAgencyIDSubtaskType.BATCH_LINK)
     )
 )
