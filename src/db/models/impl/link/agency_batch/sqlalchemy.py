@@ -1,6 +1,6 @@
 from sqlalchemy import PrimaryKeyConstraint
 
-from src.db.models.mixins import CreatedAtMixin, LocationDependentMixin, AgencyDependentMixin, BatchDependentMixin
+from src.db.models.mixins import CreatedAtMixin, AgencyDependentMixin, BatchDependentMixin
 from src.db.models.templates_.base import Base
 
 

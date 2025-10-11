@@ -171,3 +171,9 @@ def agency_id_column(nullable=False) -> sa.Column:
         nullable=nullable,
         comment='A foreign key to the `agencies` table.'
     )
+
+def add_enum_value(
+    enum_name: str,
+    enum_value: str
+) -> None:
+    op.execute(f"ALTER TYPE {enum_name} ADD VALUE '{enum_value}'")

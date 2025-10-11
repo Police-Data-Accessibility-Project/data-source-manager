@@ -1,3 +1,4 @@
+from src.core.tasks.url.operators.location_id.subtasks.impl.batch_link.core import LocationBatchLinkSubtaskOperator
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.core import \
     NLPLocationFrequencySubtaskOperator
 from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
@@ -24,6 +25,12 @@ class LocationIdentificationSubtaskLoader:
             nlp_processor=self._nlp_processor
         )
 
+    def _load_batch_link_subtask(self, task_id: int) -> LocationBatchLinkSubtaskOperator:
+        return LocationBatchLinkSubtaskOperator(
+            task_id=task_id,
+            adb_client=self.adb_client,
+        )
+
     async def load_subtask(
         self,
         subtask_type: LocationIDSubtaskType,
@@ -32,4 +39,6 @@ class LocationIdentificationSubtaskLoader:
         match subtask_type:
             case LocationIDSubtaskType.NLP_LOCATION_FREQUENCY:
                 return self._load_nlp_location_match_subtask(task_id=task_id)
+            case LocationIDSubtaskType.BATCH_LINK:
+                return self._load_batch_link_subtask(task_id=task_id)
         raise ValueError(f"Unknown subtask type: {subtask_type}")

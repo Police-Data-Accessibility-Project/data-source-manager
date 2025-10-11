@@ -17,5 +17,6 @@ container = EligibleContainer()
 ELIGIBLE_COUNTS_QUERY = (
     select(
         sum_count(container.nlp_location, LocationIDSubtaskType.NLP_LOCATION_FREQUENCY),
+        sum_count(container.batch_link, LocationIDSubtaskType.BATCH_LINK)
     )
 )

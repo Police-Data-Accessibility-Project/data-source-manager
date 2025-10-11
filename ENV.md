@@ -102,6 +102,7 @@ Agency ID Subtasks are collectively disabled by the `URL_AGENCY_IDENTIFICATION_T
 | `AGENCY_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for agency identification. |
 | `AGENCY_ID_CKAN_FLAG`               | Enables the CKAN subtask for agency identification.               |
 | `AGENCY_ID_MUCKROCK_FLAG`           | Enables the MuckRock subtask for agency identification.           |
+| `AGENCY_ID_BATCH_LINK_FLAG` | Enables the Batch Link subtask for agency identification. |
 
 
 ### Location ID Subtasks
@@ -111,6 +112,7 @@ Location ID Subtasks are collectively disabled by the `URL_LOCATION_IDENTIFICATI
 | Flag                                  | Description                                                         | 
 |---------------------------------------|---------------------------------------------------------------------| 
 | `LOCATION_ID_NLP_LOCATION_MATCH_FLAG` | Enables the NLP location match subtask for location identification. |
+| `LOCATION_ID_BATCH_LINK_FLAG` | Enables the Batch Link subtask for location identification. |
 
 
 ## Foreign Data Wrapper (FDW)
