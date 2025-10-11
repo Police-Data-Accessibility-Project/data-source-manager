@@ -108,9 +108,9 @@ class AsyncCore:
 
     # region Collector
     async def initiate_collector(
-            self,
-            collector_type: CollectorType,
-            user_id: int,
+        self,
+        collector_type: CollectorType,
+        user_id: int,
         dto: BaseModel | None = None,
     ) -> CollectorStartInfo:
         """

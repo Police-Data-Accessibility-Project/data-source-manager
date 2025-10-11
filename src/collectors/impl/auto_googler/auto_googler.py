@@ -9,7 +9,11 @@ class AutoGoogler:
      and processing them for source collection
 
     """
-    def __init__(self, search_config: SearchConfig, google_searcher: GoogleSearcher):
+    def __init__(
+        self,
+        search_config: SearchConfig,
+        google_searcher: GoogleSearcher
+    ):
         self.search_config = search_config
         self.google_searcher = google_searcher
         self.data: dict[str, list[GoogleSearchQueryResultsInnerDTO]] = {
