@@ -13,3 +13,11 @@ class AutoGooglerInputDTO(BaseModel):
         min_length=1,
         max_length=100
     )
+    agency_id: int | None = Field(
+        description="ID of the agency to search for. Optional.",
+        default=None
+    )
+    location_id: int | None = Field(
+        description="ID of the location to search for. Optional.",
+        default=None
+    )
