@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import timedelta, datetime
+
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import override, final
 
@@ -18,8 +20,15 @@ class HasURLsWithoutProbeQueryBuilder(QueryBuilderBase):
             select(
                 URL.id
             )
+            .outerjoin(
+                URLWebMetadata,
+                URL.id == URLWebMetadata.url_id
+            )
             .where(
-                not_exists_url(URLWebMetadata),
+                or_(
+                    URLWebMetadata.id.is_(None),
+                    URLWebMetadata.updated_at < datetime.now() - timedelta(days=30)
+                ),
                 no_url_task_error(TaskType.PROBE_URL)
             )
         )

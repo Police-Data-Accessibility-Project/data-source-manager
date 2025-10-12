@@ -1,5 +1,9 @@
+import uuid
+
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
+
 
 def switch_enum_type(
         table_name,
@@ -177,3 +181,106 @@ def add_enum_value(
     enum_value: str
 ) -> None:
     op.execute(f"ALTER TYPE {enum_name} ADD VALUE '{enum_value}'")
+
+
+
+def _q_ident(s: str) -> str:
+    return '"' + s.replace('"', '""') + '"'
+
+
+def _q_label(s: str) -> str:
+    return "'" + s.replace("'", "''") + "'"
+
+
+def remove_enum_value(
+    *,
+    enum_name: str,
+    value_to_remove: str,
+    targets: list[tuple[str, str]],  # (table, column)
+    schema: str = "public",
+) -> None:
+    """
+    Remove `value_to_remove` from ENUM `schema.enum_name` across the given (table, column) pairs.
+    Assumes target columns have **no defaults**.
+    """
+    conn = op.get_bind()
+
+    # 1) Load current labels (ordered)
+    labels = [
+        r[0]
+        for r in conn.execute(
+            text(
+                """
+                SELECT e.enumlabel
+                FROM pg_enum e
+                JOIN pg_type t ON t.oid = e.enumtypid
+                JOIN pg_namespace n ON n.oid = t.typnamespace
+                WHERE t.typname = :enum_name
+                  AND n.nspname = :schema
+                ORDER BY e.enumsortorder
+                """
+            ),
+            {"enum_name": enum_name, "schema": schema},
+        ).fetchall()
+    ]
+    if not labels:
+        raise RuntimeError(f"Enum {schema}.{enum_name!r} not found.")
+    if value_to_remove not in labels:
+        return  # nothing to do
+    new_labels = [l for l in labels if l != value_to_remove]
+    if not new_labels:
+        raise RuntimeError("Refusing to remove the last remaining enum label.")
+
+    # Deduplicate targets while preserving order
+    seen = set()
+    targets = [(t, c) for (t, c) in targets if not ((t, c) in seen or seen.add((t, c)))]
+
+    # 2) Ensure no rows still hold the label
+    for table, col in targets:
+        count = conn.execute(
+            text(
+                f"SELECT COUNT(*) FROM {_q_ident(schema)}.{_q_ident(table)} "
+                f"WHERE {_q_ident(col)} = :v"
+            ),
+            {"v": value_to_remove},
+        ).scalar()
+        if count and count > 0:
+            raise RuntimeError(
+                f"Cannot remove {value_to_remove!r}: {schema}.{table}.{col} "
+                f"has {count} row(s) with that value. UPDATE or DELETE them first."
+            )
+
+    # 3) Create a tmp enum without the value
+    tmp_name = f"{enum_name}__tmp__{uuid.uuid4().hex[:8]}"
+    op.execute(
+        text(
+            f"CREATE TYPE {_q_ident(schema)}.{_q_ident(tmp_name)} AS ENUM ("
+            + ", ".join(_q_label(l) for l in new_labels)
+            + ")"
+        )
+    )
+
+    # 4) For each column: enum -> text -> tmp_enum
+    for table, col in targets:
+        op.execute(
+            text(
+                f"ALTER TABLE {_q_ident(schema)}.{_q_ident(table)} "
+                f"ALTER COLUMN {_q_ident(col)} TYPE TEXT USING {_q_ident(col)}::TEXT"
+            )
+        )
+        op.execute(
+            text(
+                f"ALTER TABLE {_q_ident(schema)}.{_q_ident(table)} "
+                f"ALTER COLUMN {_q_ident(col)} TYPE {_q_ident(schema)}.{_q_ident(tmp_name)} "
+                f"USING {_q_ident(col)}::{_q_ident(schema)}.{_q_ident(tmp_name)}"
+            )
+        )
+
+    # 5) Swap: drop old enum, rename tmp -> original name
+    op.execute(text(f"DROP TYPE {_q_ident(schema)}.{_q_ident(enum_name)}"))
+    op.execute(
+        text(
+            f"ALTER TYPE {_q_ident(schema)}.{_q_ident(tmp_name)} "
+            f"RENAME TO {_q_ident(enum_name)}"
+        )
+    )

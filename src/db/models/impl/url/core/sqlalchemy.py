@@ -1,14 +1,11 @@
 from sqlalchemy import Column, Text, String, JSON
 from sqlalchemy.orm import relationship
 
-from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
 from src.collectors.enums import URLStatus
-from src.core.enums import RecordType
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
@@ -94,11 +91,6 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     )
     checked_for_duplicate = relationship(
         URLCheckedForDuplicate,
-        uselist=False,
-        back_populates="url"
-    )
-    probed_for_404 = relationship(
-        URLProbedFor404,
         uselist=False,
         back_populates="url"
     )

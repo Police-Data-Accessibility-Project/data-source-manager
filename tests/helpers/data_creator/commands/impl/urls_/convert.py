@@ -17,8 +17,6 @@ def convert_url_creation_enum_to_url_status(url_creation_enum: URLCreationEnum) 
             return URLStatus.ERROR
         case URLCreationEnum.DUPLICATE:
             return URLStatus.DUPLICATE
-        case URLCreationEnum.NOT_FOUND:
-            return URLStatus.NOT_FOUND
         case _:
             raise ValueError(f"Unknown URLCreationEnum: {url_creation_enum}")
 

@@ -17,7 +17,6 @@ from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.pr
 from src.core.tasks.url.operators.location_id.subtasks.loader import LocationIdentificationSubtaskLoader
 from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
-from src.core.tasks.url.operators.probe_404.core import URL404ProbeTaskOperator
 from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOperator
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai import OpenAIRecordClassifier
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
@@ -126,15 +125,6 @@ class URLTaskOperatorLoader:
             enabled=self.setup_flag("URL_MISC_METADATA_TASK_FLAG")
         )
 
-    def _get_url_404_probe_task_operator(self) -> URLTaskEntry:
-        operator = URL404ProbeTaskOperator(
-            adb_client=self.adb_client,
-            url_request_interface=self.url_request_interface
-        )
-        return URLTaskEntry(
-            operator=operator,
-            enabled=self.setup_flag("URL_404_PROBE_TASK_FLAG")
-        )
 
     def _get_url_auto_relevance_task_operator(self) -> URLTaskEntry:
         operator = URLAutoRelevantTaskOperator(
@@ -220,7 +210,6 @@ class URLTaskOperatorLoader:
             self._get_url_root_url_task_operator(),
             self._get_url_probe_task_operator(),
             self._get_url_html_task_operator(),
-            self._get_url_404_probe_task_operator(),
             self._get_url_record_type_task_operator(),
             self._get_agency_identification_task_operator(),
             self._get_url_miscellaneous_metadata_task_operator(),

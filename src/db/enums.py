@@ -43,7 +43,6 @@ class TaskType(PyEnum):
     SUBMIT_META_URLS = "Submit Meta URLs"
     DUPLICATE_DETECTION = "Duplicate Detection"
     IDLE = "Idle"
-    PROBE_404 = "404 Probe"
     PROBE_URL = "URL Probe"
     ROOT_URL = "Root URL"
     IA_PROBE = "Internet Archives Probe"

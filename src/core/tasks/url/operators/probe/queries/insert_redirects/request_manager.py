@@ -1,3 +1,6 @@
+from typing import Sequence
+
+from sqlalchemy import select, tuple_, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.url.operators.probe.queries.insert_redirects.convert import convert_to_url_mappings, \
@@ -11,6 +14,8 @@ from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.db.dtos.url.mapping import URLMapping
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.url_redirect_url.pydantic import LinkURLRedirectURLPydantic
+from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.insert import URLWebMetadataPydantic
 from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.response import URLProbeResponse
@@ -69,10 +74,40 @@ class InsertRedirectsRequestManager:
         response_pairs: list[URLProbeRedirectResponsePair],
         mapper: URLMapper
     ) -> None:
-        links: list[LinkURLRedirectURLPydantic] = []
+        # Get all existing links and exclude
+        link_tuples: list[tuple[int, int]] = []
         for pair in response_pairs:
             source_url_id = mapper.get_id(pair.source.url)
             destination_url_id = mapper.get_id(pair.destination.url)
+            link_tuples.append((source_url_id, destination_url_id))
+
+        query = (
+            select(
+                LinkURLRedirectURL.source_url_id,
+                LinkURLRedirectURL.destination_url_id
+            )
+            .where(
+                tuple_(
+                    LinkURLRedirectURL.source_url_id,
+                    LinkURLRedirectURL.destination_url_id
+                ).in_(link_tuples)
+            )
+        )
+        mappings: Sequence[RowMapping] = await sh.mappings(self.session, query=query)
+        existing_links: set[tuple[int, int]] = {
+            (mapping["source_url_id"], mapping["destination_url_id"])
+            for mapping in mappings
+        }
+        new_links: list[tuple[int, int]] = [
+            (source_url_id, destination_url_id)
+            for source_url_id, destination_url_id in link_tuples
+            if (source_url_id, destination_url_id) not in existing_links
+        ]
+
+
+        links: list[LinkURLRedirectURLPydantic] = []
+        for link in new_links:
+            source_url_id, destination_url_id = link
             link = LinkURLRedirectURLPydantic(
                 source_url_id=source_url_id,
                 destination_url_id=destination_url_id

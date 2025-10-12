@@ -10,7 +10,6 @@ from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
 from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
-from src.core.tasks.url.operators.probe_404.core import URL404ProbeTaskOperator
 from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOperator
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
@@ -44,10 +43,6 @@ params = [
     FlagTestParams(
         env_var="URL_MISC_METADATA_TASK_FLAG",
         operator=URLMiscellaneousMetadataTaskOperator
-    ),
-    FlagTestParams(
-        env_var="URL_404_PROBE_TASK_FLAG",
-        operator=URL404ProbeTaskOperator
     ),
     FlagTestParams(
         env_var="URL_AUTO_RELEVANCE_TASK_FLAG",

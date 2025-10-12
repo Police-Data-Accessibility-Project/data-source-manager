@@ -6,3 +6,4 @@ class URLType(Enum):
     META_URL = "meta url"
     NOT_RELEVANT = "not relevant"
     INDIVIDUAL_RECORD = "individual record"
+    BROKEN_PAGE = "broken page"
