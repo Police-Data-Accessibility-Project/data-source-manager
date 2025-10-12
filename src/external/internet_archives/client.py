@@ -88,9 +88,11 @@ class InternetArchivesClient:
                 "skip_first_archive": 1
             },
             headers={
-                "Authorization": f"LOW {self.s3_keys}"
+                "Authorization": f"LOW {self.s3_keys}",
+                "Accept": "application/json"
             }
         ) as response:
+            response.raise_for_status()
             return response.status
 
     async def save_to_internet_archives(self, url: str) -> InternetArchivesSaveResponseInfo:
