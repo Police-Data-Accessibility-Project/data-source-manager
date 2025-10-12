@@ -36,6 +36,7 @@ from src.collectors.enums import CollectorType
 from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.core.enums import BatchStatus
 from src.db.enums import TaskType
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.util.helper_functions import update_if_not_none
 
 
@@ -188,9 +189,8 @@ class RequestValidator:
 
     def get_batch_statuses(
             self,
-            collector_type: Optional[CollectorType] = None,
-            status: Optional[BatchStatus] = None,
-            has_pending_urls: Optional[bool] = None
+            collector_type: CollectorType | None = None,
+            status: BatchURLStatusEnum | None = None,
     ) -> GetBatchSummariesResponse:
         params = {}
         update_if_not_none(
@@ -198,7 +198,6 @@ class RequestValidator:
             source={
                 "collector_type": collector_type.value if collector_type else None,
                 "status": status.value if status else None,
-                "has_pending_urls": has_pending_urls
             }
         )
         data = self.get(

@@ -57,6 +57,7 @@ async def test_get_batch_summaries(api_test_helper):
     batch_2_id = batch_2_creation_info.batch_id
     batch_3_id = batch_3_creation_info.batch_id
 
+    await ath.adb_client().refresh_materialized_views()
 
     response = ath.request_validator.get_batch_statuses()
     results = response.results

@@ -13,6 +13,7 @@ from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.collectors.enums import CollectorType
 from src.core.core import AsyncCore
 from src.core.enums import BatchStatus
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.security.dtos.access_info import AccessInfo
 from src.security.manager import get_access_info
 
@@ -29,12 +30,8 @@ async def get_batch_status(
             description="Filter by collector type",
             default=None
         ),
-        status: BatchStatus | None = Query(
+        status: BatchURLStatusEnum | None = Query(
             description="Filter by status",
-            default=None
-        ),
-        has_pending_urls: bool | None = Query(
-            description="Filter by whether the batch has pending URLs",
             default=None
         ),
         page: int = Query(
@@ -50,7 +47,6 @@ async def get_batch_status(
     return await core.get_batch_statuses(
         collector_type=collector_type,
         status=status,
-        has_pending_urls=has_pending_urls,
         page=page
     )
 

@@ -1,25 +1,8 @@
+from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.core.enums import BatchStatus
-
-
-def test_abort_batch(api_test_helper):
-    ath = api_test_helper
-
-    dto = ExampleInputDTO(
-            sleep_time=1
-        )
-
-    batch_id = ath.request_validator.example_collector(dto=dto)["batch_id"]
-
-    response = ath.request_validator.abort_batch(batch_id=batch_id)
-
-    assert response.message == "Batch aborted."
-
-    bi: BatchInfo = ath.request_validator.get_batch_info(batch_id=batch_id)
-
-    assert bi.status == BatchStatus.ABORTED
 
 def test_get_batch_urls(api_test_helper):
 

@@ -90,6 +90,7 @@ from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestio
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.html_content_info import GetHTMLContentInfoQueryBuilder
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
@@ -771,16 +772,14 @@ class AsyncDatabaseClient:
         self,
         session,
         page: int,
-        collector_type: Optional[CollectorType] = None,
-        status: Optional[BatchStatus] = None,
-        has_pending_urls: Optional[bool] = None
+        collector_type: CollectorType | None = None,
+        status: BatchURLStatusEnum | None = None,
     ) -> GetBatchSummariesResponse:
         # Get only the batch_id, collector_type, status, and created_at
         builder = GetRecentBatchSummariesQueryBuilder(
             page=page,
             collector_type=collector_type,
             status=status,
-            has_pending_urls=has_pending_urls
         )
         summaries = await builder.run(session)
         return GetBatchSummariesResponse(
@@ -998,4 +997,7 @@ class AsyncDatabaseClient:
     async def refresh_materialized_views(self):
         await self.execute(
             text("REFRESH MATERIALIZED VIEW url_status_mat_view")
+        )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW batch_url_status_mat_view")
         )

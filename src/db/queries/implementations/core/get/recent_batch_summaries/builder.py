@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,8 +7,9 @@ from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.views.batch_url_status.core import BatchURLStatusMatView
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.queries.implementations.core.get.recent_batch_summaries.pending_url.cte import PENDING_URL_CTE
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.builder import URLCountsCTEQueryBuilder
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.labels import URLCountsLabels
 
@@ -19,13 +19,11 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
     def __init__(
         self,
         page: int = 1,
-        has_pending_urls: bool | None = None,
         collector_type: CollectorType | None = None,
-        status: BatchStatus | None = None,
+        status: BatchURLStatusEnum | None = None,
         batch_id: int | None = None,
     ):
         super().__init__()
-        self.has_pending_urls = has_pending_urls
         self.url_counts_cte = URLCountsCTEQueryBuilder(
             page=page,
             collector_type=collector_type,
@@ -38,25 +36,29 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
         builder = self.url_counts_cte
         count_labels: URLCountsLabels = builder.labels
 
-        query = Select(
-            *builder.get_all(),
-            Batch.strategy,
-            Batch.status,
-            Batch.parameters,
-            Batch.user_id,
-            Batch.compute_time,
-            Batch.date_generated,
-        ).join(
-            builder.query,
-            builder.get(count_labels.batch_id) == Batch.id,
-        )
-        if self.has_pending_urls is not None:
-            query = query.join(
-                PENDING_URL_CTE,
-                PENDING_URL_CTE.c.batch_id == Batch.id,
-            ).where(
-                PENDING_URL_CTE.c.has_pending_urls == self.has_pending_urls
+        query = (
+            Select(
+                *builder.get_all(),
+                Batch.strategy,
+                Batch.status,
+                BatchURLStatusMatView.batch_url_status,
+                Batch.parameters,
+                Batch.user_id,
+                Batch.compute_time,
+                Batch.date_generated,
+            ).join(
+                builder.query,
+                builder.get(count_labels.batch_id) == Batch.id,
+            ).outerjoin(
+                BatchURLStatusMatView,
+                BatchURLStatusMatView.batch_id == Batch.id,
+            ).order_by(
+                Batch.id.asc()
             )
+
+        )
+
+
 
         raw_results = await session.execute(query)
 

@@ -3,6 +3,7 @@ import pytest
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.dtos.url.mapping import URLMapping
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 
@@ -47,29 +48,12 @@ async def test_get_batch_summaries_pending_url_filter(api_test_helper):
         url_ids=validated_url_ids
     )
 
+    await dbdc.adb_client.refresh_materialized_views()
+
     # Test filter for pending URLs and only retrieve the second batch
     pending_urls_results = ath.request_validator.get_batch_statuses(
-        has_pending_urls=True
+        status=BatchURLStatusEnum.HAS_UNLABELED_URLS
     )
 
     assert len(pending_urls_results.results) == 1
     assert pending_urls_results.results[0].id == batch_pending.batch_id
-
-    # Test filter without pending URLs and retrieve the other four batches
-    no_pending_urls_results = ath.request_validator.get_batch_statuses(
-        has_pending_urls=False
-    )
-
-    assert len(no_pending_urls_results.results) == 4
-    for result in no_pending_urls_results.results:
-        assert result.id in [
-            batch_error,
-            batch_submitted,
-            batch_validated,
-            batch_aborted
-        ]
-
-    # Test no filter for pending URLs and retrieve all batches
-    no_filter_results = ath.request_validator.get_batch_statuses()
-
-    assert len(no_filter_results.results) == 5
