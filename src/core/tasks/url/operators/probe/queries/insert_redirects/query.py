@@ -6,6 +6,7 @@ from src.core.tasks.url.operators.probe.queries.insert_redirects.request_manager
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.db.dtos.url.mapping import URLMapping
 from src.db.queries.base.builder import QueryBuilderBase
+from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.response import URLProbeResponse
 from src.util.url_mapper import URLMapper
 
@@ -20,7 +21,7 @@ class InsertRedirectsQueryBuilder(QueryBuilderBase):
         self.source_url_mappings = [tdo.url_mapping for tdo in self.tdos]
         self._mapper = URLMapper(self.source_url_mappings)
 
-        self._response_pairs = extract_response_pairs(self.tdos)
+        self._response_pairs: list[URLProbeRedirectResponsePair] = extract_response_pairs(self.tdos)
 
         self._destination_probe_responses: list[URLProbeResponse] = [
             pair.destination
@@ -49,14 +50,19 @@ class InsertRedirectsQueryBuilder(QueryBuilderBase):
             session=session
         )
 
+
+        # Get all destination URLs already in the database
         dest_url_mappings_in_db: list[URLMapping] = await rm.get_url_mappings_in_db(
             urls=self._destination_urls
         )
 
+        # Filter out to only have those URLs that are new in the database
         new_dest_urls: list[str] = filter_new_dest_urls(
             url_mappings_in_db=dest_url_mappings_in_db,
             all_dest_urls=self._destination_urls
         )
+
+        # Add the new URLs
         new_dest_url_mappings: list[URLMapping] = await rm.insert_new_urls(
             urls=new_dest_urls
         )
@@ -64,12 +70,14 @@ class InsertRedirectsQueryBuilder(QueryBuilderBase):
 
         self._mapper.add_mappings(all_dest_url_mappings)
 
+        # Add web metadata for new URLs
         await rm.add_web_metadata(
             all_dest_url_mappings=all_dest_url_mappings,
             dest_url_to_probe_response_mappings=self._destination_url_to_probe_response_mapping,
             tdos=self.tdos
         )
 
+        # Add redirect links for new URLs
         await rm.add_redirect_links(
             response_pairs=self._response_pairs,
             mapper=self._mapper

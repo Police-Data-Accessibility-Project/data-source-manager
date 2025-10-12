@@ -35,12 +35,12 @@ class RejectURLQueryBuilder(QueryBuilderBase):
         url = await session.execute(query)
         url = url.scalars().first()
 
-        validation_type: URLType | None = None
+        validation_type: URLType
         match self.rejection_reason:
             case RejectionReason.INDIVIDUAL_RECORD:
                 validation_type = URLType.INDIVIDUAL_RECORD
             case RejectionReason.BROKEN_PAGE_404:
-                url.status = URLStatus.NOT_FOUND.value
+                validation_type = URLType.BROKEN_PAGE
             case RejectionReason.NOT_RELEVANT:
                 validation_type = URLType.NOT_RELEVANT
             case _:
@@ -49,12 +49,11 @@ class RejectURLQueryBuilder(QueryBuilderBase):
                     detail="Invalid rejection reason"
                 )
 
-        if validation_type is not None:
-            flag_url_validated = FlagURLValidated(
-                url_id=self.url_id,
-                type=validation_type
-            )
-            session.add(flag_url_validated)
+        flag_url_validated = FlagURLValidated(
+            url_id=self.url_id,
+            type=validation_type
+        )
+        session.add(flag_url_validated)
 
         # Add rejecting user
         rejecting_user_url = ReviewingUserURL(

@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
 from functools import wraps
-from operator import or_
 from typing import Optional, Type, Any, List, Sequence
 
 from sqlalchemy import select, exists, func, Select, and_, update, delete, Row, text
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
@@ -48,9 +46,6 @@ from src.core.tasks.url.operators.agency_identification.dtos.suggestion import U
 from src.core.tasks.url.operators.html.queries.get import \
     GetPendingURLsWithoutHTMLDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
-from src.core.tasks.url.operators.probe.queries.urls.not_probed.exists import HasURLsWithoutProbeQueryBuilder
-from src.core.tasks.url.operators.probe.queries.urls.not_probed.get.query import GetURLsWithoutProbeQueryBuilder
-from src.core.tasks.url.operators.probe_404.tdo import URL404ProbeTDO
 from src.core.tasks.url.operators.submit_approved.queries.mark_submitted import MarkURLsAsSubmittedQueryBuilder
 from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.db.client.helpers import add_standard_limit_and_offset
@@ -60,7 +55,6 @@ from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.dtos.url.mapping import URLMapping
 from src.db.dtos.url.raw_html import RawHTMLInfo
 from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
@@ -87,7 +81,6 @@ from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.probed_for_404 import URLProbedFor404
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -938,25 +931,8 @@ class AsyncDatabaseClient:
         session.add(snapshot)
 
     async def mark_all_as_404(self, url_ids: List[int]):
-        query = update(URL).where(URL.id.in_(url_ids)).values(status=URLStatus.NOT_FOUND.value)
-        await self.execute(query)
         query = update(URLWebMetadata).where(URLWebMetadata.url_id.in_(url_ids)).values(status_code=404)
         await self.execute(query)
-
-    async def mark_all_as_recently_probed_for_404(
-        self,
-        url_ids: List[int],
-        dt: datetime = func.now()
-    ):
-        values = [
-            {"url_id": url_id, "last_probed_at": dt} for url_id in url_ids
-        ]
-        stmt = pg_insert(URLProbedFor404).values(values)
-        update_stmt = stmt.on_conflict_do_update(
-            index_elements=['url_id'],
-            set_={"last_probed_at": dt}
-        )
-        await self.execute(update_stmt)
 
     @session_manager
     async def mark_as_checked_for_duplicates(self, session: AsyncSession, url_ids: list[int]):
@@ -964,51 +940,6 @@ class AsyncDatabaseClient:
             url_checked_for_duplicate = URLCheckedForDuplicate(url_id=url_id)
             session.add(url_checked_for_duplicate)
 
-    @session_manager
-    async def has_pending_urls_not_recently_probed_for_404(self, session: AsyncSession) -> bool:
-        month_ago = func.now() - timedelta(days=30)
-        query = (
-            select(
-                URL.id
-            ).outerjoin(
-                URLProbedFor404
-            ).where(
-                and_(
-                    URL.status == URLStatus.OK.value,
-                    or_(
-                        URLProbedFor404.id == None,
-                        URLProbedFor404.last_probed_at < month_ago
-                    )
-                )
-            ).limit(1)
-        )
-
-        raw_result = await session.execute(query)
-        result = raw_result.one_or_none()
-        return result is not None
-
-    @session_manager
-    async def get_pending_urls_not_recently_probed_for_404(self, session: AsyncSession) -> List[URL404ProbeTDO]:
-        month_ago = func.now() - timedelta(days=30)
-        query = (
-            select(
-                URL
-            ).outerjoin(
-                URLProbedFor404
-            ).where(
-                and_(
-                    URL.status == URLStatus.OK.value,
-                    or_(
-                        URLProbedFor404.id == None,
-                        URLProbedFor404.last_probed_at < month_ago
-                    )
-                )
-            ).limit(100)
-        )
-
-        raw_result = await session.execute(query)
-        urls = raw_result.scalars().all()
-        return [URL404ProbeTDO(url=url.url, url_id=url.id) for url in urls]
 
     async def get_urls_aggregated_pending_metrics(self):
         return await self.run_query_builder(GetMetricsURLSAggregatedPendingQueryBuilder())

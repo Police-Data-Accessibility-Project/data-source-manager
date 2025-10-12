@@ -64,10 +64,12 @@ async def bulk_upsert(
         upsert_model.model_dump() for upsert_model in models
     ]
 
-    # Set all non-id fields to the values in the upsert mapping
+    # Set all but two fields to the values in the upsert mapping
     set_ = {}
     for k, v in upsert_mappings[0].items():
         if k == parser.id_field:
+            continue
+        if k == "created_at":
             continue
         set_[k] = getattr(query.excluded, k)
 

@@ -4,7 +4,7 @@ from src.external.url_request.probe.models.redirect import URLProbeRedirectRespo
 
 
 def extract_response_pairs(tdos: list[URLProbeTDO]) -> list[URLProbeRedirectResponsePair]:
-    results = []
+    results: list[URLProbeRedirectResponsePair] = []
     for tdo in tdos:
         if not tdo.response.is_redirect:
             raise ValueError(f"Expected {tdo.url_mapping.url} to be a redirect.")

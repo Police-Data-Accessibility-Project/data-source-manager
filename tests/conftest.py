@@ -16,7 +16,6 @@ from src.db.models.impl.missing import Missing  # noqa: F401
 from src.db.models.impl.log.sqlalchemy import Log  # noqa: F401
 from src.db.models.impl.task.error import TaskError  # noqa: F401
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate  # noqa: F401
-from src.db.models.impl.url.probed_for_404 import URLProbedFor404  # noqa: F401
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.helpers.connect import get_postgres_connection_string
