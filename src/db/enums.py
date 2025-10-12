@@ -63,6 +63,7 @@ class TaskType(PyEnum):
     MARK_TASK_NEVER_COMPLETED = "Mark Task Never Completed"
     RUN_URL_TASKS = "Run URL Task Cycles"
     TASK_CLEANUP = "Task Cleanup"
+    REFRESH_MATERIALIZED_VIEWS = "Refresh Materialized Views"
 
 class ChangeLogOperationType(PyEnum):
     INSERT = "INSERT"
