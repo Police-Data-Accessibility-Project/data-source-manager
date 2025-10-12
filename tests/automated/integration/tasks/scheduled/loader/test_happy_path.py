@@ -2,7 +2,7 @@ import pytest
 
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
 
-NUMBER_OF_ENTRIES = 9
+NUMBER_OF_ENTRIES = 10
 
 @pytest.mark.asyncio
 async def test_happy_path(
