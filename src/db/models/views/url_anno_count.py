@@ -97,6 +97,7 @@ select
 """
 from sqlalchemy import PrimaryKeyConstraint, Column, Integer
 
+from src.db.models.helpers import url_id_primary_key_constraint
 from src.db.models.mixins import ViewMixin, URLDependentMixin
 from src.db.models.templates_.base import Base
 
@@ -109,7 +110,7 @@ class URLAnnotationCount(
 
     __tablename__ = "url_annotation_count_view"
     __table_args__ = (
-        PrimaryKeyConstraint("url_id"),
+        url_id_primary_key_constraint(),
         {"info": "view"}
     )
 

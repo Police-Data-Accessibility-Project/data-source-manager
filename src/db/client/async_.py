@@ -3,7 +3,7 @@ from functools import wraps
 from operator import or_
 from typing import Optional, Type, Any, List, Sequence
 
-from sqlalchemy import select, exists, func, Select, and_, update, delete, Row
+from sqlalchemy import select, exists, func, Select, and_, update, delete, Row, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
@@ -1062,4 +1062,9 @@ class AsyncDatabaseClient:
                 county_id=county_id,
                 locality_id=locality_id
             )
+        )
+
+    async def refresh_materialized_views(self):
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW url_status_mat_view")
         )

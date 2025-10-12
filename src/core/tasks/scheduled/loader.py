@@ -10,6 +10,7 @@ from src.core.tasks.scheduled.impl.internet_archives.probe.operator import Inter
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
 from src.core.tasks.scheduled.impl.mark_never_completed.query import MarkTaskNeverCompletedQueryBuilder
+from src.core.tasks.scheduled.impl.refresh_materialized_views.operator import RefreshMaterializedViewsOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
 from src.core.tasks.scheduled.impl.task_cleanup.operator import TaskCleanupOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
@@ -109,5 +110,10 @@ class ScheduledTaskOperatorLoader:
                 operator=TaskCleanupOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.setup_flag("TASK_CLEANUP_TASK_FLAG")
+            ),
+            ScheduledTaskEntry(
+                operator=RefreshMaterializedViewsOperator(adb_client=self.adb_client),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("REFRESH_MATERIALIZED_VIEWS_TASK_FLAG")
             )
         ]
