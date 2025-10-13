@@ -7,6 +7,8 @@ from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 from src.external.pdap.dtos.unique_url_duplicate import UniqueURLDuplicateInfo
 from src.external.pdap.enums import MatchAgencyResponseStatus
+from src.external.pdap.impl.follows.core import get_user_followed_locations
+from src.external.pdap.impl.follows.response import GetFollowsResponse
 from src.external.pdap.impl.meta_urls.core import submit_meta_urls
 from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
 
@@ -156,4 +158,9 @@ class PDAPClient:
         return await submit_meta_urls(
             self.access_manager,
             requests=requests
+        )
+
+    async def get_user_followed_locations(self) -> GetFollowsResponse:
+        return await get_user_followed_locations(
+            access_manager=self.access_manager
         )
