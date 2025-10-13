@@ -42,8 +42,6 @@ class RecordType(Enum):
     # Info About Agencies
     ANNUAL_AND_MONTHLY_REPORTS = "Annual & Monthly Reports"
     BUDGETS_AND_FINANCES = "Budgets & Finances"
-    # TODO SM422: Remove below
-    CONTACT_INFO_AND_AGENCY_META = "Contact Info & Agency Meta"
     GEOGRAPHIC = "Geographic"
     LIST_OF_DATA_SOURCES = "List of Data Sources"
     POLICIES_AND_CONTRACTS = "Policies & Contracts"
