@@ -46,7 +46,7 @@ async def extract_and_format_get_annotation_result(
         next_annotation=GetNextURLForAllAnnotationInnerResponse(
             url_info=URLMapping(
                 url_id=url.id,
-                url=url.url
+                url=url.full_url
             ),
             html_info=html_response_info,
             url_type_suggestions=url_type_suggestions,

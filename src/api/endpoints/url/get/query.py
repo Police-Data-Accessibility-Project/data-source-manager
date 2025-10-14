@@ -50,7 +50,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 GetURLsResponseInnerInfo(
                     id=result.id,
                     batch_id=result.batch.id if result.batch is not None else None,
-                    url=result.url,
+                    url=result.full_url,
                     status=URLStatus(result.status),
                     collector_metadata=result.collector_metadata,
                     updated_at=result.updated_at,

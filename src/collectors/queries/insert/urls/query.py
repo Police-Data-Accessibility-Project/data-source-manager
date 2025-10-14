@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.collectors.queries.insert.urls.request_manager import InsertURLsRequestManager
-from src.util.clean import clean_url
+from src.util.url import clean_url
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo

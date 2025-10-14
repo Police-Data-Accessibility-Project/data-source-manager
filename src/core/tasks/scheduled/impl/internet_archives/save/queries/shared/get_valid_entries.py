@@ -9,7 +9,7 @@ from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 IA_SAVE_VALID_ENTRIES_QUERY = (
     select(
         URL.id,
-        URL.url,
+        URL.full_url.label("url"),
         (URLInternetArchivesSaveMetadata.url_id.is_(None)).label("is_new"),
     )
     # URL must have been previously probed for its online status.

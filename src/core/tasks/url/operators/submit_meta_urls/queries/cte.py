@@ -16,7 +16,7 @@ class SubmitMetaURLsPrerequisitesCTEContainer:
         self._cte = (
             select(
                 URL.id.label("url_id"),
-                URL.url,
+                URL.full_url.label("url"),
                 LinkURLAgency.agency_id,
             )
             # Validated as Meta URL

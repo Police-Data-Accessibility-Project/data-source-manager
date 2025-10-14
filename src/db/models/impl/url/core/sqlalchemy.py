@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Text, String, JSON
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
+from sqlalchemy.util import hybridproperty
 
 from src.collectors.enums import URLStatus
 from src.db.models.helpers import enum_column
@@ -19,6 +21,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
 
     # The batch this URL is associated with
     url = Column(Text, unique=True)
+    scheme = Column(String)
     name = Column(String)
     description = Column(Text)
     # The metadata from the collector
@@ -29,6 +32,12 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
             name='url_status',
             nullable=False
     )
+
+    @hybrid_property
+    def full_url(self) -> str:
+        if self.scheme is None:
+            return self.url
+        return f"{self.scheme}://{self.url}"
 
     source = enum_column(
         URLSource,

@@ -55,7 +55,7 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
             supplying_entity = optional_metadata.supplying_entity
         tdo = SubmitApprovedURLTDO(
             url_id=url.id,
-            url=url.url,
+            url=url.full_url,
             name=url.name,
             agency_ids=agency_ids,
             description=url.description,
