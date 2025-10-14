@@ -40,11 +40,3 @@ class AllAnnotationPostInfo(BaseModel):
             raise FailedValidationException("location_ids must be empty if suggested_status is NOT RELEVANT")
         return self
 
-
-    @model_validator(mode="after")
-    def deprecate_agency_meta_url_record_type(self):
-        if self.record_type is None:
-            return self
-        if self.record_type == RecordType.CONTACT_INFO_AND_AGENCY_META:
-            raise FailedValidationException("Contact Info & Agency Meta Record Type is Deprecated.")
-        return self
