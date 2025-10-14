@@ -12,9 +12,10 @@ async def test_contributions(
     adb_client_test: AsyncDatabaseClient
 ):
 
-    await adb_client_test.run_query_builder(
+    response =await adb_client_test.run_query_builder(
         GetUserContributionsQueryBuilder(user_id=17)
     )
+    print(response)
     #
     # await adb_client_test.run_query_builder(
     #     GetContributionsLeaderboardQueryBuilder()

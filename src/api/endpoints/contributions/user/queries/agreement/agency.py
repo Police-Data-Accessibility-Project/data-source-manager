@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, exists
+from sqlalchemy import select, func, exists, and_
 
 from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
@@ -17,7 +17,10 @@ def get_agency_agreement_cte_container(
         )
         .join(
             UserUrlAgencySuggestion,
-            inner_cte.user_id == UserUrlAgencySuggestion.user_id
+            and_(
+                inner_cte.user_id == UserUrlAgencySuggestion.user_id,
+                inner_cte.url_id == UserUrlAgencySuggestion.url_id
+            )
         )
         .group_by(
             inner_cte.user_id
@@ -32,7 +35,10 @@ def get_agency_agreement_cte_container(
         )
         .join(
             UserUrlAgencySuggestion,
-            inner_cte.user_id == UserUrlAgencySuggestion.user_id
+            and_(
+                inner_cte.user_id == UserUrlAgencySuggestion.user_id,
+                inner_cte.url_id == UserUrlAgencySuggestion.url_id
+            )
         )
         .where(
             exists()
