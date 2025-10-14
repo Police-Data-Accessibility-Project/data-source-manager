@@ -3,6 +3,7 @@ import uuid
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import text
+from sqlalchemy.dialects.postgresql import ENUM
 
 
 def switch_enum_type(
@@ -94,6 +95,17 @@ def created_at_column() -> sa.Column:
         server_default=sa.text('now()'),
         nullable=False,
         comment='The time the row was created.'
+    )
+
+def enum_column(
+    column_name,
+    enum_name
+) -> sa.Column:
+    return sa.Column(
+        column_name,
+        ENUM(name=enum_name, create_type=False),
+        nullable=False,
+        comment=f'The {column_name} of the row.'
     )
 
 def updated_at_column() -> sa.Column:

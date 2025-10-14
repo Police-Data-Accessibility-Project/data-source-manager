@@ -154,38 +154,8 @@ class AsyncCore:
             task_status=task_status
         )
 
-
     async def get_task_info(self, task_id: int) -> TaskInfo:
         return await self.adb_client.get_task_info(task_id=task_id)
-
-
-    #region Annotations and Review
-
-    async def get_next_url_for_all_annotations(
-            self,
-            user_id: int,
-            batch_id: int | None,
-            url_id: int | None
-    ) -> GetNextURLForAllAnnotationResponse:
-        return await self.adb_client.get_next_url_for_all_annotations(
-            batch_id=batch_id,
-            user_id=user_id,
-            url_id=url_id
-        )
-
-    async def submit_url_for_all_annotations(
-            self,
-            user_id: int,
-            url_id: int,
-            post_info: AllAnnotationPostInfo
-    ):
-        await self.adb_client.run_query_builder(
-            AddAllAnnotationsToURLQueryBuilder(
-                user_id=user_id,
-                url_id=url_id,
-                post_info=post_info
-            )
-        )
 
     async def upload_manual_batch(
             self,
