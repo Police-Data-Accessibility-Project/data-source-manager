@@ -33,7 +33,7 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
         query = (
             select(
                 URL.id.label(label_url_id),
-                URL.url.label(label_url),
+                URL.full_url.label(label_url),
                 URLRecordType.record_type.label(label_record_type_fine),
                 URLCompressedHTML.compressed_html.label(label_html),
                 FlagURLValidated.type.label(label_type)

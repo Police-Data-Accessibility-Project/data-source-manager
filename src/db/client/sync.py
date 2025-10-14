@@ -23,6 +23,8 @@ from src.db.models.impl.batch.sqlalchemy import Batch
 from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.core.env_var_manager import EnvVarManager
 from src.core.enums import BatchStatus
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 # Database Client
@@ -116,8 +118,10 @@ class DatabaseClient:
     @session_manager
     def insert_url(self, session, url_info: URLInfo) -> int:
         """Insert a new URL into the database."""
+        url_and_scheme: URLAndScheme = get_url_and_scheme(url_info.url)
         url_entry = URL(
-            url=url_info.url,
+            url=url_and_scheme.url,
+            scheme=url_and_scheme.scheme,
             collector_metadata=url_info.collector_metadata,
             status=url_info.status,
             name=url_info.name,

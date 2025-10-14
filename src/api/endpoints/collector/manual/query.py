@@ -12,6 +12,8 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 class UploadManualBatchQueryBuilder(QueryBuilderBase):
@@ -43,8 +45,11 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
         duplicate_urls: list[str] = []
 
         for entry in self.dto.entries:
+            url_and_scheme: URLAndScheme = get_url_and_scheme(entry.url)
+
             url = URL(
-                url=entry.url,
+                url=url_and_scheme.url,
+                scheme=url_and_scheme.scheme,
                 name=entry.name,
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,

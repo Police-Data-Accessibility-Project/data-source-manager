@@ -1,5 +1,5 @@
 
 
-ROOT_URL = "https://root.com"
-BRANCH_URL = "https://root.com/branch"
-SECOND_BRANCH_URL = "https://root.com/second-branch"
+ROOT_URL = "root.com"
+BRANCH_URL = "root.com/branch"
+SECOND_BRANCH_URL = "root.com/second-branch"

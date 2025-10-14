@@ -24,7 +24,7 @@ class ExampleCollector(AsyncCollectorBase):
             await self.sleep()
         self.data = ExampleOutputDTO(
             message=f"Data collected by {self.batch_id}",
-            urls=["https://example.com", "https://example.com/2"],
+            urls=["example.com", "example.com/2"],
             parameters=self.dto.model_dump(),
         )
 

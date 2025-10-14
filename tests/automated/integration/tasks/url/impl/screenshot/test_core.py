@@ -40,11 +40,11 @@ async def test_core(
 
     mock_get_screenshots = AsyncMock(return_value=[
         URLScreenshotResponse(
-            url=screenshot_mapping.url,
+            url=f"https://{screenshot_mapping.url}",
             screenshot=bytes(124536),
         ),
         URLScreenshotResponse(
-            url=error_mapping.url,
+            url=f"https://{error_mapping.url}",
             screenshot=None,
             error="error",
         )

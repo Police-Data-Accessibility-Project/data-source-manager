@@ -10,7 +10,7 @@ TEST_ENTRIES = [
     #  and their html should be stored
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
-            url="https://happy-path.com/pending",
+            url="happy-path.com/pending",
             status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
@@ -28,7 +28,7 @@ TEST_ENTRIES = [
     #  and their web metadata status should be updated to 404
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
-            url="https://not-found-path.com/submitted",
+            url="not-found-path.com/submitted",
             status=URLStatus.ERROR
         ),
         web_metadata_info=TestWebMetadataInfo(
@@ -47,7 +47,7 @@ TEST_ENTRIES = [
     # URLs that give errors should be updated with the appropriate scrape status
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
-            url="https://error-path.com/submitted",
+            url="error-path.com/submitted",
             status=URLStatus.ERROR
         ),
         web_metadata_info=TestWebMetadataInfo(
@@ -65,7 +65,7 @@ TEST_ENTRIES = [
     # URLs with non-200 web metadata should not be processed
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
-            url="https://not-200-path.com/submitted",
+            url="not-200-path.com/submitted",
             status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
@@ -82,7 +82,7 @@ TEST_ENTRIES = [
     # URLs with no web metadata should not be processed
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
-            url="https://no-web-metadata.com/submitted",
+            url="no-web-metadata.com/submitted",
             status=URLStatus.OK
         ),
         web_metadata_info=None,

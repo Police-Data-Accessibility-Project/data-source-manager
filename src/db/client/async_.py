@@ -102,6 +102,8 @@ from src.db.templates.markers.bulk.delete import BulkDeletableModel
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 from src.db.templates.markers.bulk.upsert import BulkUpsertableModel
 from src.db.utils.compression import decompress_html, compress_html
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 class AsyncDatabaseClient:
@@ -828,9 +830,10 @@ class AsyncDatabaseClient:
 
     @session_manager
     async def search_for_url(self, session: AsyncSession, url: str) -> SearchURLResponse:
-        query = select(URL).where(URL.url == url)
+        url_and_scheme: URLAndScheme = get_url_and_scheme(url)
+        query = select(URL).where(URL.url == url_and_scheme.url)
         raw_results = await session.execute(query)
-        url = raw_results.scalars().one_or_none()
+        url: URL | None = raw_results.scalars().one_or_none()
         if url is None:
             return SearchURLResponse(
                 found=False,

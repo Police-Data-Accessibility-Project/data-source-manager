@@ -4,7 +4,7 @@ from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import override, final
 
-from src.util.clean import clean_url
+from src.util.url import clean_url
 from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
@@ -20,7 +20,7 @@ class GetURLsWithoutProbeQueryBuilder(QueryBuilderBase):
         query = (
             select(
                 URL.id.label("url_id"),
-                URL.url
+                URL.full_url.label("url")
             )
             .outerjoin(
                 URLWebMetadata,

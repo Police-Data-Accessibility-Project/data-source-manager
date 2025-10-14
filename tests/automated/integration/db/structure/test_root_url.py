@@ -13,7 +13,7 @@ def test_root_url(db_data_creator: DBDataCreator):
             ColumnTester(
                 column_name="url",
                 type_=sa.String,
-                allowed_values=["https://example.com"]
+                allowed_values=["example.com"]
             ),
             ColumnTester(
                 column_name="page_title",
