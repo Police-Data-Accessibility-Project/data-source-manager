@@ -24,17 +24,17 @@ async def test_insert_urls(
 
     urls = [
         URLInfo(
-            url="https://example.com/1",
+            url="example.com/1",
             collector_metadata={"name": "example_1"},
             source=URLSource.COLLECTOR
         ),
         URLInfo(
-            url="https://example.com/2",
+            url="example.com/2",
             source=URLSource.COLLECTOR
         ),
         # Duplicate
         URLInfo(
-            url="https://example.com/1",
+            url="example.com/1",
             collector_metadata={"name": "example_duplicate"},
             source=URLSource.COLLECTOR
         )
@@ -46,8 +46,8 @@ async def test_insert_urls(
 
     url_mappings = insert_urls_info.url_mappings
     assert len(url_mappings) == 2
-    assert url_mappings[0].url == "https://example.com/1"
-    assert url_mappings[1].url == "https://example.com/2"
+    assert url_mappings[0].url == "example.com/1"
+    assert url_mappings[1].url == "example.com/2"
 
 
     assert insert_urls_info.original_count == 2

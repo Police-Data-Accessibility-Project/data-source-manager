@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Text, String, JSON
+from sqlalchemy import Column, Text, String, JSON, case, literal
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.util import hybridproperty
@@ -38,6 +38,13 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         if self.scheme is None:
             return self.url
         return f"{self.scheme}://{self.url}"
+
+    @full_url.expression
+    def full_url(cls):
+        return case(
+                (cls.scheme != None, (cls.scheme + literal("://") + cls.url)),
+            else_=cls.url
+        )
 
     source = enum_column(
         URLSource,

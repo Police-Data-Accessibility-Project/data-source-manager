@@ -20,14 +20,14 @@ async def test_manual_batch(api_test_helper):
     dtos = []
     for i in range(50):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i}",
+            url=f"example.com/{i}",
         )
         dtos.append(dto)
 
     # Create 50 entries with URL and all optional fields
     for i in range(50):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+50}",
+            url=f"example.com/{i+50}",
             name=manual_batch_name,
             description=f"Description {i}",
             collector_metadata={
@@ -142,13 +142,13 @@ async def test_manual_batch(api_test_helper):
     more_dtos = []
     for i in range(49):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+100}",
+            url=f"example.com/{i+100}",
         )
         more_dtos.append(dto)
 
     for i in range(2):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+1}",
+            url=f"example.com/{i+1}",
         )
         more_dtos.append(dto)
 
@@ -162,7 +162,7 @@ async def test_manual_batch(api_test_helper):
     response = await ath.request_validator.submit_manual_batch(duplicate_input_dto)
     # Check duplicate URLs
     assert len(response.duplicate_urls) == 2
-    assert response.duplicate_urls == ['https://example.com/1', 'https://example.com/2']
+    assert response.duplicate_urls == ['example.com/1', 'example.com/2']
     assert len(response.urls) == 49
 
     # Check 149 URLs in database

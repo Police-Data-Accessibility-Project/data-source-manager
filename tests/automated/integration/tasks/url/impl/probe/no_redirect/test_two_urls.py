@@ -12,8 +12,8 @@ async def test_two_urls(
     setup_manager: TestURLProbeSetupManager,
     check_manager: TestURLProbeCheckManager
 ):
-    url_1 = "https://example.com/1"
-    url_2 = "https://example.com/2"
+    url_1 = "example.com/1"
+    url_2 = "example.com/2"
     operator = setup_manager.setup_operator(
         response_or_responses=[
             setup_manager.setup_no_redirect_probe_response(

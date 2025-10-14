@@ -51,7 +51,7 @@ async def test_submit_meta_urls(
             data={
                 "meta_urls": [
                     {
-                        "url": mapping.url,
+                        "url": f"https://{mapping.url}",
                         "agency_id": agency_id,
                         "status": SubmitMetaURLsStatus.SUCCESS.value,
                         "meta_url_id": 2,
