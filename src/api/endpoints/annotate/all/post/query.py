@@ -3,10 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.all.post.requester import AddAllAnnotationsToURLRequester
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 
 
