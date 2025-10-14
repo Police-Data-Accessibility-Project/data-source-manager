@@ -169,14 +169,10 @@ class AsyncDatabaseClient:
     async def bulk_update(
         self,
         session: AsyncSession,
-        model: Base,
-        mappings: list[dict],
+        models: list[Base],
     ):
         # Note, mapping must include primary key
-        await session.execute(
-            update(model),
-            mappings
-        )
+        await sh.bulk_update(session=session, models=models)
 
     @session_manager
     async def bulk_upsert(
