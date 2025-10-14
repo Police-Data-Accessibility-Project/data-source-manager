@@ -4,10 +4,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 from src.collectors.enums import URLStatus
-from src.db.enums import URLMetadataAttributeType, ValidationStatus, ValidationSource
+from src.db.enums import URLMetadataAttributeType, ValidationStatus, ValidationSource, TaskType
+
 
 class GetURLsResponseErrorInfo(BaseModel):
-    id: int
+    task: TaskType
     error: str
     updated_at: datetime.datetime
 
@@ -25,7 +26,7 @@ class GetURLsResponseInnerInfo(BaseModel):
     batch_id: int | None
     url: str
     status: URLStatus
-    collector_metadata: Optional[dict]
+    collector_metadata: dict | None
     updated_at: datetime.datetime
     created_at: datetime.datetime
     errors: list[GetURLsResponseErrorInfo]

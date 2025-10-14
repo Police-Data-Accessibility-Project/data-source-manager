@@ -1,12 +1,11 @@
 import pytest
+from src.db.models.impl.url.core.pydantic_.info import URLInfo
 
-from src.core.tasks.url.operators.url_html.core import URLHTMLTaskOperator
-from src.core.tasks.url.operators.url_html.scraper.parser.core import HTMLResponseParser
-from src.core.tasks.url.operators.url_html.scraper.request_interface.core import URLRequestInterface
-from src.core.tasks.url.operators.url_html.scraper.root_url_cache.core import RootURLCache
+from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
+from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.core import URLInfo
-from tests.helpers.db_data_creator import DBDataCreator
+from src.external.url_request.core import URLRequestInterface
+from tests.helpers.data_creator.core import DBDataCreator
 
 URLS = [
     "https://pdap.io",
@@ -57,9 +56,7 @@ async def test_url_html_cycle_live_data(
     operator = URLHTMLTaskOperator(
         adb_client=AsyncDatabaseClient(),
         url_request_interface=URLRequestInterface(),
-        html_parser=HTMLResponseParser(
-            root_url_cache=RootURLCache()
-        )
+        html_parser=HTMLResponseParser()
     )
     await operator.run_task()
 
@@ -77,8 +74,6 @@ async def test_url_html_cycle(
     operator = URLHTMLTaskOperator(
         adb_client=adb_client,
         url_request_interface=URLRequestInterface(),
-        html_parser=HTMLResponseParser(
-            root_url_cache=RootURLCache()
-        )
+        html_parser=HTMLResponseParser()
     )
     await operator.run_task()

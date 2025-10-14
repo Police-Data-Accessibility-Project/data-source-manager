@@ -1,0 +1,3 @@
+
+
+MAX_NLP_CONFIDENCE: int = 90

@@ -23,9 +23,6 @@ class AlembicRunner:
         command.upgrade(self.alembic_config, revision)
         self.reflect()
 
-    def downgrade(self, revision: str):
-        command.downgrade(self.alembic_config, revision)
-
     def stamp(self, revision: str):
         command.stamp(self.alembic_config, revision)
 

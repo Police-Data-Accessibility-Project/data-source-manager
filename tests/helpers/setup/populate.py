@@ -1,5 +1,5 @@
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.instantiations.url.core import URL
+from src.db.models.impl.url.core.sqlalchemy import URL
 
 
 async def populate_database(adb_client: AsyncDatabaseClient) -> None:
@@ -12,7 +12,7 @@ async def populate_database(adb_client: AsyncDatabaseClient) -> None:
         collector_metadata={
             "source_collector": "test-data",
         },
-        outcome='validated',
+        status='validated',
         record_type="Other"
     )
     await adb_client.add(url)

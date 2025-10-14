@@ -5,12 +5,11 @@ import pytest
 import pytest_asyncio
 from starlette.testclient import TestClient
 
-from src.api.endpoints.review.routes import requires_final_review_permission
 from src.api.main import app
 from src.core.core import AsyncCore
-from src.security.manager import get_access_info
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
+from src.security.manager import get_access_info
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.helpers.api_test_helper import APITestHelper
 
@@ -36,12 +35,11 @@ def override_access_info() -> AccessInfo:
         ]
     )
 
+
 @pytest.fixture(scope="session")
-def client() -> Generator[TestClient, None, None]:
-    # Mock environment
+def client(disable_task_flags) -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
         app.dependency_overrides[get_access_info] = override_access_info
-        app.dependency_overrides[requires_final_review_permission] = override_access_info
         async_core: AsyncCore = c.app.state.async_core
 
         # Interfaces to the web should be mocked

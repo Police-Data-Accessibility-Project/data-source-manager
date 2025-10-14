@@ -5,8 +5,8 @@ from sqlalchemy.orm import selectinload
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo, GetURLsResponseErrorInfo, GetURLsResponseInnerInfo
 from src.collectors.enums import URLStatus
 from src.db.client.helpers import add_standard_limit_and_offset
-from src.db.models.instantiations.url.core import URL
-from src.db.models.instantiations.url.error_info import URLErrorInfo
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -23,14 +23,14 @@ class GetURLsQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> GetURLsResponseInfo:
         statement = select(URL).options(
-            selectinload(URL.error_info),
+            selectinload(URL.task_errors),
             selectinload(URL.batch)
         ).order_by(URL.id)
         if self.errors:
             # Only return URLs with errors
             statement = statement.where(
                 exists(
-                    select(URLErrorInfo).where(URLErrorInfo.url_id == URL.id)
+                    select(URLTaskError).where(URLTaskError.url_id == URL.id)
                 )
             )
         add_standard_limit_and_offset(statement, self.page)
@@ -39,11 +39,11 @@ class GetURLsQueryBuilder(QueryBuilderBase):
         final_results = []
         for result in all_results:
             error_results = []
-            for error in result.error_info:
+            for error in result.task_errors:
                 error_result = GetURLsResponseErrorInfo(
-                    id=error.id,
+                    task=error.task_type,
                     error=error.error,
-                    updated_at=error.updated_at
+                    updated_at=error.created_at
                 )
                 error_results.append(error_result)
             final_results.append(
@@ -51,7 +51,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                     id=result.id,
                     batch_id=result.batch.id if result.batch is not None else None,
                     url=result.url,
-                    status=URLStatus(result.outcome),
+                    status=URLStatus(result.status),
                     collector_metadata=result.collector_metadata,
                     updated_at=result.updated_at,
                     created_at=result.created_at,

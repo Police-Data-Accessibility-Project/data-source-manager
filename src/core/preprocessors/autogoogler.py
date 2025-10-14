@@ -1,7 +1,8 @@
 from typing import List
 
-from src.db.dtos.url.core import URLInfo
 from src.core.preprocessors.base import PreprocessorBase
+from src.db.models.impl.url.core.enums import URLSource
+from src.db.models.impl.url.core.pydantic.info import URLInfo
 
 
 class AutoGooglerPreprocessor(PreprocessorBase):
@@ -18,6 +19,7 @@ class AutoGooglerPreprocessor(PreprocessorBase):
                     "snippet": qr["snippet"],
                     "title": qr["title"]
                 },
+                source=URLSource.COLLECTOR
             ))
 
         return url_infos

@@ -4,10 +4,10 @@ from discord_poster import DiscordPoster
 
 from src.core.enums import BatchStatus
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
+from src.db.models.impl.task.enums import TaskStatus
 
 
 class TaskHandler:
@@ -15,7 +15,7 @@ class TaskHandler:
     def __init__(
         self,
         adb_client: AsyncDatabaseClient,
-        discord_poster: DiscordPoster
+        discord_poster: DiscordPoster | None
     ):
         self.adb_client = adb_client
         self.discord_poster = discord_poster
@@ -25,7 +25,10 @@ class TaskHandler:
         self.logger.setLevel(logging.INFO)
 
 
-    async def post_to_discord(self, message: str):
+    async def post_to_discord(self, message: str) -> None:
+        if self.discord_poster is None:
+            print("Post to Discord disabled by POST_TO_DISCORD_FLAG")
+            return
         self.discord_poster.post_to_discord(message=message)
 
     async def initiate_task_in_db(self, task_type: TaskType) -> int:  #
@@ -40,19 +43,23 @@ class TaskHandler:
             case TaskOperatorOutcome.SUCCESS:
                 await self.adb_client.update_task_status(
                     task_id=run_info.task_id,
-                    status=BatchStatus.READY_TO_LABEL
+                    status=TaskStatus.COMPLETE
                 )
 
     async def handle_task_error(self, run_info: TaskOperatorRunInfo):  #
         await self.adb_client.update_task_status(
             task_id=run_info.task_id,
-            status=BatchStatus.ERROR)
+            status=TaskStatus.ERROR
+        )
         await self.adb_client.add_task_error(
             task_id=run_info.task_id,
             error=run_info.message
         )
-        self.discord_poster.post_to_discord(
-            message=f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error.")
+        msg: str = f"Task {run_info.task_id} ({run_info.task_type.value}) failed with error: {run_info.message[:100]}..."
+        print(msg)
+        await self.post_to_discord(
+            message=msg
+        )
 
     async def link_urls_to_task(self, task_id: int, url_ids: list[int]):
         await self.adb_client.link_urls_to_task(

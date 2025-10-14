@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from src.api.endpoints.annotate.dtos.shared.batch import AnnotationBatchInfo
-from src.core.tasks.url.operators.url_html.scraper.parser.dtos.response_html import ResponseHTMLInfo
+from src.core.tasks.url.operators.html.scraper.parser.dtos.response_html import ResponseHTMLInfo
 from src.db.dtos.url.mapping import URLMapping
 
 
@@ -14,6 +14,6 @@ class AnnotationInnerResponseInfoBase(BaseModel):
     html_info: ResponseHTMLInfo = Field(
         title="HTML information about the URL"
     )
-    batch_info: Optional[AnnotationBatchInfo] = Field(
+    batch_info: AnnotationBatchInfo | None = Field(
         title="Information about the annotation batch"
     )

@@ -1,5 +1,8 @@
-from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP
+from typing import ClassVar
 
+from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, event
+
+from src.db.models.exceptions import WriteToViewError
 from src.db.models.helpers import get_created_at_column, CURRENT_TIME_SERVER_DEFAULT
 
 
@@ -35,6 +38,15 @@ class BatchDependentMixin:
         nullable=False
     )
 
+class LocationDependentMixin:
+    location_id = Column(
+        Integer,
+        ForeignKey(
+            'locations.id',
+            ondelete="CASCADE",
+        ),
+        nullable=False
+    )
 
 class AgencyDependentMixin:
     agency_id = Column(
@@ -58,3 +70,17 @@ class UpdatedAtMixin:
         server_default=CURRENT_TIME_SERVER_DEFAULT,
         onupdate=CURRENT_TIME_SERVER_DEFAULT
     )
+
+class ViewMixin:
+    """Attach to any mapped class that represents a DB view."""
+    __is_view__: ClassVar[bool] = True
+
+    @classmethod
+    def __declare_last__(cls) -> None:
+        # Block writes on this mapped class
+        for evt in ("before_insert", "before_update", "before_delete"):
+            event.listen(cls, evt, cls._block_write)
+
+    @staticmethod
+    def _block_write(mapper, connection, target):
+        raise WriteToViewError(f"{type(target).__name__} is a read-only view.")

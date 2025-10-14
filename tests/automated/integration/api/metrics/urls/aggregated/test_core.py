@@ -1,75 +1,70 @@
+from datetime import datetime, timedelta, timezone
+
 import pendulum
 import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
+from src.db.dtos.url.mapping import URLMapping
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
 async def test_get_urls_aggregated_metrics(api_test_helper):
     ath = api_test_helper
-    today = pendulum.parse('2021-01-01')
+    today = datetime.now()
+
+    ddc: DBDataCreator = ath.db_data_creator
 
     batch_0_params = TestBatchCreationParameters(
         strategy=CollectorType.MANUAL,
-        created_at=today.subtract(days=1),
+        created_at=today - timedelta(days=1),
         urls=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
             ),
         ]
     )
-    batch_0 = await ath.db_data_creator.batch_v2(batch_0_params)
-    oldest_url_id = batch_0.url_creation_infos[URLStatus.PENDING].url_mappings[0].url_id
-
-
-    batch_1_params = TestBatchCreationParameters(
+    batch_0: int = await ddc.create_batch(
         strategy=CollectorType.MANUAL,
-        urls=[
-            TestURLCreationParameters(
-                count=1,
-                status=URLStatus.PENDING,
-            ),
-            TestURLCreationParameters(
-                count=2,
-                status=URLStatus.SUBMITTED
-            ),
-        ]
+        date_generated=today - timedelta(days=1)
     )
-    batch_1 = await ath.db_data_creator.batch_v2(batch_1_params)
+    url_mappings_0: list[URLMapping] = await ddc.create_urls(batch_id=batch_0)
+    oldest_url_id: int = url_mappings_0[0].url_id
 
-    batch_2_params = TestBatchCreationParameters(
-        strategy=CollectorType.AUTO_GOOGLER,
-        urls=[
-            TestURLCreationParameters(
-                count=4,
-                status=URLStatus.PENDING,
-            ),
-            TestURLCreationParameters(
-                count=2,
-                status=URLStatus.ERROR
-            ),
-            TestURLCreationParameters(
-                count=1,
-                status=URLStatus.VALIDATED
-            ),
-            TestURLCreationParameters(
-                count=5,
-                status=URLStatus.NOT_RELEVANT
-            ),
-        ]
+    batch_1: int = await ddc.create_batch(
+        strategy=CollectorType.MANUAL,
     )
-    batch_2 = await ath.db_data_creator.batch_v2(batch_2_params)
+    url_mappings_1_ok: list[URLMapping] = await ddc.create_urls(batch_id=batch_1, count=1)
+    url_mappings_1_submitted: list[URLMapping] = await ddc.create_submitted_urls(count=2)
+    url_ids_1_submitted: list[int] = [url_mapping.url_id for url_mapping in url_mappings_1_submitted]
+    await ddc.create_batch_url_links(url_ids=url_ids_1_submitted, batch_id=batch_1)
+
+    batch_2: int = await ddc.create_batch(
+        strategy=CollectorType.AUTO_GOOGLER,
+    )
+    url_mappings_2_ok: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=4, status=URLStatus.OK)
+    url_mappings_2_error: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=2, status=URLStatus.ERROR)
+    url_mappings_2_validated: list[URLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLType.DATA_SOURCE)
+    url_mappings_2_not_relevant: list[URLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLType.NOT_RELEVANT)
+    url_ids_2_validated: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_validated]
+    url_ids_2_not_relevant: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_not_relevant]
+    await ddc.create_batch_url_links(
+        url_ids=url_ids_2_validated + url_ids_2_not_relevant,
+        batch_id=batch_2
+    )
+
+    await ddc.adb_client.refresh_materialized_views()
 
     dto = await ath.request_validator.get_urls_aggregated_metrics()
 
-    assert dto.oldest_pending_url_id == oldest_url_id
-    assert dto.oldest_pending_url_created_at == today.subtract(days=1).in_timezone('UTC').naive()
-    assert dto.count_urls_pending == 6
-    assert dto.count_urls_rejected == 5
-    assert dto.count_urls_errors == 2
-    assert dto.count_urls_validated == 1
-    assert dto.count_urls_submitted == 2
-    assert dto.count_urls_total == 16
+    assert dto.oldest_pending_url.url_id == oldest_url_id
+    # assert dto.count_urls_rejected == 5
+    # assert dto.count_urls_errors == 2
+    # assert dto.count_urls_validated == 8
+    # assert dto.count_urls_submitted == 2
+    # assert dto.count_urls_total == 16

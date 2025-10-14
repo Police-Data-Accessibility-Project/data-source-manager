@@ -1,20 +1,27 @@
 import logging
-from typing import Any, Generator, AsyncGenerator, Coroutine
+import os
+from contextlib import contextmanager
+from typing import Any, Generator, AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from aiohttp import ClientSession
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+from src.core.env_var_manager import EnvVarManager
+# Below are to prevent import errors
+from src.db.models.impl.missing import Missing  # noqa: F401
+from src.db.models.impl.log.sqlalchemy import Log  # noqa: F401
+from src.db.models.impl.task.error import TaskError  # noqa: F401
+from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate  # noqa: F401
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
-from src.db.helpers import get_postgres_connection_string
-from src.db.models.templates import Base
-from src.core.env_var_manager import EnvVarManager
+from src.db.helpers.connect import get_postgres_connection_string
 from src.util.helper_functions import load_from_environment
 from tests.helpers.alembic_runner import AlembicRunner
-from tests.helpers.db_data_creator import DBDataCreator
+from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.populate import populate_database
 from tests.helpers.setup.wipe import wipe_database
 
@@ -43,7 +50,9 @@ def setup_and_teardown():
         "PDAP_API_URL",
         "DISCORD_WEBHOOK_URL",
         "OPENAI_API_KEY",
-        "HUGGINGFACE_INFERENCE_API_KEY"
+        "HUGGINGFACE_INFERENCE_API_KEY",
+        "HUGGINGFACE_HUB_TOKEN",
+        "INTERNET_ARCHIVE_S3_KEYS",
     ]
     all_env_vars = required_env_vars.copy()
     for env_var in test_env_vars:
@@ -51,41 +60,42 @@ def setup_and_teardown():
 
     EnvVarManager.override(all_env_vars)
 
-    conn = get_postgres_connection_string()
-    engine = create_engine(conn)
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.attributes["connection"] = engine.connect()
-    alembic_cfg.set_main_option(
-        "sqlalchemy.url",
-        get_postgres_connection_string()
-    )
-    live_connection = engine.connect()
-    runner = AlembicRunner(
-        alembic_config=alembic_cfg,
-        inspector=inspect(live_connection),
-        metadata=MetaData(),
-        connection=live_connection,
-        session=scoped_session(sessionmaker(bind=live_connection)),
-    )
-    try:
-        runner.upgrade("head")
-    except Exception as e:
-        print("Exception while upgrading: ", e)
-        print("Resetting schema")
-        runner.reset_schema()
-        runner.stamp("base")
-        runner.upgrade("head")
+    with set_env_vars(
+        {
+            "INTERNET_ARCHIVE_S3_KEYS": "TEST",
+        }
+    ):
+
+        conn = get_postgres_connection_string()
+        engine = create_engine(conn)
+        alembic_cfg = Config("alembic.ini")
+        alembic_cfg.attributes["connection"] = engine.connect()
+        alembic_cfg.set_main_option(
+            "sqlalchemy.url",
+            get_postgres_connection_string()
+        )
+        live_connection = engine.connect()
+        runner = AlembicRunner(
+            alembic_config=alembic_cfg,
+            inspector=inspect(live_connection),
+            metadata=MetaData(),
+            connection=live_connection,
+            session=scoped_session(sessionmaker(bind=live_connection)),
+        )
+        try:
+            runner.upgrade("head")
+        except Exception as e:
+            print("Exception while upgrading: ", e)
+            print("Resetting schema")
+            runner.reset_schema()
+            runner.stamp("base")
+            runner.upgrade("head")
 
 
-    yield
-    try:
-        runner.downgrade("base")
-    except Exception as e:
-        print("Exception while downgrading: ", e)
-        print("Resetting schema")
+        yield
+
         runner.reset_schema()
         runner.stamp("base")
-    finally:
         live_connection.close()
         engine.dispose()
 
@@ -123,3 +133,36 @@ def db_data_creator(
 ):
     db_data_creator = DBDataCreator(db_client=db_client_test)
     yield db_data_creator
+
+@pytest_asyncio.fixture
+async def test_client_session() -> AsyncGenerator[ClientSession, Any]:
+    async with ClientSession() as session:
+        yield session
+
+
+
+@contextmanager
+def set_env_vars(env_vars: dict[str, str]):
+    """Temporarily set multiple environment variables, restoring afterwards."""
+    originals = {}
+    try:
+        # Save originals and set new values
+        for key, value in env_vars.items():
+            originals[key] = os.environ.get(key)
+            os.environ[key] = value
+        yield
+    finally:
+        # Restore originals
+        for key, original in originals.items():
+            if original is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = original
+
+@pytest.fixture(scope="session")
+def disable_task_flags():
+    with set_env_vars({
+        "SCHEDULED_TASKS_FLAG": "0",
+        "RUN_URL_TASKS_TASK_FLAG": "0",
+    }):
+        yield

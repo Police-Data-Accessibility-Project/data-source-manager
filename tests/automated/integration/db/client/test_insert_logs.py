@@ -1,7 +1,7 @@
 import pytest
 
-from src.db.dtos.log import LogInfo
-from tests.helpers.db_data_creator import DBDataCreator
+from src.db.models.impl.log.pydantic.info import LogInfo
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio

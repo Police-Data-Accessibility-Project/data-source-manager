@@ -2,10 +2,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.collectors.source_collectors.auto_googler.dtos.input import AutoGooglerInputDTO
+from src.collectors.impl.auto_googler.dtos.input import AutoGooglerInputDTO
 from src.core.env_var_manager import EnvVarManager
 from src.core.logger import AsyncCoreLogger
-from src.collectors.source_collectors.auto_googler.collector import AutoGooglerCollector
+from src.collectors.impl.auto_googler.collector import AutoGooglerCollector
 from src.db.client.async_ import AsyncDatabaseClient
 from environs import Env
 
@@ -20,13 +20,9 @@ async def test_autogoogler_collector(monkeypatch):
     collector = AutoGooglerCollector(
         batch_id=1,
         dto=AutoGooglerInputDTO(
-            urls_per_result=5,
+            urls_per_result=20,
             queries=[
-                "brooklyn new york city police data",
-                "queens new york city police data",
-                "staten island new york city police data",
-                "manhattan new york city police data",
-                "bronx new york city police data"
+                "pennsylvania police officer roster"
             ],
         ),
         logger = AsyncMock(spec=AsyncCoreLogger),

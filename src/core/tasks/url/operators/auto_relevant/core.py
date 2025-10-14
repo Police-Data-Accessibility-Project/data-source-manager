@@ -1,11 +1,14 @@
 from src.core.tasks.url.operators.auto_relevant.models.annotation import RelevanceAnnotationInfo
 from src.core.tasks.url.operators.auto_relevant.models.tdo import URLRelevantTDO
+from src.core.tasks.url.operators.auto_relevant.queries.get import GetAutoRelevantTDOsQueryBuilder
+from src.core.tasks.url.operators.auto_relevant.queries.prereq import AutoRelevantPrerequisitesQueryBuilder
 from src.core.tasks.url.operators.auto_relevant.sort import separate_success_and_error_subsets
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.annotations.auto.relevancy import AutoRelevancyAnnotationInput
-from src.db.dtos.url.error import URLErrorPydanticInfo
+from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.enums import TaskType
+from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
+from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.huggingface.inference.models.input import BasicInput
 
@@ -21,16 +24,18 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
         self.hf_client = hf_client
 
     @property
-    def task_type(self):
+    def task_type(self) -> TaskType:
         return TaskType.RELEVANCY
 
-    async def meets_task_prerequisites(self):
-        return await self.adb_client.has_urls_with_html_data_and_without_auto_relevant_suggestion()
+    async def meets_task_prerequisites(self) -> bool:
+        return await self.adb_client.run_query_builder(
+            builder=AutoRelevantPrerequisitesQueryBuilder()
+        )
 
     async def get_tdos(self) -> list[URLRelevantTDO]:
-        return await self.adb_client.get_tdos_for_auto_relevancy()
+        return await self.adb_client.run_query_builder(builder=GetAutoRelevantTDOsQueryBuilder())
 
-    async def inner_task_logic(self):
+    async def inner_task_logic(self) -> None:
         tdos = await self.get_tdos()
         url_ids = [tdo.url_id for tdo in tdos]
         await self.link_urls_to_task(url_ids=url_ids)
@@ -41,7 +46,12 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
         await self.put_results_into_database(subsets.success)
         await self.update_errors_in_database(subsets.error)
 
-    async def get_ml_classifications(self, tdos: list[URLRelevantTDO]):
+    async def get_ml_classifications(self, tdos: list[URLRelevantTDO]) -> None:
+        """
+        Modifies:
+            tdo.annotation
+            tdo.error
+        """
         for tdo in tdos:
             try:
                 input_ = BasicInput(
@@ -59,7 +69,7 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
             )
             tdo.annotation = annotation_info
 
-    async def put_results_into_database(self, tdos: list[URLRelevantTDO]):
+    async def put_results_into_database(self, tdos: list[URLRelevantTDO]) -> None:
         inputs = []
         for tdo in tdos:
             input_ = AutoRelevancyAnnotationInput(
@@ -71,15 +81,14 @@ class URLAutoRelevantTaskOperator(URLTaskOperatorBase):
             inputs.append(input_)
         await self.adb_client.add_user_relevant_suggestions(inputs)
 
-    async def update_errors_in_database(self, tdos: list[URLRelevantTDO]):
-        error_infos = []
+    async def update_errors_in_database(self, tdos: list[URLRelevantTDO]) -> None:
+        task_errors: list[URLTaskErrorSmall] = []
         for tdo in tdos:
-            error_info = URLErrorPydanticInfo(
-                task_id=self.task_id,
+            error_info = URLTaskErrorSmall(
                 url_id=tdo.url_id,
                 error=tdo.error
             )
-            error_infos.append(error_info)
-        await self.adb_client.add_url_error_infos(error_infos)
+            task_errors.append(error_info)
+        await self.add_task_errors(task_errors)
 
 

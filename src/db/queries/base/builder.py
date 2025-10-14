@@ -1,16 +1,16 @@
 from typing import Any, Generic, Optional
 
 from sqlalchemy import FromClause, ColumnClause
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db.helpers.session import session_helper as sh
 from src.db.types import LabelsType
 
 
 class QueryBuilderBase(Generic[LabelsType]):
 
-    def __init__(self, labels: Optional[LabelsType] = None):
-        self.query: Optional[FromClause] = None
+    def __init__(self, labels: LabelsType | None = None):
+        self.query: FromClause | None = None
         self.labels = labels
 
     def get(self, key: str) -> ColumnClause:
@@ -33,9 +33,4 @@ class QueryBuilderBase(Generic[LabelsType]):
 
     @staticmethod
     def compile(query) -> Any:
-        return query.compile(
-            dialect=postgresql.dialect(),
-            compile_kwargs={
-                "literal_binds": True
-            }
-        )
+        return sh.compile_to_sql(query)

@@ -1,0 +1,4 @@
+
+
+class SubtaskError(Exception):
+    pass

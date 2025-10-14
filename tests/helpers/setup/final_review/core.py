@@ -2,7 +2,8 @@ from typing import Optional
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.enums import RecordType
-from tests.helpers.db_data_creator import DBDataCreator
+from src.db.models.impl.flag.url_validated.enums import URLType
+from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.final_review.model import FinalReviewSetupInfo
 
 
@@ -37,7 +38,7 @@ async def setup_for_get_next_url_for_final_review(
         )
         return agency_id
 
-    async def add_record_type_suggestion(record_type: RecordType):
+    async def add_record_type_suggestion(record_type: RecordType) -> None:
         await db_data_creator.user_record_type_suggestion(
             url_id=url_mapping.url_id,
             record_type=record_type
@@ -46,7 +47,7 @@ async def setup_for_get_next_url_for_final_review(
     async def add_relevant_suggestion(relevant: bool):
         await db_data_creator.user_relevant_suggestion(
             url_id=url_mapping.url_id,
-            relevant=relevant
+            suggested_status=URLType.DATA_SOURCE if relevant else URLType.NOT_RELEVANT
         )
 
     await db_data_creator.auto_relevant_suggestions(
@@ -59,6 +60,10 @@ async def setup_for_get_next_url_for_final_review(
         record_type=RecordType.ARREST_RECORDS
     )
 
+    name_suggestion_id: int = await db_data_creator.name_suggestion(
+        url_id=url_mapping.url_id,
+    )
+
     if include_user_annotations:
         await add_relevant_suggestion(False)
         await add_record_type_suggestion(RecordType.ACCIDENT_REPORTS)
@@ -69,5 +74,6 @@ async def setup_for_get_next_url_for_final_review(
     return FinalReviewSetupInfo(
         batch_id=batch_id,
         url_mapping=url_mapping,
-        user_agency_id=user_agency_id
+        user_agency_id=user_agency_id,
+        name_suggestion_id=name_suggestion_id
     )

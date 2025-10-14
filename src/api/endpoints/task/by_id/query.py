@@ -1,15 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.collectors.enums import URLStatus
-from src.core.enums import BatchStatus
-from src.db.dtos.url.core import URLInfo
-from src.db.dtos.url.error import URLErrorPydanticInfo
 from src.db.enums import TaskType
-from src.db.models.instantiations.task.core import Task
-from src.db.models.instantiations.url.core import URL
+from src.db.models.impl.task.core import Task
+from src.db.models.impl.task.enums import TaskStatus
+from src.db.models.impl.url.core.pydantic.info import URLInfo
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -27,12 +27,12 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
             .options(
                 selectinload(Task.urls)
                 .selectinload(URL.batch),
-                selectinload(Task.error),
-                selectinload(Task.errored_urls)
+                selectinload(Task.url_errors),
+                selectinload(Task.errors)
             )
         )
         task = result.scalars().first()
-        error = task.error[0].error if len(task.error) > 0 else None
+        error = task.errors[0].error if len(task.errors) > 0 else None
         # Get error info if any
         # Get URLs
         urls = task.urls
@@ -43,23 +43,23 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
                 batch_id=url.batch.id,
                 url=url.url,
                 collector_metadata=url.collector_metadata,
-                outcome=URLStatus(url.outcome),
+                status=URLStatus(url.status),
                 updated_at=url.updated_at
             )
             url_infos.append(url_info)
 
         errored_urls = []
-        for url in task.errored_urls:
-            url_error_info = URLErrorPydanticInfo(
+        for url in task.url_errors:
+            url_error_info = URLErrorInfoPydantic(
                 task_id=url.task_id,
                 url_id=url.url_id,
                 error=url.error,
-                updated_at=url.updated_at
+                updated_at=url.created_at
             )
             errored_urls.append(url_error_info)
         return TaskInfo(
             task_type=TaskType(task.task_type),
-            task_status=BatchStatus(task.task_status),
+            task_status=TaskStatus(task.task_status),
             error_info=error,
             updated_at=task.updated_at,
             urls=url_infos,

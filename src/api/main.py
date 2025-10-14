@@ -10,34 +10,43 @@ from starlette.responses import RedirectResponse
 from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
 from src.api.endpoints.collector.routes import collector_router
+from src.api.endpoints.contributions.routes import contributions_router
 from src.api.endpoints.metrics.routes import metrics_router
-from src.api.endpoints.review.routes import review_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
+from src.api.endpoints.submit.routes import submit_router
 from src.api.endpoints.task.routes import task_router
 from src.api.endpoints.url.routes import url_router
+from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.collectors.manager import AsyncCollectorManager
-from src.collectors.source_collectors.muckrock.api_interface.core import MuckrockAPIInterface
 from src.core.core import AsyncCore
-from src.core.logger import AsyncCoreLogger
 from src.core.env_var_manager import EnvVarManager
+from src.core.logger import AsyncCoreLogger
 from src.core.tasks.handler import TaskHandler
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
 from src.core.tasks.scheduled.manager import AsyncScheduledTaskManager
+from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
 from src.core.tasks.url.loader import URLTaskOperatorLoader
 from src.core.tasks.url.manager import TaskManager
-from src.core.tasks.url.operators.url_html.scraper.parser.core import HTMLResponseParser
-from src.core.tasks.url.operators.url_html.scraper.request_interface.core import URLRequestInterface
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.core import NLPProcessor
+from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.processor.nlp.enums import \
+    SpacyModelType
+from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
-from src.core.tasks.url.operators.url_html.scraper.root_url_cache.core import RootURLCache
+from src.external.huggingface.hub.client import HuggingFaceHubClient
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
+from src.external.internet_archives.client import InternetArchivesClient
 from src.external.pdap.client import PDAPClient
+from src.external.url_request.core import URLRequestInterface
+from environs import Env
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     env_var_manager = EnvVarManager.get()
+    env = Env()
+    env.read_env()
 
     # Initialize shared dependencies
     db_client = DatabaseClient(
@@ -51,11 +60,16 @@ async def lifespan(app: FastAPI):
 
     session = aiohttp.ClientSession()
 
-    task_handler = TaskHandler(
-        adb_client=adb_client,
-        discord_poster=DiscordPoster(
+    if env.bool("POST_TO_DISCORD_FLAG", True):
+        discord_poster = DiscordPoster(
             webhook_url=env_var_manager.discord_webhook_url
         )
+    else:
+        discord_poster = None
+
+    task_handler = TaskHandler(
+        adb_client=adb_client,
+        discord_poster=discord_poster
     )
     pdap_client = PDAPClient(
         access_manager=AccessManager(
@@ -72,9 +86,7 @@ async def lifespan(app: FastAPI):
         loader=URLTaskOperatorLoader(
             adb_client=adb_client,
             url_request_interface=URLRequestInterface(),
-            html_parser=HTMLResponseParser(
-                root_url_cache=RootURLCache()
-            ),
+            html_parser=HTMLResponseParser(),
             pdap_client=pdap_client,
             muckrock_api_interface=MuckrockAPIInterface(
                 session=session
@@ -82,6 +94,9 @@ async def lifespan(app: FastAPI):
             hf_inference_client=HuggingFaceInferenceClient(
                 session=session,
                 token=env_var_manager.hf_inference_api_key
+            ),
+            nlp_processor=NLPProcessor(
+                model_type=SpacyModelType.EN_CORE_WEB_SM
             )
         ),
     )
@@ -97,12 +112,19 @@ async def lifespan(app: FastAPI):
         collector_manager=async_collector_manager
     )
     async_scheduled_task_manager = AsyncScheduledTaskManager(
-        async_core=async_core,
         handler=task_handler,
         loader=ScheduledTaskOperatorLoader(
             adb_client=adb_client,
-            pdap_client=pdap_client
-        )
+            pdap_client=pdap_client,
+            hf_client=HuggingFaceHubClient(
+                token=env_var_manager.hf_hub_token
+            ),
+            async_core=async_core,
+            ia_client=InternetArchivesClient(
+                session=session
+            )
+        ),
+        registry=ScheduledJobRegistry()
     )
     await async_scheduled_task_manager.setup()
 
@@ -152,9 +174,10 @@ routers = [
     annotate_router,
     url_router,
     task_router,
-    review_router,
     search_router,
-    metrics_router
+    metrics_router,
+    submit_router,
+    contributions_router
 ]
 
 for router in routers:

@@ -2,10 +2,12 @@ import pendulum
 import pytest
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.collectors.enums import CollectorType, URLStatus
-from src.core.enums import SuggestedStatus, RecordType
+from src.collectors.enums import CollectorType
+from src.core.enums import RecordType
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.annotation_info import AnnotationInfo
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
+from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 
 
@@ -27,14 +29,14 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=1,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
-                    user_relevant=SuggestedStatus.NOT_RELEVANT
+                    user_relevant=URLType.NOT_RELEVANT
                 )
             ),
             TestURLCreationParameters(
                 count=2,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
         ]
     )
@@ -44,9 +46,9 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
-                    user_relevant=SuggestedStatus.RELEVANT,
+                    user_relevant=URLType.DATA_SOURCE,
                     user_record_type=RecordType.CALLS_FOR_SERVICE
                 )
             )
@@ -60,17 +62,17 @@ async def test_get_urls_breakdown_pending_metrics(api_test_helper):
         urls=[
             TestURLCreationParameters(
                 count=3,
-                status=URLStatus.SUBMITTED
+                status=URLCreationEnum.SUBMITTED
             ),
             TestURLCreationParameters(
                 count=4,
-                status=URLStatus.ERROR
+                status=URLCreationEnum.ERROR
             ),
             TestURLCreationParameters(
                 count=5,
-                status=URLStatus.PENDING,
+                status=URLCreationEnum.OK,
                 annotation_info=AnnotationInfo(
-                    user_relevant=SuggestedStatus.RELEVANT,
+                    user_relevant=URLType.DATA_SOURCE,
                     user_record_type=RecordType.INCARCERATION_RECORDS,
                     user_agency=URLAgencyAnnotationPostInfo(
                         suggested_agency=agency_id

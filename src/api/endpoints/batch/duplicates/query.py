@@ -2,11 +2,11 @@ from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from src.db.dtos.duplicate import DuplicateInfo
-from src.db.models.instantiations.batch import Batch
-from src.db.models.instantiations.duplicate import Duplicate
-from src.db.models.instantiations.link.link_batch_urls import LinkBatchURL
-from src.db.models.instantiations.url.core import URL
+from src.db.models.impl.duplicate.pydantic.info import DuplicateInfo
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.duplicate.sqlalchemy import Duplicate
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -50,7 +50,7 @@ class GetDuplicatesByBatchIDQueryBuilder(QueryBuilderBase):
             final_results.append(
                 DuplicateInfo(
                     source_url=result.source_url,
-                    duplicate_batch_id=result.duplicate_batch_id,
+                    batch_id=result.duplicate_batch_id,
                     duplicate_metadata=result.duplicate_batch_parameters,
                     original_batch_id=result.original_batch_id,
                     original_metadata=result.original_batch_parameters,

@@ -1,14 +1,14 @@
-from typing import Optional
+from typing import Any
 
-from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType
+from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType, ResponseInfo
 
-from src.core.tasks.scheduled.operators.agency_sync.dtos.parameters import AgencySyncParameters
-from src.core.tasks.url.operators.submit_approved_url.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
-from src.external.pdap.dtos.agencies_sync import AgenciesSyncResponseInnerInfo, AgenciesSyncResponseInfo
+from src.core.tasks.url.operators.submit_approved.tdo import SubmitApprovedURLTDO, SubmittedURLInfo
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
 from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 from src.external.pdap.dtos.unique_url_duplicate import UniqueURLDuplicateInfo
 from src.external.pdap.enums import MatchAgencyResponseStatus
+from src.external.pdap.impl.meta_urls.core import submit_meta_urls
+from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
 
 
 class PDAPClient:
@@ -22,20 +22,20 @@ class PDAPClient:
     async def match_agency(
         self,
         name: str,
-        state: Optional[str] = None,
-        county: Optional[str] = None,
-        locality: Optional[str] = None
+        state: str | None = None,
+        county: str | None = None,
+        locality: str | None = None
     ) -> MatchAgencyResponse:
         """
         Returns agencies, if any, that match or partially match the search criteria
         """
-        url = self.access_manager.build_url(
+        url: str = self.access_manager.build_url(
             namespace=DataSourcesNamespaces.MATCH,
             subdomains=["agency"]
         )
 
-        headers = await self.access_manager.jwt_header()
-        headers['Content-Type'] = "application/json"
+        headers: dict[str, str] = await self.access_manager.jwt_header()
+        headers['Content-Type']: str = "application/json"
         request_info = RequestInfo(
             type_=RequestType.POST,
             url=url,
@@ -47,15 +47,15 @@ class PDAPClient:
                 "locality": locality
             }
         )
-        response_info = await self.access_manager.make_request(request_info)
-        matches = []
+        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
+        matches: list[MatchAgencyInfo] = []
         for agency in response_info.data["agencies"]:
             mai = MatchAgencyInfo(
                 id=agency['id'],
                 submitted_name=agency['name']
             )
             if len(agency['locations']) > 0:
-                first_location = agency['locations'][0]
+                first_location: dict[str, Any] = agency['locations'][0]
                 mai.state = first_location['state']
                 mai.county = first_location['county']
                 mai.locality = first_location['locality']
@@ -73,7 +73,7 @@ class PDAPClient:
         """
         Check if a URL is unique. Returns duplicate info otherwise
         """
-        url = self.access_manager.build_url(
+        url: str = self.access_manager.build_url(
             namespace=DataSourcesNamespaces.CHECK,
             subdomains=["unique-url"]
         )
@@ -84,12 +84,14 @@ class PDAPClient:
                 "url": url_to_check
             }
         )
-        response_info = await self.access_manager.make_request(request_info)
-        duplicates = [UniqueURLDuplicateInfo(**entry) for entry in response_info.data["duplicates"]]
-        is_duplicate = (len(duplicates) != 0)
+        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
+        duplicates: list[UniqueURLDuplicateInfo] = [
+            UniqueURLDuplicateInfo(**entry) for entry in response_info.data["duplicates"]
+        ]
+        is_duplicate: bool = (len(duplicates) != 0)
         return is_duplicate
 
-    async def submit_urls(
+    async def submit_data_source_urls(
         self,
         tdos: list[SubmitApprovedURLTDO]
     ) -> list[SubmittedURLInfo]:
@@ -103,11 +105,11 @@ class PDAPClient:
         )
 
         # Build url-id dictionary
-        url_id_dict = {}
+        url_id_dict: dict[str, int] = {}
         for tdo in tdos:
             url_id_dict[tdo.url] = tdo.url_id
 
-        data_sources_json = []
+        data_sources_json: list[dict[str, Any]] = []
         for tdo in tdos:
             data_sources_json.append(
                 {
@@ -123,7 +125,7 @@ class PDAPClient:
                 }
             )
 
-        headers = await self.access_manager.jwt_header()
+        headers: dict[str, str] = await self.access_manager.jwt_header()
         request_info = RequestInfo(
             type_=RequestType.POST,
             url=request_url,
@@ -132,12 +134,12 @@ class PDAPClient:
                 "data_sources": data_sources_json
             }
         )
-        response_info = await self.access_manager.make_request(request_info)
-        data_sources_response_json = response_info.data["data_sources"]
+        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
+        data_sources_response_json: list[dict[str, Any]] = response_info.data["data_sources"]
 
-        results = []
+        results: list[SubmittedURLInfo] = []
         for data_source in data_sources_response_json:
-            url = data_source["url"]
+            url: str = data_source["url"]
             response_object = SubmittedURLInfo(
                 url_id=url_id_dict[url],
                 data_source_id=data_source["data_source_id"],
@@ -147,32 +149,11 @@ class PDAPClient:
 
         return results
 
-    async def sync_agencies(
+    async def submit_meta_urls(
         self,
-        params: AgencySyncParameters
-    ) -> AgenciesSyncResponseInfo:
-        url =self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.SOURCE_COLLECTOR,
-            subdomains=[
-                "agencies",
-                "sync"
-            ]
-        )
-        headers = await self.access_manager.jwt_header()
-        headers['Content-Type'] = "application/json"
-        request_info = RequestInfo(
-            type_=RequestType.GET,
-            url=url,
-            headers=headers,
-            params={
-                "page": params.page,
-                "update_at": params.cutoff_date
-            }
-        )
-        response_info = await self.access_manager.make_request(request_info)
-        return AgenciesSyncResponseInfo(
-            agencies=[
-                AgenciesSyncResponseInnerInfo(**entry)
-                for entry in response_info.data["agencies"]
-            ]
+        requests: list[SubmitMetaURLsRequest]
+    ):
+        return await submit_meta_urls(
+            self.access_manager,
+            requests=requests
         )

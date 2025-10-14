@@ -16,6 +16,7 @@ class RecordType(Enum):
     """
     All available URL record types
     """
+    # Police and Public
     ACCIDENT_REPORTS = "Accident Reports"
     ARREST_RECORDS = "Arrest Records"
     CALLS_FOR_SERVICE = "Calls for Service"
@@ -31,16 +32,21 @@ class RecordType(Enum):
     SURVEYS = "Surveys"
     USE_OF_FORCE_REPORTS = "Use of Force Reports"
     VEHICLE_PURSUITS = "Vehicle Pursuits"
+
+    # Info About Officers
     COMPLAINTS_AND_MISCONDUCT = "Complaints & Misconduct"
     DAILY_ACTIVITY_LOGS = "Daily Activity Logs"
     TRAINING_AND_HIRING_INFO = "Training & Hiring Info"
     PERSONNEL_RECORDS = "Personnel Records"
+
+    # Info About Agencies
     ANNUAL_AND_MONTHLY_REPORTS = "Annual & Monthly Reports"
     BUDGETS_AND_FINANCES = "Budgets & Finances"
-    CONTACT_INFO_AND_AGENCY_META = "Contact Info & Agency Meta"
     GEOGRAPHIC = "Geographic"
     LIST_OF_DATA_SOURCES = "List of Data Sources"
     POLICIES_AND_CONTRACTS = "Policies & Contracts"
+
+    # Agency-Published Resources
     CRIME_MAPS_AND_REPORTS = "Crime Maps & Reports"
     CRIME_STATISTICS = "Crime Statistics"
     MEDIA_BULLETINS = "Media Bulletins"
@@ -48,9 +54,13 @@ class RecordType(Enum):
     RESOURCES = "Resources"
     SEX_OFFENDER_REGISTRY = "Sex Offender Registry"
     WANTED_PERSONS = "Wanted Persons"
+
+    # Jails and Courts Specific
     BOOKING_REPORTS = "Booking Reports"
     COURT_CASES = "Court Cases"
     INCARCERATION_RECORDS = "Incarceration Records"
+
+    # Other
     OTHER = "Other"
 
 
@@ -71,12 +81,3 @@ class SubmitResponseStatus(Enum):
     SUCCESS = "success"
     FAILURE = "FAILURE"
     ALREADY_EXISTS = "already_exists"
-
-class SuggestedStatus(Enum):
-    """
-    Possible values for user_relevant_suggestions:suggested_status
-    """
-    RELEVANT = "relevant"
-    NOT_RELEVANT = "not relevant"
-    INDIVIDUAL_RECORD = "individual record"
-    BROKEN_PAGE_404 = "broken page/404 not found"

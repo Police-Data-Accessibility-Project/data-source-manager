@@ -1,21 +1,22 @@
+from http import HTTPStatus
 from typing import Any
 
 from sqlalchemy import Select, select, exists, func, Subquery, and_, not_, ColumnElement
-from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.orm import selectinload
 
 from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
 from src.db.constants import STANDARD_ROW_LIMIT
 from src.db.enums import TaskType
-from src.db.models.instantiations.confirmed_url_agency import ConfirmedURLAgency
-from src.db.models.instantiations.link.link_batch_urls import LinkBatchURL
-from src.db.models.instantiations.link.link_task_url import LinkTaskURL
-from src.db.models.instantiations.task.core import Task
-from src.db.models.instantiations.url.html_content import URLHTMLContent
-from src.db.models.instantiations.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
-from src.db.models.instantiations.url.core import URL
-from src.db.models.instantiations.batch import Batch
-from src.db.models.instantiations.url.suggestion.agency.auto import AutomatedUrlAgencySuggestion
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.link.task_url import LinkTaskURL
+from src.db.models.impl.task.core import Task
+from src.db.models.impl.task.enums import TaskStatus
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.scrape_info.sqlalchemy import URLScrapeInfo
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.types import UserSuggestionType
 
 
@@ -25,21 +26,25 @@ class StatementComposer:
     """
 
     @staticmethod
-    def pending_urls_without_html_data() -> Select:
+    def has_non_errored_urls_without_html_data() -> Select:
         exclude_subquery = (
             select(1).
             select_from(LinkTaskURL).
             join(Task, LinkTaskURL.task_id == Task.id).
             where(LinkTaskURL.url_id == URL.id).
             where(Task.task_type == TaskType.HTML.value).
-            where(Task.task_status == BatchStatus.READY_TO_LABEL.value)
+            where(Task.task_status == TaskStatus.COMPLETE.value)
          )
         query = (
-            select(URL).
-            outerjoin(URLHTMLContent).
-            where(URLHTMLContent.id == None).
-            where(~exists(exclude_subquery)).
-            where(URL.outcome == URLStatus.PENDING.value)
+            select(URL)
+            .join(URLWebMetadata)
+            .outerjoin(URLScrapeInfo)
+            .where(
+                URLScrapeInfo.id == None,
+                ~exists(exclude_subquery),
+                URLWebMetadata.status_code == HTTPStatus.OK.value,
+                URLWebMetadata.content_type.like("%html%"),
+            )
             .options(
                 selectinload(URL.batch)
             )
@@ -69,30 +74,13 @@ class StatementComposer:
         ).group_by(attr_value).subquery()
 
     @staticmethod
-    def exclude_urls_with_agency_suggestions(
-            statement: Select
-    ):
-        # Aliases for clarity
-        AutomatedSuggestion = aliased(AutomatedUrlAgencySuggestion)
-
-        # Exclude if automated suggestions exist
-        statement = statement.where(
-            ~exists().where(AutomatedSuggestion.url_id == URL.id)
-        )
-        # Exclude if confirmed agencies exist
-        statement = statement.where(
-            ~exists().where(ConfirmedURLAgency.url_id == URL.id)
-        )
-        return statement
-
-    @staticmethod
     def pending_urls_missing_miscellaneous_metadata_query() -> Select:
         query = select(URL).where(
             and_(
-                    URL.outcome == URLStatus.PENDING.value,
-                    URL.name == None,
-                    URL.description == None,
-                    URLOptionalDataSourceMetadata.url_id == None
+                URL.status == URLStatus.OK.value,
+                URL.name == None,
+                URL.description == None,
+                URLOptionalDataSourceMetadata.url_id == None
                 )
             ).outerjoin(
                 URLOptionalDataSourceMetadata
@@ -128,17 +116,3 @@ class StatementComposer:
     @staticmethod
     def count_distinct(field, label):
         return func.count(func.distinct(field)).label(label)
-
-    @staticmethod
-    def sum_distinct(field, label):
-        return func.sum(func.distinct(field)).label(label)
-
-    @staticmethod
-    def add_limit_and_page_offset(query: Select, page: int):
-        zero_offset_page = page - 1
-        rows_offset = zero_offset_page * STANDARD_ROW_LIMIT
-        return query.offset(
-            rows_offset
-        ).limit(
-            STANDARD_ROW_LIMIT
-        )

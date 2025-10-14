@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +6,9 @@ from src.api.endpoints.batch.dtos.get.summaries.counts import BatchSummaryURLCou
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
-from src.db.models.instantiations.batch import Batch
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.views.batch_url_status.core import BatchURLStatusMatView
+from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.builder import URLCountsCTEQueryBuilder
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.labels import URLCountsLabels
@@ -18,15 +19,13 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
     def __init__(
         self,
         page: int = 1,
-        has_pending_urls: Optional[bool] = None,
-        collector_type: Optional[CollectorType] = None,
-        status: Optional[BatchStatus] = None,
-        batch_id: Optional[int] = None,
+        collector_type: CollectorType | None = None,
+        status: BatchURLStatusEnum | None = None,
+        batch_id: int | None = None,
     ):
         super().__init__()
         self.url_counts_cte = URLCountsCTEQueryBuilder(
             page=page,
-            has_pending_urls=has_pending_urls,
             collector_type=collector_type,
             status=status,
             batch_id=batch_id,
@@ -37,18 +36,30 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
         builder = self.url_counts_cte
         count_labels: URLCountsLabels = builder.labels
 
-        query = Select(
-            *builder.get_all(),
-            Batch.strategy,
-            Batch.status,
-            Batch.parameters,
-            Batch.user_id,
-            Batch.compute_time,
-            Batch.date_generated,
-        ).join(
-            builder.query,
-            builder.get(count_labels.batch_id) == Batch.id,
+        query = (
+            Select(
+                *builder.get_all(),
+                Batch.strategy,
+                Batch.status,
+                BatchURLStatusMatView.batch_url_status,
+                Batch.parameters,
+                Batch.user_id,
+                Batch.compute_time,
+                Batch.date_generated,
+            ).join(
+                builder.query,
+                builder.get(count_labels.batch_id) == Batch.id,
+            ).outerjoin(
+                BatchURLStatusMatView,
+                BatchURLStatusMatView.batch_id == Batch.id,
+            ).order_by(
+                Batch.id.asc()
+            )
+
         )
+
+
+
         raw_results = await session.execute(query)
 
         summaries: list[BatchSummary] = []

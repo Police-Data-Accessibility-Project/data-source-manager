@@ -1,14 +1,21 @@
-from sqlalchemy import select, case
+from sqlalchemy import select, case, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.functions import coalesce
 
 from src.api.endpoints.metrics.batches.breakdown.dto import GetMetricsBatchesBreakdownResponseDTO, \
     GetMetricsBatchesBreakdownInnerResponseDTO
+from src.api.endpoints.metrics.batches.breakdown.error.cte_ import URL_ERROR_CTE
+from src.api.endpoints.metrics.batches.breakdown.not_relevant.cte_ import NOT_RELEVANT_CTE
+from src.api.endpoints.metrics.batches.breakdown.pending.cte_ import PENDING_CTE
+from src.api.endpoints.metrics.batches.breakdown.submitted.cte_ import SUBMITTED_CTE
+from src.api.endpoints.metrics.batches.breakdown.templates.cte_ import BatchesBreakdownURLCTE
+from src.api.endpoints.metrics.batches.breakdown.total.cte_ import TOTAL_CTE
+from src.api.endpoints.metrics.batches.breakdown.validated.cte_ import VALIDATED_CTE
 from src.collectors.enums import URLStatus, CollectorType
 from src.core.enums import BatchStatus
-from src.db.models.instantiations.batch import Batch
-from src.db.models.instantiations.link.link_batch_urls import LinkBatchURL
-from src.db.models.instantiations.url.core import URL
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.statement_composer import StatementComposer
 
@@ -32,28 +39,32 @@ class GetBatchesBreakdownMetricsQueryBuilder(QueryBuilderBase):
             Batch.date_generated.label("created_at"),
         )
 
-        def url_column(status: URLStatus, label):
-            return sc.count_distinct(
-                case(
-                    (
-                        URL.outcome == status.value,
-                        URL.id
-                    )
-                ),
-                label=label
-            )
+        all_ctes: list[BatchesBreakdownURLCTE] = [
+            URL_ERROR_CTE,
+            NOT_RELEVANT_CTE,
+            PENDING_CTE,
+            SUBMITTED_CTE,
+            TOTAL_CTE,
+            VALIDATED_CTE
+        ]
+
+        count_columns: list[Column] = [
+            cte.count for cte in all_ctes
+        ]
+
 
         count_query = select(
-            LinkBatchURL.batch_id,
-            sc.count_distinct(URL.id, label="count_total"),
-            url_column(URLStatus.PENDING, label="count_pending"),
-            url_column(URLStatus.SUBMITTED, label="count_submitted"),
-            url_column(URLStatus.NOT_RELEVANT, label="count_rejected"),
-            url_column(URLStatus.ERROR, label="count_error"),
-            url_column(URLStatus.VALIDATED, label="count_validated"),
-        ).join(URL, LinkBatchURL.url_id == URL.id).group_by(
-            LinkBatchURL.batch_id
-        ).subquery("url_count")
+            Batch.id.label("batch_id"),
+            *count_columns
+        )
+        for cte in all_ctes:
+            count_query = count_query.outerjoin(
+                cte.query,
+                Batch.id == cte.batch_id
+            )
+
+        count_query = count_query.cte("url_count")
+
 
         query = (select(
             main_query.c.strategy,

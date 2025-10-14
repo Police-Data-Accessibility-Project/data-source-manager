@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp~=3.11.11",
+    "aiolimiter>=1.2.1",
     "alembic~=1.14.0",
     "apscheduler~=3.11.0",
     "asyncpg~=0.30.0",
@@ -23,6 +24,8 @@ dependencies = [
     "marshmallow~=3.23.2",
     "openai~=1.60.1",
     "pdap-access-manager==0.3.6",
+    "pillow>=11.3.0",
+    "pip>=25.2",
     "playwright~=1.49.1",
     "psycopg2-binary~=2.9.6",
     "psycopg[binary]~=3.1.20",
@@ -30,6 +33,8 @@ dependencies = [
     "pyjwt~=2.10.1",
     "python-dotenv~=1.0.1",
     "requests~=2.32.3",
+    "side-effects>=1.6.dev0",
+    "spacy>=3.8.7",
     "sqlalchemy~=2.0.36",
     "starlette~=0.45.3",
     "tqdm>=4.64.1",
@@ -46,6 +51,7 @@ dev = [
     "pytest-asyncio~=0.25.2",
     "pytest-mock==3.12.0",
     "pytest-timeout~=2.3.1",
+    "vulture>=2.14",
 ]
 
 

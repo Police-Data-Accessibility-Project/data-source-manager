@@ -1,80 +1,72 @@
-from datetime import datetime, timedelta
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.interval import IntervalTrigger
-from src.core.core import AsyncCore
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
+from src.core.tasks.mixins.link_urls import LinkURLsMixin
+from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
-from src.core.tasks.scheduled.operators.base import ScheduledTaskOperatorBase
+from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
+from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
+from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
 
 
 class AsyncScheduledTaskManager:
 
     def __init__(
         self,
-        async_core: AsyncCore,
         handler: TaskHandler,
-        loader: ScheduledTaskOperatorLoader
+        loader: ScheduledTaskOperatorLoader,
+        registry: ScheduledJobRegistry
     ):
+
         # Dependencies
-        self.async_core = async_core
-        self.handler = handler
-        self.loader = loader
+        self._handler = handler
+        self._loader = loader
+        self._registry = registry
 
-        # Main objects
-        self.scheduler = AsyncIOScheduler()
-
-        # Jobs
-        self.run_cycles_job = None
-        self.delete_logs_job = None
-        self.populate_backlog_snapshot_job = None
-        self.sync_agencies_job = None
 
     async def setup(self):
-        self.scheduler.start()
+        self._registry.start_scheduler()
         await self.add_scheduled_tasks()
+        await self._registry.report_next_scheduled_task()
+
+
 
     async def add_scheduled_tasks(self):
-        self.run_cycles_job = self.scheduler.add_job(
-            self.async_core.run_tasks,
-            trigger=IntervalTrigger(
-                hours=1,
-                start_date=datetime.now() + timedelta(minutes=1)
-            ),
-            misfire_grace_time=60
-        )
-        self.delete_logs_job = self.scheduler.add_job(
-            self.async_core.adb_client.delete_old_logs,
-            trigger=IntervalTrigger(
-                days=1,
-                start_date=datetime.now() + timedelta(minutes=10)
+        """
+        Modifies:
+            self._registry
+        """
+        entries: list[ScheduledTaskEntry] = await self._loader.load_entries()
+        enabled_entries: list[ScheduledTaskEntry] = []
+        for entry in entries:
+            if not entry.enabled:
+                print(f"{entry.operator.task_type.value} is disabled. Skipping add to scheduler.")
+                continue
+            enabled_entries.append(entry)
+
+        initial_lag: int = 1
+        for idx, entry in enumerate(enabled_entries):
+            await self._registry.add_job(
+                func=self.run_task,
+                entry=entry,
+                minute_lag=idx + initial_lag
             )
-        )
-        self.populate_backlog_snapshot_job = self.scheduler.add_job(
-            self.async_core.adb_client.populate_backlog_snapshot,
-            trigger=IntervalTrigger(
-                days=1,
-                start_date=datetime.now() + timedelta(minutes=20)
-            )
-        )
-        self.sync_agencies_job = self.scheduler.add_job(
-            self.run_task,
-            trigger=IntervalTrigger(
-                days=1,
-                start_date=datetime.now() + timedelta(minutes=2)
-            ),
-            kwargs={
-                "operator": await self.loader.get_sync_agencies_task_operator()
-            }
-        )
 
     def shutdown(self):
-        if self.scheduler.running:
-            self.scheduler.shutdown()
+        self._registry.shutdown_scheduler()
 
     async def run_task(self, operator: ScheduledTaskOperatorBase):
         print(f"Running {operator.task_type.value} Task")
-        task_id = await self.handler.initiate_task_in_db(task_type=operator.task_type)
-        run_info: TaskOperatorRunInfo = await operator.run_task(task_id)
-        await self.handler.handle_outcome(run_info)
+        if issubclass(operator.__class__, HasPrerequisitesMixin):
+            operator: HasPrerequisitesMixin
+            if not await operator.meets_task_prerequisites():
+                operator: ScheduledTaskOperatorBase
+                print(f"Prerequisites not met for {operator.task_type.value} Task. Skipping.")
+                return
+        run_info: TaskOperatorRunInfo = await operator.run_task()
+        if issubclass(operator.__class__, LinkURLsMixin):
+            operator: LinkURLsMixin
+            if not operator.urls_linked:
+                operator: ScheduledTaskOperatorBase
+                raise Exception(f"Task {operator.task_type.value} has not been linked to any URLs but is designated as a link task")
+        await self._handler.handle_outcome(run_info)
+        await self._registry.report_next_scheduled_task()

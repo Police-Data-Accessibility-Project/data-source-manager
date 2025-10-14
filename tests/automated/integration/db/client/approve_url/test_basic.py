@@ -3,12 +3,14 @@ import pytest
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
-from src.db.models.instantiations.confirmed_url_agency import ConfirmedURLAgency
-from src.db.models.instantiations.url.core import URL
-from src.db.models.instantiations.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
-from src.db.models.instantiations.url.reviewing_user import ReviewingUserURL
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
+from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
-from tests.helpers.db_data_creator import DBDataCreator
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
@@ -41,12 +43,21 @@ async def test_approve_url_basic(db_data_creator: DBDataCreator):
     assert len(urls) == 1
     url = urls[0]
     assert url.id == url_mapping.url_id
-    assert url.record_type == RecordType.ARREST_RECORDS.value
-    assert url.outcome == URLStatus.VALIDATED.value
+    assert url.status == URLStatus.OK
     assert url.name == "Test Name"
     assert url.description == "Test Description"
 
-    confirmed_agency: list[ConfirmedURLAgency] = await adb_client.get_all(ConfirmedURLAgency)
+    record_types: list[URLRecordType] = await adb_client.get_all(URLRecordType)
+    assert len(record_types) == 1
+    assert record_types[0].record_type == RecordType.ARREST_RECORDS
+
+    # Confirm presence of validated flag
+    validated_flags: list[FlagURLValidated] = await adb_client.get_all(FlagURLValidated)
+    assert len(validated_flags) == 1
+    assert validated_flags[0].url_id == url_mapping.url_id
+
+
+    confirmed_agency: list[LinkURLAgency] = await adb_client.get_all(LinkURLAgency)
     assert len(confirmed_agency) == 1
     assert confirmed_agency[0].url_id == url_mapping.url_id
     assert confirmed_agency[0].agency_id == agency_id

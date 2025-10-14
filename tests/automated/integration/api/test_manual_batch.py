@@ -2,10 +2,10 @@
 import pytest
 
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInnerInputDTO, ManualBatchInputDTO
-from src.db.models.instantiations.link.link_batch_urls import LinkBatchURL
-from src.db.models.instantiations.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
-from src.db.models.instantiations.url.core import URL
-from src.db.models.instantiations.batch import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.batch.sqlalchemy import Batch
 from src.collectors.enums import CollectorType
 from src.core.enums import RecordType
 
@@ -94,7 +94,7 @@ async def test_manual_batch(api_test_helper):
 
     def check_url(url: URL, url_only: bool):
         assert url.url is not None
-        other_attributes = ["name", "description", "collector_metadata", "record_type"]
+        other_attributes = ["name", "description", "collector_metadata"]
         return check_attributes(url, other_attributes, url_only)
 
 

@@ -1,13 +1,15 @@
 import types
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, create_autospec
 
 import pytest
 
+from src.core.tasks.base.run_info import TaskOperatorRunInfo
+from src.core.tasks.url.models.entry import URLTaskEntry
+from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.enums import TaskType
-from src.core.tasks.dtos.run_info import URLTaskOperatorRunInfo
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from tests.automated.integration.core.async_.helpers import setup_async_core
-from tests.helpers.db_data_creator import DBDataCreator
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
@@ -19,23 +21,26 @@ async def test_run_task_break_loop(db_data_creator: DBDataCreator):
     and an alert should be sent to discord
     """
 
-    async def run_task(self, task_id: int) -> URLTaskOperatorRunInfo:
-        return URLTaskOperatorRunInfo(
-            task_id=task_id,
+    async def run_task(self) -> TaskOperatorRunInfo:
+        return TaskOperatorRunInfo(
+            task_id=1,
             outcome=TaskOperatorOutcome.SUCCESS,
-            linked_url_ids=[1, 2, 3],
             task_type=TaskType.HTML
         )
 
     core = setup_async_core(db_data_creator.adb_client)
     core.task_manager.conclude_task = AsyncMock()
 
-    mock_operator = AsyncMock()
+    mock_operator = create_autospec(URLTaskOperatorBase, instance=True)
     mock_operator.meets_task_prerequisites = AsyncMock(return_value=True)
     mock_operator.task_type = TaskType.HTML
     mock_operator.run_task = types.MethodType(run_task, mock_operator)
+    entry = URLTaskEntry(
+        operator=mock_operator,
+        enabled=True
+    )
 
-    core.task_manager.loader.get_task_operators = AsyncMock(return_value=[mock_operator])
+    core.task_manager.loader.load_entries = AsyncMock(return_value=[entry])
     await core.task_manager.trigger_task_run()
 
     core.task_manager.handler.discord_poster.post_to_discord.assert_called_once_with(

@@ -16,7 +16,8 @@ class EnvVarManager:
         self.env = env
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
+        """Load environment variables from environment"""
 
         self.google_api_key = self.require_env("GOOGLE_API_KEY")
         self.google_cse_id = self.require_env("GOOGLE_CSE_ID")
@@ -30,6 +31,7 @@ class EnvVarManager:
 
         self.openai_api_key = self.require_env("OPENAI_API_KEY")
         self.hf_inference_api_key = self.require_env("HUGGINGFACE_INFERENCE_API_KEY")
+        self.hf_hub_token = self.require_env("HUGGINGFACE_HUB_TOKEN")
 
         self.postgres_user = self.require_env("POSTGRES_USER")
         self.postgres_password = self.require_env("POSTGRES_PASSWORD")

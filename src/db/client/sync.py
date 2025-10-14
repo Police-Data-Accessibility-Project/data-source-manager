@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy import create_engine, update, Select
 from sqlalchemy.exc import IntegrityError
@@ -7,27 +7,27 @@ from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
 from src.collectors.enums import URLStatus
 from src.db.config_manager import ConfigManager
-from src.db.dtos.batch import BatchInfo
-from src.db.dtos.duplicate import DuplicateInsertInfo
+from src.db.models.impl.batch.pydantic.info import BatchInfo
+from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.dtos.log import LogInfo
-from src.db.dtos.url.core import URLInfo
+from src.db.models.impl.log.pydantic.info import LogInfo
 from src.db.dtos.url.mapping import URLMapping
-from src.db.models.instantiations.link.link_batch_urls import LinkBatchURL
-from src.db.models.templates import Base
-from src.db.models.instantiations.duplicate import Duplicate
-from src.db.models.instantiations.log import Log
-from src.db.models.instantiations.url.data_source import URLDataSource
-from src.db.models.instantiations.url.core import URL
-from src.db.models.instantiations.batch import Batch
-from src.core.tasks.url.operators.submit_approved_url.tdo import SubmittedURLInfo
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.core.pydantic.info import URLInfo
+from src.db.models.templates_.base import Base
+from src.db.models.impl.duplicate.sqlalchemy import Duplicate
+from src.db.models.impl.log.sqlalchemy import Log
+from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.core.env_var_manager import EnvVarManager
 from src.core.enums import BatchStatus
 
 
 # Database Client
 class DatabaseClient:
-    def __init__(self, db_url: Optional[str] = None):
+    def __init__(self, db_url: str | None = None):
         """Initialize the DatabaseClient."""
         if db_url is None:
             db_url = EnvVarManager.get().get_postgres_connection_string(is_async=True)
@@ -59,6 +59,11 @@ class DatabaseClient:
         return wrapper
 
     @session_manager
+    def add_all(self, session: Session, objects: list[Base]):
+        session.add_all(objects)
+        session.commit()
+
+    @session_manager
     def insert_batch(self, session: Session, batch_info: BatchInfo) -> int:
         """Insert a new batch into the database and return its ID."""
         batch = Batch(
@@ -67,11 +72,6 @@ class DatabaseClient:
             status=batch_info.status.value,
             parameters=batch_info.parameters,
             compute_time=batch_info.compute_time,
-            strategy_success_rate=0,
-            metadata_success_rate=0,
-            agency_match_rate=0,
-            record_type_match_rate=0,
-            record_category_match_rate=0,
         )
         if batch_info.date_generated is not None:
             batch.date_generated = batch_info.date_generated
@@ -99,7 +99,7 @@ class DatabaseClient:
     ):
         for duplicate_info in duplicate_infos:
             duplicate = Duplicate(
-                batch_id=duplicate_info.duplicate_batch_id,
+                batch_id=duplicate_info.batch_id,
                 original_url_id=duplicate_info.original_url_id,
             )
             session.add(duplicate)
@@ -119,19 +119,21 @@ class DatabaseClient:
         url_entry = URL(
             url=url_info.url,
             collector_metadata=url_info.collector_metadata,
-            outcome=url_info.outcome.value,
-            name=url_info.name
+            status=url_info.status,
+            name=url_info.name,
+            source=url_info.source
         )
         if url_info.created_at is not None:
             url_entry.created_at = url_info.created_at
         session.add(url_entry)
         session.commit()
         session.refresh(url_entry)
-        link = LinkBatchURL(
-            batch_id=url_info.batch_id,
-            url_id=url_entry.id
-        )
-        session.add(link)
+        if url_info.batch_id is not None:
+            link = LinkBatchURL(
+                batch_id=url_info.batch_id,
+                url_id=url_entry.id
+            )
+            session.add(link)
         return url_entry.id
 
     def insert_urls(self, url_infos: List[URLInfo], batch_id: int) -> InsertURLsInfo:
@@ -142,10 +144,10 @@ class DatabaseClient:
             try:
                 url_id = self.insert_url(url_info)
                 url_mappings.append(URLMapping(url_id=url_id, url=url_info.url))
-            except IntegrityError:
+            except IntegrityError as e:
                 orig_url_info = self.get_url_info_by_url(url_info.url)
                 duplicate_info = DuplicateInsertInfo(
-                    duplicate_batch_id=batch_id,
+                    batch_id=batch_id,
                     original_url_id=orig_url_info.id
                 )
                 duplicates.append(duplicate_info)
@@ -219,14 +221,6 @@ class DatabaseClient:
             url_id = info.url_id
             data_source_id = info.data_source_id
 
-            query = (
-                update(URL)
-                .where(URL.id == url_id)
-                .values(
-                    outcome=URLStatus.SUBMITTED.value
-                )
-            )
-
             url_data_source_object = URLDataSource(
                 url_id=url_id,
                 data_source_id=data_source_id
@@ -235,7 +229,6 @@ class DatabaseClient:
                 url_data_source_object.created_at = info.submitted_at
             session.add(url_data_source_object)
 
-            session.execute(query)
 
 if __name__ == "__main__":
     client = DatabaseClient()

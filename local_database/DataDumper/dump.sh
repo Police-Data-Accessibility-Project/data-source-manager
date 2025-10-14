@@ -23,6 +23,7 @@ else
 fi
 
 # Run pg_dump
-pg_dump -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME $PG_DUMP_FLAGS -f $DUMP_FILE
+echo "(Excluding url_screenshot table data)"
+pg_dump -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME $PG_DUMP_FLAGS -f $DUMP_FILE --exclude-table-data=url_screenshot
 
 echo "Dump completed. File saved to $DUMP_FILE."

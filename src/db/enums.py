@@ -32,22 +32,52 @@ class URLHTMLContentType(PyEnum):
     DIV = "Div"
 
 class TaskType(PyEnum):
+
+    # URL Tasks
     HTML = "HTML"
     RELEVANCY = "Relevancy"
     RECORD_TYPE = "Record Type"
     AGENCY_IDENTIFICATION = "Agency Identification"
     MISC_METADATA = "Misc Metadata"
     SUBMIT_APPROVED = "Submit Approved URLs"
+    SUBMIT_META_URLS = "Submit Meta URLs"
     DUPLICATE_DETECTION = "Duplicate Detection"
     IDLE = "Idle"
-    PROBE_404 = "404 Probe"
+    PROBE_URL = "URL Probe"
+    ROOT_URL = "Root URL"
+    IA_PROBE = "Internet Archives Probe"
+    IA_SAVE = "Internet Archives Archive"
+    SCREENSHOT = "Screenshot"
+    LOCATION_ID = "Location ID"
+    AUTO_VALIDATE = "Auto Validate"
+    AUTO_NAME = "Auto Name"
+    SUSPEND_URLS = "Suspend URLs"
+
+    # Scheduled Tasks
+    PUSH_TO_HUGGINGFACE = "Push to Hugging Face"
     SYNC_AGENCIES = "Sync Agencies"
+    SYNC_DATA_SOURCES = "Sync Data Sources"
+    POPULATE_BACKLOG_SNAPSHOT = "Populate Backlog Snapshot"
+    DELETE_OLD_LOGS = "Delete Old Logs"
+    DELETE_STALE_SCREENSHOTS = "Delete Stale Screenshots"
+    MARK_TASK_NEVER_COMPLETED = "Mark Task Never Completed"
+    RUN_URL_TASKS = "Run URL Task Cycles"
+    TASK_CLEANUP = "Task Cleanup"
+    REFRESH_MATERIALIZED_VIEWS = "Refresh Materialized Views"
+
+class ChangeLogOperationType(PyEnum):
+    INSERT = "INSERT"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
 
 class PGEnum(TypeDecorator):
     impl = postgresql.ENUM
+
+    cache_ok = True
 
     def process_bind_param(self, value: PyEnum, dialect):
         # Convert Python Enum to its value before binding to the DB
         if isinstance(value, PyEnum):
             return value.value
         return value
+

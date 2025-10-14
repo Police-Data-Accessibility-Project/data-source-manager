@@ -4,7 +4,7 @@ from starlette.exceptions import HTTPException
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.core.enums import RecordType
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
-from tests.helpers.db_data_creator import DBDataCreator
+from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
@@ -30,10 +30,8 @@ async def test_approval_url_error(db_data_creator: DBDataCreator):
 
     # Create kwarg dictionary with all required approval info fields
     kwarg_dict = {
-        "record_type": RecordType.ARREST_RECORDS,
         "agency_ids": [await db_data_creator.agency()],
         "name": "Test Name",
-        "description": "Test Description",
     }
     # For each keyword, create a copy of the kwargs and set that one to none
     # Confirm it produces the correct error

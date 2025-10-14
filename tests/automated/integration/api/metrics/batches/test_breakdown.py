@@ -1,79 +1,102 @@
+from datetime import datetime, timedelta
+
 import pendulum
 import pytest
 
 from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus
-from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
-from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
+from src.db.client.async_ import AsyncDatabaseClient
+from src.db.dtos.url.mapping import URLMapping
+from src.db.models.impl.flag.url_validated.enums import URLType
+from tests.helpers.data_creator.create import create_batch, create_urls, create_batch_url_links, create_validated_flags, \
+    create_url_data_sources
 
 
 @pytest.mark.asyncio
 async def test_get_batches_breakdown_metrics(api_test_helper):
     # Create a different batch for each month, with different URLs
-    today = pendulum.parse('2021-01-01')
+    today = datetime.now()
     ath = api_test_helper
+    adb_client: AsyncDatabaseClient = ath.adb_client()
 
-    batch_1_params = TestBatchCreationParameters(
+    batch_id_1 = await create_batch(
+        adb_client=adb_client,
         strategy=CollectorType.MANUAL,
-        urls=[
-            TestURLCreationParameters(
-                count=1,
-                status=URLStatus.PENDING
-            ),
-            TestURLCreationParameters(
-                count=2,
-                status=URLStatus.SUBMITTED
-            ),
-        ]
     )
-    batch_1 = await ath.db_data_creator.batch_v2(batch_1_params)
-    batch_2_params = TestBatchCreationParameters(
-        strategy=CollectorType.EXAMPLE,
-        outcome=BatchStatus.ERROR,
-        created_at=today.subtract(weeks=1),
+    url_mappings_1: list[URLMapping] = await create_urls(
+        adb_client=adb_client,
+        count=3,
     )
-    batch_2 = await ath.db_data_creator.batch_v2(batch_2_params)
-    batch_3_params = TestBatchCreationParameters(
+    url_ids_1: list[int] = [url_mapping.url_id for url_mapping in url_mappings_1]
+    await create_batch_url_links(adb_client=adb_client, batch_id=batch_id_1, url_ids=url_ids_1)
+    await create_validated_flags(
+        adb_client=adb_client,
+        url_ids=url_ids_1[:2],
+        validation_type=URLType.DATA_SOURCE
+    )
+    await create_url_data_sources(
+        adb_client=adb_client,
+        url_ids=url_ids_1[:2],
+    )
+
+    batch_id_2 = await create_batch(
+        adb_client=adb_client,
+        status=BatchStatus.ERROR,
+        date_generated=today - timedelta(days=7),
+    )
+
+    batch_id_3 = await create_batch(
+        adb_client=adb_client,
         strategy=CollectorType.AUTO_GOOGLER,
-        created_at=today.subtract(weeks=2),
-        urls=[
-            TestURLCreationParameters(
-                count=3,
-                status=URLStatus.NOT_RELEVANT
-            ),
-            TestURLCreationParameters(
-                count=4,
-                status=URLStatus.ERROR
-            ),
-            TestURLCreationParameters(
-                count=5,
-                status=URLStatus.VALIDATED
-            ),
-        ]
+        date_generated=today - timedelta(days=14)
     )
-    batch_3 = await ath.db_data_creator.batch_v2(batch_3_params)
+    error_url_mappings: list[URLMapping] = await create_urls(
+        adb_client=adb_client,
+        status=URLStatus.ERROR,
+        count=4,
+    )
+    error_url_ids: list[int] = [url_mapping.url_id for url_mapping in error_url_mappings]
+    validated_url_mappings: list[URLMapping] = await create_urls(
+        adb_client=adb_client,
+        count=8,
+    )
+    validated_url_ids: list[int] = [url_mapping.url_id for url_mapping in validated_url_mappings]
+    await create_validated_flags(
+        adb_client=adb_client,
+        url_ids=validated_url_ids[:3],
+        validation_type=URLType.NOT_RELEVANT,
+    )
+    await create_validated_flags(
+        adb_client=adb_client,
+        url_ids=validated_url_ids[4:9],
+        validation_type=URLType.DATA_SOURCE,
+    )
+    await create_batch_url_links(
+        adb_client=adb_client,
+        batch_id=batch_id_3,
+        url_ids=error_url_ids + validated_url_ids,
+    )
+
 
     dto_1 = await ath.request_validator.get_batches_breakdown_metrics(
         page=1
     )
     assert len(dto_1.batches) == 3
     dto_batch_1 = dto_1.batches[2]
-    assert dto_batch_1.batch_id == batch_1.batch_id
+    assert dto_batch_1.batch_id == batch_id_1
     assert dto_batch_1.strategy == CollectorType.MANUAL
     assert dto_batch_1.status == BatchStatus.READY_TO_LABEL
-    assert pendulum.instance(dto_batch_1.created_at) > today
     assert dto_batch_1.count_url_total == 3
     assert dto_batch_1.count_url_pending == 1
     assert dto_batch_1.count_url_submitted == 2
     assert dto_batch_1.count_url_rejected == 0
     assert dto_batch_1.count_url_error == 0
-    assert dto_batch_1.count_url_validated == 0
+    assert dto_batch_1.count_url_validated == 2
 
     dto_batch_2 = dto_1.batches[1]
-    assert dto_batch_2.batch_id == batch_2.batch_id
+    assert dto_batch_2.batch_id == batch_id_2
     assert dto_batch_2.status == BatchStatus.ERROR
     assert dto_batch_2.strategy == CollectorType.EXAMPLE
-    assert pendulum.instance(dto_batch_2.created_at) == today.subtract(weeks=1)
     assert dto_batch_2.count_url_total == 0
     assert dto_batch_2.count_url_submitted == 0
     assert dto_batch_2.count_url_pending == 0
@@ -82,16 +105,15 @@ async def test_get_batches_breakdown_metrics(api_test_helper):
     assert dto_batch_2.count_url_validated == 0
 
     dto_batch_3 = dto_1.batches[0]
-    assert dto_batch_3.batch_id == batch_3.batch_id
+    assert dto_batch_3.batch_id == batch_id_3
     assert dto_batch_3.status == BatchStatus.READY_TO_LABEL
     assert dto_batch_3.strategy == CollectorType.AUTO_GOOGLER
-    assert pendulum.instance(dto_batch_3.created_at) == today.subtract(weeks=2)
     assert dto_batch_3.count_url_total == 12
-    assert dto_batch_3.count_url_pending == 0
+    assert dto_batch_3.count_url_pending == 5
     assert dto_batch_3.count_url_submitted == 0
     assert dto_batch_3.count_url_rejected == 3
     assert dto_batch_3.count_url_error == 4
-    assert dto_batch_3.count_url_validated == 5
+    assert dto_batch_3.count_url_validated == 7
 
     dto_2 = await ath.request_validator.get_batches_breakdown_metrics(
         page=2
