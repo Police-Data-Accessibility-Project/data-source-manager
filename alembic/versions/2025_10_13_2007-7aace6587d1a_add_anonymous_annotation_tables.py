@@ -1,7 +1,7 @@
 """Add anonymous annotation tables
 
 Revision ID: 7aace6587d1a
-Revises: 51bde16e22f7
+Revises: 43077d7e08c5
 Create Date: 2025-10-13 20:07:18.388899
 
 """
@@ -14,7 +14,7 @@ from src.util.alembic_helpers import url_id_column, agency_id_column, created_at
 
 # revision identifiers, used by Alembic.
 revision: str = '7aace6587d1a'
-down_revision: Union[str, None] = '51bde16e22f7'
+down_revision: Union[str, None] = '43077d7e08c5'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
