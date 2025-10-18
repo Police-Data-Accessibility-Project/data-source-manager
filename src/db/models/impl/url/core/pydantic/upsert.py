@@ -15,4 +15,6 @@ class URLUpsertModel(BulkUpsertableModel):
         return URL
 
     id: int
-    name: str | None
+    name: str | None = None
+    url: str | None = None
+    trailing_slash: bool | None = None

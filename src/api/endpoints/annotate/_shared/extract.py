@@ -15,7 +15,7 @@ from src.api.endpoints.annotate.all.get.queries.convert import \
 from src.api.endpoints.annotate.all.get.queries.location_.core import GetLocationSuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.get.queries.name.core import GetNameSuggestionsQueryBuilder
 from src.db.dto_converter import DTOConverter
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 
@@ -44,7 +44,7 @@ async def extract_and_format_get_annotation_result(
         await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
     return GetNextURLForAllAnnotationResponse(
         next_annotation=GetNextURLForAllAnnotationInnerResponse(
-            url_info=URLMapping(
+            url_info=SimpleURLMapping(
                 url_id=url.id,
                 url=url.full_url
             ),

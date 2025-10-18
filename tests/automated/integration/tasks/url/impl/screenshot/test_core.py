@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.external.url_request.dtos.screenshot_response import URLScreenshotResponse
@@ -24,9 +24,9 @@ async def test_core(
     assert not await operator.meets_task_prerequisites()
 
     # Add two URLs to database
-    url_mappings: list[URLMapping] = await db_data_creator.create_urls(count=2)
-    screenshot_mapping: URLMapping = url_mappings[0]
-    error_mapping: URLMapping = url_mappings[1]
+    url_mappings: list[SimpleURLMapping] = await db_data_creator.create_urls(count=2)
+    screenshot_mapping: SimpleURLMapping = url_mappings[0]
+    error_mapping: SimpleURLMapping = url_mappings[1]
     url_ids: list[int] = [url_mapping.url_id for url_mapping in url_mappings]
 
     # Add web metadata for 200 responses

@@ -41,7 +41,8 @@ class SetupTestPushToHuggingFaceEntryQueryBuilder(QueryBuilderBase):
                 status=URLStatus.OK,
                 name=name,
                 description=description,
-                source=URLSource.COLLECTOR
+                source=URLSource.COLLECTOR,
+                trailing_slash=False,
             )
             session.add(url)
             await session.flush()

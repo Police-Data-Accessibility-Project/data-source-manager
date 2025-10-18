@@ -2,7 +2,7 @@ import pytest
 
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
@@ -27,7 +27,7 @@ async def test_get_batch_summaries_pending_url_filter(api_test_helper):
 
     # Add a batch with submitted URLs
     batch_submitted: int = await dbdc.create_batch(status=BatchStatus.READY_TO_LABEL)
-    submitted_url_mappings: list[URLMapping] = await dbdc.create_submitted_urls(count=2)
+    submitted_url_mappings: list[SimpleURLMapping] = await dbdc.create_submitted_urls(count=2)
     submitted_url_ids: list[int] = [url_mapping.url_id for url_mapping in submitted_url_mappings]
     await dbdc.create_batch_url_links(
         batch_id=batch_submitted,
@@ -39,7 +39,7 @@ async def test_get_batch_summaries_pending_url_filter(api_test_helper):
 
     # Add a batch with validated URLs
     batch_validated: int = await dbdc.create_batch(status=BatchStatus.READY_TO_LABEL)
-    validated_url_mappings: list[URLMapping] = await dbdc.create_validated_urls(
+    validated_url_mappings: list[SimpleURLMapping] = await dbdc.create_validated_urls(
         count=2
     )
     validated_url_ids: list[int] = [url_mapping.url_id for url_mapping in validated_url_mappings]

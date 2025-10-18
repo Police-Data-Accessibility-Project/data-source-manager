@@ -10,7 +10,7 @@ from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetad
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.agency.enums import AgencyType
 from src.db.models.impl.agency.sqlalchemy import Agency
@@ -398,8 +398,8 @@ class DBDataCreator:
         record_type: RecordType = RecordType.RESOURCES,
         validation_type: URLType = URLType.DATA_SOURCE,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -414,8 +414,8 @@ class DBDataCreator:
         self,
         record_type: RecordType = RecordType.RESOURCES,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -436,9 +436,9 @@ class DBDataCreator:
         collector_metadata: dict | None = None,
         count: int = 1,
         batch_id: int | None = None
-    ) -> list[URLMapping]:
+    ) -> list[SimpleURLMapping]:
 
-        url_mappings: list[URLMapping] = await create_urls(
+        url_mappings: list[SimpleURLMapping] = await create_urls(
             adb_client=self.adb_client,
             status=status,
             source=source,

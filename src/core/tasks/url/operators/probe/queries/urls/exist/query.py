@@ -1,29 +1,53 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import UrlExistsResult
+from src.core.tasks.url.operators.probe.queries.urls.exist.model import URLExistsResult
+from src.db.helpers.session.session_helper import results_exist
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.helpers.session import session_helper as sh
+from src.util.models.full_url import FullURL
+
 
 class URLsExistInDBQueryBuilder(QueryBuilderBase):
     """Checks if URLs exist in the database."""
 
-    def __init__(self, urls: list[str]):
+    def __init__(self, full_urls: list[FullURL]):
         super().__init__()
-        self.urls = urls
+        self.full_urls = full_urls
+        self.id_form_urls = [
+            url.id_form
+            for url in full_urls
+        ]
 
-    async def run(self, session: AsyncSession) -> list[UrlExistsResult]:
-        query = select(URL.id, URL.url).where(URL.url.in_(self.urls))
+    async def run(self, session: AsyncSession) -> list[URLExistsResult]:
+        norm_url = func.rtrim(URL.url, '/').label("norm_url")
+
+        query = select(
+            URL.id,
+            norm_url
+        ).where(
+            norm_url.in_(self.id_form_urls)
+        )
         db_mappings = await sh.mappings(session, query=query)
 
         url_to_id_map: dict[str, int] = {
-            row["url"]: row["id"]
+            row["norm_url"]: row["id"]
             for row in db_mappings
         }
-        return [
-            UrlExistsResult(
-                url=url,
-                url_id=url_to_id_map.get(url)
-            ) for url in self.urls
-        ]
+        id_to_db_url_map: dict[int, FullURL] = {
+            row["id"]: FullURL(row["norm_url"])
+            for row in db_mappings
+        }
+        results: list[URLExistsResult] = []
+        for full_url in self.full_urls:
+            url_id: int | None = url_to_id_map.get(full_url.id_form)
+            db_url: FullURL | None = id_to_db_url_map.get(url_id)
+            result = URLExistsResult(
+                query_url=full_url,
+                db_url=db_url,
+                url_id=url_id
+            )
+            results.append(result)
+
+        return results

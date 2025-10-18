@@ -63,6 +63,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
             scheme=url_and_scheme.scheme,
             source=URLSource.MANUAL,
             status=URLStatus.OK,
+            trailing_slash=url_and_scheme.url.endswith('/'),
         )
         session.add(url_insert)
         await session.flush()

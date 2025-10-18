@@ -1,10 +1,11 @@
 from src.core.tasks.url.operators.probe.queries.insert_redirects.models.url_response_map import URLResponseMapping
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import UrlExistsResult
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
-from src.db.dtos.url.mapping import URLMapping
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.web_metadata.insert import URLWebMetadataPydantic
+from src.util.models.full_url import FullURL
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 def convert_url_response_mapping_to_web_metadata_list(
@@ -23,23 +24,15 @@ def convert_url_response_mapping_to_web_metadata_list(
         results.append(web_metadata_object)
     return results
 
-
-def convert_to_url_mappings(url_exists_results: list[UrlExistsResult]) -> list[URLMapping]:
-    return [
-        URLMapping(
-            url=url_exists_result.url,
-            url_id=url_exists_result.url_id
-        ) for url_exists_result in url_exists_results
-    ]
-
-
-def convert_to_url_insert_models(urls: list[str]) -> list[URLInsertModel]:
-    results = []
+def convert_to_url_insert_models(urls: list[FullURL]) -> list[URLInsertModel]:
+    results: list[URLInsertModel] = []
     for url in urls:
         results.append(
             URLInsertModel(
-                url=url,
-                source=URLSource.REDIRECT
+                url=url.without_scheme.rstrip('/'),
+                scheme=url.scheme,
+                source=URLSource.REDIRECT,
+                trailing_slash=url.without_scheme.endswith('/')
             )
         )
     return results

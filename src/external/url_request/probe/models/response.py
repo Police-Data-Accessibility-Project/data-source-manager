@@ -1,9 +1,13 @@
 from pydantic import BaseModel, Field, model_validator
 
+from src.util.models.full_url import FullURL
 
 
 class URLProbeResponse(BaseModel):
-    url: str
+    class Config:
+        arbitrary_types_allowed = True
+
+    url: FullURL
     status_code: int | None = Field(le=999, ge=100)
     content_type: str | None
     error: str | None = None

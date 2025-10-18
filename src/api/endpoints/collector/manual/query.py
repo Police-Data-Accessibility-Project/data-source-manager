@@ -48,13 +48,14 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
             url_and_scheme: URLAndScheme = get_url_and_scheme(entry.url)
 
             url = URL(
-                url=url_and_scheme.url,
+                url=url_and_scheme.url.rstrip('/'),
                 scheme=url_and_scheme.scheme,
                 name=entry.name,
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,
                 status=URLStatus.OK.value,
-                source=URLSource.MANUAL
+                source=URLSource.MANUAL,
+                trailing_slash=url_and_scheme.url.endswith('/'),
             )
 
 

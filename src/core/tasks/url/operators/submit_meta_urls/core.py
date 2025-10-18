@@ -3,7 +3,7 @@ from src.core.tasks.url.operators.submit_meta_urls.queries.get import GetMetaURL
 from src.core.tasks.url.operators.submit_meta_urls.queries.prereq import \
     MeetsMetaURLSSubmissionPrerequisitesQueryBuilder
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.url.ds_meta_url.pydantic import URLDSMetaURLPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
@@ -11,7 +11,7 @@ from src.external.pdap.client import PDAPClient
 from src.external.pdap.impl.meta_urls.enums import SubmitMetaURLsStatus
 from src.external.pdap.impl.meta_urls.request import SubmitMetaURLsRequest
 from src.external.pdap.impl.meta_urls.response import SubmitMetaURLsResponse
-from src.util.url_mapper import URLMapper
+from src.util.url_mapper_.simple import SimpleURLMapper
 
 
 class SubmitMetaURLsTaskOperator(URLTaskOperatorBase):
@@ -38,15 +38,15 @@ class SubmitMetaURLsTaskOperator(URLTaskOperatorBase):
             GetMetaURLsForSubmissionQueryBuilder()
         )
 
-        url_mappings: list[URLMapping] = [
-            URLMapping(
+        url_mappings: list[SimpleURLMapping] = [
+            SimpleURLMapping(
                 url=request.url,
                 url_id=request.url_id,
             )
             for request in requests
         ]
 
-        mapper = URLMapper(url_mappings)
+        mapper = SimpleURLMapper(url_mappings)
 
         await self.link_urls_to_task(mapper.get_all_ids())
 

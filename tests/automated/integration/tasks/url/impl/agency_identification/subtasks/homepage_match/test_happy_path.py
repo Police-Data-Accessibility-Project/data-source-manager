@@ -5,7 +5,7 @@ import pytest
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
 from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
@@ -26,7 +26,7 @@ async def test_homepage_match(
     """
 
     # Create 2 root URLs
-    root_url_mappings: list[URLMapping] = (
+    root_url_mappings: list[SimpleURLMapping] = (
         await db_data_creator.create_urls(count=2)
     )
     root_url_ids: list[int] = [url_mapping.url_id for url_mapping in root_url_mappings]
@@ -60,7 +60,7 @@ async def test_homepage_match(
 
 
     # Create 2 Meta URLs and agencies for multi agency case
-    multi_meta_urls: list[URLMapping] = await db_data_creator.create_validated_urls(
+    multi_meta_urls: list[SimpleURLMapping] = await db_data_creator.create_validated_urls(
         count=2,
         validation_type=URLType.META_URL
     )
@@ -84,7 +84,7 @@ async def test_homepage_match(
     assert not await operator.meets_task_prerequisites()
 
     # Set up eligible URLs
-    eligible_urls: list[URLMapping] = await db_data_creator.create_urls(
+    eligible_urls: list[SimpleURLMapping] = await db_data_creator.create_urls(
         count=2,
     )
     single_url_id: int = eligible_urls[0].url_id

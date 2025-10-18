@@ -1,9 +1,9 @@
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 
 
-class URLMapper:
+class SimpleURLMapper:
 
-    def __init__(self, mappings: list[URLMapping]):
+    def __init__(self, mappings: list[SimpleURLMapping]):
         self._url_to_id = {
             mapping.url: mapping.url_id
             for mapping in mappings
@@ -31,18 +31,18 @@ class URLMapper:
     def get_url(self, url_id: int) -> str:
         return self._id_to_url[url_id]
 
-    def get_mappings_by_url(self, urls: list[str]) -> list[URLMapping]:
+    def get_mappings_by_url(self, urls: list[str]) -> list[SimpleURLMapping]:
         return [
-            URLMapping(
+            SimpleURLMapping(
                 url_id=self._url_to_id[url],
                 url=url
             ) for url in urls
         ]
 
-    def add_mapping(self, mapping: URLMapping) -> None:
+    def add_mapping(self, mapping: SimpleURLMapping) -> None:
         self._url_to_id[mapping.url] = mapping.url_id
         self._id_to_url[mapping.url_id] = mapping.url
 
-    def add_mappings(self, mappings: list[URLMapping]) -> None:
+    def add_mappings(self, mappings: list[SimpleURLMapping]) -> None:
         for mapping in mappings:
             self.add_mapping(mapping)

@@ -24,7 +24,9 @@ async def test_updated_at(db_data_creator: DBDataCreator):
 
     url_upsert = URLUpsertModel(
         id=url.id,
-        name="New Name"
+        name="New Name",
+        url=url.url,
+        trailing_slash=url.trailing_slash,
     )
 
     await db_data_creator.adb_client.bulk_update([url_upsert])
