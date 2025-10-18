@@ -30,7 +30,7 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
         )
     )
     source_url_id = await setup_manager.setup_url(URLStatus.OK)
-    dest_url_id = await setup_manager.setup_url(URLStatus.OK, url=TEST_DEST_URL)
+    dest_url_id = await setup_manager.setup_url(URLStatus.OK, url=TEST_DEST_URL.replace("https://", ""))
     # Add web metadata for destination URL, to prevent it from being pulled
     web_metadata = URLWebMetadataPydantic(
         url_id=dest_url_id,

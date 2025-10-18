@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Text, String, JSON, case, literal
+from sqlalchemy import Column, Text, String, JSON, case, literal, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.util import hybridproperty
@@ -32,17 +32,28 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
             name='url_status',
             nullable=False
     )
+    trailing_slash = Column(Boolean, nullable=False)
 
     @hybrid_property
     def full_url(self) -> str:
         if self.scheme is None:
             return self.url
-        return f"{self.scheme}://{self.url}"
+        url: str = f"{self.scheme}://{self.url}"
+        if self.trailing_slash:
+            url += "/"
+        return url
 
     @full_url.expression
     def full_url(cls):
         return case(
-                (cls.scheme != None, (cls.scheme + literal("://") + cls.url)),
+                (
+                    (cls.scheme != None) & (cls.trailing_slash == True),
+                    (cls.scheme + literal("://") + cls.url + literal("/"))
+                ),
+                (
+                    (cls.scheme != None) & (cls.trailing_slash == False),
+                    (cls.scheme + literal("://") + cls.url)
+                ),
             else_=cls.url
         )
 

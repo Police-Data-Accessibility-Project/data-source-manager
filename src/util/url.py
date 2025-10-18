@@ -26,3 +26,9 @@ def get_url_and_scheme(
         url=url,
         scheme=None
     )
+
+def remove_url_scheme(url: str) -> str:
+    parsed = urlparse(url)
+    if parsed.scheme:
+        return url.replace(f"{parsed.scheme}://", "", 1)
+    return url

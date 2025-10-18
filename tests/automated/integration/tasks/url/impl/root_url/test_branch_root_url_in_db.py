@@ -25,7 +25,8 @@ async def test_branch_root_url_in_db(
     # Add URL that is a root URL, and mark as such
     url_insert_model_root = URLInsertModel(
         url=ROOT_URL,
-        source=URLSource.DATA_SOURCES
+        source=URLSource.DATA_SOURCES,
+        trailing_slash=False
     )
     root_url_id = (await operator.adb_client.bulk_insert([url_insert_model_root], return_ids=True))[0]
     root_model_flag_insert = FlagRootURLPydantic(
@@ -36,7 +37,8 @@ async def test_branch_root_url_in_db(
     # Add URL that is a branch of the root URL
     url_insert_model = URLInsertModel(
         url=BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=False
     )
     branch_url_id = (await operator.adb_client.bulk_insert([url_insert_model], return_ids=True))[0]
 

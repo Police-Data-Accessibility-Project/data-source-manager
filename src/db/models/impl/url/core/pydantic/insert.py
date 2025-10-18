@@ -19,3 +19,4 @@ class URLInsertModel(BulkInsertableModel):
     name: str | None = None
     status: URLStatus = URLStatus.OK
     source: URLSource
+    trailing_slash: bool

@@ -54,6 +54,7 @@ def generate_urls(
             source=source,
             name=f"Example {val}",
             collector_metadata=collector_metadata,
+            trailing_slash=False
         ))
     return results
 

@@ -7,7 +7,7 @@ from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLo
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.core.enums import RecordType
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
 from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
@@ -34,11 +34,11 @@ async def test_annotate_anonymous(
     setup_info_1 =  await setup_for_get_next_url_for_final_review(
         db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
-    url_mapping_1: URLMapping = setup_info_1.url_mapping
+    url_mapping_1: SimpleURLMapping = setup_info_1.url_mapping
     setup_info_2: FinalReviewSetupInfo = await setup_for_get_next_url_for_final_review(
         db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
-    url_mapping_2: URLMapping = setup_info_2.url_mapping
+    url_mapping_2: SimpleURLMapping = setup_info_2.url_mapping
 
     get_response_1: GetNextURLForAllAnnotationResponse = await get_next_url_for_anonymous_annotation(rv)
     assert get_response_1.next_annotation is not None

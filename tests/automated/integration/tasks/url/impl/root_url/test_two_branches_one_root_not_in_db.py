@@ -23,13 +23,15 @@ async def test_two_branches_one_root_in_db_not_flagged(
     # Add two URLs that are branches of a root URL
     url_insert_model_branch_1 = URLInsertModel(
         url=BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=BRANCH_URL.endswith('/')
     )
     url_id_branch_1 = (await operator.adb_client.bulk_insert([url_insert_model_branch_1], return_ids=True))[0]
 
     url_insert_model_branch_2 = URLInsertModel(
         url=SECOND_BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=SECOND_BRANCH_URL.endswith('/')
     )
     url_id_branch_2 = (await operator.adb_client.bulk_insert([url_insert_model_branch_2], return_ids=True))[0]
 

@@ -1,6 +1,7 @@
 import pytest
 
 from src.collectors.enums import URLStatus
+from src.util.models.full_url import FullURL
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 from tests.automated.integration.tasks.url.impl.probe.check.manager import TestURLProbeCheckManager
 from tests.automated.integration.tasks.url.impl.probe.setup.manager import TestURLProbeSetupManager
@@ -30,7 +31,7 @@ async def test_url_probe_task_redirect_two_urls_same_dest(
                 dest_status_code=200,
                 dest_content_type=None,
                 dest_error=None,
-                source_url="example.com/2",
+                source_url=FullURL("example.com/2"),
             ),
         ]
     )

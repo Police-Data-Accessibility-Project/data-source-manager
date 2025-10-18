@@ -5,9 +5,8 @@ import pytest
 from pdap_access_manager import ResponseInfo
 
 from src.collectors.enums import URLStatus
-from src.core.enums import SubmitResponseStatus
 from src.core.tasks.url.operators.submit_meta_urls.core import SubmitMetaURLsTaskOperator
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.ds_meta_url.sqlalchemy import URLDSMetaURL
@@ -37,7 +36,7 @@ async def test_submit_meta_urls(
     # Create validated meta url
     agency_id: int = (await db_data_creator.create_agencies(count=1))[0]
 
-    mapping: URLMapping = (await db_data_creator.create_validated_urls(
+    mapping: SimpleURLMapping = (await db_data_creator.create_validated_urls(
         validation_type=URLType.META_URL
     ))[0]
     await db_data_creator.link_urls_to_agencies(

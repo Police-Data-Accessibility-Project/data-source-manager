@@ -171,7 +171,6 @@ class AsyncDatabaseClient:
         session: AsyncSession,
         models: list[Base],
     ):
-        # Note, mapping must include primary key
         await sh.bulk_update(session=session, models=models)
 
     @session_manager

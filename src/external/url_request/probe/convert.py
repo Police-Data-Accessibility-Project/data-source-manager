@@ -6,6 +6,7 @@ from aiohttp import ClientResponse, ClientResponseError
 from src.external.url_request.probe.models.response import URLProbeResponse
 from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.wrapper import URLProbeResponseOuterWrapper
+from src.util.models.full_url import FullURL
 
 
 def _process_client_response_history(history: Sequence[ClientResponse]) -> list[str]:
@@ -29,7 +30,7 @@ def _extract_redirect_probe_response(cr: ClientResponse) -> URLProbeResponse | N
     first_url = all_urls[0]
 
     return URLProbeResponse(
-        url=first_url,
+        url=FullURL(first_url),
         status_code=HTTPStatus.FOUND.value,
         content_type=None,
         error=None,
@@ -53,14 +54,14 @@ def _extract_destination_url(cr: ClientResponse) -> str:
     return str(cr.url)
 
 def convert_client_response_to_probe_response(
-    url: str,
+    url: FullURL,
     cr: ClientResponse
 ) -> URLProbeResponse | URLProbeRedirectResponsePair:
     error = _extract_error(cr)
     content_type = _extract_content_type(cr, error=error)
     if not _has_redirect(cr):
         return URLProbeResponse(
-            url=str(cr.url),
+            url=FullURL(str(cr.url)),
             status_code=cr.status,
             content_type=content_type,
             error=error,
@@ -85,7 +86,7 @@ def convert_client_response_to_probe_response(
     destination_error = _extract_error(destination_cr)
     destination_content_type = _extract_content_type(destination_cr, error=destination_error)
     destination_probe_response = URLProbeResponse(
-        url=destination_url,
+        url=FullURL(destination_url),
         status_code=destination_cr.status,
         content_type=destination_content_type,
         error=destination_error,
@@ -97,7 +98,7 @@ def convert_client_response_to_probe_response(
     )
 
 def convert_to_error_response(
-    url: str,
+    url: FullURL,
     error: str,
     status_code: int | None = None
 ) -> URLProbeResponseOuterWrapper:

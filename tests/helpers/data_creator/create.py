@@ -4,7 +4,7 @@ from src.collectors.enums import CollectorType, URLStatus
 from src.core.enums import BatchStatus, RecordType
 from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
@@ -13,7 +13,7 @@ from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
 from src.db.models.impl.url.record_type.pydantic import URLRecordTypePydantic
-from tests.helpers.counter import COUNTER, next_int
+from tests.helpers.counter import next_int
 from tests.helpers.data_creator.generate import generate_batch, generate_urls, generate_validated_flags, \
     generate_url_data_sources, generate_batch_url_links
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
@@ -37,7 +37,7 @@ async def create_urls(
     record_type: RecordType | None = RecordType.RESOURCES,
     collector_metadata: dict | None = None,
     count: int = 1
-) -> list[URLMapping]:
+) -> list[SimpleURLMapping]:
     urls: list[URLInsertModel] = generate_urls(
         status=status,
         source=source,
@@ -55,7 +55,7 @@ async def create_urls(
         ]
         await adb_client.bulk_insert(record_types)
 
-    return [URLMapping(url_id=url_id, url=url.url) for url_id, url in zip(url_ids, urls)]
+    return [SimpleURLMapping(url_id=url_id, url=url.url) for url_id, url in zip(url_ids, urls)]
 
 async def create_validated_flags(
     adb_client: AsyncDatabaseClient,

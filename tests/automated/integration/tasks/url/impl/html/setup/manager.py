@@ -33,7 +33,8 @@ class TestURLHTMLTaskSetupManager:
                 url=entry.url_info.url,
                 name=f"Test for {entry.url_info.url}",
                 record_type=RecordType.RESOURCES,
-                source=URLSource.COLLECTOR
+                source=URLSource.COLLECTOR,
+                trailing_slash=False
             )
             url_insert_models.append(url_insert_model)
         url_ids = await self.adb_client.bulk_insert(url_insert_models, return_ids=True)

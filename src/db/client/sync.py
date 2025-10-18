@@ -1,17 +1,16 @@
 from functools import wraps
 from typing import List
 
-from sqlalchemy import create_engine, update, Select
+from sqlalchemy import create_engine, Select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
-from src.collectors.enums import URLStatus
 from src.db.config_manager import ConfigManager
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.models.impl.log.pydantic.info import LogInfo
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.templates_.base import Base
@@ -125,6 +124,7 @@ class DatabaseClient:
             collector_metadata=url_info.collector_metadata,
             status=url_info.status,
             name=url_info.name,
+            trailing_slash=url_and_scheme.url.endswith('/'),
             source=url_info.source
         )
         if url_info.created_at is not None:
@@ -147,7 +147,7 @@ class DatabaseClient:
             url_info.batch_id = batch_id
             try:
                 url_id = self.insert_url(url_info)
-                url_mappings.append(URLMapping(url_id=url_id, url=url_info.url))
+                url_mappings.append(SimpleURLMapping(url_id=url_id, url=url_info.url))
             except IntegrityError as e:
                 orig_url_info = self.get_url_info_by_url(url_info.url)
                 duplicate_info = DuplicateInsertInfo(
