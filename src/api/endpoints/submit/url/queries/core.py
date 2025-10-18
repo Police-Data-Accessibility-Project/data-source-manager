@@ -18,9 +18,8 @@ from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.utils.validate import is_valid_url
 from src.util.models.url_and_scheme import URLAndScheme
-from src.util.url import clean_url, get_url_and_scheme
+from src.util.url import clean_url, get_url_and_scheme, is_valid_url
 
 
 class SubmitURLQueryBuilder(QueryBuilderBase):

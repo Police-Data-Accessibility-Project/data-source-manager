@@ -1,11 +1,10 @@
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import URLExistsResult
-from src.db.helpers.session.session_helper import results_exist
+from src.db.queries.urls_exist.model import URLExistsResult
+from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.helpers.session import session_helper as sh
 from src.util.models.full_url import FullURL
 
 
