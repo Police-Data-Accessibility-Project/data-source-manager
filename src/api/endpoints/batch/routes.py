@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import Path, APIRouter
 from fastapi.params import Query, Depends
 
@@ -7,12 +5,11 @@ from src.api.dependencies import get_async_core
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.api.endpoints.batch.dtos.post.abort import MessageResponse
+from src.api.shared.models.message_response import MessageResponse
 from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.collectors.enums import CollectorType
 from src.core.core import AsyncCore
-from src.core.enums import BatchStatus
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.security.dtos.access_info import AccessInfo
 from src.security.manager import get_access_info

@@ -68,12 +68,19 @@ class DBDataCreator:
     """
     Assists in the creation of test data
     """
-    def __init__(self, db_client: Optional[DatabaseClient] = None):
+    def __init__(
+        self,
+        db_client: DatabaseClient | None = None,
+        adb_client: AsyncDatabaseClient | None = None
+    ):
         if db_client is not None:
             self.db_client = db_client
         else:
             self.db_client = DatabaseClient()
-        self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
+        if adb_client is not None:
+            self.adb_client = adb_client
+        else:
+            self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
         self.clients = DBDataCreatorClientContainer(
             adb=self.adb_client,
             db=self.db_client

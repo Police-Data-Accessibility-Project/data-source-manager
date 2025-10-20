@@ -438,6 +438,14 @@ class AsyncDatabaseClient:
         )
 
     @session_manager
+    async def one_or_none(
+        self,
+        session: AsyncSession,
+        model: Base
+    ) -> Row | None:
+        return await sh.one_or_none(session=session, query=select(model))
+
+    @session_manager
     async def get_all(
         self,
         session,
