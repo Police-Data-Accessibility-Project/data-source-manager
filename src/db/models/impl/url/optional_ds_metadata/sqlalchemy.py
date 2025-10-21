@@ -12,7 +12,7 @@ class URLOptionalDataSourceMetadata(URLDependentMixin, WithIDBase):
     __tablename__ = 'url_optional_data_source_metadata'
 
     record_formats = Column(ARRAY(String), nullable=True)
-    data_portal = Column(String, nullable=True)
+    data_portal_type = Column(String, nullable=True)
     supplying_entity = Column(String, nullable=True)
     coverage_start = Column(Date, nullable=True)
     coverage_end = Column(Date, nullable=True)

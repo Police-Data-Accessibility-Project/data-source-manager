@@ -21,13 +21,13 @@ class DataSourceSubmissionRequest(BaseModel):
     agency_originated: bool | None = None
     agency_aggregation: AgencyAggregationEnum | None = None
     agency_described_not_in_database: str | None = None
+    data_portal_type: str | None = None
     update_method: UpdateMethodEnum | None = None
     readme_url: str | None = None
     originating_entity: str | None = None
     retention_schedule: RetentionScheduleEnum | None = None
     scraper_url: str | None = None
     submission_notes: str | None = None
-    data_portal: str | None = None
     access_notes: str | None = None
     access_types: list[AccessTypeEnum] = []
     record_formats: list[str] = []

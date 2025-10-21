@@ -82,7 +82,6 @@ def _add_new_columns_to_optional_ds_metadata():
         sa.Column('scraper_url', sa.Text(), nullable=True),
         sa.Column('submission_notes', sa.Text(), nullable=True),
         sa.Column('access_notes', sa.Text(), nullable=True),
-        sa.Column('data_portal', sa.Text(), nullable=True),
         sa.Column('access_types', ARRAY(
             access_type_enum
         ), nullable=True),

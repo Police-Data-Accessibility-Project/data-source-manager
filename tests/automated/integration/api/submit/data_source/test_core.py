@@ -44,7 +44,7 @@ async def test_submit_data_source(
             retention_schedule=RetentionScheduleEnum.GT_10_YEARS,
             scraper_url="https://example.com/scraper",
             submission_notes="Test submission notes",
-            data_portal="Test data portal",
+            data_portal_type="Test data portal",
             access_notes="Test access notes",
             access_types=[
                 AccessTypeEnum.API,
@@ -98,7 +98,7 @@ async def test_submit_data_source(
     assert not optional_ds.agency_originated
     assert optional_ds.agency_aggregation == AgencyAggregationEnum.STATE
     assert optional_ds.agency_described_not_in_database == "Test agency described not in database"
-    assert optional_ds.data_portal == "Test data portal"
+    assert optional_ds.data_portal_type == "Test data portal"
     assert optional_ds.update_method == UpdateMethodEnum.NO_UPDATES
     assert optional_ds.readme_url == "https://example.com/readme"
     assert optional_ds.originating_entity == "Test Originating Entity"
