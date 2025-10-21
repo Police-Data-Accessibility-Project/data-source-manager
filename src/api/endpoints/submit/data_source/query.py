@@ -1,0 +1,108 @@
+from typing import Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
+from src.api.endpoints.submit.data_source.response import SubmitDataSourceURLProposalResponse
+from src.collectors.enums import URLStatus
+from src.db.models.impl.url.core.enums import URLSource
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
+from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
+from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
+from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
+from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.queries.base.builder import QueryBuilderBase
+from src.util.models.full_url import FullURL
+
+
+class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
+
+    def __init__(self, request: DataSourceSubmissionRequest):
+        super().__init__()
+        self.request = request
+
+    async def run(self, session: AsyncSession) -> Any:
+        full_url = FullURL(full_url=self.request.source_url)
+
+        url = URL(
+            url=full_url.id_form,
+            scheme=full_url.scheme,
+            trailing_slash=full_url.has_trailing_slash,
+            name=self.request.name,
+            status=URLStatus.OK,
+            source=URLSource.MANUAL,
+        )
+
+        session.add(url)
+        await session.flush()
+
+        url_id: int = url.id
+
+        # Optionally add Record Type as suggestion
+        if self.request.record_type is not None:
+            record_type_suggestion = AnonymousAnnotationRecordType(
+                url_id=url_id,
+                record_type=self.request.record_type.value
+            )
+            session.add(record_type_suggestion)
+
+        # Optionally add Agency ID suggestions
+        if self.request.agency_ids is not None:
+            agency_id_suggestions = [
+                AnonymousAnnotationAgency(
+                    url_id=url_id,
+                    agency_id=agency_id
+                )
+                for agency_id in self.request.agency_ids
+            ]
+            session.add_all(agency_id_suggestions)
+
+        # Optionally add Location ID suggestions
+        if self.request.location_ids is not None:
+            location_id_suggestions = [
+                AnonymousAnnotationLocation(
+                    url_id=url_id,
+                    location_id=location_id
+                )
+                for location_id in self.request.location_ids
+            ]
+            session.add_all(location_id_suggestions)
+
+        # Optionally add name suggestion
+        if self.request.name is not None:
+            name_suggestion = URLNameSuggestion(
+                url_id=url_id,
+                suggestion=self.request.name,
+                source=NameSuggestionSource.USER
+            )
+            session.add(name_suggestion)
+
+        # Add data source metadata
+        ds_metadata = URLOptionalDataSourceMetadata(
+            url_id=url_id,
+            coverage_start=self.request.coverage_start,
+            coverage_end=self.request.coverage_end,
+            supplying_entity=self.request.supplying_entity,
+            agency_supplied=self.request.agency_supplied,
+            agency_originated=self.request.agency_originated,
+            agency_aggregation=self.request.agency_aggregation,
+            agency_described_not_in_database=self.request.agency_described_not_in_database,
+            data_portal=self.request.data_portal,
+            update_method=self.request.update_method,
+            readme_url=self.request.readme_url,
+            originating_entity=self.request.originating_entity,
+            retention_schedule=self.request.retention_schedule,
+            scraper_url=self.request.scraper_url,
+            submission_notes=self.request.submission_notes,
+            access_notes=self.request.access_notes,
+            access_types=self.request.access_types,
+            record_formats=self.request.record_formats,
+        )
+        session.add(ds_metadata)
+        await session.flush()
+
+        return SubmitDataSourceURLProposalResponse(
+            url_id=url_id,
+        )

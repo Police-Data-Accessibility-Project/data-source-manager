@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Text, String, JSON, case, literal, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.util import hybridproperty
 
 from src.collectors.enums import URLStatus
@@ -27,7 +27,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     # The metadata from the collector
     collector_metadata = Column(JSON)
     # The outcome of the URL: submitted, human_labeling, rejected, duplicate, etc.
-    status = enum_column(
+    status: Mapped[URLStatus] = enum_column(
             URLStatus,
             name='url_status',
             nullable=False
@@ -57,7 +57,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
             else_=cls.url
         )
 
-    source = enum_column(
+    source: Mapped[URLSource] = enum_column(
         URLSource,
         name='url_source',
         nullable=False

@@ -159,3 +159,11 @@ async def api_test_helper(
         ),
     )
     await client.app.state.async_core.collector_manager.logger.clear_log_queue()
+
+@pytest_asyncio.fixture
+async def test_agency_id(
+    db_data_creator: DBDataCreator
+) -> int:
+    return await db_data_creator.agency(
+        name="Test Agency"
+    )

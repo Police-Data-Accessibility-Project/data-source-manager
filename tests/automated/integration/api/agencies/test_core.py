@@ -28,12 +28,12 @@ async def test_agencies(
         ).model_dump(mode="json")
     )
 
-    agency: Agency = await ath.adb_client().one_or_none(model=Agency)
+    agency: Agency = await ath.adb_client().one_or_none_model(model=Agency)
     assert agency.name == "Test Agency"
     assert agency.agency_type == AgencyType.LAW_ENFORCEMENT
     assert agency.jurisdiction_type == JurisdictionType.STATE
 
-    link: LinkAgencyLocation = await ath.adb_client().one_or_none(model=LinkAgencyLocation)
+    link: LinkAgencyLocation = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is not None
     assert link.agency_id == agency.agency_id
     assert link.location_id == california.location_id
@@ -42,14 +42,14 @@ async def test_agencies(
         url=f"/agencies/{agency.agency_id}/locations/{california.location_id}",
     )
 
-    link: LinkAgencyLocation | None = await ath.adb_client().one_or_none(model=LinkAgencyLocation)
+    link: LinkAgencyLocation | None = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is None
 
     rv.post_v3(
         url=f"/agencies/{agency.agency_id}/locations/{pennsylvania.location_id}",
     )
 
-    link: LinkAgencyLocation = await ath.adb_client().one_or_none(model=LinkAgencyLocation)
+    link: LinkAgencyLocation = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is not None
     assert link.agency_id == agency.agency_id
     assert link.location_id == pennsylvania.location_id
@@ -61,7 +61,7 @@ async def test_agencies(
         ).model_dump(mode="json")
     )
 
-    agency: Agency = await ath.adb_client().one_or_none(model=Agency)
+    agency: Agency = await ath.adb_client().one_or_none_model(model=Agency)
     assert agency.name == "Test Agency Updated"
     assert agency.agency_type == AgencyType.LAW_ENFORCEMENT
     assert agency.jurisdiction_type == JurisdictionType.STATE
@@ -71,5 +71,5 @@ async def test_agencies(
         url=f"/agencies/{agency.agency_id}",
     )
 
-    agency: Agency | None = await ath.adb_client().one_or_none(model=Agency)
+    agency: Agency | None = await ath.adb_client().one_or_none_model(model=Agency)
     assert agency is None

@@ -6,6 +6,7 @@ from src.db.queries.base.builder import QueryBuilderBase
 
 
 class DeleteAgencyQueryBuilder(QueryBuilderBase):
+
     def __init__(
             self,
             agency_id: int,

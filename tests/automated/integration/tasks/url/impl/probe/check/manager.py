@@ -20,7 +20,9 @@ class TestURLProbeCheckManager:
         url_id: int,
         expected_status: URLStatus
     ):
-        url: URL = await self.adb_client.one_or_none(select(URL).where(URL.id == url_id))
+        url: URL = await self.adb_client.one_or_none(
+            statement=select(URL).where(URL.id == url_id)
+        )
         assert url is not None
         assert url.status == expected_status
 

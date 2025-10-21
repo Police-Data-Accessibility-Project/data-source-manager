@@ -9,7 +9,7 @@ from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
 from src.util.models.url_and_scheme import URLAndScheme

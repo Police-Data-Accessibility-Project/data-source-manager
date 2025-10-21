@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import get_async_core
+from src.api.endpoints.submit.data_source.query import SubmitDataSourceURLProposalQueryBuilder
+from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
 from src.api.endpoints.submit.url.models.request import URLSubmissionRequest
 from src.api.endpoints.submit.url.models.response import URLSubmissionResponse
 from src.api.endpoints.submit.url.queries.core import SubmitURLQueryBuilder
@@ -20,5 +22,16 @@ async def submit_url(
         SubmitURLQueryBuilder(
             request=request,
             user_id=access_info.user_id
+        )
+    )
+
+@submit_router.post("/data-source")
+async def submit_data_source(
+    request: DataSourceSubmissionRequest,
+    async_core: AsyncCore = Depends(get_async_core),
+):
+    return await async_core.adb_client.run_query_builder(
+        SubmitDataSourceURLProposalQueryBuilder(
+            request=request,
         )
     )

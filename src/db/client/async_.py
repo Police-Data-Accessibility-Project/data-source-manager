@@ -80,7 +80,7 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -438,7 +438,7 @@ class AsyncDatabaseClient:
         )
 
     @session_manager
-    async def one_or_none(
+    async def one_or_none_model(
         self,
         session: AsyncSession,
         model: Base
