@@ -1,8 +1,5 @@
-from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.collectors.impl.example.dtos.input import ExampleInputDTO
-from src.core.enums import BatchStatus
+
 
 def test_get_batch_urls(api_test_helper):
 

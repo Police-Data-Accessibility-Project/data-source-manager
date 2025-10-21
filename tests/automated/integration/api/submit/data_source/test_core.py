@@ -4,8 +4,10 @@ import pytest
 
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
 from src.collectors.enums import URLStatus
-from src.core.enums import RecordType
+from src.core.enums import RecordType, BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, UpdateMethodEnum, \
@@ -72,6 +74,20 @@ async def test_submit_data_source(
     assert url.trailing_slash == True
     assert url.source == URLSource.MANUAL
     assert url.status == URLStatus.OK
+
+    # Check for Batch
+    batch: Batch = await adb_client.one_or_none_model(Batch)
+    assert batch is not None
+    assert batch.user_id is None
+    assert batch.strategy == 'manual'
+    assert batch.status == BatchStatus.READY_TO_LABEL.value
+    assert batch.parameters == {}
+
+    # Check for Batch URL Link
+    batch_url_link: LinkBatchURL = await adb_client.one_or_none_model(LinkBatchURL)
+    assert batch_url_link is not None
+    assert batch_url_link.batch_id == batch.id
+    assert batch_url_link.url_id == url.id
 
     # Check for Location Suggestion
     location_suggestion: AnonymousAnnotationLocation = await adb_client.one_or_none_model(AnonymousAnnotationLocation)

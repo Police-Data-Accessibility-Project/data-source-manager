@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
 from src.api.endpoints.submit.data_source.response import SubmitDataSourceURLProposalResponse
 from src.collectors.enums import URLStatus
+from src.core.enums import BatchStatus
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
@@ -39,6 +42,23 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         await session.flush()
 
         url_id: int = url.id
+
+        # Add Batch
+        batch = Batch(
+            strategy='manual',
+            status=BatchStatus.READY_TO_LABEL,
+            parameters={}
+        )
+        session.add(batch)
+        await session.flush()
+        batch_id: int = batch.id
+
+        # Add Batch URL link
+        batch_url_link = LinkBatchURL(
+            batch_id=batch_id,
+            url_id=url_id
+        )
+        session.add(batch_url_link)
 
         # Optionally add Record Type as suggestion
         if self.request.record_type is not None:
