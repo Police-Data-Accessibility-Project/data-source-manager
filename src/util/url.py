@@ -32,3 +32,17 @@ def remove_url_scheme(url: str) -> str:
     if parsed.scheme:
         return url.replace(f"{parsed.scheme}://", "", 1)
     return url
+
+
+def is_valid_url(url: str) -> bool:
+    try:
+        result = urlparse(url)
+        # If scheme is missing, `netloc` will be empty, so we check path too
+        if result.scheme in ("http", "https") and result.netloc:
+            return True
+        if not result.scheme and result.path:
+            # no scheme, treat path as potential domain
+            return "." in result.path
+        return False
+    except ValueError:
+        return False

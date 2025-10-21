@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.url.operators.probe.queries.insert_redirects.extract import extract_response_pairs
 from src.core.tasks.url.operators.probe.queries.insert_redirects.request_manager import InsertRedirectsRequestManager
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import URLExistsResult
+from src.db.queries.urls_exist.model import URLExistsResult
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.db.dtos.url.mapping_.full import FullURLMapping
 from src.db.queries.base.builder import QueryBuilderBase

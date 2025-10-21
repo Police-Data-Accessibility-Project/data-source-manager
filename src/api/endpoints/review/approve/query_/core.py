@@ -6,14 +6,12 @@ from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.util import update_if_not_none
-from src.collectors.enums import URLStatus
-from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from src.db.queries.base.builder import QueryBuilderBase

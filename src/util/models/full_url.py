@@ -79,6 +79,10 @@ class FullURL:
         clean: str = clean_url(no_trailing_slash)
         return clean
 
+    @property
+    def has_trailing_slash(self) -> bool:
+        return self.full_url.endswith("/")
+
     def clean(self) -> str:
         return clean_url(self.full_url)
 

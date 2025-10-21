@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.enums import TaskOperatorOutcome

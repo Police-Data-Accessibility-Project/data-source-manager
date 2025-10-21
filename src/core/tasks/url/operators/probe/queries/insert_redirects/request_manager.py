@@ -8,14 +8,14 @@ from src.core.tasks.url.operators.probe.queries.insert_redirects.convert import 
     convert_url_response_mapping_to_web_metadata_list
 from src.core.tasks.url.operators.probe.queries.insert_redirects.map import map_url_mappings_to_probe_responses
 from src.core.tasks.url.operators.probe.queries.insert_redirects.models.url_response_map import URLResponseMapping
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import URLExistsResult
-from src.core.tasks.url.operators.probe.queries.urls.exist.query import URLsExistInDBQueryBuilder
+from src.db.queries.urls_exist.model import URLExistsResult
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.db.dtos.url.mapping_.full import FullURLMapping
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.url_redirect_url.pydantic import LinkURLRedirectURLPydantic
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
 from src.db.models.impl.url.web_metadata.insert import URLWebMetadataPydantic
+from src.db.queries.urls_exist.query import URLsExistInDBQueryBuilder
 from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.response import URLProbeResponse
 from src.util.models.full_url import FullURL

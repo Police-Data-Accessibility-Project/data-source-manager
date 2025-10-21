@@ -6,7 +6,7 @@ from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review

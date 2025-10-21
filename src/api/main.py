@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from pdap_access_manager import AccessManager
 from starlette.responses import RedirectResponse
 
+from src.api.endpoints.agencies.routes import agencies_router
 from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
 from src.api.endpoints.collector.routes import collector_router
@@ -177,7 +178,8 @@ routers = [
     search_router,
     metrics_router,
     submit_router,
-    contributions_router
+    contributions_router,
+    agencies_router
 ]
 
 for router in routers:

@@ -1,16 +1,12 @@
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.api.endpoints.batch.dtos.post.abort import MessageResponse
+from src.api.shared.models.message_response import MessageResponse
 from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.api.endpoints.collector.dtos.collector_start import CollectorStartInfo
@@ -23,9 +19,6 @@ from src.api.endpoints.metrics.dtos.get.urls.aggregated.core import GetMetricsUR
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.pending import GetMetricsURLsAggregatedPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.submitted import GetMetricsURLsBreakdownSubmittedResponseDTO
-from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
-from src.api.endpoints.review.enums import RejectionReason
-from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
@@ -39,7 +32,6 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
-from src.security.dtos.access_info import AccessInfo
 
 
 class AsyncCore:
