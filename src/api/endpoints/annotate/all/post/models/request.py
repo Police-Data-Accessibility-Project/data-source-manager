@@ -1,15 +1,15 @@
-from pydantic import BaseModel, model_validator, ConfigDict
+from pydantic import model_validator
 
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
 from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
+from src.api.shared.models.request_base import RequestBase
 from src.core.enums import RecordType
 from src.core.exceptions import FailedValidationException
 from src.db.models.impl.flag.url_validated.enums import URLType
 
 
-class AllAnnotationPostInfo(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+class AllAnnotationPostInfo(RequestBase):
 
     suggested_status: URLType
     record_type: RecordType | None = None

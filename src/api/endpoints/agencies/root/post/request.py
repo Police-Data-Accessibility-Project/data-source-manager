@@ -1,9 +1,8 @@
-from pydantic import BaseModel
-
+from src.api.shared.models.request_base import RequestBase
 from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 
 
-class AgencyPostRequest(BaseModel):
+class AgencyPostRequest(RequestBase):
     name: str
     type: AgencyType
     jurisdiction_type: JurisdictionType
