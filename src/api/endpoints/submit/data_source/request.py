@@ -1,13 +1,12 @@
 from datetime import date
 
-from pydantic import BaseModel
-
+from src.api.shared.models.request_base import RequestBase
 from src.core.enums import RecordType
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, UpdateMethodEnum, \
     RetentionScheduleEnum, AccessTypeEnum
 
 
-class DataSourceSubmissionRequest(BaseModel):
+class DataSourceSubmissionRequest(RequestBase):
     # Required
     name: str
     record_type: RecordType
