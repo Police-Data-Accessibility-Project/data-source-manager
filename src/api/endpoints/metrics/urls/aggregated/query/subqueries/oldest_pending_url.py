@@ -27,8 +27,9 @@ class GetOldestPendingURLQueryBuilder(QueryBuilderBase):
             ).where(
                 URLStatusMatView.status.not_in(
                     [
-                        URLStatusViewEnum.SUBMITTED_PIPELINE_COMPLETE.value,
+                        URLStatusViewEnum.SUBMITTED.value,
                         URLStatusViewEnum.ACCEPTED.value,
+                        URLStatusViewEnum.AWAITING_SUBMISSION.value,
                     ]
                 )
             ).order_by(
