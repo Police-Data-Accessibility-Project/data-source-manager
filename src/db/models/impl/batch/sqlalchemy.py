@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, TIMESTAMP, Float, JSON
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
+from src.core.enums import BatchStatus
 from src.db.models.helpers import CURRENT_TIME_SERVER_DEFAULT
 from src.db.models.impl.log.sqlalchemy import Log
 from src.db.models.templates_.with_id import WithIDBase
@@ -23,9 +24,9 @@ class Batch(WithIDBase):
             'manual',
             name='batch_strategy'),
         nullable=False)
-    user_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, nullable=True)
     # Gives the status of the batch
-    status = Column(
+    status: Mapped[BatchStatus] = Column(
         batch_status_enum,
         nullable=False
     )
