@@ -12,6 +12,7 @@ from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
 from src.api.endpoints.collector.routes import collector_router
 from src.api.endpoints.contributions.routes import contributions_router
+from src.api.endpoints.data_source.routes import data_source_router
 from src.api.endpoints.metrics.routes import metrics_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
@@ -179,7 +180,8 @@ routers = [
     metrics_router,
     submit_router,
     contributions_router,
-    agencies_router
+    agencies_router,
+    data_source_router
 ]
 
 for router in routers:
