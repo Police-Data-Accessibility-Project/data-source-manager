@@ -2,7 +2,6 @@ import pytest
 from deepdiff import DeepDiff
 from pdap_access_manager import RequestInfo, RequestType, DataSourcesNamespaces
 
-from src.collectors.enums import URLStatus
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.models.impl.url.core.sqlalchemy import URL

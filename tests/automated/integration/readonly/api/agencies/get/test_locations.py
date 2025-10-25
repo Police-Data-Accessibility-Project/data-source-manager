@@ -1,6 +1,6 @@
 import pytest
 
-from tests.automated.integration.readonly.conftest import ReadOnlyTestHelper
+from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 
 
 @pytest.mark.asyncio
