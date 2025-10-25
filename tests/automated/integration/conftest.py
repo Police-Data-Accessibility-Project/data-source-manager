@@ -8,9 +8,11 @@ from starlette.testclient import TestClient
 from src.api.main import app
 from src.collectors.manager import AsyncCollectorManager
 from src.core.core import AsyncCore
+from src.core.enums import RecordType
 from src.core.logger import AsyncCoreLogger
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
 from src.security.manager import get_access_info
@@ -160,6 +162,12 @@ async def api_test_helper(
     )
     await client.app.state.async_core.collector_manager.logger.clear_log_queue()
 
+@pytest.fixture
+def test_batch_id(
+    db_data_creator: DBDataCreator
+) -> int:
+    return db_data_creator.batch()
+
 @pytest_asyncio.fixture
 async def test_agency_id(
     db_data_creator: DBDataCreator
@@ -167,3 +175,20 @@ async def test_agency_id(
     return await db_data_creator.agency(
         name="Test Agency"
     )
+
+@pytest_asyncio.fixture
+async def test_url_data_source_id(
+    db_data_creator: DBDataCreator
+) -> int:
+    return (await db_data_creator.create_validated_urls(
+        record_type=RecordType.CRIME_STATISTICS,
+        validation_type=URLType.DATA_SOURCE,
+    ))[0].url_id
+
+@pytest_asyncio.fixture
+async def test_url_meta_url_id(
+    db_data_creator: DBDataCreator
+) -> int:
+    return (await db_data_creator.create_validated_urls(
+        validation_type=URLType.META_URL,
+    ))[0].url_id

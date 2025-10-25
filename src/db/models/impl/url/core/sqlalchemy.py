@@ -21,7 +21,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
 
     # The batch this URL is associated with
     url = Column(Text, unique=True)
-    scheme = Column(String)
+    scheme: Mapped[str | None] = Column(String, nullable=True)
     name = Column(String)
     description = Column(Text)
     # The metadata from the collector

@@ -1,7 +1,7 @@
 import pytest
 
 from src.db.models.impl.agency.enums import JurisdictionType, AgencyType
-from tests.automated.integration.readonly.conftest import ReadOnlyTestHelper
+from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 
 
 @pytest.mark.asyncio

@@ -8,5 +8,8 @@ class AgencyGetResponse(BaseModel):
     id: int
     name: str
     type: AgencyType
-    jurisdiction_type: JurisdictionType
+    jurisdiction_type: JurisdictionType | None
     locations: list[AgencyGetLocationsResponse]
+
+class AgencyGetOuterResponse(BaseModel):
+    results: list[AgencyGetResponse]
