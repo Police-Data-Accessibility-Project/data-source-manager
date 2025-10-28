@@ -68,8 +68,3 @@ def get_access_info(
         token: Annotated[str, Depends(oauth2_scheme)]
 ) -> AccessInfo:
     return SecurityManager().check_access(token, Permissions.SOURCE_COLLECTOR)
-
-def require_permission(permission: Permissions):
-    def dependency(token: Annotated[str, Depends(oauth2_scheme)]) -> AccessInfo:
-        return SecurityManager().check_access(token, permission=permission)
-    return dependency
