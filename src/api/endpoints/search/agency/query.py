@@ -30,7 +30,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
 
         query = (
             select(
-                Agency.agency_id,
+                Agency.id.label("agency_id"),
                 Agency.name.label("agency_name"),
                 Agency.jurisdiction_type,
                 Agency.agency_type,
@@ -40,7 +40,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
         if self.location_id is None:
             query = query.join(
                 LinkAgencyLocation,
-                LinkAgencyLocation.agency_id == Agency.agency_id
+                LinkAgencyLocation.agency_id == Agency.id
             ).join(
                 LocationExpandedView,
                 LocationExpandedView.id == LinkAgencyLocation.location_id
@@ -49,7 +49,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
             with_location_id_cte_container = WithLocationIdCTEContainer(self.location_id)
             query = query.join(
                 with_location_id_cte_container.cte,
-                with_location_id_cte_container.agency_id == Agency.agency_id
+                with_location_id_cte_container.agency_id == Agency.id
             ).join(
                 LocationExpandedView,
                 LocationExpandedView.id == with_location_id_cte_container.location_id

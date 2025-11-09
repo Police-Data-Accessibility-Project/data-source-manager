@@ -10,7 +10,7 @@ from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPost
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
@@ -110,7 +110,7 @@ async def test_annotate_all(
     assert suggested_types == {URLType.DATA_SOURCE, URLType.NOT_RELEVANT}
 
     # Should be one agency
-    all_agency_suggestions = await adb_client.get_all(UserUrlAgencySuggestion)
+    all_agency_suggestions = await adb_client.get_all(UserURLAgencySuggestion)
     assert len(all_agency_suggestions) == 3
     suggested_agency_ids: set[int] = {sugg.agency_id for sugg in all_agency_suggestions}
     assert agency_id in suggested_agency_ids

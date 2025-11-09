@@ -26,7 +26,7 @@ class AddAgencyQueryBuilder(QueryBuilderBase):
         session.add(agency)
         await session.flush()
         await session.refresh(agency)
-        agency_id: int = agency.agency_id
+        agency_id: int = agency.id
 
         try:
 

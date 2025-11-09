@@ -58,9 +58,15 @@ class AgencyDependentMixin:
         nullable=False
     )
 
-
 class CreatedAtMixin:
     created_at = get_created_at_column()
+
+class LastSyncedAtMixin:
+    last_synced_at = Column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=CURRENT_TIME_SERVER_DEFAULT
+    )
 
 
 class UpdatedAtMixin:

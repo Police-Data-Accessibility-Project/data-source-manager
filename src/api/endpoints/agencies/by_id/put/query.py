@@ -25,7 +25,7 @@ class UpdateAgencyQueryBuilder(QueryBuilderBase):
                 Agency
             )
             .where(
-                Agency.agency_id == self.agency_id
+                Agency.id == self.agency_id
             )
         )
 

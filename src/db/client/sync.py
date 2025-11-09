@@ -16,7 +16,7 @@ from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.templates_.base import Base
 from src.db.models.impl.duplicate.sqlalchemy import Duplicate
 from src.db.models.impl.log.sqlalchemy import Log
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
@@ -225,7 +225,7 @@ class DatabaseClient:
             url_id = info.url_id
             data_source_id = info.data_source_id
 
-            url_data_source_object = URLDataSource(
+            url_data_source_object = DSAppLinkDataSource(
                 url_id=url_id,
                 data_source_id=data_source_id
             )

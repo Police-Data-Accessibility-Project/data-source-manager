@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, Query
 
 from src.api.dependencies import get_async_core
-from src.api.endpoints.agencies.root.get.response import AgencyGetResponse, AgencyGetOuterResponse
+from src.api.endpoints.agencies.root.get.response import AgencyGetOuterResponse
 from src.api.endpoints.meta_url.by_id.agencies.delete.wrapper import delete_meta_url_agency_link
 from src.api.endpoints.meta_url.by_id.agencies.get.wrapper import get_meta_url_agencies_wrapper
 from src.api.endpoints.meta_url.by_id.agencies.shared.check import check_is_meta_url
 from src.api.endpoints.meta_url.by_id.post.wrapper import add_meta_url_agency_link
 from src.api.endpoints.meta_url.get.query import GetMetaURLQueryBuilder
-from src.api.endpoints.meta_url.get.response import MetaURLGetResponse, MetaURLGetOuterResponse
-from src.api.endpoints.meta_url.by_id.agencies.put.query import UpdateMetaURLQueryBuilder
-from src.api.endpoints.meta_url.by_id.agencies.put.request import UpdateMetaURLRequest
+from src.api.endpoints.meta_url.get.response import MetaURLGetOuterResponse
+from src.api.endpoints.meta_url.by_id.put.query import UpdateMetaURLQueryBuilder
+from src.api.endpoints.meta_url.by_id.put.request import UpdateMetaURLRequest
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
 

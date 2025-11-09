@@ -53,9 +53,17 @@ class TaskOperatorBase(ABC):
                 message=str(e) + "\n" + stack_trace
             )
 
-    @abstractmethod
-    async def run_info(self, outcome: TaskOperatorOutcome, message: str) -> TaskOperatorRunInfo:
-        raise NotImplementedError
+    async def run_info(
+        self,
+        outcome: TaskOperatorOutcome,
+        message: str
+    ) -> TaskOperatorRunInfo:
+        return TaskOperatorRunInfo(
+            task_id=self.task_id,
+            task_type=self.task_type,
+            outcome=outcome,
+            message=message
+        )
 
 
     @abstractmethod

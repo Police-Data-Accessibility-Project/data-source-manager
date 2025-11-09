@@ -12,7 +12,7 @@ from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserName
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
@@ -112,7 +112,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add agency ID as suggestion if exists
         if self.request.agency_id is not None:
-            agen_sugg = UserUrlAgencySuggestion(
+            agen_sugg = UserURLAgencySuggestion(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 agency_id=self.request.agency_id

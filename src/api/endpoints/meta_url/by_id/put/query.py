@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.meta_url.by_id.agencies.put.request import UpdateMetaURLRequest
+from src.api.endpoints.meta_url.by_id.put.request import UpdateMetaURLRequest
 from src.api.shared.batch.url.link import UpdateBatchURLLinkQueryBuilder
-from src.api.shared.record_type.put.query import UpdateRecordTypeQueryBuilder
 from src.api.shared.url.put.query import UpdateURLQueryBuilder
 from src.db.queries.base.builder import QueryBuilderBase
 

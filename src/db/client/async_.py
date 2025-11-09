@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
 from typing import Optional, Type, Any, List, Sequence
 
-from sqlalchemy import select, exists, func, Select, and_, update, delete, Row, text
+from sqlalchemy import select, func, Select, and_, update, Row, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
@@ -74,14 +74,13 @@ from src.db.models.impl.log.sqlalchemy import Log
 from src.db.models.impl.task.core import Task
 from src.db.models.impl.task.enums import TaskStatus
 from src.db.models.impl.task.error import TaskError
-from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
@@ -92,7 +91,6 @@ from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.queries.implementations.core.get.html_content_info import GetHTMLContentInfoQueryBuilder
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
 from src.db.queries.implementations.core.metrics.urls.aggregated.pending import \
     GetMetricsURLSAggregatedPendingQueryBuilder
@@ -144,8 +142,8 @@ class AsyncDatabaseClient:
         return wrapper
 
     @session_manager
-    async def execute(self, session: AsyncSession, statement):
-        await session.execute(statement)
+    async def execute(self, session: AsyncSession, statement) -> Any:
+        return await session.execute(statement)
 
     @session_manager
     async def add(
@@ -455,6 +453,12 @@ class AsyncDatabaseClient:
         """Get all records of a model. Used primarily in testing."""
         return await sh.get_all(session=session, model=model, order_by_attribute=order_by_attribute)
 
+
+    @session_manager
+    async def has_no_rows(self, session: AsyncSession, model: Base) -> bool:
+        results: list[Base] = await sh.get_all(session=session, model=model)
+        return len(results) == 0
+
     async def get_urls(
         self,
         page: int,
@@ -506,9 +510,6 @@ class AsyncDatabaseClient:
         task_id: int
     ) -> TaskInfo:
         return await self.run_query_builder(GetTaskInfoQueryBuilder(task_id))
-
-    async def get_html_content_info(self, url_id: int) -> list[URLHTMLContentInfo]:
-        return await self.run_query_builder(GetHTMLContentInfoQueryBuilder(url_id))
 
     @session_manager
     async def link_urls_to_task(
@@ -589,11 +590,11 @@ class AsyncDatabaseClient:
         Add or update agencies in the database
         """
         for suggestion in suggestions:
-            query = select(Agency).where(Agency.agency_id == suggestion.pdap_agency_id)
+            query = select(Agency).where(Agency.id == suggestion.pdap_agency_id)
             result = await session.execute(query)
             agency = result.scalars().one_or_none()
             if agency is None:
-                agency = Agency(agency_id=suggestion.pdap_agency_id)
+                agency = Agency(id=suggestion.pdap_agency_id)
             agency.name = suggestion.agency_name
             agency.agency_type = AgencyType.UNKNOWN
             session.add(agency)
@@ -625,29 +626,23 @@ class AsyncDatabaseClient:
 
         # Check if agency exists in database -- if not, add with placeholder
         if agency_id is not None:
-            statement = select(Agency).where(Agency.agency_id == agency_id)
+            statement = select(Agency).where(Agency.id == agency_id)
             result = await session.execute(statement)
             if len(result.all()) == 0:
                 agency = Agency(
-                    agency_id=agency_id,
+                    id=agency_id,
                     name=PLACEHOLDER_AGENCY_NAME,
                     agency_type=AgencyType.UNKNOWN,
                 )
                 await session.merge(agency)
 
-        url_agency_suggestion = UserUrlAgencySuggestion(
+        url_agency_suggestion = UserURLAgencySuggestion(
             url_id=url_id,
             agency_id=agency_id,
             user_id=user_id,
             is_new=is_new
         )
         session.add(url_agency_suggestion)
-
-    @session_manager
-    async def get_urls_with_confirmed_agencies(self, session: AsyncSession) -> list[URL]:
-        statement = select(URL).where(exists().where(LinkURLAgency.url_id == URL.id))
-        results = await session.execute(statement)
-        return list(results.scalars().all())
 
     async def approve_url(
         self,
@@ -798,15 +793,6 @@ class AsyncDatabaseClient:
         logs = raw_results.scalars().all()
         return ([LogOutputInfo(**log.__dict__) for log in logs])
 
-    async def delete_old_logs(self):
-        """
-        Delete logs older than a day
-        """
-        statement = delete(Log).where(
-            Log.created_at < datetime.now() - timedelta(days=7)
-        )
-        await self.execute(statement)
-
     async def get_next_url_for_all_annotations(
         self,
         user_id: int,
@@ -869,11 +855,11 @@ class AsyncDatabaseClient:
     ) -> GetMetricsURLsBreakdownSubmittedResponseDTO:
 
         # Build the query
-        month = func.date_trunc('month', URLDataSource.created_at)
+        month = func.date_trunc('month', DSAppLinkDataSource.created_at)
         query = (
             select(
                 month.label('month'),
-                func.count(URLDataSource.id).label('count_submitted'),
+                func.count(DSAppLinkDataSource.id).label('count_submitted'),
             )
             .group_by(month)
             .order_by(month.asc())
@@ -938,12 +924,6 @@ class AsyncDatabaseClient:
     async def mark_all_as_404(self, url_ids: List[int]):
         query = update(URLWebMetadata).where(URLWebMetadata.url_id.in_(url_ids)).values(status_code=404)
         await self.execute(query)
-
-    @session_manager
-    async def mark_as_checked_for_duplicates(self, session: AsyncSession, url_ids: list[int]):
-        for url_id in url_ids:
-            url_checked_for_duplicate = URLCheckedForDuplicate(url_id=url_id)
-            session.add(url_checked_for_duplicate)
 
 
     async def get_urls_aggregated_pending_metrics(self):

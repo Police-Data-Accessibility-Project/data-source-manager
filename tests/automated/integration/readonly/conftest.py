@@ -5,7 +5,6 @@ import pytest
 import pytest_asyncio
 from starlette.testclient import TestClient
 
-from src.db.client.async_ import AsyncDatabaseClient
 from src.db.helpers.connect import get_postgres_connection_string
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper

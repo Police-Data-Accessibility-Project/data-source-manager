@@ -5,13 +5,13 @@ from pdap_access_manager import RequestInfo, RequestType, DataSourcesNamespaces
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.external.pdap.client import PDAPClient
 from tests.automated.integration.tasks.url.impl.submit_approved.mock import mock_make_request
 from tests.automated.integration.tasks.url.impl.submit_approved.setup import setup_validated_urls
 
-
+# TODO: Marked for destruction
 @pytest.mark.asyncio
 async def test_submit_approved_url_task(
     db_data_creator,
@@ -58,17 +58,17 @@ async def test_submit_approved_url_task(
     url_3: URL = urls[2]
 
     # Get URL Data Source Links
-    url_data_sources = await db_data_creator.adb_client.get_all(URLDataSource)
+    url_data_sources = await db_data_creator.adb_client.get_all(DSAppLinkDataSource)
     assert len(url_data_sources) == 2
 
     url_data_source_1 = url_data_sources[0]
     url_data_source_2 = url_data_sources[1]
 
     assert url_data_source_1.url_id == url_1.id
-    assert url_data_source_1.data_source_id == 21
+    assert url_data_source_1.ds_data_source_id == 21
 
     assert url_data_source_2.url_id == url_2.id
-    assert url_data_source_2.data_source_id == 34
+    assert url_data_source_2.ds_data_source_id == 34
 
     # Check that errored URL has entry in url_error_info
     url_errors = await db_data_creator.adb_client.get_all(URLTaskError)

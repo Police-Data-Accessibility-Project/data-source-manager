@@ -9,7 +9,7 @@ from src.core.tasks.url.operators.submit_meta_urls.core import SubmitMetaURLsTas
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.ds_meta_url.sqlalchemy import URLDSMetaURL
+from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.impl.meta_urls.enums import SubmitMetaURLsStatus
 from tests.helpers.data_creator.core import DBDataCreator
@@ -71,9 +71,9 @@ async def test_submit_meta_urls(
     url: URL = urls[0]
     assert url.status == URLStatus.OK
 
-    url_ds_meta_urls: list[URLDSMetaURL] = await db_data_creator.adb_client.get_all(URLDSMetaURL)
+    url_ds_meta_urls: list[DSAppLinkMetaURL] = await db_data_creator.adb_client.get_all(DSAppLinkMetaURL)
     assert len(url_ds_meta_urls) == 1
-    url_ds_meta_url: URLDSMetaURL = url_ds_meta_urls[0]
+    url_ds_meta_url: DSAppLinkMetaURL = url_ds_meta_urls[0]
     assert url_ds_meta_url.url_id == url.id
     assert url_ds_meta_url.ds_meta_url_id == 2
     assert url_ds_meta_url.agency_id == agency_id

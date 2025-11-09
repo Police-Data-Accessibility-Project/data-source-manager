@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -19,7 +19,7 @@ class MarkURLsAsSubmittedQueryBuilder(QueryBuilderBase):
             url_id = info.url_id
             data_source_id = info.data_source_id
 
-            url_data_source_object = URLDataSource(
+            url_data_source_object = DSAppLinkDataSource(
                 url_id=url_id,
                 data_source_id=data_source_id
             )

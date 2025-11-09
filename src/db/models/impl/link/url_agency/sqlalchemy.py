@@ -11,8 +11,8 @@ class LinkURLAgency(URLDependentMixin, WithIDBase):
 
     agency_id: Mapped[int] = get_agency_id_foreign_column()
 
-    url = relationship("URL", back_populates="confirmed_agencies")
-    agency = relationship("Agency", back_populates="confirmed_urls")
+    url = relationship("URL")
+    agency = relationship("Agency")
 
     __table_args__ = (
         UniqueConstraint("url_id", "agency_id", name="uq_confirmed_url_agency"),

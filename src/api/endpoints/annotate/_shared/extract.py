@@ -17,7 +17,7 @@ from src.api.endpoints.annotate.all.get.queries.name.core import GetNameSuggesti
 from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 
 
 async def extract_and_format_get_annotation_result(
@@ -55,7 +55,7 @@ async def extract_and_format_get_annotation_result(
             batch_info=await GetAnnotationBatchInfoQueryBuilder(
                 batch_id=batch_id,
                 models=[
-                    UserUrlAgencySuggestion,
+                    UserURLAgencySuggestion,
                 ]
             ).run(session),
             location_suggestions=location_suggestions,

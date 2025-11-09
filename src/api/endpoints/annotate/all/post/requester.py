@@ -6,7 +6,7 @@ from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
@@ -53,7 +53,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
 
     def add_agency_ids(self, agency_ids: list[int]) -> None:
         for agency_id in agency_ids:
-            agency_suggestion = UserUrlAgencySuggestion(
+            agency_suggestion = UserURLAgencySuggestion(
                 url_id=self.url_id,
                 user_id=self.user_id,
                 agency_id=agency_id,

@@ -522,7 +522,7 @@ class DBDataCreator:
 
     async def create_agency(self, agency_id: int = 1) -> None:
         agency = Agency(
-            agency_id=agency_id,
+            id=agency_id,
             name=generate_test_name(agency_id),
             agency_type=AgencyType.UNKNOWN
         )
@@ -534,7 +534,7 @@ class DBDataCreator:
         for _ in range(count):
             agency_id = next_int()
             agency = Agency(
-                agency_id=agency_id,
+                id=agency_id,
                 name=generate_test_name(agency_id),
                 agency_type=AgencyType.UNKNOWN
             )

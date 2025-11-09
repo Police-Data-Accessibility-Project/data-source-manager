@@ -8,7 +8,7 @@ from src.collectors.enums import URLStatus
 from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
@@ -68,10 +68,10 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                         )
                     ),
                     ~exists(
-                        select(UserUrlAgencySuggestion.id)
+                        select(UserURLAgencySuggestion.id)
                         .where(
-                            UserUrlAgencySuggestion.url_id == URL.id,
-                            UserUrlAgencySuggestion.user_id == self.user_id,
+                            UserURLAgencySuggestion.url_id == URL.id,
+                            UserURLAgencySuggestion.user_id == self.user_id,
                         )
                     ),
                     ~exists(

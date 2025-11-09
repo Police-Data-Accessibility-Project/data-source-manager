@@ -5,7 +5,7 @@ from src.db.helpers.query import no_url_task_error
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.ds_meta_url.sqlalchemy import URLDSMetaURL
+from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 from src.db.models.views.meta_url import MetaURL
 
 
@@ -32,11 +32,11 @@ class SubmitMetaURLsPrerequisitesCTEContainer:
             .where(
                 ~exists(
                     select(
-                        URLDSMetaURL.ds_meta_url_id
+                        DSAppLinkMetaURL.ds_meta_url_id
                     )
                     .where(
-                        URLDSMetaURL.url_id == URL.id,
-                        URLDSMetaURL.agency_id == LinkURLAgency.agency_id
+                        DSAppLinkMetaURL.url_id == URL.id,
+                        DSAppLinkMetaURL.agency_id == LinkURLAgency.agency_id
                     )
                 ),
                 no_url_task_error(TaskType.SUBMIT_META_URLS)

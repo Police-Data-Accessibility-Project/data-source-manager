@@ -3,7 +3,7 @@ import pytest
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.external.pdap.client import PDAPClient
 from tests.helpers.asserts import assert_task_run_success
 
@@ -37,5 +37,5 @@ async def test_validated_meta_url_not_included(
     assert_task_run_success(run_info)
 
     # Confirm entry not included in database
-    ds_urls: list[URLDataSource] = await dbdc.adb_client.get_all(URLDataSource)
+    ds_urls: list[DSAppLinkDataSource] = await dbdc.adb_client.get_all(DSAppLinkDataSource)
     assert len(ds_urls) == 0

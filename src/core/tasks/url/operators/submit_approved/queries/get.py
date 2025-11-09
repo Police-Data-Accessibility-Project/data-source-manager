@@ -43,7 +43,7 @@ class GetValidatedURLsQueryBuilder(QueryBuilderBase):
     async def _process_result(url: URL) -> SubmitApprovedURLTDO:
         agency_ids = []
         for agency in url.confirmed_agencies:
-            agency_ids.append(agency.agency_id)
+            agency_ids.append(agency.id)
         optional_metadata = url.optional_data_source_metadata
         if optional_metadata is None:
             record_formats = None

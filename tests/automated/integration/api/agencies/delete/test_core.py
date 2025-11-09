@@ -35,27 +35,27 @@ async def test_agencies(
 
     link: LinkAgencyLocation = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is not None
-    assert link.agency_id == agency.agency_id
+    assert link.agency_id == agency.id
     assert link.location_id == california.location_id
 
     rv.delete_v3(
-        url=f"/agencies/{agency.agency_id}/locations/{california.location_id}",
+        url=f"/agencies/{agency.id}/locations/{california.location_id}",
     )
 
     link: LinkAgencyLocation | None = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is None
 
     rv.post_v3(
-        url=f"/agencies/{agency.agency_id}/locations/{pennsylvania.location_id}",
+        url=f"/agencies/{agency.id}/locations/{pennsylvania.location_id}",
     )
 
     link: LinkAgencyLocation = await ath.adb_client().one_or_none_model(model=LinkAgencyLocation)
     assert link is not None
-    assert link.agency_id == agency.agency_id
+    assert link.agency_id == agency.id
     assert link.location_id == pennsylvania.location_id
 
     rv.put_v3(
-        url=f"/agencies/{agency.agency_id}",
+        url=f"/agencies/{agency.id}",
         json=AgencyPutRequest(
             name="Test Agency Updated",
         ).model_dump(mode="json")
@@ -68,7 +68,7 @@ async def test_agencies(
 
 
     rv.delete_v3(
-        url=f"/agencies/{agency.agency_id}",
+        url=f"/agencies/{agency.id}",
     )
 
     agency: Agency | None = await ath.adb_client().one_or_none_model(model=Agency)
