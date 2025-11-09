@@ -5,6 +5,17 @@ The task loader loads task a task operator and all dependencies.
 from environs import Env
 
 from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.core import DSAppSyncAgenciesAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.core import DSAppSyncAgenciesDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.core import DSAppSyncAgenciesUpdateTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.core import DSAppSyncDataSourcesAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.delete.core import \
+    DSAppSyncDataSourcesDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.core import \
+    DSAppSyncDataSourcesUpdateTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.core import DSAppSyncMetaURLsAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.core import DSAppSyncMetaURLsDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.core import DSAppSyncMetaURLsUpdateTaskOperator
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.core.tasks.url.operators.agency_identification.subtasks.loader import AgencyIdentificationSubtaskLoader
@@ -96,25 +107,7 @@ class URLTaskOperatorLoader:
             enabled=self.setup_flag("URL_AGENCY_IDENTIFICATION_TASK_FLAG")
         )
 
-    def _get_submit_approved_url_task_operator(self) -> URLTaskEntry:
-        operator = SubmitApprovedURLTaskOperator(
-            adb_client=self.adb_client,
-            pdap_client=self.pdap_client
-        )
-        return URLTaskEntry(
-            operator=operator,
-            enabled=self.setup_flag("URL_SUBMIT_APPROVED_TASK_FLAG")
-        )
 
-    def _get_submit_meta_urls_task_operator(self) -> URLTaskEntry:
-        operator = SubmitMetaURLsTaskOperator(
-            adb_client=self.adb_client,
-            pdap_client=self.pdap_client
-        )
-        return URLTaskEntry(
-            operator=operator,
-            enabled=self.setup_flag("URL_SUBMIT_META_URLS_TASK_FLAG")
-        )
 
     def _get_url_miscellaneous_metadata_task_operator(self) -> URLTaskEntry:
         operator = URLMiscellaneousMetadataTaskOperator(
@@ -204,6 +197,110 @@ class URLTaskOperatorLoader:
             enabled=self.setup_flag("URL_SUSPEND_TASK_FLAG")
         )
 
+    # TODO: Double check env var flags
+    # DS App Sync
+    ## Agency
+    ### Add
+    def _get_ds_app_sync_agency_add_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncAgenciesAddTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_AGENCY_ADD_TASK_FLAG")
+        )
+
+    ### Update
+    def _get_ds_app_sync_agency_update_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncAgenciesUpdateTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG")
+        )
+
+    ### Delete
+    def _get_ds_app_sync_agency_delete_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncAgenciesDeleteTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
+        )
+
+    ## Data Source
+    ### Add
+    def _get_ds_app_sync_data_source_add_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncDataSourcesAddTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG")
+        )
+
+    ### Update
+    def _get_ds_app_sync_data_source_update_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncDataSourcesUpdateTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG")
+        )
+
+    ### Delete
+    def _get_ds_app_sync_data_source_delete_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncDataSourcesDeleteTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG")
+        )
+
+    ## Meta URL
+    ### Add
+    def _get_ds_app_sync_meta_url_add_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncMetaURLsAddTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_META_URL_ADD_TASK_FLAG")
+        )
+
+    ### Update
+    def _get_ds_app_sync_meta_url_update_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncMetaURLsUpdateTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG")
+        )
+
+    ### Delete
+    def _get_ds_app_sync_meta_url_delete_task_operator(self) -> URLTaskEntry:
+        operator = DSAppSyncMetaURLsDeleteTaskOperator(
+            adb_client=self.adb_client,
+            pdap_client=self.pdap_client
+        )
+        return URLTaskEntry(
+            operator=operator,
+            enabled=self.setup_flag("DS_APP_SYNC_META_URL_DELETE_TASK_FLAG")
+        )
+
 
     async def load_entries(self) -> list[URLTaskEntry]:
         return [
@@ -213,12 +310,23 @@ class URLTaskOperatorLoader:
             self._get_url_record_type_task_operator(),
             self._get_agency_identification_task_operator(),
             self._get_url_miscellaneous_metadata_task_operator(),
-            self._get_submit_approved_url_task_operator(),
-            self._get_submit_meta_urls_task_operator(),
             self._get_url_auto_relevance_task_operator(),
             self._get_url_screenshot_task_operator(),
             self._get_location_id_task_operator(),
             self._get_auto_validate_task_operator(),
             self._get_auto_name_task_operator(),
             self._get_suspend_url_task_operator(),
+            # DS App Sync
+            ## Agency
+            self._get_ds_app_sync_agency_add_task_operator(),
+            self._get_ds_app_sync_agency_update_task_operator(),
+            self._get_ds_app_sync_agency_delete_task_operator(),
+            ## Data Source
+            self._get_ds_app_sync_data_source_add_task_operator(),
+            self._get_ds_app_sync_data_source_update_task_operator(),
+            self._get_ds_app_sync_data_source_delete_task_operator(),
+            ## Meta URL
+            self._get_ds_app_sync_meta_url_add_task_operator(),
+            self._get_ds_app_sync_meta_url_update_task_operator(),
+            self._get_ds_app_sync_meta_url_delete_task_operator(),
         ]

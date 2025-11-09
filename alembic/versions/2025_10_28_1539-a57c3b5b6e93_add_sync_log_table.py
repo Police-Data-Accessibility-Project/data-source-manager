@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from src.util.alembic_helpers import created_at_column
+from src.util.alembic_helpers import created_at_column, updated_at_column, create_updated_at_trigger
 
 # revision identifiers, used by Alembic.
 revision: str = 'a57c3b5b6e93'
@@ -90,6 +90,9 @@ def _add_link_table_modification_triggers():
     )
 
 
+
+
+
 def upgrade() -> None:
     _create_sync_log()
     _create_ds_agency_link()
@@ -102,6 +105,16 @@ def upgrade() -> None:
     _add_flag_deletion_tables()
     _add_last_synced_at_columns()
     _add_link_table_modification_triggers()
+    _add_updated_at_to_optional_data_source_metadata_table()
+
+def _add_updated_at_to_optional_data_source_metadata_table():
+    op.add_column(
+        "url_optional_data_source_metadata",
+        updated_at_column()
+    )
+    create_updated_at_trigger(
+        "url_optional_data_source_metadata"
+    )
 
 def _add_last_synced_at_columns():
     op.add_column(

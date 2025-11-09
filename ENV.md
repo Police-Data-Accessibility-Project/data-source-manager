@@ -70,6 +70,15 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | `DELETE_STALE_SCREENSHOTS_TASK_FLAG` | Deletes stale screenshots for URLs already validated.                         |
 | `TASK_CLEANUP_TASK_FLAG` | Cleans up tasks that are no longer needed. |
 | `REFRESH_MATERIALIZED_VIEWS_TASK_FLAG` | Refreshes materialized views. |
+| `DS_APP_SYNC_AGENCY_ADD_FLAG` | Adds new agencies to the Data Sources App|
+| `DS_APP_SYNC_AGENCY_UPDATE_FLAG` | Updates existing agencies in the Data Sources App|
+| `DS_APP_SYNC_AGENCY_DELETE_FLAG` | Deletes agencies in the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_ADD_FLAG` | Adds new data sources to the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_UPDATE_FLAG` | Updates existing data sources in the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_DELETE_FLAG` | Deletes data sources in the Data Sources App|
+| `DS_APP_SYNC_META_URL_ADD_FLAG` | Adds new meta URLs to the Data Sources App|
+| `DS_APP_SYNC_META_URL_UPDATE_FLAG` | Updates existing meta URLs in the Data Sources App|
+| `DS_APP_SYNC_META_URL_DELETE_FLAG` | Deletes meta URLs in the Data Sources App|
 
 ### URL Task Flags
 
@@ -81,7 +90,6 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_HTML_TASK_FLAG`                | URL HTML scraping task.                               |
 | `URL_RECORD_TYPE_TASK_FLAG`         | Automatically assigns Record Types to URLs.           |
 | `URL_AGENCY_IDENTIFICATION_TASK_FLAG` | Automatically assigns and suggests Agencies for URLs. |
-| `URL_SUBMIT_APPROVED_TASK_FLAG`     | Submits approved URLs to the Data Sources App.        |
 | `URL_MISC_METADATA_TASK_FLAG`       | Adds misc metadata to URLs.                           |
 | `URL_AUTO_RELEVANCE_TASK_FLAG`      | Automatically assigns Relevances to URLs.             |
 | `URL_PROBE_TASK_FLAG`               | Probes URLs for web metadata.                         |
@@ -90,7 +98,6 @@ URL Task Flags are collectively controlled by the `RUN_URL_TASKS_TASK_FLAG` flag
 | `URL_AUTO_VALIDATE_TASK_FLAG`       | Automatically validates URLs.                         |
 | `URL_AUTO_NAME_TASK_FLAG`           | Automatically names URLs.                             |
 | `URL_SUSPEND_TASK_FLAG`             | Suspends URLs meeting suspension criteria.            |
-| `URL_SUBMIT_META_URLS_TASK_FLAG`    | Submits meta URLs to the Data Sources App.            |
 
 ### Agency ID Subtasks
 
