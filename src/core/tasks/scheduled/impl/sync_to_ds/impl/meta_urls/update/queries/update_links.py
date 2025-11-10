@@ -1,5 +1,7 @@
+from sqlalchemy import update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -13,4 +15,11 @@ class DSAppSyncMetaURLsUpdateAlterLinksQueryBuilder(QueryBuilderBase):
         self._ds_meta_url_ids = ds_meta_url_ids
 
     async def run(self, session: AsyncSession) -> None:
-        raise NotImplementedError
+        statement = (
+            update(DSAppLinkMetaURL)
+            .where(DSAppLinkMetaURL.ds_meta_url_id.in_(self._ds_meta_url_ids))
+            .values({
+                DSAppLinkMetaURL.last_synced_at: func.now(),
+            })
+        )
+        await session.execute(statement)

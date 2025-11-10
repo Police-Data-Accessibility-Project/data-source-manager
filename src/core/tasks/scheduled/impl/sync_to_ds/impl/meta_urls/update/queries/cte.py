@@ -3,7 +3,7 @@ from sqlalchemy import select, Column, CTE
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 
-class DSAppLinkSyncDataSourceUpdatePrerequisitesCTEContainer:
+class DSAppLinkSyncMetaURLUpdatePrerequisitesCTEContainer:
 
     def __init__(self):
         self._cte = (

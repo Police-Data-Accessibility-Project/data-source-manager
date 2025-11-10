@@ -19,7 +19,7 @@ from src.db.models.impl.log.sqlalchemy import Log
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
+from tests.helpers.data_creator.commands.impl.urls_.tdo import SubmittedURLInfo
 from src.core.env_var_manager import EnvVarManager
 from src.core.enums import BatchStatus
 from src.util.models.url_and_scheme import URLAndScheme

@@ -7,7 +7,7 @@ from src.db.models.impl.flag.ds_delete.meta_url import FlagDSDeleteMetaURL
 from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 
 
-class DSAppLinkSyncAgencyDeletePrerequisitesCTEContainer:
+class DSAppLinkSyncMetaURLDeletePrerequisitesCTEContainer:
 
     def __init__(self):
         self._cte = (

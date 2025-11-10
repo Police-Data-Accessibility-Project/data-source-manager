@@ -1,20 +1,27 @@
-from pydantic import BaseModel, Field, model_validator
-
-from src.external.pdap.impl.sync.meta_urls._shared.content import MetaURLSyncContentModel
-
-
-class AddMetaURLsInnerRequest(BaseModel):
-    request_id: int
-    content: MetaURLSyncContentModel
+from src.external.pdap._templates.request_builder import PDAPRequestBuilderBase
+from src.external.pdap.impl.sync.agencies.add.request import AddAgenciesOuterRequest
+from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseInnerModel, \
+    DSAppSyncAddResponseModel
 
 
-class AddMetaURLsOuterRequest(BaseModel):
-    meta_urls: list[AddMetaURLsInnerRequest] = Field(max_length=1000)
+class AddAgenciesRequestBuilder(PDAPRequestBuilderBase):
 
-    @model_validator(mode="after")
-    def all_request_ids_unique(self):
-        if len(self.meta_urls) != len(
-            set([meta_url.request_id for meta_url in self.meta_urls])
-        ):
-            raise ValueError("All request_ids must be unique")
-        return self
+    def __init__(
+        self,
+        request: AddAgenciesOuterRequest
+    ):
+        super().__init__()
+        self.request = request
+
+    async def inner_logic(self) -> list[DSAppSyncAddResponseInnerModel]:
+        url: str = self.build_url("v3/source-manager/agencies/add")
+        raw_results = await self.post(
+            url=url,
+            model=self.request,
+        )
+        response = DSAppSyncAddResponseModel(**raw_results)
+        return response.entities
+
+
+
+

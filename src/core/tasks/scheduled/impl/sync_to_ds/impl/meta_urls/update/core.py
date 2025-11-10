@@ -1,4 +1,12 @@
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.queries.get import \
+    DSAppSyncMetaURLsUpdateGetQueryBuilder
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.queries.prereq import \
+    DSAppSyncMetaURLsUpdatePrerequisitesQueryBuilder
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.queries.update_links import \
+    DSAppSyncMetaURLsUpdateAlterLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.external.pdap.impl.sync.meta_urls.update.core import UpdateMetaURLsRequestBuilder
+from src.external.pdap.impl.sync.meta_urls.update.request import UpdateMetaURLsOuterRequest
 
 
 class DSAppSyncMetaURLsUpdateTaskOperator(
@@ -6,7 +14,38 @@ class DSAppSyncMetaURLsUpdateTaskOperator(
 ):
 
     async def meets_task_prerequisites(self) -> bool:
-        raise NotImplementedError
+        return await self.adb_client.run_query_builder(
+            DSAppSyncMetaURLsUpdatePrerequisitesQueryBuilder()
+        )
 
     async def inner_task_logic(self) -> None:
-        raise NotImplementedError
+        request: UpdateMetaURLsOuterRequest = await self.get_inputs()
+        await self.make_request(request)
+        ds_app_ids: list[int] = [
+            meta_url.app_id
+            for meta_url in request.meta_urls
+        ]
+        await self.update_links(ds_app_ids)
+
+    async def get_inputs(self) -> UpdateMetaURLsOuterRequest:
+        return await self.adb_client.run_query_builder(
+            DSAppSyncMetaURLsUpdateGetQueryBuilder()
+        )
+
+    async def make_request(
+        self,
+        request: UpdateMetaURLsOuterRequest
+    ):
+        await self.pdap_client.run_request_builder(
+            UpdateMetaURLsRequestBuilder(request)
+        )
+
+    async def update_links(
+        self,
+        ds_app_ids: list[int]
+    ) -> None:
+        await self.adb_client.run_query_builder(
+            DSAppSyncMetaURLsUpdateAlterLinksQueryBuilder(
+                ds_meta_url_ids=ds_app_ids
+            )
+        )

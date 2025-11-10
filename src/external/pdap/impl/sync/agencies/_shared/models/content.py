@@ -1,3 +1,8 @@
+from pydantic import Field, BaseModel
+
+from src.db.models.impl.agency.enums import JurisdictionType, AgencyType
+
+
 class AgencySyncContentModel(BaseModel):
     # Required
     name: str

@@ -1,5 +1,6 @@
 import traceback
 from abc import ABC, abstractmethod
+from typing import Any
 
 from src.core.enums import BatchStatus
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
@@ -9,6 +10,7 @@ from src.db.enums import TaskType
 from src.db.models.impl.task.enums import TaskStatus
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
+from src.db.queries.base.builder import QueryBuilderBase
 
 
 class TaskOperatorBase(ABC):
@@ -91,3 +93,7 @@ class TaskOperatorBase(ABC):
             for error in errors
         ]
         await self.adb_client.bulk_insert(inserts)
+
+    # Convenience forwarder functions
+    async def run_query_builder(self, query_builder: QueryBuilderBase) -> Any:
+        return await self.adb_client.run_query_builder(query_builder)

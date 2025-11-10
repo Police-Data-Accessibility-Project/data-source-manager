@@ -46,8 +46,6 @@ from src.core.tasks.url.operators.agency_identification.dtos.suggestion import U
 from src.core.tasks.url.operators.html.queries.get import \
     GetPendingURLsWithoutHTMLDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
-from src.core.tasks.url.operators.submit_approved.queries.mark_submitted import MarkURLsAsSubmittedQueryBuilder
-from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.client.types import UserSuggestionModel
 from src.db.config_manager import ConfigManager
@@ -755,9 +753,6 @@ class AsyncDatabaseClient:
         batch.duplicate_url_count = duplicate_url_count
         batch.status = batch_status.value
         batch.compute_time = compute_time
-
-    async def mark_urls_as_submitted(self, infos: list[SubmittedURLInfo]):
-        await self.run_query_builder(MarkURLsAsSubmittedQueryBuilder(infos))
 
     async def get_duplicates_by_batch_id(self, batch_id: int, page: int) -> list[DuplicateInfo]:
         return await self.run_query_builder(

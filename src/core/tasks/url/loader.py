@@ -32,8 +32,6 @@ from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOpera
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.openai import OpenAIRecordClassifier
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
 from src.core.tasks.url.operators.screenshot.core import URLScreenshotTaskOperator
-from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
-from src.core.tasks.url.operators.submit_meta_urls.core import SubmitMetaURLsTaskOperator
 from src.core.tasks.url.operators.suspend.core import SuspendURLTaskOperator
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
@@ -106,8 +104,6 @@ class URLTaskOperatorLoader:
             operator=operator,
             enabled=self.setup_flag("URL_AGENCY_IDENTIFICATION_TASK_FLAG")
         )
-
-
 
     def _get_url_miscellaneous_metadata_task_operator(self) -> URLTaskEntry:
         operator = URLMiscellaneousMetadataTaskOperator(
@@ -197,7 +193,6 @@ class URLTaskOperatorLoader:
             enabled=self.setup_flag("URL_SUSPEND_TASK_FLAG")
         )
 
-    # TODO: Double check env var flags
     # DS App Sync
     ## Agency
     ### Add

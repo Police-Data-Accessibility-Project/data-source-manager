@@ -21,7 +21,7 @@ class DSAppLinkSyncDataSourceDeletePrerequisitesCTEContainer:
         )
 
     @property
-    def ds_meta_url_id(self) -> Column[int]:
+    def ds_data_source_id(self) -> Column[int]:
         return self._cte.columns.ds_data_source_id
 
     @property

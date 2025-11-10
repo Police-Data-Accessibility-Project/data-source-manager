@@ -1,9 +1,11 @@
+from sqlalchemy import update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db.models.impl.agency.ds_link.sqlalchemy import DSAppLinkAgency
 from src.db.queries.base.builder import QueryBuilderBase
 
 
-class DSAppSyncAgenciesUpdateModifyLinksQueryBuilder(QueryBuilderBase):
+class DSAppSyncAgenciesUpdateAlterLinksQueryBuilder(QueryBuilderBase):
 
     def __init__(
         self,
@@ -13,4 +15,11 @@ class DSAppSyncAgenciesUpdateModifyLinksQueryBuilder(QueryBuilderBase):
         self._ds_agency_ids = ds_agency_ids
 
     async def run(self, session: AsyncSession) -> None:
-        raise NotImplementedError
+        statement = (
+            update(DSAppLinkAgency)
+            .where(DSAppLinkAgency.ds_agency_id.in_(self._ds_agency_ids))
+            .values({
+                DSAppLinkAgency.last_synced_at: func.now(),
+            })
+        )
+        await session.execute(statement)
