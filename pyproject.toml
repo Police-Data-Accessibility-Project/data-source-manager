@@ -23,7 +23,7 @@ dependencies = [
     "lxml~=5.1.0",
     "marshmallow~=3.23.2",
     "openai~=1.60.1",
-    "pdap-access-manager==0.3.6",
+    "pdap-access-manager==0.4.3",
     "pillow>=11.3.0",
     "pip>=25.2",
     "playwright~=1.49.1",

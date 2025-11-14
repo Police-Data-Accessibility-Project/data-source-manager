@@ -4,7 +4,8 @@ import aiohttp
 import uvicorn
 from discord_poster import DiscordPoster
 from fastapi import FastAPI
-from pdap_access_manager import AccessManager
+from pdap_access_manager.access_manager.async_ import AccessManagerAsync
+from pdap_access_manager.models.auth import AuthInfo
 from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.responses import RedirectResponse
 
@@ -73,10 +74,12 @@ async def lifespan(app: FastAPI):
         discord_poster=discord_poster
     )
     pdap_client = PDAPClient(
-        access_manager=AccessManager(
+        access_manager=AccessManagerAsync(
             data_sources_url=env_var_manager.pdap_api_url,
-            email=env_var_manager.pdap_email,
-            password=env_var_manager.pdap_password,
+            auth=AuthInfo(
+                email=env_var_manager.pdap_email,
+                password=env_var_manager.pdap_password,
+            ),
             api_key=env_var_manager.pdap_api_key,
             session=session
         )

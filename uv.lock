@@ -560,7 +560,7 @@ requires-dist = [
     { name = "lxml", specifier = "~=5.1.0" },
     { name = "marshmallow", specifier = "~=3.23.2" },
     { name = "openai", specifier = "~=1.60.1" },
-    { name = "pdap-access-manager", specifier = "==0.3.6" },
+    { name = "pdap-access-manager", specifier = "==0.4.3" },
     { name = "pillow", specifier = ">=11.3.0" },
     { name = "pip", specifier = ">=25.2" },
     { name = "playwright", specifier = "~=1.49.1" },
@@ -1591,7 +1591,7 @@ wheels = [
 
 [[package]]
 name = "pdap-access-manager"
-version = "0.3.6"
+version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1599,9 +1599,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a4/14/d910483f08a0203a20fc2839738d9e27c83a66849fed422c3d4e804e15f5/pdap_access_manager-0.3.6.tar.gz", hash = "sha256:15c04f704e22116cd56b459e8a9d7f8514c75c36ca2c8a889b9ce2a308d88f6c", size = 4169, upload_time = "2025-06-12T20:14:55.942Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/92/8f/ad75b32cc91673d89510c0adb451027c29b47d09069f02ad920b8a29ff0d/pdap_access_manager-0.4.3.tar.gz", hash = "sha256:24fe43550caa2a4fb0e4ac255d4265bcfd5985f08ff55cc7dd1bc24224d80f08", size = 5995, upload_time = "2025-11-14T22:12:07.622Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/81/76803339fd732cd3eda7458d48e67487d9377197f9ea7d4583df098823b2/pdap_access_manager-0.3.6-py3-none-any.whl", hash = "sha256:a5910068f642f7548d037bcb98657ca1945997fae4e89dc4e1d47283da485b91", size = 5034, upload_time = "2025-06-12T20:14:48.452Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/fa/52ad971907cc54dee673effdabb6f7ee87d5beb1966bb554aebbf7b9e47e/pdap_access_manager-0.4.3-py3-none-any.whl", hash = "sha256:9d58f4065b9fea38af1fe0a6afc77c9b8030b42f7cf15068edbe7e53fe11f949", size = 10807, upload_time = "2025-11-14T22:12:06.154Z" },
 ]
 
 [[package]]

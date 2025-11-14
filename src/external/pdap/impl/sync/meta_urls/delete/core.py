@@ -1,5 +1,3 @@
-from pdap_access_manager import AccessManager
-
 from src.external.pdap._templates.request_builder import PDAPRequestBuilderBase
 from src.external.pdap.impl.sync.shared.models.delete.request import DSAppSyncDeleteRequestModel
 

@@ -1,8 +1,4 @@
-from http import HTTPStatus
-from unittest.mock import AsyncMock
-
 import pytest
-from pdap_access_manager import ResponseInfo
 
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.core import DSAppSyncAgenciesAddTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient

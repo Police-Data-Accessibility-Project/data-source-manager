@@ -2,7 +2,9 @@ from http import HTTPStatus
 from typing import Any
 from unittest.mock import AsyncMock
 
-from pdap_access_manager import RequestInfo, RequestType, ResponseInfo
+from pdap_access_manager.enums import RequestType
+from pdap_access_manager.models.request import RequestInfo
+from pdap_access_manager.models.response import ResponseInfo
 from pydantic import BaseModel
 
 from src.external.pdap.client import PDAPClient

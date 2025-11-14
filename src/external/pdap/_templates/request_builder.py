@@ -2,16 +2,19 @@ from abc import ABC, abstractmethod
 from http import HTTPStatus
 from typing import Any
 
-from pdap_access_manager import AccessManager, RequestType, RequestInfo, ResponseInfo
+from pdap_access_manager.access_manager.async_ import AccessManagerAsync
+from pdap_access_manager.enums import RequestType
+from pdap_access_manager.models.request import RequestInfo
+from pdap_access_manager.models.response import ResponseInfo
 from pydantic import BaseModel
 
 
 class PDAPRequestBuilderBase(ABC):
 
     def __init__(self):
-        self.access_manager: AccessManager | None = None
+        self.access_manager: AccessManagerAsync | None = None
 
-    async def run(self, access_manager: AccessManager) -> Any:
+    async def run(self, access_manager: AccessManagerAsync) -> Any:
         self.access_manager = access_manager
         return await self.inner_logic()
 

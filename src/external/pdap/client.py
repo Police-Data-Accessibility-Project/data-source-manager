@@ -1,6 +1,9 @@
 from typing import Any
 
-from pdap_access_manager import AccessManager, DataSourcesNamespaces, RequestInfo, RequestType, ResponseInfo
+from pdap_access_manager.access_manager.async_ import AccessManagerAsync
+from pdap_access_manager.enums import RequestType
+from pdap_access_manager.models.request import RequestInfo
+from pdap_access_manager.models.response import ResponseInfo
 
 from src.external.pdap._templates.request_builder import PDAPRequestBuilderBase
 from src.external.pdap.dtos.match_agency.post import MatchAgencyInfo
@@ -13,7 +16,7 @@ class PDAPClient:
 
     def __init__(
         self,
-        access_manager: AccessManager,
+        access_manager: AccessManagerAsync,
     ):
         self.access_manager = access_manager
 
@@ -33,10 +36,7 @@ class PDAPClient:
         """
         Returns agencies, if any, that match or partially match the search criteria
         """
-        url: str = self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.MATCH,
-            subdomains=["agency"]
-        )
+        url: str = f"{self.access_manager.data_sources_url}/v2/match/agency"
 
         headers: dict[str, str] = await self.access_manager.jwt_header()
         headers['Content-Type']: str = "application/json"
@@ -77,10 +77,8 @@ class PDAPClient:
         """
         Check if a URL is unique. Returns duplicate info otherwise
         """
-        url: str = self.access_manager.build_url(
-            namespace=DataSourcesNamespaces.CHECK,
-            subdomains=["unique-url"]
-        )
+        url: str = f"{self.access_manager.data_sources_url}/v2/check/unique-url"
+
         request_info = RequestInfo(
             type_=RequestType.GET,
             url=url,
