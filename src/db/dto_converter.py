@@ -13,7 +13,7 @@ from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion

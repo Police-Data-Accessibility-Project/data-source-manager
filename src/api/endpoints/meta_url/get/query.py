@@ -64,7 +64,7 @@ class GetMetaURLQueryBuilder(QueryBuilderBase):
             url_name: str = mapping[URL.name]
             url_agency_ids: list[int] = []
             for agency in url.confirmed_agencies:
-                url_agency_ids.append(agency.agency_id)
+                url_agency_ids.append(agency.id)
             url_description: str | None = mapping[URL.description]
             link_batch_url_batch_id: int | None = mapping[LinkBatchURL.batch_id]
             responses.append(

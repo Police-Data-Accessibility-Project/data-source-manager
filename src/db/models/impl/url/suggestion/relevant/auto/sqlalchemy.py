@@ -5,7 +5,12 @@ from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin, URLDependentMix
 from src.db.models.templates_.with_id import WithIDBase
 
 
-class AutoRelevantSuggestion(UpdatedAtMixin, CreatedAtMixin, URLDependentMixin, WithIDBase):
+class AutoRelevantSuggestion(
+    UpdatedAtMixin,
+    CreatedAtMixin,
+    URLDependentMixin,
+    WithIDBase
+):
     __tablename__ = "auto_relevant_suggestions"
 
     relevant = Column(Boolean, nullable=True)

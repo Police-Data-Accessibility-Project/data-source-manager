@@ -8,7 +8,7 @@ from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.views.batch_url_status.core import BatchURLStatusMatView
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.db.queries.base.builder import QueryBuilderBase

@@ -95,7 +95,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         URLNameSuggestion
     )
     user_agency_suggestions = relationship(
-        "UserUrlAgencySuggestion", back_populates="url")
+        "UserURLAgencySuggestion", back_populates="url")
     auto_record_type_suggestion = relationship(
         "AutoRecordTypeSuggestion", uselist=False, back_populates="url")
     user_record_type_suggestions = relationship(
@@ -109,10 +109,12 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     optional_data_source_metadata = relationship(
         "URLOptionalDataSourceMetadata", uselist=False, back_populates="url")
     confirmed_agencies = relationship(
-        "LinkURLAgency",
+        "Agency",
+        secondary="link_urls_agency"
+
     )
     data_source = relationship(
-        "URLDataSource",
+        "DSAppLinkDataSource",
         back_populates="url",
         uselist=False
     )

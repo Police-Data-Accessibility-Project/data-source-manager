@@ -156,16 +156,15 @@ async def add_agency(
     pittsburgh: LocalityCreationInfo
 ) -> int:
     agency_1 = Agency(
-        agency_id=next_int(),
         name="Agency 1",
         agency_type=AgencyType.LAW_ENFORCEMENT,
         jurisdiction_type=JurisdictionType.STATE,
     )
-    await adb_client.add(agency_1)
+    agency_id: int = await adb_client.add(agency_1, return_id=True)
     # Add Agency location
     agency_1_location = LinkAgencyLocation(
-        agency_id=agency_1.agency_id,
+        agency_id=agency_id,
         location_id=pittsburgh.location_id,
     )
     await adb_client.add(agency_1_location)
-    return agency_1.agency_id
+    return agency_id

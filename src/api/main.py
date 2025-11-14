@@ -5,6 +5,7 @@ import uvicorn
 from discord_poster import DiscordPoster
 from fastapi import FastAPI
 from pdap_access_manager import AccessManager
+from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.responses import RedirectResponse
 
 from src.api.endpoints.agencies.routes import agencies_router
@@ -52,12 +53,9 @@ async def lifespan(app: FastAPI):
     env.read_env()
 
     # Initialize shared dependencies
-    db_client = DatabaseClient(
-        db_url=env_var_manager.get_postgres_connection_string()
-    )
-    adb_client = AsyncDatabaseClient(
-        db_url=env_var_manager.get_postgres_connection_string(is_async=True)
-    )
+
+    db_client = DatabaseClient()
+    adb_client = AsyncDatabaseClient()
     await setup_database(db_client)
     core_logger = AsyncCoreLogger(adb_client=adb_client)
 

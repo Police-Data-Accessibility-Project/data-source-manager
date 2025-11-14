@@ -30,7 +30,7 @@ class GetRelatedAgenciesQueryBuilder(QueryBuilderBase):
             )
             .join(
                 LinkURLAgency,
-                LinkURLAgency.agency_id == Agency.agency_id
+                LinkURLAgency.agency_id == Agency.id
             )
             .where(
                 LinkURLAgency.url_id == self.url_id
@@ -52,7 +52,7 @@ class GetRelatedAgenciesQueryBuilder(QueryBuilderBase):
                 for location in agency.locations
             ]
             responses.append(AgencyGetResponse(
-                id=agency.agency_id,
+                id=agency.id,
                 name=agency.name,
                 type=agency.agency_type,
                 jurisdiction_type=agency.jurisdiction_type,

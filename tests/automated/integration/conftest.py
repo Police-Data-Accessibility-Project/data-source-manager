@@ -151,7 +151,7 @@ async def api_test_helper(
     client: TestClient,
     db_client_test: DatabaseClient,
     adb_client_test: AsyncDatabaseClient
-) -> AsyncGenerator[APITestHelper, Any]:
+    ) -> AsyncGenerator[APITestHelper, Any]:
     yield APITestHelper(
         request_validator=RequestValidator(client=client),
         async_core=client.app.state.async_core,
@@ -170,25 +170,63 @@ def test_batch_id(
 
 @pytest_asyncio.fixture
 async def test_agency_id(
-    db_data_creator: DBDataCreator
+    db_data_creator: DBDataCreator,
+    pittsburgh_locality: LocalityCreationInfo,
+    pennsylvania: USStateCreationInfo
 ) -> int:
-    return await db_data_creator.agency(
+    """Test agency linked to two locations: Pittsburgh and Pennsylvania"""
+    agency_id: int = await db_data_creator.agency(
         name="Test Agency"
     )
+    await db_data_creator.link_agencies_to_location(
+        agency_ids=[agency_id],
+        location_id=pittsburgh_locality.location_id
+    )
+    await db_data_creator.link_agencies_to_location(
+        agency_ids=[agency_id],
+        location_id=pennsylvania.location_id
+    )
+    return agency_id
+
+@pytest_asyncio.fixture
+async def test_agency_id_2(
+    db_data_creator: DBDataCreator,
+    pittsburgh_locality: LocalityCreationInfo
+) -> int:
+    agency_id: int = await db_data_creator.agency(
+        name="Test Agency 2"
+    )
+    await db_data_creator.link_agencies_to_location(
+        agency_ids=[agency_id],
+        location_id=pittsburgh_locality.location_id
+    )
+    return agency_id
 
 @pytest_asyncio.fixture
 async def test_url_data_source_id(
-    db_data_creator: DBDataCreator
+    db_data_creator: DBDataCreator,
+    test_agency_id: int
 ) -> int:
-    return (await db_data_creator.create_validated_urls(
+    url_id: int = (await db_data_creator.create_validated_urls(
         record_type=RecordType.CRIME_STATISTICS,
         validation_type=URLType.DATA_SOURCE,
     ))[0].url_id
+    await db_data_creator.link_urls_to_agencies(
+        url_ids=[url_id],
+        agency_ids=[test_agency_id]
+    )
+    return url_id
 
 @pytest_asyncio.fixture
 async def test_url_meta_url_id(
-    db_data_creator: DBDataCreator
+    db_data_creator: DBDataCreator,
+    test_agency_id: int
 ) -> int:
-    return (await db_data_creator.create_validated_urls(
+    url_id: int = (await db_data_creator.create_validated_urls(
         validation_type=URLType.META_URL,
     ))[0].url_id
+    await db_data_creator.link_urls_to_agencies(
+        url_ids=[url_id],
+        agency_ids=[test_agency_id]
+    )
+    return url_id

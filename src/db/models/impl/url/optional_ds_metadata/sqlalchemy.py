@@ -4,11 +4,15 @@ from sqlalchemy.orm import relationship, Mapped
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, AccessTypeEnum, \
     RetentionScheduleEnum, UpdateMethodEnum
-from src.db.models.mixins import URLDependentMixin
+from src.db.models.mixins import URLDependentMixin, UpdatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
 
 
-class URLOptionalDataSourceMetadata(URLDependentMixin, WithIDBase):
+class URLOptionalDataSourceMetadata(
+    URLDependentMixin,
+    WithIDBase,
+    UpdatedAtMixin
+):
     __tablename__ = 'url_optional_data_source_metadata'
 
     record_formats = Column(ARRAY(String), nullable=True)
@@ -35,6 +39,7 @@ class URLOptionalDataSourceMetadata(URLDependentMixin, WithIDBase):
             values_callable=lambda AccessTypeEnum: [e.value for e in AccessTypeEnum]
         )
     ), nullable=True)
+    data_portal_type_other = Column(String, nullable=True)
 
     # Relationships
     url = relationship("URL", uselist=False, back_populates="optional_data_source_metadata")

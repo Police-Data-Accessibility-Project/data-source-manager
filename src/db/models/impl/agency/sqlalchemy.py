@@ -18,28 +18,22 @@ class Agency(
 ):
     __tablename__ = "agencies"
 
-    # TODO: Rename agency_id to ds_agency_id
-
-    agency_id = Column(
-        Integer,
-        Sequence("agencies_agency_id"),
-        primary_key=True)
     name = Column(String, nullable=False)
     agency_type: Mapped[AgencyType] = enum_column(AgencyType, name="agency_type_enum")
     jurisdiction_type: Mapped[JurisdictionType] = enum_column(
         JurisdictionType,
         name="jurisdiction_type_enum",
-        nullable=True,
+        nullable=False,
     )
 
     # Relationships
     automated_suggestions = relationship("AgencyIDSubtaskSuggestion")
-    user_suggestions = relationship("UserUrlAgencySuggestion", back_populates="agency")
+    user_suggestions = relationship("UserURLAgencySuggestion", back_populates="agency")
     confirmed_urls = relationship("LinkURLAgency", back_populates="agency")
 
     locations = relationship(
         "LocationExpandedView",
-        primaryjoin="Agency.agency_id == LinkAgencyLocation.agency_id",
+        primaryjoin="Agency.id == LinkAgencyLocation.agency_id",
         secondaryjoin="LocationExpandedView.id == LinkAgencyLocation.location_id",
         secondary="link_agencies_locations",
     )

@@ -1,6 +1,6 @@
 import pytest
 
-from src.api.endpoints.meta_url.by_id.agencies.put.request import UpdateMetaURLRequest
+from src.api.endpoints.meta_url.by_id.put.request import UpdateMetaURLRequest
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.check import check_forbidden_url_type
 

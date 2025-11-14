@@ -3,7 +3,7 @@ from sqlalchemy import select, func, exists, and_
 from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 
 
 def get_agency_agreement_cte_container(
@@ -16,10 +16,10 @@ def get_agency_agreement_cte_container(
             func.count()
         )
         .join(
-            UserUrlAgencySuggestion,
+            UserURLAgencySuggestion,
             and_(
-                inner_cte.user_id == UserUrlAgencySuggestion.user_id,
-                inner_cte.url_id == UserUrlAgencySuggestion.url_id
+                inner_cte.user_id == UserURLAgencySuggestion.user_id,
+                inner_cte.url_id == UserURLAgencySuggestion.url_id
             )
         )
         .group_by(
@@ -34,17 +34,17 @@ def get_agency_agreement_cte_container(
             func.count()
         )
         .join(
-            UserUrlAgencySuggestion,
+            UserURLAgencySuggestion,
             and_(
-                inner_cte.user_id == UserUrlAgencySuggestion.user_id,
-                inner_cte.url_id == UserUrlAgencySuggestion.url_id
+                inner_cte.user_id == UserURLAgencySuggestion.user_id,
+                inner_cte.url_id == UserURLAgencySuggestion.url_id
             )
         )
         .where(
             exists()
             .where(
-                LinkURLAgency.url_id == UserUrlAgencySuggestion.url_id,
-                LinkURLAgency.agency_id == UserUrlAgencySuggestion.agency_id
+                LinkURLAgency.url_id == UserURLAgencySuggestion.url_id,
+                LinkURLAgency.agency_id == UserURLAgencySuggestion.agency_id
             )
         )
         .group_by(

@@ -37,7 +37,7 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
 
         # Get existing agency ids
         existing_agencies = url.confirmed_agencies or []
-        existing_agency_ids = [agency.agency_id for agency in existing_agencies]
+        existing_agency_ids = [agency.id for agency in existing_agencies]
         new_agency_ids = self.approval_info.agency_ids or []
         await self._check_for_unspecified_agency_ids(existing_agency_ids, new_agency_ids)
 
@@ -141,7 +141,7 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
             # Check if the new agency exists in the database
             query = (
                 select(Agency)
-                .where(Agency.agency_id == new_agency_id)
+                .where(Agency.id == new_agency_id)
             )
             existing_agency = await session.execute(query)
             existing_agency = existing_agency.scalars().first()

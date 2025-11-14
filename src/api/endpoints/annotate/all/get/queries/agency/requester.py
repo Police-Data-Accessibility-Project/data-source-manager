@@ -11,7 +11,7 @@ from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.templates.requester import RequesterBase
 
 
@@ -30,13 +30,13 @@ class GetAgencySuggestionsRequester(RequesterBase):
     async def get_user_agency_suggestions(self) -> list[AgencyAnnotationUserSuggestion]:
         query = (
             select(
-                UserUrlAgencySuggestion.agency_id,
-                func.count(UserUrlAgencySuggestion.user_id).label("count"),
+                UserURLAgencySuggestion.agency_id,
+                func.count(UserURLAgencySuggestion.user_id).label("count"),
                 Agency.name.label("agency_name"),
             )
             .join(
                 Agency,
-                Agency.agency_id == UserUrlAgencySuggestion.agency_id
+                Agency.id == UserURLAgencySuggestion.agency_id
             )
 
         )
@@ -45,7 +45,7 @@ class GetAgencySuggestionsRequester(RequesterBase):
             query = (
                 query.join(
                     LinkAgencyLocation,
-                    LinkAgencyLocation.agency_id == UserUrlAgencySuggestion.agency_id
+                    LinkAgencyLocation.agency_id == UserURLAgencySuggestion.agency_id
                 )
                 .where(
                     LinkAgencyLocation.location_id == self.location_id
@@ -54,14 +54,14 @@ class GetAgencySuggestionsRequester(RequesterBase):
 
         query = (
             query.where(
-                UserUrlAgencySuggestion.url_id == self.url_id
+                UserURLAgencySuggestion.url_id == self.url_id
             )
             .group_by(
-                UserUrlAgencySuggestion.agency_id,
+                UserURLAgencySuggestion.agency_id,
                 Agency.name
             )
             .order_by(
-                func.count(UserUrlAgencySuggestion.user_id).desc()
+                func.count(UserURLAgencySuggestion.user_id).desc()
             )
             .limit(3)
         )
@@ -88,7 +88,7 @@ class GetAgencySuggestionsRequester(RequesterBase):
             )
             .join(
                 Agency,
-                Agency.agency_id == cte.agency_id
+                Agency.id == cte.agency_id
             )
         )
 

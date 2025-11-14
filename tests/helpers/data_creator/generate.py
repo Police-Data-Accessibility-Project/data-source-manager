@@ -76,7 +76,7 @@ def generate_url_data_sources(
     return [
         URLDataSourcePydantic(
             url_id=url_id,
-            data_source_id=url_id,
+            ds_data_source_id=url_id,
         )
         for url_id in url_ids
     ]

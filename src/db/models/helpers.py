@@ -11,7 +11,7 @@ def get_agency_id_foreign_column(
     return Column(
         'agency_id',
         Integer(),
-        ForeignKey('agencies.agency_id', ondelete='CASCADE'),
+        ForeignKey('agencies.id', ondelete='CASCADE'),
         nullable=nullable
     )
 
