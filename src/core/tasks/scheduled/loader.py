@@ -135,7 +135,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_AGENCIES_ADD_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_ADD_TASK_FLAG")
             ),
             ### Update
             ScheduledTaskEntry(
@@ -144,7 +144,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_AGENCIES_UPDATE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG")
             ),
             ### Delete
             ScheduledTaskEntry(
@@ -153,7 +153,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_AGENCIES_DELETE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
             ),
             ## Data Source
             ### Add
@@ -163,7 +163,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCES_ADD_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG")
             ),
             ### Update
             ScheduledTaskEntry(
@@ -172,7 +172,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCES_UPDATE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG")
             ),
             ### Delete
             ScheduledTaskEntry(
@@ -181,7 +181,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCES_DELETE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG")
             ),
             ## Meta URL
             ### Add
@@ -191,7 +191,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_META_URLS_ADD_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_ADD_TASK_FLAG")
             ),
             ### Update
             ScheduledTaskEntry(
@@ -200,7 +200,7 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_META_URLS_UPDATE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG")
             ),
             ### Delete
             ScheduledTaskEntry(
@@ -209,6 +209,6 @@ class ScheduledTaskOperatorLoader:
                     pdap_client=self.pdap_client
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_META_URLS_DELETE_TASK_FLAG")
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_DELETE_TASK_FLAG")
             )
         ]
