@@ -12,6 +12,5 @@ services:
       - POSTGRES_PASSWORD=HanviliciousHamiltonHilltops
       - POSTGRES_USER=test_source_collector_user
       - POSTGRES_DB=source_collector_test_db
-    command: ['postgres', '-c', 'max_connections=160']
 volumes:
   dbscripts:

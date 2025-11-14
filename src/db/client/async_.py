@@ -2,8 +2,8 @@ from datetime import datetime
 from functools import wraps
 from typing import Optional, Type, Any, List, Sequence
 
-from sqlalchemy import select, func, Select, and_, update, Row, text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy import select, func, Select, and_, update, Row, text, Engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncEngine
 from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
@@ -103,15 +103,15 @@ from src.util.url import get_url_and_scheme
 
 
 class AsyncDatabaseClient:
-    def __init__(self, db_url: str | None = None):
-        if db_url is None:
+    def __init__(self, engine: AsyncEngine | None = None):
+        if engine is None:
             db_url = EnvVarManager.get().get_postgres_connection_string(is_async=True)
-        self.db_url = db_url
-        echo = ConfigManager.get_sqlalchemy_echo()
-        self.engine = create_async_engine(
-            url=db_url,
-            echo=echo,
-        )
+            echo = ConfigManager.get_sqlalchemy_echo()
+            engine = create_async_engine(
+                url=db_url,
+                echo=echo,
+            )
+        self.engine = engine
         self.session_maker = async_sessionmaker(bind=self.engine, expire_on_commit=False)
         self.statement_composer = StatementComposer()
 

@@ -3,6 +3,7 @@ from typing import Any, AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from sqlalchemy import Engine
 from starlette.testclient import TestClient
 
 from src.db.helpers.connect import get_postgres_connection_string
@@ -33,8 +34,10 @@ async def california_readonly(
 async def readonly_helper(
     event_loop,
     client: TestClient,
+    engine: Engine
+
 ) -> AsyncGenerator[ReadOnlyTestHelper, Any]:
-    wipe_database(get_postgres_connection_string())
+    wipe_database(engine)
     db_data_creator = DBDataCreator()
     api_test_helper = APITestHelper(
         request_validator=RequestValidator(client=client),
