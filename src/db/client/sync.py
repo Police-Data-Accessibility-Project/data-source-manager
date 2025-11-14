@@ -5,23 +5,21 @@ from sqlalchemy import create_engine, Select, Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
-from src.db.config_manager import ConfigManager
-from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
-from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.models.impl.log.pydantic.info import LogInfo
-from src.db.dtos.url.mapping_.simple import SimpleURLMapping
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.core.pydantic.info import URLInfo
-from src.db.models.templates_.base import Base
-from src.db.models.impl.duplicate.sqlalchemy import Duplicate
-from src.db.models.impl.log.sqlalchemy import Log
-from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
-from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.batch.sqlalchemy import Batch
-from tests.helpers.data_creator.commands.impl.urls_.tdo import SubmittedURLInfo
-from src.core.env_var_manager import EnvVarManager
 from src.core.enums import BatchStatus
+from src.core.env_var_manager import EnvVarManager
+from src.db.config_manager import ConfigManager
+from src.db.dtos.url.insert import InsertURLsInfo
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
+from src.db.models.impl.batch.pydantic.info import BatchInfo
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
+from src.db.models.impl.duplicate.sqlalchemy import Duplicate
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.log.pydantic.info import LogInfo
+from src.db.models.impl.log.sqlalchemy import Log
+from src.db.models.impl.url.core.pydantic.info import URLInfo
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.templates_.base import Base
 from src.util.models.url_and_scheme import URLAndScheme
 from src.util.url import get_url_and_scheme
 
@@ -218,25 +216,6 @@ class DatabaseClient:
     ):
         url = session.query(URL).filter_by(id=url_info.id).first()
         url.collector_metadata = url_info.collector_metadata
-
-    @session_manager
-    def mark_urls_as_submitted(
-            self,
-            session: Session,
-            infos: list[SubmittedURLInfo]
-    ):
-        for info in infos:
-            url_id = info.url_id
-            data_source_id = info.data_source_id
-
-            url_data_source_object = DSAppLinkDataSource(
-                url_id=url_id,
-                ds_data_source_id=data_source_id
-            )
-            if info.submitted_at is not None:
-                url_data_source_object.created_at = info.submitted_at
-            session.add(url_data_source_object)
-
 
 if __name__ == "__main__":
     client = DatabaseClient()

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from tests.helpers.data_creator.commands.impl.urls_.tdo import SubmittedURLInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.models.impl.url.core.enums import URLSource
@@ -64,7 +65,21 @@ class URLsDBDataCreatorCommand(DBDataCreatorCommandBase):
                     submitted_at=self.created_at
                 )
                 submitted_url_infos.append(submitted_url_info)
-            self.db_client.mark_urls_as_submitted(submitted_url_infos)
+
+            url_data_source_objects: list[DSAppLinkDataSource] = []
+            for info in submitted_url_infos:
+                url_id = info.url_id
+                data_source_id = info.data_source_id
+
+                url_data_source_object = DSAppLinkDataSource(
+                    url_id=url_id,
+                    ds_data_source_id=data_source_id
+                )
+                if info.submitted_at is not None:
+                    url_data_source_object.created_at = info.submitted_at
+                url_data_source_objects.append(url_data_source_object)
+
+            self.db_client.add_all(url_data_source_objects)
 
 
         return url_insert_info
