@@ -19,15 +19,7 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-def _add_data_portal_type_other_to_ds_optional_metadata():
-    op.add_column(
-        'url_optional_data_source_metadata',
-        sa.Column(
-            'data_portal_type_other',
-            sa.String(),
-            nullable=True
-        )
-    )
+
 
 
 def upgrade() -> None:
@@ -37,6 +29,7 @@ def upgrade() -> None:
     remove_id_column_from_agencies()
     rename_agency_id_to_id()
     _rename_existing_tables_to_ds_app_format()
+    _delete_meta_url_ds_app_links()
     _alter_ds_app_link_data_source_table()
     _alter_ds_app_link_meta_url_table()
     _add_flag_deletion_tables()
@@ -48,6 +41,21 @@ def upgrade() -> None:
     _add_updated_at_to_url_record_type_table()
     _add_updated_at_trigger_to_url_optional_data_source_metadata()
     _add_data_portal_type_other_to_ds_optional_metadata()
+
+def _delete_meta_url_ds_app_links():
+    op.execute(
+        "DELETE FROM ds_app_link_meta_url;"
+    )
+
+def _add_data_portal_type_other_to_ds_optional_metadata():
+    op.add_column(
+        'url_optional_data_source_metadata',
+        sa.Column(
+            'data_portal_type_other',
+            sa.String(),
+            nullable=True
+        )
+    )
 
 def _add_updated_at_trigger_to_url_optional_data_source_metadata():
     create_updated_at_trigger(
