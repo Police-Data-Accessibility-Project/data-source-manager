@@ -25,7 +25,7 @@ class DSAppSyncAgenciesUpdateGetQueryBuilder(QueryBuilderBase):
             )
             .join(
                 Agency,
-                Agency.id == cte.agency_id,
+                Agency.id == LinkAgencyLocation.agency_id,
             )
             .group_by(
                 LinkAgencyLocation.agency_id,
@@ -60,7 +60,7 @@ class DSAppSyncAgenciesUpdateGetQueryBuilder(QueryBuilderBase):
         for mapping in mappings:
             inner_requests.append(
                 UpdateAgenciesInnerRequest(
-                    app_id=mapping[DSAppLinkAgency.ds_agency_id],
+                    app_id=mapping[cte.ds_agency_id],
                     content=AgencySyncContentModel(
                         name=mapping[Agency.name],
                         jurisdiction_type=mapping[Agency.jurisdiction_type],

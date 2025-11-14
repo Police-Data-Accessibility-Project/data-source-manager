@@ -62,7 +62,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 URL,
                 URL.id == cte.url_id,
             )
-            .join(
+            .outerjoin(
                 URLOptionalDataSourceMetadata,
                 URL.id == URLOptionalDataSourceMetadata.url_id,
             )
@@ -88,7 +88,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                     request_id=mapping[cte.url_id],
                     content=DataSourceSyncContentModel(
                         # Required
-                        source_url=mapping[URL.full_url],
+                        source_url=mapping["full_url"],
                         name=mapping[URL.name],
                         record_type=mapping[URLRecordType.record_type],
                         agency_ids=mapping["agency_ids"],

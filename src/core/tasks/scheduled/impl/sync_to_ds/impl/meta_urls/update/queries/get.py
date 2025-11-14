@@ -41,7 +41,7 @@ class DSAppSyncMetaURLsUpdateGetQueryBuilder(QueryBuilderBase):
                 URL,
                 URL.id == cte.url_id,
             )
-            .join(
+            .outerjoin(
                 agency_id_cte,
                 cte.url_id == agency_id_cte.c.url_id
             )
@@ -58,8 +58,8 @@ class DSAppSyncMetaURLsUpdateGetQueryBuilder(QueryBuilderBase):
                 UpdateMetaURLsInnerRequest(
                     app_id=mapping[cte.ds_meta_url_id],
                     content=MetaURLSyncContentModel(
-                        url=mapping[URL.full_url],
-                        agency_ids=mapping["agency_ids"]
+                        url=mapping['full_url'],
+                        agency_ids=mapping["agency_ids"] or []
                     )
                 )
             )

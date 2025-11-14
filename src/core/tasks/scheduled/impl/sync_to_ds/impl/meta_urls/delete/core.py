@@ -7,12 +7,17 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.queries.get 
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.queries.prereq import \
     DSAppSyncMetaURLsDeletePrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.meta_urls.delete.core import DeleteMetaURLsRequestBuilder
 
 
 class DSAppSyncMetaURLsDeleteTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_META_URLS_DELETE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.run_query_builder(

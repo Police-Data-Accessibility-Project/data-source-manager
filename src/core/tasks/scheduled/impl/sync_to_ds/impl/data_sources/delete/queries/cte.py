@@ -17,7 +17,7 @@ class DSAppLinkSyncDataSourceDeletePrerequisitesCTEContainer:
             .join(
                 FlagDSDeleteDataSource,
                 FlagDSDeleteDataSource.ds_data_source_id == FlagDSDeleteDataSource.ds_data_source_id
-            ).cte()
+            ).cte("ds_app_link_sync_data_source_delete_prerequisites")
         )
 
     @property

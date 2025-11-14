@@ -2,13 +2,14 @@ from sqlalchemy.orm import Mapped
 
 from src.core.enums import RecordType
 from src.db.models.helpers import url_id_primary_key_constraint, enum_column
-from src.db.models.mixins import URLDependentMixin, CreatedAtMixin
+from src.db.models.mixins import URLDependentMixin, CreatedAtMixin, UpdatedAtMixin
 from src.db.models.templates_.base import Base
 
 
 class URLRecordType(
     Base,
     CreatedAtMixin,
+    UpdatedAtMixin,
     URLDependentMixin
 ):
     __tablename__ = "url_record_type"

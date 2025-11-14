@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.queries.p
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.queries.update_links import \
     DSAppSyncDataSourcesUpdateAlterLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.data_sources.update.core import UpdateDataSourcesRequestBuilder
 from src.external.pdap.impl.sync.data_sources.update.request import UpdateDataSourcesOuterRequest
 
@@ -12,6 +13,10 @@ from src.external.pdap.impl.sync.data_sources.update.request import UpdateDataSo
 class DSAppSyncDataSourcesUpdateTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_DATA_SOURCES_UPDATE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.adb_client.run_query_builder(

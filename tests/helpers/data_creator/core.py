@@ -12,7 +12,7 @@ from src.db.client.sync import DatabaseClient
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
-from src.db.models.impl.agency.enums import AgencyType
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
@@ -524,7 +524,8 @@ class DBDataCreator:
         agency = Agency(
             id=agency_id,
             name=generate_test_name(agency_id),
-            agency_type=AgencyType.UNKNOWN
+            agency_type=AgencyType.UNKNOWN,
+            jurisdiction_type=JurisdictionType.LOCAL
         )
         await self.adb_client.add_all([agency])
 
@@ -536,7 +537,8 @@ class DBDataCreator:
             agency = Agency(
                 id=agency_id,
                 name=generate_test_name(agency_id),
-                agency_type=AgencyType.UNKNOWN
+                agency_type=AgencyType.UNKNOWN,
+                jurisdiction_type=JurisdictionType.LOCAL
             )
             agencies.append(agency)
             agency_ids.append(agency_id)

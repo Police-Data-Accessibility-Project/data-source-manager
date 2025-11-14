@@ -315,7 +315,7 @@ async def _setup(
     agency_subtask_id: int = await dbc.add(
         URLAutoAgencyIDSubtask(
             url_id=url.url_id,
-            task_id=1,
+            task_id=task_id,
             agencies_found=True,
             type=AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH,
             detail=SubtaskDetailCode.NO_DETAILS

@@ -7,12 +7,17 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.queries.get i
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.queries.prereq import \
     DSAppSyncAgenciesDeletePrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.agencies.delete.core import DeleteAgenciesRequestBuilder
 
 
 class DSAppSyncAgenciesDeleteTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_AGENCIES_DELETE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.adb_client.run_query_builder(

@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.queries.prer
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.queries.update_links import \
     DSAppSyncMetaURLsUpdateAlterLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.meta_urls.update.core import UpdateMetaURLsRequestBuilder
 from src.external.pdap.impl.sync.meta_urls.update.request import UpdateMetaURLsOuterRequest
 
@@ -12,6 +13,10 @@ from src.external.pdap.impl.sync.meta_urls.update.request import UpdateMetaURLsO
 class DSAppSyncMetaURLsUpdateTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_META_URLS_UPDATE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.adb_client.run_query_builder(

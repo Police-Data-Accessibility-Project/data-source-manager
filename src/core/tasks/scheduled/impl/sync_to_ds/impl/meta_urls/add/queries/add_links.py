@@ -19,7 +19,7 @@ class DSAppSyncMetaURLsAddInsertLinksQueryBuilder(QueryBuilderBase):
         for mapping in self._mappings:
             inserts.append(
                 DSAppLinkMetaURL(
-                    ds_meta_url_id=mapping.ds_app_id,
+                    ds_meta_url_id=mapping.app_id,
                     url_id=mapping.request_id,
                 )
             )

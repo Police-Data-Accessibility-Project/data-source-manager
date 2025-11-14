@@ -19,7 +19,7 @@ class DSAppSyncDataSourcesAddInsertLinksQueryBuilder(QueryBuilderBase):
         for mapping in self._mappings:
             inserts.append(
                 DSAppLinkDataSource(
-                    ds_data_source_id=mapping.ds_app_id,
+                    ds_data_source_id=mapping.app_id,
                     url_id=mapping.request_id,
                 )
             )

@@ -1,5 +1,3 @@
-from pdap_access_manager import AccessManager
-
 from src.external.pdap._templates.request_builder import PDAPRequestBuilderBase
 from src.external.pdap.impl.sync.meta_urls.update.request import UpdateMetaURLsOuterRequest
 

@@ -17,7 +17,7 @@ class DSAppLinkSyncMetaURLDeletePrerequisitesCTEContainer:
             .join(
                 FlagDSDeleteMetaURL,
                 FlagDSDeleteMetaURL.ds_meta_url_id == DSAppLinkMetaURL.ds_meta_url_id
-            ).cte()
+            ).cte("ds_app_link_sync_meta_url_delete_prerequisites")
         )
 
     @property

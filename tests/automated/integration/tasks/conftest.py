@@ -11,6 +11,7 @@ def mock_pdap_client() -> PDAPClient:
     mock_access_manager = MagicMock(
         spec=AccessManager
     )
+    mock_access_manager.data_sources_url = "http://example.com"
     mock_access_manager.build_url = MagicMock(
         return_value="http://example.com"
     )

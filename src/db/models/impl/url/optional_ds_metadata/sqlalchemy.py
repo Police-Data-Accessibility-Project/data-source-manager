@@ -39,6 +39,7 @@ class URLOptionalDataSourceMetadata(
             values_callable=lambda AccessTypeEnum: [e.value for e in AccessTypeEnum]
         )
     ), nullable=True)
+    data_portal_type_other = Column(String, nullable=True)
 
     # Relationships
     url = relationship("URL", uselist=False, back_populates="optional_data_source_metadata")

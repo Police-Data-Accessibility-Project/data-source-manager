@@ -20,7 +20,7 @@ class DSAppLinkSyncMetaURLAddPrerequisitesCTEContainer:
                     select(DSAppLinkMetaURL.url_id)
                     .where(DSAppLinkMetaURL.url_id == MetaURL.url_id)
                 )
-            ).cte()
+            ).cte("ds_app_link_sync_meta_url_add_prerequisites")
         )
 
     @property

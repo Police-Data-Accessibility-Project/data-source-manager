@@ -27,7 +27,7 @@ class PDAPRequestBuilderBase(ABC):
             type_=RequestType.POST,
             url=url,
             json_=model.model_dump(mode='json'),
-            headers=self.access_manager.jwt_header()
+            headers=await self.access_manager.jwt_header()
         )
         response_info: ResponseInfo = await self.access_manager.make_request(request_info)
         if response_info.status_code != HTTPStatus.OK:

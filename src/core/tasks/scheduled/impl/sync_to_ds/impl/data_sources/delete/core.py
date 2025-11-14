@@ -7,12 +7,17 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.delete.queries.g
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.delete.queries.prereq import \
     DSAppSyncDataSourcesDeletePrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.data_sources.delete.core import DeleteDataSourcesRequestBuilder
 
 
 class DSAppSyncDataSourcesDeleteTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_DATA_SOURCES_DELETE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.run_query_builder(

@@ -10,13 +10,218 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from src.util.alembic_helpers import created_at_column, updated_at_column, create_updated_at_trigger
+from src.util.alembic_helpers import created_at_column, updated_at_column, create_updated_at_trigger, remove_enum_value
 
 # revision identifiers, used by Alembic.
 revision: str = 'a57c3b5b6e93'
 down_revision: Union[str, None] = 'f32ba7664e9f'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+
+def _add_data_portal_type_other_to_ds_optional_metadata():
+    op.add_column(
+        'url_optional_data_source_metadata',
+        sa.Column(
+            'data_portal_type_other',
+            sa.String(),
+            nullable=True
+        )
+    )
+
+
+def upgrade() -> None:
+    _create_sync_log()
+    _create_ds_agency_link()
+    _migrate_agency_ids_to_ds_agency_link()
+    remove_id_column_from_agencies()
+    rename_agency_id_to_id()
+    _rename_existing_tables_to_ds_app_format()
+    _alter_ds_app_link_data_source_table()
+    _alter_ds_app_link_meta_url_table()
+    _add_flag_deletion_tables()
+    _add_last_synced_at_columns()
+    _add_link_table_modification_triggers()
+    _add_updated_at_to_optional_data_source_metadata_table()
+    _update_sync_tasks()
+    _alter_agency_jurisdiction_type_column()
+    _add_updated_at_to_url_record_type_table()
+    _add_updated_at_trigger_to_url_optional_data_source_metadata()
+    _add_data_portal_type_other_to_ds_optional_metadata()
+
+def _add_updated_at_trigger_to_url_optional_data_source_metadata():
+    create_updated_at_trigger(
+        "url_optional_data_source_metadata"
+    )
+
+def _add_updated_at_to_url_record_type_table():
+    op.add_column(
+        'url_record_type',
+        updated_at_column()
+    )
+    create_updated_at_trigger(
+        "url_record_type"
+    )
+
+
+
+def _alter_agency_jurisdiction_type_column():
+    op.alter_column(
+        'agencies',
+        'jurisdiction_type',
+        nullable=False,
+    )
+
+
+def _update_sync_tasks():
+
+    # Drop Views
+    op.execute("drop view url_task_count_1_day")
+    op.execute("drop view url_task_count_1_week")
+    op.execute("drop materialized view url_status_mat_view")
+
+
+
+    targets: list[tuple[str, str]] = [
+        ('tasks', 'task_type'),
+        ('url_task_error', 'task_type')
+    ]
+
+    remove_enum_value(
+        enum_name="task_type",
+        value_to_remove="Sync Agencies",
+        targets=targets
+    )
+    remove_enum_value(
+        enum_name="task_type",
+        value_to_remove="Sync Data Sources",
+        targets=targets
+    )
+    new_enum_values: list[str] = [
+        "Sync Agencies Add",
+        "Sync Agencies Update",
+        "Sync Agencies Delete",
+        "Sync Data Sources Add",
+        "Sync Data Sources Update",
+        "Sync Data Sources Delete",
+        "Sync Meta URLs Add",
+        "Sync Meta URLs Update",
+        "Sync Meta URLs Delete",
+    ]
+    for enum_value in new_enum_values:
+        op.execute(f"ALTER TYPE task_type ADD VALUE '{enum_value}';")
+
+    # Recreate Views
+    op.execute("""
+    create view url_task_count_1_day(task_type, count) as
+    SELECT
+        t.task_type,
+        count(ltu.url_id) AS count
+    FROM
+        tasks t
+        JOIN link_task_urls ltu
+             ON ltu.task_id = t.id
+    WHERE
+        t.updated_at > (now() - '1 day'::interval)
+    GROUP BY
+        t.task_type;
+    """)
+
+    op.execute("""
+    create view url_task_count_1_week(task_type, count) as
+    SELECT
+        t.task_type,
+        count(ltu.url_id) AS count
+    FROM
+        tasks t
+        JOIN link_task_urls ltu
+             ON ltu.task_id = t.id
+    WHERE
+        t.updated_at > (now() - '7 days'::interval)
+    GROUP BY
+        t.task_type;    
+    """)
+
+    op.execute(
+        """
+    CREATE MATERIALIZED VIEW url_status_mat_view as
+        with
+        urls_with_relevant_errors as (
+            select
+                ute.url_id
+            from
+                url_task_error ute
+            where
+                ute.task_type in (
+                                  'Screenshot',
+                                  'HTML',
+                                  'URL Probe'
+                    )
+            )
+        , status_text as (
+            select
+                u.id as url_id,
+                case
+                    when (
+                        -- Validated as not relevant, individual record, or not found
+                        fuv.type in ('not relevant', 'individual record', 'not found')
+                        ) Then 'Accepted'
+                    when (
+                        (fuv.type = 'data source' and uds.url_id is null)
+                            OR
+                        (fuv.type = 'meta url' and udmu.url_id is null)
+                        ) Then 'Awaiting Submission'
+                    when (
+                        (fuv.type = 'data source' and uds.url_id is not null)
+                            OR
+                        (fuv.type = 'meta url' and udmu.url_id is not null)
+                        ) Then 'Submitted'
+                    when (
+                        -- Has compressed HTML
+                        uch.url_id is not null
+                            AND
+                            -- Has web metadata
+                        uwm.url_id is not null
+                            AND
+                            -- Has screenshot
+                        us.url_id is not null
+                        ) THEN 'Community Labeling'
+                    when uwre.url_id is not null then 'Error'
+                    ELSE 'Intake'
+                    END as status
+    
+            from
+                urls u
+                left join urls_with_relevant_errors uwre
+                          on u.id = uwre.url_id
+                left join url_screenshot us
+                          on u.id = us.url_id
+                left join url_compressed_html uch
+                          on u.id = uch.url_id
+                left join url_web_metadata uwm
+                          on u.id = uwm.url_id
+                left join flag_url_validated fuv
+                          on u.id = fuv.url_id
+                left join ds_app_link_meta_url udmu
+                          on u.id = udmu.url_id
+                left join ds_app_link_data_source uds
+                          on u.id = uds.url_id
+        )
+    select
+        url_id,
+        status,
+        CASE status
+            WHEN 'Intake' THEN 100
+            WHEN 'Error' THEN 110
+            WHEN 'Community Labeling' THEN 200
+            WHEN 'Accepted' THEN 300
+            WHEN 'Awaiting Submission' THEN 380
+            WHEN 'Submitted' THEN 390
+            ELSE -1
+        END as code
+    from status_text
+    """
+        )
 
 
 def last_synced_at_column():
@@ -35,25 +240,56 @@ def _add_link_table_modification_triggers():
     RETURNS trigger
     LANGUAGE plpgsql AS $$
     BEGIN
-      -- UNION to cover INSERT/UPDATE (NEW TABLE) and DELETE (OLD TABLE)
-      UPDATE urls u
-      SET updated_at = clock_timestamp()  -- better than now() for long txns
-      FROM (
-        SELECT DISTINCT url_id FROM newtab
-        UNION
-        SELECT DISTINCT url_id FROM oldtab
-      ) AS hit
-      WHERE u.id = hit.url_id;
+      IF TG_OP = 'INSERT' THEN
+        EXECUTE $q$
+          UPDATE urls u
+          SET updated_at = clock_timestamp()
+          FROM (SELECT DISTINCT url_id FROM newtab) AS hit
+          WHERE u.id = hit.url_id
+        $q$;
+    
+      ELSIF TG_OP = 'DELETE' THEN
+        EXECUTE $q$
+          UPDATE urls u
+          SET updated_at = clock_timestamp()
+          FROM (SELECT DISTINCT url_id FROM oldtab) AS hit
+          WHERE u.id = hit.url_id
+        $q$;
+    
+      ELSE  -- UPDATE
+        EXECUTE $q$
+          UPDATE urls u
+          SET updated_at = clock_timestamp()
+          FROM (
+            SELECT DISTINCT url_id FROM newtab
+            UNION
+            SELECT DISTINCT url_id FROM oldtab
+          ) AS hit
+          WHERE u.id = hit.url_id
+        $q$;
+      END IF;
     
       RETURN NULL; -- statement-level trigger
     END $$;
     
     -- statement-level trigger with transition tables
-    CREATE TRIGGER trg_link_touch_parent
-    AFTER INSERT OR UPDATE OR DELETE ON link_parent_child
+    CREATE TRIGGER trg_link_urls_agency_touch_url_ins
+    AFTER INSERT ON link_urls_agency
+    REFERENCING NEW TABLE AS newtab
+    FOR EACH STATEMENT
+    EXECUTE FUNCTION touch_url_from_agency_link();
+    
+    CREATE TRIGGER trg_link_urls_agency_touch_url_upd
+    AFTER UPDATE ON link_urls_agency
     REFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab
     FOR EACH STATEMENT
-    EXECUTE FUNCTION touch_parent_from_link();
+    EXECUTE FUNCTION touch_url_from_agency_link();
+    
+    CREATE TRIGGER trg_link_urls_agency_touch_url_del
+    AFTER DELETE ON link_urls_agency
+    REFERENCING OLD TABLE AS oldtab
+    FOR EACH STATEMENT
+    EXECUTE FUNCTION touch_url_from_agency_link();
     
     """)
 
@@ -65,26 +301,56 @@ def _add_link_table_modification_triggers():
             LANGUAGE plpgsql AS
         $$
         BEGIN
-            -- UNION to cover INSERT/UPDATE (NEW TABLE) and DELETE (OLD TABLE)
-            UPDATE agencies a
-            SET updated_at = clock_timestamp() -- better than now() for long txns
-            FROM (SELECT DISTINCT agency_id
-                  FROM newtab
-                  UNION
-                  SELECT DISTINCT agency_id
-                  FROM oldtab) AS hit
-            WHERE a.id = hit.agency_id;
-
-            RETURN NULL; -- statement-level trigger
+          IF TG_OP = 'INSERT' THEN
+            EXECUTE $q$
+              UPDATE agencies a
+              SET updated_at = clock_timestamp()
+              FROM (SELECT DISTINCT agency_id FROM newtab) AS hit
+              WHERE a.id = hit.agency_id
+            $q$;
+        
+          ELSIF TG_OP = 'DELETE' THEN
+            EXECUTE $q$
+              UPDATE agencies a
+              SET updated_at = clock_timestamp()
+              FROM (SELECT DISTINCT agency_id FROM oldtab) AS hit
+              WHERE a.id = hit.agency_id
+            $q$;
+        
+          ELSE  -- UPDATE
+            EXECUTE $q$
+              UPDATE agencies a
+              SET updated_at = clock_timestamp()
+              FROM (
+                SELECT DISTINCT agency_id FROM newtab
+                UNION
+                SELECT DISTINCT agency_id FROM oldtab
+              ) AS hit
+              WHERE a.id = hit.agency_id
+            $q$;
+          END IF;
+        
+          RETURN NULL; -- statement-level trigger
         END
         $$;
 
         -- statement-level trigger with transition tables
-        CREATE TRIGGER trg_link_touch_parent
-            AFTER INSERT OR UPDATE OR DELETE
-            ON link_agencies_locations
-            REFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab
-            FOR EACH STATEMENT
+        CREATE TRIGGER trg_link_agencies_locations_touch_agencies_ins
+        AFTER INSERT ON link_agencies_locations
+        REFERENCING NEW TABLE AS newtab
+        FOR EACH STATEMENT
+        EXECUTE FUNCTION touch_agency_from_location_link();
+        
+        CREATE TRIGGER trg_link_agencies_locations_touch_agencies_upd
+        AFTER UPDATE ON link_agencies_locations
+        REFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab
+        FOR EACH STATEMENT
+        EXECUTE FUNCTION touch_agency_from_location_link();
+        
+        CREATE TRIGGER trg_link_agencies_locations_touch_agencies_del
+        AFTER DELETE ON link_agencies_locations
+        REFERENCING OLD TABLE AS oldtab
+        FOR EACH STATEMENT
         EXECUTE FUNCTION touch_agency_from_location_link();
                """
     )
@@ -93,19 +359,7 @@ def _add_link_table_modification_triggers():
 
 
 
-def upgrade() -> None:
-    _create_sync_log()
-    _create_ds_agency_link()
-    _migrate_agency_ids_to_ds_agency_link()
-    remove_id_column_from_agencies()
-    rename_agency_id_to_id()
-    _rename_existing_tables_to_ds_app_format()
-    _alter_ds_app_link_data_source_table()
-    _alter_ds_app_link_meta_url_table()
-    _add_flag_deletion_tables()
-    _add_last_synced_at_columns()
-    _add_link_table_modification_triggers()
-    _add_updated_at_to_optional_data_source_metadata_table()
+
 
 def _add_updated_at_to_optional_data_source_metadata_table():
     op.add_column(

@@ -39,4 +39,4 @@ class DataSourceSyncContentModel(BaseModel):
     data_portal_type_other: str | None = None
     url_status: DataSourcesURLStatus | None = None
 
-    agency_ids: list[int] = Field(min_length=1)
+    agency_ids: list[int] = []

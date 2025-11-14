@@ -56,7 +56,7 @@ from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.raw_html import RawHTMLInfo
 from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.agency.enums import AgencyType
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
@@ -592,7 +592,10 @@ class AsyncDatabaseClient:
             result = await session.execute(query)
             agency = result.scalars().one_or_none()
             if agency is None:
-                agency = Agency(id=suggestion.pdap_agency_id)
+                agency = Agency(
+                    id=suggestion.pdap_agency_id,
+                    jurisdiction_type=JurisdictionType.LOCAL
+                )
             agency.name = suggestion.agency_name
             agency.agency_type = AgencyType.UNKNOWN
             session.add(agency)
@@ -631,6 +634,7 @@ class AsyncDatabaseClient:
                     id=agency_id,
                     name=PLACEHOLDER_AGENCY_NAME,
                     agency_type=AgencyType.UNKNOWN,
+                    jurisdiction_type=JurisdictionType.LOCAL
                 )
                 await session.merge(agency)
 

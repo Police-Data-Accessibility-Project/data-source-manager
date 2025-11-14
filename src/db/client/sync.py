@@ -141,7 +141,7 @@ class DatabaseClient:
         return url_entry.id
 
     def insert_urls(self, url_infos: List[URLInfo], batch_id: int) -> InsertURLsInfo:
-        url_mappings = []
+        url_mappings: list[SimpleURLMapping] = []
         duplicates = []
         for url_info in url_infos:
             url_info.batch_id = batch_id
@@ -227,7 +227,7 @@ class DatabaseClient:
 
             url_data_source_object = DSAppLinkDataSource(
                 url_id=url_id,
-                data_source_id=data_source_id
+                ds_data_source_id=data_source_id
             )
             if info.submitted_at is not None:
                 url_data_source_object.created_at = info.submitted_at

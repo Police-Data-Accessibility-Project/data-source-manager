@@ -27,7 +27,7 @@ class DSAppLinkSyncDataSourceAddPrerequisitesCTEContainer:
                     select(DSAppLinkDataSource.url_id)
                     .where(DSAppLinkDataSource.url_id == URL.id)
                 )
-            ).cte()
+            ).cte("ds_app_link_sync_data_source_add_prerequisites")
         )
 
     @property

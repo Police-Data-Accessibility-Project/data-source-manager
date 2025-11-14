@@ -4,6 +4,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.queries.get impo
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.queries.prereq import \
     DSAppSyncAgenciesAddPrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.agencies.add.core import AddAgenciesRequestBuilder
 from src.external.pdap.impl.sync.agencies.add.request import AddAgenciesOuterRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseInnerModel
@@ -12,6 +13,10 @@ from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddR
 class DSAppSyncAgenciesAddTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_AGENCIES_ADD
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.run_query_builder(

@@ -1,10 +1,11 @@
-from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.queries.add_links import \
-    DSAppSyncAgenciesAddInsertLinksQueryBuilder
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.add_links import \
+    DSAppSyncDataSourcesAddInsertLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.get import \
     DSAppSyncDataSourcesAddGetQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.prereq import \
     DSAppSyncDataSourcesAddPrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.data_sources.add.core import AddDataSourcesRequestBuilder
 from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseInnerModel
@@ -13,6 +14,10 @@ from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddR
 class DSAppSyncDataSourcesAddTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_DATA_SOURCES_ADD
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.run_query_builder(
@@ -44,5 +49,5 @@ class DSAppSyncDataSourcesAddTaskOperator(
         responses: list[DSAppSyncAddResponseInnerModel]
     ) -> None:
         await self.run_query_builder(
-            DSAppSyncAgenciesAddInsertLinksQueryBuilder(responses)
+            DSAppSyncDataSourcesAddInsertLinksQueryBuilder(responses)
         )

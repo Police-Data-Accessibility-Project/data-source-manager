@@ -4,6 +4,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.queries.get imp
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.queries.prereq import \
     DSAppSyncMetaURLsAddPrerequisitesQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.meta_urls.add.core import AddMetaURLsRequestBuilder
 from src.external.pdap.impl.sync.meta_urls.add.request import AddMetaURLsOuterRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseInnerModel
@@ -12,6 +13,10 @@ from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddR
 class DSAppSyncMetaURLsAddTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_META_URLS_ADD
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.run_query_builder(

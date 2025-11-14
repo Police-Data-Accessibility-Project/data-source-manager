@@ -18,7 +18,7 @@ class DSAppLinkSyncAgencyUpdatePrerequisitesCTEContainer:
             )
             .where(
                 Agency.updated_at > DSAppLinkAgency.last_synced_at
-            ).cte()
+            ).cte("ds_app_link_sync_agency_update_prerequisites")
         )
 
     @property

@@ -1,11 +1,12 @@
 from sqlalchemy import update
 
 from src.api.shared.models.message_response import MessageResponse
+from src.core.enums import RecordType
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.core import \
     DSAppSyncDataSourcesUpdateTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
+from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.update.request import UpdateDataSourcesInnerRequest, \
@@ -32,20 +33,16 @@ async def test_update_url(
     # Check prerequisites not met
     assert not await operator.meets_task_prerequisites()
 
-    # Update URL table
+    # Update URL Record Type table
     statement = (
         update(
-            URL
+            URLRecordType
         )
         .values(
-            name="Updated URL Name",
-            scheme="http",
-            trailing_slash=True,
-            url="modified-example.com",
-            description="Updated URL Description",
+            record_type=RecordType.POLICIES_AND_CONTRACTS
         )
         .where(
-            URL.id == ds_app_linked_data_source_url.db_id
+            URLRecordType.url_id == ds_app_linked_data_source_url.db_id
         )
     )
     await adb_client_test.execute(statement)
@@ -66,12 +63,12 @@ async def test_update_url(
     data_source: UpdateDataSourcesInnerRequest = request.data_sources[0]
     assert data_source.app_id == ds_app_linked_data_source_url.ds_app_id
     content: DataSourceSyncContentModel = data_source.content
-    assert content.name == "Updated URL Name"
+    assert content.name.startswith("Example ")
+    assert content.record_type == RecordType.POLICIES_AND_CONTRACTS
     assert content.agency_ids == [
         test_agency_id
     ]
-    assert content.source_url == "http://modified-example.com/"
-    assert content.description == "Updated URL Description"
+    assert content.retention_schedule is None
 
     # Check DS App Link Is Updated
     ds_app_link: DSAppLinkDataSource | None = await adb_client_test.one_or_none_model(model=DSAppLinkDataSource)

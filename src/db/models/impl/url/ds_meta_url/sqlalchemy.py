@@ -22,5 +22,5 @@ class DSAppLinkMetaURL(
     ds_meta_url_id = Column(Integer, primary_key=True)
 
     __table_args__ = (
-        UniqueConstraint("url_id", "agency_id"),
+        UniqueConstraint("url_id"),
     )

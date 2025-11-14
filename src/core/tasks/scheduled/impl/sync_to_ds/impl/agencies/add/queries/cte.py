@@ -20,7 +20,7 @@ class DSAppLinkSyncAgencyAddPrerequisitesCTEContainer:
                     select(DSAppLinkAgency.agency_id)
                     .where(DSAppLinkAgency.agency_id == Agency.id)
                 )
-            ).cte()
+            ).cte("ds_app_link_sync_agency_add_prerequisites")
         )
 
     @property

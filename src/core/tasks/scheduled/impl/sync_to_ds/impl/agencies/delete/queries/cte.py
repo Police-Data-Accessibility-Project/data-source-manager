@@ -17,7 +17,7 @@ class DSAppLinkSyncAgencyDeletePrerequisitesCTEContainer:
             .join(
                 FlagDSDeleteAgency,
                 FlagDSDeleteAgency.ds_agency_id == DSAppLinkAgency.ds_agency_id
-            ).cte()
+            ).cte("ds_app_link_sync_agency_delete_prerequisites")
         )
 
     @property

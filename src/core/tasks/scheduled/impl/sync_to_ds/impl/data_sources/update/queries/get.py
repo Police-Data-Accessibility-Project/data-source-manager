@@ -55,6 +55,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                 URLOptionalDataSourceMetadata.scraper_url,
                 URLOptionalDataSourceMetadata.access_notes,
                 URLOptionalDataSourceMetadata.access_types,
+                URLOptionalDataSourceMetadata.data_portal_type_other
             )
             .select_from(
                 cte.cte
@@ -63,7 +64,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                 URL,
                 URL.id == cte.url_id,
             )
-            .join(
+            .outerjoin(
                 URLOptionalDataSourceMetadata,
                 URL.id == URLOptionalDataSourceMetadata.url_id,
             )
@@ -71,7 +72,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                 URLRecordType,
                 URLRecordType.url_id == URL.id,
             )
-            .join(
+            .outerjoin(
                 agency_id_cte,
                 cte.url_id == agency_id_cte.c.url_id
             )
@@ -89,10 +90,10 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                     app_id=mapping[cte.ds_data_source_id],
                     content=DataSourceSyncContentModel(
                         # Required
-                        source_url=mapping[URL.full_url],
+                        source_url=mapping["full_url"],
                         name=mapping[URL.name],
                         record_type=mapping[URLRecordType.record_type],
-                        agency_ids=mapping["agency_ids"],
+                        agency_ids=mapping["agency_ids"] or [],
                         # Optional
                         description=mapping[URL.description],
                         record_formats=mapping[URLOptionalDataSourceMetadata.record_formats],
@@ -109,6 +110,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types],
+                        data_portal_type_other=mapping[URLOptionalDataSourceMetadata.data_portal_type_other],
                     )
                 )
             )

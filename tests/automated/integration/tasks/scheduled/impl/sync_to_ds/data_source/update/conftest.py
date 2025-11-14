@@ -1,6 +1,7 @@
 import pytest
 
-from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update import DSAppSyncDataSourcesUpdateTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.core import \
+    DSAppSyncDataSourcesUpdateTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.pdap.client import PDAPClient
 

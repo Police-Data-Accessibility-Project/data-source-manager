@@ -12,6 +12,6 @@ class DSAppSyncDataSourcesDeletePrerequisitesQueryBuilder(QueryBuilderBase):
         return await self.sh.results_exist(
             session=session,
             query=select(
-                DSAppLinkSyncDataSourceDeletePrerequisitesCTEContainer().ds_meta_url_id
+                DSAppLinkSyncDataSourceDeletePrerequisitesCTEContainer().ds_data_source_id
             )
         )

@@ -70,7 +70,6 @@ async def _setup(
     ## DS App Link
     app_link = DSAppLinkMetaURL(
         url_id=url_id,
-        agency_id=agency_id,
         ds_meta_url_id=1
     )
     await ddc.adb_client.add(app_link)

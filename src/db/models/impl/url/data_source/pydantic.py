@@ -3,7 +3,7 @@ from src.db.templates.markers.bulk.insert import BulkInsertableModel
 
 
 class URLDataSourcePydantic(BulkInsertableModel):
-    data_source_id: int
+    ds_data_source_id: int
     url_id: int
 
     @classmethod

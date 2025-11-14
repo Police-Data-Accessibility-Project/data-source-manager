@@ -19,7 +19,7 @@ class DSAppSyncAgenciesAddInsertLinksQueryBuilder(QueryBuilderBase):
         for mapping in self._mappings:
             inserts.append(
                 DSAppLinkAgency(
-                    ds_agency_id=mapping.ds_app_id,
+                    ds_agency_id=mapping.app_id,
                     agency_id=mapping.request_id,
                 )
             )

@@ -23,7 +23,7 @@ class Agency(
     jurisdiction_type: Mapped[JurisdictionType] = enum_column(
         JurisdictionType,
         name="jurisdiction_type_enum",
-        nullable=True,
+        nullable=False,
     )
 
     # Relationships

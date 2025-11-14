@@ -22,14 +22,10 @@ class DSAppSyncAgenciesAddGetQueryBuilder(QueryBuilderBase):
                 LinkAgencyLocation.agency_id,
                 func.array_agg(LinkAgencyLocation.location_id).label("location_ids"),
             )
-            .join(
-                Agency,
-                Agency.id == cte.agency_id,
-            )
             .group_by(
                 LinkAgencyLocation.agency_id,
             )
-            .cte()
+            .cte("location_id_cte")
         )
 
         query = (
@@ -59,7 +55,7 @@ class DSAppSyncAgenciesAddGetQueryBuilder(QueryBuilderBase):
         for mapping in mappings:
             inner_requests.append(
                 AddAgenciesInnerRequest(
-                    request_id=mapping.agency_id,
+                    request_id=mapping[cte.agency_id],
                     content=AgencySyncContentModel(
                         name=mapping[Agency.name],
                         jurisdiction_type=mapping[Agency.jurisdiction_type],

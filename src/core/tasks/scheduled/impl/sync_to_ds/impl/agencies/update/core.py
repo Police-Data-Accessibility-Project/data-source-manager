@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.queries.prere
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.queries.update_links import \
     DSAppSyncAgenciesUpdateAlterLinksQueryBuilder
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
+from src.db.enums import TaskType
 from src.external.pdap.impl.sync.agencies.update.core import UpdateAgenciesRequestBuilder
 from src.external.pdap.impl.sync.agencies.update.request import UpdateAgenciesOuterRequest
 
@@ -12,6 +13,10 @@ from src.external.pdap.impl.sync.agencies.update.request import UpdateAgenciesOu
 class DSAppSyncAgenciesUpdateTaskOperator(
     DSSyncTaskOperatorBase
 ):
+
+    @property
+    def task_type(self) -> TaskType:
+        return TaskType.SYNC_AGENCIES_UPDATE
 
     async def meets_task_prerequisites(self) -> bool:
         return await self.adb_client.run_query_builder(

@@ -58,7 +58,7 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
                 AddMetaURLsInnerRequest(
                     request_id=mapping[cte.url_id],
                     content=MetaURLSyncContentModel(
-                        url=mapping[URL.full_url],
+                        url=mapping["full_url"],
                         agency_ids=mapping["agency_ids"]
                     )
                 )

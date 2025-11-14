@@ -17,7 +17,7 @@ class DSAppLinkSyncMetaURLUpdatePrerequisitesCTEContainer:
             )
             .where(
                 URL.updated_at > DSAppLinkMetaURL.last_synced_at,
-            ).cte()
+            ).cte("ds_app_link_sync_meta_url_update_prerequisites")
         )
 
     @property
