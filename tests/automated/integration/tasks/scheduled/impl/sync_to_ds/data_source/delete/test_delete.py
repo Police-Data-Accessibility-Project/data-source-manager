@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.delete.core impo
     DSAppSyncDataSourcesDeleteTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.ds_delete.data_source import FlagDSDeleteDataSource
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.external.pdap.client import PDAPClient
 from src.external.pdap.impl.sync.shared.models.delete.request import DSAppSyncDeleteRequestModel
@@ -18,7 +19,8 @@ from tests.helpers.run import run_task_and_confirm_success
 async def test_delete(
     db_data_creator: DBDataCreator,
     adb_client_test: AsyncDatabaseClient,
-    mock_pdap_client: PDAPClient
+    mock_pdap_client: PDAPClient,
+    test_url_data_source_id: int
 ):
     ds_data_source_id: int = 67
     operator = DSAppSyncDataSourcesDeleteTaskOperator(
@@ -34,12 +36,22 @@ async def test_delete(
     # Check does not currently meet prerequisite
     assert not await operator.meets_task_prerequisites()
 
-    # Add DS App Link
+    # Add DS App Link for deleted URL
     ds_app_link = DSAppLinkDataSource(
         url_id=None,
         ds_data_source_id=ds_data_source_id,
     )
     await adb_client_test.add(ds_app_link)
+
+    # Add DS App Link for extant URL
+    ds_app_link = DSAppLinkDataSource(
+        url_id=test_url_data_source_id,
+        ds_data_source_id=ds_data_source_id + 1,
+    )
+    await adb_client_test.add(ds_app_link)
+
+    # Check does not currently meet prerequisite
+    assert not await operator.meets_task_prerequisites()
 
     # Add Task Deletion Flag for App Link
     flag = FlagDSDeleteDataSource(
@@ -61,8 +73,11 @@ async def test_delete(
     )
     assert request.ids == [ds_data_source_id]
 
-    # Check DS App Link Is Deleted
-    assert await adb_client_test.has_no_rows(DSAppLinkDataSource)
+    # Check DS App Link has only one row
+    assert len(await adb_client_test.get_all(DSAppLinkDataSource)) == 1
 
     # Check DS App Data Source Deletion Flag is deleted
     assert await adb_client_test.has_no_rows(FlagDSDeleteDataSource)
+
+    # Check one row in URLs table
+    assert len(await adb_client_test.get_all(URL)) == 1
