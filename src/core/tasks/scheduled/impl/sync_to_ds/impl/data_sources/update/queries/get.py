@@ -10,6 +10,7 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
+from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.update.request import UpdateDataSourcesOuterRequest, \
     UpdateDataSourcesInnerRequest
@@ -111,6 +112,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types],
                         data_portal_type_other=mapping[URLOptionalDataSourceMetadata.data_portal_type_other],
+                        url_status=DataSourcesURLStatus.OK
                     )
                 )
             )
