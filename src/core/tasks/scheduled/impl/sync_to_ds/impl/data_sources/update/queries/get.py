@@ -97,7 +97,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                         agency_ids=mapping["agency_ids"] or [],
                         # Optional
                         description=mapping[URL.description],
-                        record_formats=mapping[URLOptionalDataSourceMetadata.record_formats],
+                        record_formats=mapping[URLOptionalDataSourceMetadata.record_formats] or [],
                         data_portal_type=mapping[URLOptionalDataSourceMetadata.data_portal_type],
                         supplying_entity=mapping[URLOptionalDataSourceMetadata.supplying_entity],
                         coverage_start=mapping[URLOptionalDataSourceMetadata.coverage_start],
