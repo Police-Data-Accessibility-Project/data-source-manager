@@ -6,7 +6,6 @@ import pytest_asyncio
 from sqlalchemy import Engine
 from starlette.testclient import TestClient
 
-from src.db.helpers.connect import get_postgres_connection_string
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 from tests.automated.integration.readonly.setup import setup_readonly_data
@@ -45,6 +44,8 @@ async def readonly_helper(
         db_data_creator=db_data_creator,
     )
 
-    helper: ReadOnlyTestHelper = await setup_readonly_data(api_test_helper=api_test_helper)
+    helper: ReadOnlyTestHelper = await setup_readonly_data(
+        api_test_helper=api_test_helper
+    )
 
     yield helper

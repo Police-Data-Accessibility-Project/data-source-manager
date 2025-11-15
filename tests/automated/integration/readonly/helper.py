@@ -13,6 +13,9 @@ class ReadOnlyTestHelper(BaseModel):
 
     agency_1_id: int
     agency_1_location_id: int
+    agency_2_id: int
+    agency_2_location_id: int
 
-    url_data_source_id: int
+    minimal_data_source: int
+    maximal_data_source: int
     url_meta_url_id: int

@@ -30,7 +30,6 @@ class GetMetaURLQueryBuilder(QueryBuilderBase):
 
                 # Required Attributes
                 URL.name,
-                URL.confirmed_agencies,
 
                 # Optional Attributes
                 URL.description,

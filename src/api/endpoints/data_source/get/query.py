@@ -37,7 +37,6 @@ class GetDataSourceQueryBuilder(QueryBuilderBase):
                 # Required Attributes
                 URL.name,
                 URLRecordType.record_type,
-                URL.confirmed_agencies,
 
                 # Optional Attributes
                 URL.description,
@@ -102,7 +101,7 @@ class GetDataSourceQueryBuilder(QueryBuilderBase):
 
             url_description: str | None = mapping[URL.description]
             link_batch_url_batch_id: int | None = mapping[LinkBatchURL.batch_id]
-            url_record_formats: list[str] | None = mapping[URLOptionalDataSourceMetadata.record_formats]
+            url_record_formats: list[str] = mapping[URLOptionalDataSourceMetadata.record_formats] or []
             url_data_portal_type: str | None = mapping[URLOptionalDataSourceMetadata.data_portal_type]
             url_supplying_entity: str | None = mapping[URLOptionalDataSourceMetadata.supplying_entity]
             url_coverage_start: date | None = mapping[URLOptionalDataSourceMetadata.coverage_start]
@@ -118,7 +117,7 @@ class GetDataSourceQueryBuilder(QueryBuilderBase):
             url_scraper_url: str | None = mapping[URLOptionalDataSourceMetadata.scraper_url]
             url_submission_notes: str | None = mapping[URLOptionalDataSourceMetadata.submission_notes]
             url_access_notes: str | None = mapping[URLOptionalDataSourceMetadata.access_notes]
-            url_access_types: list[AccessTypeEnum] | None = mapping[URLOptionalDataSourceMetadata.access_types]
+            url_access_types: list[AccessTypeEnum] = mapping[URLOptionalDataSourceMetadata.access_types] or []
 
             responses.append(
                 DataSourceGetResponse(

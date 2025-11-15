@@ -15,7 +15,6 @@ from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDa
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 from tests.helpers.api_test_helper import APITestHelper
-from tests.helpers.counter import next_int
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -33,7 +32,6 @@ async def setup_readonly_data(
         name="Pennsylvania",
         iso="PA"
     )
-
     allegheny_county: CountyCreationInfo = await db_data_creator.create_county(
         state_id=pennsylvania.us_state_id,
         name="Allegheny"
@@ -46,10 +44,18 @@ async def setup_readonly_data(
 
 
     # Add Agencies
-    agency_1_id: int = await add_agency(adb_client, pittsburgh)
+    agency_1_id: int = await add_agency(adb_client, pittsburgh.location_id)
+    agency_2_id: int = await add_agency(adb_client, allegheny_county.location_id)
 
     # Add Data Source With Linked Agency
-    url_data_source_id: int = await add_data_source(agency_1_id, db_data_creator)
+    maximal_data_source: int = await add_maximal_data_source(
+        agency_1_id=agency_1_id,
+        db_data_creator=db_data_creator
+    )
+    minimal_data_source: int = await add_minimal_data_source(
+        agency_1_id=agency_1_id,
+        db_data_creator=db_data_creator
+    )
 
     # Add Meta URL with Linked Agency
     url_meta_url_id: int = await add_meta_url(agency_1_id, db_data_creator)
@@ -61,7 +67,11 @@ async def setup_readonly_data(
         agency_1_id=agency_1_id,
         agency_1_location_id=pittsburgh.location_id,
 
-        url_data_source_id=url_data_source_id,
+        agency_2_id=agency_2_id,
+        agency_2_location_id=allegheny_county.location_id,
+
+        maximal_data_source=maximal_data_source,
+        minimal_data_source=minimal_data_source,
         url_meta_url_id=url_meta_url_id,
     )
 
@@ -93,7 +103,7 @@ async def add_meta_url(
     return url_id
 
 
-async def add_data_source(
+async def add_maximal_data_source(
     agency_1_id: int,
     db_data_creator: DBDataCreator
 ) -> int:
@@ -150,10 +160,41 @@ async def add_data_source(
     )
     return url_id
 
+async def add_minimal_data_source(
+    agency_1_id: int,
+    db_data_creator: DBDataCreator
+) -> int:
+    adb_client: AsyncDatabaseClient = db_data_creator.adb_client
+    url = URL(
+        scheme="https",
+        url="minimal-ds.com",
+        name="Minimal name",
+        trailing_slash=False,
+        collector_metadata={},
+        status=URLStatus.OK,
+        source=URLSource.ROOT_URL,
+    )
+    url_id: int = await adb_client.add(url, return_id=True)
+    await db_data_creator.create_validated_flags(
+        url_ids=[url_id],
+        validation_type=URLType.DATA_SOURCE
+    )
+    record_type = URLRecordType(
+        url_id=url_id,
+        record_type=RecordType.POLICIES_AND_CONTRACTS
+    )
+    await adb_client.add(record_type)
+
+    await db_data_creator.create_url_agency_links(
+        url_ids=[url_id],
+        agency_ids=[agency_1_id]
+    )
+    return url_id
+
 
 async def add_agency(
     adb_client: AsyncDatabaseClient,
-    pittsburgh: LocalityCreationInfo
+    location_id: int
 ) -> int:
     agency_1 = Agency(
         name="Agency 1",
@@ -164,7 +205,7 @@ async def add_agency(
     # Add Agency location
     agency_1_location = LinkAgencyLocation(
         agency_id=agency_id,
-        location_id=pittsburgh.location_id,
+        location_id=location_id,
     )
     await adb_client.add(agency_1_location)
     return agency_id
