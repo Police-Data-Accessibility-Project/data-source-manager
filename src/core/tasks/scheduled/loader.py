@@ -127,8 +127,8 @@ class ScheduledTaskOperatorLoader:
                 enabled=self.setup_flag("REFRESH_MATERIALIZED_VIEWS_TASK_FLAG")
             ),
             # Sync
-            ## Agency
-            ### Add
+            ## Adds
+            ### Agency
             ScheduledTaskEntry(
                 operator=DSAppSyncAgenciesAddTaskOperator(
                     adb_client=self.adb_client,
@@ -137,54 +137,7 @@ class ScheduledTaskOperatorLoader:
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_AGENCY_ADD_TASK_FLAG")
             ),
-            ### Update
-            ScheduledTaskEntry(
-                operator=DSAppSyncAgenciesUpdateTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG")
-            ),
-            ### Delete
-            ScheduledTaskEntry(
-                operator=DSAppSyncAgenciesDeleteTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
-            ),
-            ## Data Source
-            ### Add
-            ScheduledTaskEntry(
-                operator=DSAppSyncDataSourcesAddTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG")
-            ),
-            ### Update
-            ScheduledTaskEntry(
-                operator=DSAppSyncDataSourcesUpdateTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG")
-            ),
-            ### Delete
-            ScheduledTaskEntry(
-                operator=DSAppSyncDataSourcesDeleteTaskOperator(
-                    adb_client=self.adb_client,
-                    pdap_client=self.pdap_client
-                ),
-                interval_minutes=IntervalEnum.HOURLY.value,
-                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG")
-            ),
-            ## Meta URL
-            ### Add
+            ### Meta URL
             ScheduledTaskEntry(
                 operator=DSAppSyncMetaURLsAddTaskOperator(
                     adb_client=self.adb_client,
@@ -193,7 +146,26 @@ class ScheduledTaskOperatorLoader:
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_META_URL_ADD_TASK_FLAG")
             ),
-            ### Update
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesAddTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG")
+            ),
+            ## Updates
+            ### Agency
+            ScheduledTaskEntry(
+                operator=DSAppSyncAgenciesUpdateTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG")
+            ),
+            ### Meta URL
             ScheduledTaskEntry(
                 operator=DSAppSyncMetaURLsUpdateTaskOperator(
                     adb_client=self.adb_client,
@@ -202,7 +174,26 @@ class ScheduledTaskOperatorLoader:
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG")
             ),
-            ### Delete
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesUpdateTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG")
+            ),
+            ## Deletes
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesDeleteTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG")
+            ),
+            ### Meta URL
             ScheduledTaskEntry(
                 operator=DSAppSyncMetaURLsDeleteTaskOperator(
                     adb_client=self.adb_client,
@@ -210,5 +201,15 @@ class ScheduledTaskOperatorLoader:
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_META_URL_DELETE_TASK_FLAG")
-            )
+            ),
+            ### Agency
+            ScheduledTaskEntry(
+                operator=DSAppSyncAgenciesDeleteTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
+            ),
+
         ]

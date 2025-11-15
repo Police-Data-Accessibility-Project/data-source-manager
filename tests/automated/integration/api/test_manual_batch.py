@@ -121,7 +121,10 @@ async def test_manual_batch(api_test_helper):
 
     def check_opt_metadata(metadata: URLOptionalDataSourceMetadata, no_optional: bool):
         assert metadata.url_id is not None
-        other_attributes = ["record_formats", "data_portal_type", "supplying_entity"]
+        other_attributes = [
+            "data_portal_type",
+            "supplying_entity"
+        ]
         return check_attributes(metadata, other_attributes, no_optional)
 
     # Confirm 50 have nothing but URL id

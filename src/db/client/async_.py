@@ -371,9 +371,10 @@ class AsyncDatabaseClient:
         for tdo in tdos:
             metadata_object = URLOptionalDataSourceMetadata(
                 url_id=tdo.url_id,
-                record_formats=tdo.record_formats,
+                record_formats=tdo.record_formats or [],
                 data_portal_type=tdo.data_portal_type,
-                supplying_entity=tdo.supplying_entity
+                supplying_entity=tdo.supplying_entity,
+                access_types=[],
             )
             session.add(metadata_object)
 

@@ -33,15 +33,15 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
                 agency_agree.agreement.label("agency"),
                 url_type_agree.agreement.label("url_type")
             )
-            .join(
+            .outerjoin(
                 record_type_agree.cte,
                 contributions_cte.user_id == record_type_agree.user_id
             )
-            .join(
+            .outerjoin(
                 agency_agree.cte,
                 contributions_cte.user_id == agency_agree.user_id
             )
-            .join(
+            .outerjoin(
                 url_type_agree.cte,
                 contributions_cte.user_id == url_type_agree.user_id
             )

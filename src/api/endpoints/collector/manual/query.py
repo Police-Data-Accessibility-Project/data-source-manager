@@ -84,9 +84,10 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
 
             optional_metadata = URLOptionalDataSourceMetadata(
                 url_id=url.id,
-                record_formats=entry.record_formats,
+                record_formats=entry.record_formats or [],
                 data_portal_type=entry.data_portal_type,
                 supplying_entity=entry.supplying_entity,
+                access_types=[]
             )
             session.add(optional_metadata)
             url_ids.append(url.id)
