@@ -12,7 +12,7 @@ async def test_agency_get(
     responses_raw: list[dict] = readonly_helper.api_test_helper.request_validator.get_v3(
         url=f"/agencies",
     )
-    assert len(responses_raw) == 1
+    assert len(responses_raw) == 2
     response_raw = responses_raw[0]
     assert response_raw["id"] == readonly_helper.agency_1_id
     assert response_raw["name"] == "Agency 1"
