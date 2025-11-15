@@ -15,7 +15,7 @@ class URLOptionalDataSourceMetadata(
 ):
     __tablename__ = 'url_optional_data_source_metadata'
 
-    record_formats = Column(ARRAY(String), nullable=True)
+    record_formats = Column(ARRAY(String), nullable=False, default=[])
     data_portal_type = Column(String, nullable=True)
     supplying_entity = Column(String, nullable=True)
     coverage_start = Column(Date, nullable=True)
@@ -38,7 +38,7 @@ class URLOptionalDataSourceMetadata(
             native_enum=True,
             values_callable=lambda AccessTypeEnum: [e.value for e in AccessTypeEnum]
         )
-    ), nullable=True)
+    ), nullable=False, default=[])
     data_portal_type_other = Column(String, nullable=True)
 
     # Relationships

@@ -66,9 +66,10 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
         optional_metadata = url.optional_data_source_metadata
         if optional_metadata is None:
             url.optional_data_source_metadata = URLOptionalDataSourceMetadata(
-                record_formats=self.approval_info.record_formats,
+                record_formats=self.approval_info.record_formats or [],
                 data_portal_type=self.approval_info.data_portal_type,
-                supplying_entity=self.approval_info.supplying_entity
+                supplying_entity=self.approval_info.supplying_entity,
+                access_types=[]
             )
         else:
             update_if_not_none(
