@@ -7,6 +7,8 @@ class URLToEntryMapper:
         self._url_to_entry: dict[str, InternetArchivesSaveTaskEntry] = {
             entry.url: entry for entry in entries
         }
+        if len(self._url_to_entry) != len(entries):
+            raise ValueError("Duplicate URLs found in entries")
 
     def get_is_new(self, url: str) -> bool:
         return self._url_to_entry[url].is_new
