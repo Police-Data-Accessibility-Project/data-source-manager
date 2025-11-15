@@ -110,7 +110,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                         retention_schedule=mapping[URLOptionalDataSourceMetadata.retention_schedule],
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
-                        access_types=mapping[URLOptionalDataSourceMetadata.access_types],
+                        access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
                         data_portal_type_other=mapping[URLOptionalDataSourceMetadata.data_portal_type_other],
                         url_status=DataSourcesURLStatus.OK
                     )
