@@ -3,6 +3,7 @@ from typing import Sequence
 from sqlalchemy import select, RowMapping, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.tasks.scheduled.impl.sync_to_ds.constants import PER_REQUEST_ENTITY_LIMIT
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.queries.cte import \
     DSAppLinkSyncAgencyAddPrerequisitesCTEContainer
 from src.db.models.impl.agency.sqlalchemy import Agency
@@ -43,7 +44,7 @@ class DSAppSyncAgenciesAddGetQueryBuilder(QueryBuilderBase):
             .join(
                 location_id_cte,
                 location_id_cte.c.agency_id == cte.agency_id,
-            )
+            ).limit(PER_REQUEST_ENTITY_LIMIT)
         )
 
         mappings: Sequence[RowMapping] = await self.sh.mappings(

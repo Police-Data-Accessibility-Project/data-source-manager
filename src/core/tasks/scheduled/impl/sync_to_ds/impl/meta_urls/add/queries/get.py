@@ -3,6 +3,7 @@ from typing import Sequence
 from sqlalchemy import select, func, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.tasks.scheduled.impl.sync_to_ds.constants import PER_REQUEST_ENTITY_LIMIT
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.queries.cte import \
     DSAppLinkSyncMetaURLAddPrerequisitesCTEContainer
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
@@ -45,6 +46,7 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
                 agency_id_cte,
                 cte.url_id == agency_id_cte.c.url_id
             )
+            .limit(PER_REQUEST_ENTITY_LIMIT)
         )
 
         mappings: Sequence[RowMapping] = await self.sh.mappings(
