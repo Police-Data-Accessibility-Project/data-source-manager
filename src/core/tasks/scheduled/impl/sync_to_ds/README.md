@@ -20,6 +20,8 @@ Each DS endpoint follows the following format:
 /v3/source-manager/{entity}/{action}
 ```
 
+Synchronizations are designed to occur on an hourly basis.
+
 Here is a high-level description of how each action works:
 
 ## Add
