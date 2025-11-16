@@ -96,7 +96,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         agency_ids=mapping["agency_ids"],
                         # Optional
                         description=mapping[URL.description],
-                        record_formats=mapping[URLOptionalDataSourceMetadata.record_formats],
+                        record_formats=mapping[URLOptionalDataSourceMetadata.record_formats] or [],
                         data_portal_type=mapping[URLOptionalDataSourceMetadata.data_portal_type],
                         supplying_entity=mapping[URLOptionalDataSourceMetadata.supplying_entity],
                         coverage_start=mapping[URLOptionalDataSourceMetadata.coverage_start],
@@ -109,7 +109,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         retention_schedule=mapping[URLOptionalDataSourceMetadata.retention_schedule],
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
-                        access_types=mapping[URLOptionalDataSourceMetadata.access_types],
+                        access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
                         url_status=DataSourcesURLStatus.OK
                     )
                 )

@@ -62,7 +62,7 @@ async def test_add(
     assert content.name.startswith("Example ")
     assert content.record_type == RecordType.CRIME_STATISTICS
     assert content.description is None
-    assert content.record_formats is None
+    assert content.record_formats == []
     assert content.data_portal_type is None
     assert content.supplying_entity is None
     assert content.coverage_start is None
@@ -77,7 +77,7 @@ async def test_add(
     assert content.retention_schedule is None
     assert content.scraper_url is None
     assert content.access_notes is None
-    assert content.access_types is None
+    assert content.access_types == []
     assert content.data_portal_type_other is None
     assert content.url_status == DataSourcesURLStatus.OK
 

@@ -19,7 +19,7 @@ class DataSourceSyncContentModel(BaseModel):
     description: str | None = None
 
     # Optional data source metadata
-    record_formats: list[str] | None = None
+    record_formats: list[str] = []
     data_portal_type: str | None = None
     supplying_entity: str | None = None
     coverage_start: date | None = None
@@ -35,8 +35,8 @@ class DataSourceSyncContentModel(BaseModel):
     retention_schedule: RetentionScheduleEnum | None = None
     scraper_url: str | None = None
     access_notes: str | None = None
-    access_types: list[AccessTypeEnum] | None = None
+    access_types: list[AccessTypeEnum] = []
     data_portal_type_other: str | None = None
-    url_status: DataSourcesURLStatus | None = None
+    url_status: DataSourcesURLStatus
 
     agency_ids: list[int] = []
