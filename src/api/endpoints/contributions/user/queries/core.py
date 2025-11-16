@@ -1,4 +1,5 @@
 from sqlalchemy import select, RowMapping
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.contributions.shared.contributions import ContributionsCTEContainer
@@ -50,7 +51,17 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
             )
         )
 
-        mapping: RowMapping = await sh.mapping(session, query=query)
+        try:
+            mapping: RowMapping = await sh.mapping(session, query=query)
+        except NoResultFound:
+            return ContributionsUserResponse(
+                count_validated=0,
+                agreement=ContributionsUserAgreement(
+                    record_type=0,
+                    agency=0,
+                    url_type=0
+                )
+            )
 
         return ContributionsUserResponse(
             count_validated=mapping.count,
