@@ -8,7 +8,7 @@ from starlette.testclient import TestClient
 
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
-from tests.automated.integration.readonly.setup import setup_readonly_data
+from tests.automated.integration.readonly.setup.core import setup_readonly_data
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo

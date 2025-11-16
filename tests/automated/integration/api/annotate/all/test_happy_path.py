@@ -14,7 +14,7 @@ from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestio
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 

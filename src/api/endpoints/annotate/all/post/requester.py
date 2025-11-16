@@ -11,7 +11,7 @@ from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocat
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from src.db.templates.requester import RequesterBase
 
 

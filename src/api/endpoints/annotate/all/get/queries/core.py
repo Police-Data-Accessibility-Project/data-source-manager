@@ -11,7 +11,7 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 from src.db.models.views.url_anno_count import URLAnnotationCount
 from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView

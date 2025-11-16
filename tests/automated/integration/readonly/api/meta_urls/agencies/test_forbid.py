@@ -8,7 +8,7 @@ from tests.helpers.check import check_forbidden_url_type
 @pytest.mark.asyncio
 async def test_forbid(readonly_helper: ReadOnlyTestHelper):
     check_forbidden_url_type(
-        route=f"/meta-urls/{readonly_helper.minimal_data_source}/agencies",
+        route=f"/meta-urls/{readonly_helper.minimal_data_source_url_id}/agencies",
         api_test_helper=readonly_helper.api_test_helper,
         method="GET"
     )

@@ -5,7 +5,7 @@ from src.api.endpoints.annotate.all.get.models.url_type import URLTypeAnnotation
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 
 
 def convert_user_url_type_suggestion_to_url_type_annotation_suggestion(

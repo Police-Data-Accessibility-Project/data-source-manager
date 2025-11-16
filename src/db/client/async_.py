@@ -81,9 +81,9 @@ from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDa
 from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.auto.pydantic.input import AutoRelevancyAnnotationInput
-from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
+from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base

@@ -45,6 +45,9 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
                 url_type_agree.cte,
                 contributions_cte.user_id == url_type_agree.user_id
             )
+            .where(
+                contributions_cte.user_id == self.user_id
+            )
         )
 
         mapping: RowMapping = await sh.mapping(session, query=query)
@@ -52,8 +55,8 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
         return ContributionsUserResponse(
             count_validated=mapping.count,
             agreement=ContributionsUserAgreement(
-                record_type=mapping.record_type,
-                agency=mapping.agency,
-                url_type=mapping.url_type
+                record_type=mapping.record_type or 0,
+                agency=mapping.agency or 0,
+                url_type=mapping.url_type or 0
             )
         )

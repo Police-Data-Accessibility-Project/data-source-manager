@@ -1,6 +1,6 @@
 from sqlalchemy import select, func, CTE, Column
 
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 
 
 class ContributionsCTEContainer:

@@ -24,7 +24,7 @@ async def test_get(readonly_helper: ReadOnlyTestHelper):
     diff = DeepDiff(
         response.model_dump(mode='json'),
         DataSourceGetResponse(
-            url_id=readonly_helper.maximal_data_source,
+            url_id=readonly_helper.maximal_data_source_url_id,
             url="read-only-ds.com",
 
             name="Read only URL name",
