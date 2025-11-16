@@ -25,6 +25,8 @@ class DSAppSyncAgenciesAddTaskOperator(
 
     async def inner_task_logic(self) -> None:
         request: AddAgenciesOuterRequest = await self.get_request_input()
+        db_ids: list[int] = [r.request_id for r in request.agencies]
+        await self.add_task_log(f"Adding agencies with the following db_ids: {db_ids}")
         responses: list[DSAppSyncAddResponseInnerModel] = await self.make_request(request)
         await self.insert_ds_app_links(responses)
 

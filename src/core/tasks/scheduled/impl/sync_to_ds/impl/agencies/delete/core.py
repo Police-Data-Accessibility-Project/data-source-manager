@@ -26,9 +26,13 @@ class DSAppSyncAgenciesDeleteTaskOperator(
 
     async def inner_task_logic(self) -> None:
         ds_app_ids: list[int] = await self.get_inputs()
+        await self.log_ds_app_ids(ds_app_ids)
         await self.make_request(ds_app_ids)
         await self.delete_flags(ds_app_ids)
         await self.delete_links(ds_app_ids)
+
+    async def log_ds_app_ids(self, ds_app_ids: list[int]):
+        await self.add_task_log(f"Deleting agencies with the following ds_app_ids: {ds_app_ids}")
 
     async def get_inputs(self) -> list[int]:
         return await self.adb_client.run_query_builder(
