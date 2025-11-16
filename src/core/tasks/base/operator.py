@@ -8,6 +8,7 @@ from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.task.enums import TaskStatus
+from src.db.models.impl.task.log import TaskLog
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.db.queries.base.builder import QueryBuilderBase
@@ -93,6 +94,16 @@ class TaskOperatorBase(ABC):
             for error in errors
         ]
         await self.adb_client.bulk_insert(inserts)
+
+    async def add_task_log(
+        self,
+        log: str
+    ) -> None:
+        task_log = TaskLog(
+            task_id=self.task_id,
+            log=log
+        )
+        await self.adb_client.add(task_log)
 
     # Convenience forwarder functions
     async def run_query_builder(self, query_builder: QueryBuilderBase) -> Any:

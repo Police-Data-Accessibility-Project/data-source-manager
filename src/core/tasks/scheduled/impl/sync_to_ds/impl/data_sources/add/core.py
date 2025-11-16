@@ -7,7 +7,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.prer
 from src.core.tasks.scheduled.impl.sync_to_ds.templates.operator import DSSyncTaskOperatorBase
 from src.db.enums import TaskType
 from src.external.pdap.impl.sync.data_sources.add.core import AddDataSourcesRequestBuilder
-from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest
+from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest, AddDataSourcesInnerRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseInnerModel
 
 
@@ -27,9 +27,13 @@ class DSAppSyncDataSourcesAddTaskOperator(
 
     async def inner_task_logic(self) -> None:
         request: AddDataSourcesOuterRequest = await self.get_request_input()
+        await self.log_db_ids(request.data_sources)
         responses: list[DSAppSyncAddResponseInnerModel] = await self.make_request(request)
         await self.insert_ds_app_links(responses)
 
+    async def log_db_ids(self, data_sources: list[AddDataSourcesInnerRequest]):
+        db_ids: list[int] = [d.request_id for d in data_sources]
+        await self.add_task_log(f"Adding data sources with the following db_ids: {db_ids}")
 
     async def get_request_input(self) -> AddDataSourcesOuterRequest:
         return await self.run_query_builder(
