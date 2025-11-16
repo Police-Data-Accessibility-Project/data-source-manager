@@ -6,8 +6,9 @@ from src.api.endpoints.data_source.by_id.agency.delete.wrapper import delete_dat
 from src.api.endpoints.data_source.by_id.agency.get.wrapper import get_data_source_agencies_wrapper
 from src.api.endpoints.data_source.by_id.agency.post.wrapper import add_data_source_agency_link
 from src.api.endpoints.data_source.by_id.agency.shared.check import check_is_data_source_url
-from src.api.endpoints.data_source.get.query import GetDataSourceQueryBuilder
-from src.api.endpoints.data_source.get.response import DataSourceGetOuterResponse
+from src.api.endpoints.data_source.by_id.get.query import GetDataSourceByIDQueryBuilder
+from src.api.endpoints.data_source.get.query import GetDataSourcesQueryBuilder
+from src.api.endpoints.data_source.get.response import DataSourceGetOuterResponse, DataSourceGetResponse
 from src.api.endpoints.data_source.by_id.put.query import UpdateDataSourceQueryBuilder
 from src.api.endpoints.data_source.by_id.put.request import DataSourcePutRequest
 from src.api.shared.models.message_response import MessageResponse
@@ -28,7 +29,16 @@ async def get_data_sources(
     ),
 ) -> DataSourceGetOuterResponse:
     return await async_core.adb_client.run_query_builder(
-        GetDataSourceQueryBuilder(page=page)
+        GetDataSourcesQueryBuilder(page=page)
+    )
+
+@data_sources_router.get("/{url_id}")
+async def get_data_source_by_id(
+    url_id: int,
+    async_core: AsyncCore = Depends(get_async_core),
+) -> DataSourceGetResponse:
+    return await async_core.adb_client.run_query_builder(
+        GetDataSourceByIDQueryBuilder(url_id)
     )
 
 @data_sources_router.put("/{url_id}")
@@ -81,3 +91,4 @@ async def remove_agency_from_data_source(
         adb_client=async_core.adb_client
     )
     return MessageResponse(message="Agency removed from data source.")
+
