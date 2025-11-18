@@ -6,8 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.tasks.scheduled.impl.sync_to_ds.constants import PER_REQUEST_ENTITY_LIMIT
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.cte import \
     DSAppLinkSyncDataSourceAddPrerequisitesCTEContainer
+from src.core.tasks.scheduled.impl.sync_to_ds.shared.convert import convert_sm_url_status_to_ds_url_status
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
@@ -38,6 +40,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 # Required
                 URL.full_url,
                 URL.name,
+                URL.status,
                 URLRecordType.record_type,
                 agency_id_cte.c.agency_ids,
                 # Optional
@@ -56,6 +59,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 URLOptionalDataSourceMetadata.scraper_url,
                 URLOptionalDataSourceMetadata.access_notes,
                 URLOptionalDataSourceMetadata.access_types,
+                URLInternetArchivesProbeMetadata.archive_url,
             )
             .select_from(
                 cte.cte
@@ -67,6 +71,10 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
             .outerjoin(
                 URLOptionalDataSourceMetadata,
                 URL.id == URLOptionalDataSourceMetadata.url_id,
+            )
+            .outerjoin(
+                URLInternetArchivesProbeMetadata,
+                URL.id == URLInternetArchivesProbeMetadata.url_id,
             )
             .join(
                 URLRecordType,
@@ -110,7 +118,10 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
-                        url_status=DataSourcesURLStatus.OK
+                        url_status=convert_sm_url_status_to_ds_url_status(
+                            sm_url_status=mapping[URL.status],
+                        ),
+                        internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
                     )
                 )
             )

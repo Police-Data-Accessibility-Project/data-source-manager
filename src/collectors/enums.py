@@ -14,3 +14,4 @@ class URLStatus(Enum):
     OK = "ok"
     ERROR = "error"
     DUPLICATE = "duplicate"
+    BROKEN = "broken"

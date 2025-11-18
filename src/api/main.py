@@ -6,7 +6,6 @@ from discord_poster import DiscordPoster
 from fastapi import FastAPI
 from pdap_access_manager.access_manager.async_ import AccessManagerAsync
 from pdap_access_manager.models.auth import AuthInfo
-from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.responses import RedirectResponse
 
 from src.api.endpoints.agencies.routes import agencies_router
