@@ -23,6 +23,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.core import DSA
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.core import DSAppSyncMetaURLsDeleteTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.core import DSAppSyncMetaURLsUpdateTaskOperator
 from src.core.tasks.scheduled.impl.task_cleanup.operator import TaskCleanupOperator
+from src.core.tasks.scheduled.impl.update_url_status.operator import UpdateURLStatusOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient
@@ -210,6 +211,14 @@ class ScheduledTaskOperatorLoader:
                 ),
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
+            ),
+            ### URL
+            ScheduledTaskEntry(
+                operator=UpdateURLStatusOperator(
+                    adb_client=self.adb_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("UPDATE_URL_STATUS_TASK_FLAG")
             ),
 
         ]

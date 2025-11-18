@@ -6,8 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.tasks.scheduled.impl.sync_to_ds.constants import PER_REQUEST_ENTITY_LIMIT
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.queries.cte import \
     DSAppLinkSyncMetaURLAddPrerequisitesCTEContainer
+from src.core.tasks.scheduled.impl.sync_to_ds.shared.convert import convert_sm_url_status_to_ds_url_status
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.queries.base.builder import QueryBuilderBase
 from src.external.pdap.impl.sync.meta_urls._shared.content import MetaURLSyncContentModel
 from src.external.pdap.impl.sync.meta_urls.add.request import AddMetaURLsOuterRequest, AddMetaURLsInnerRequest
@@ -21,7 +23,8 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
         agency_id_cte = (
             select(
                 LinkURLAgency.url_id,
-                func.array_agg(LinkURLAgency.agency_id).label("agency_ids")
+                func.array_agg(LinkURLAgency.agency_id).label("agency_ids"),
+
             )
             .group_by(
                 LinkURLAgency.url_id
@@ -33,6 +36,8 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
             select(
                 cte.url_id,
                 URL.full_url,
+                URL.status,
+                URLInternetArchivesProbeMetadata.archive_url,
                 agency_id_cte.c.agency_ids
             )
             .select_from(
@@ -41,6 +46,10 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
             .join(
                 URL,
                 URL.id == cte.url_id,
+            )
+            .outerjoin(
+                URLInternetArchivesProbeMetadata,
+                URL.id == URLInternetArchivesProbeMetadata.url_id,
             )
             .join(
                 agency_id_cte,
@@ -61,7 +70,11 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
                     request_id=mapping[cte.url_id],
                     content=MetaURLSyncContentModel(
                         url=mapping["full_url"],
-                        agency_ids=mapping["agency_ids"]
+                        agency_ids=mapping["agency_ids"],
+                        internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
+                        url_status=convert_sm_url_status_to_ds_url_status(
+                            sm_url_status=mapping[URL.status],
+                        ),
                     )
                 )
             )

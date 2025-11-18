@@ -70,6 +70,7 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | `DELETE_STALE_SCREENSHOTS_TASK_FLAG`   | Deletes stale screenshots for URLs already validated.                         |
 | `TASK_CLEANUP_TASK_FLAG`               | Cleans up tasks that are no longer needed. |
 | `REFRESH_MATERIALIZED_VIEWS_TASK_FLAG` | Refreshes materialized views. |
+| `UPDATE_URL_STATUS_TASK_FLAG` | Updates the status of URLs. |
 | `DS_APP_SYNC_AGENCY_ADD_TASK_FLAG`     | Adds new agencies to the Data Sources App|
 | `DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG`       | Updates existing agencies in the Data Sources App|
 | `DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG`       | Deletes agencies in the Data Sources App|
