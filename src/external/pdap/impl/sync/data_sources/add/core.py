@@ -14,7 +14,7 @@ class AddDataSourcesRequestBuilder(PDAPRequestBuilderBase):
         self.request = request
 
     async def inner_logic(self) -> list[DSAppSyncAddResponseInnerModel]:
-        url: str = self.build_url("v3/source-manager/data-sources/add")
+        url: str = self.build_url("v3/sync/data-sources/add")
         raw_results = await self.post(
             url=url,
             model=self.request,

@@ -24,7 +24,7 @@ def extract_and_validate_sync_request(
     assert mock_pdap_client.access_manager.make_request.call_count == 1
     request_info: RequestInfo = get_last_request(mock_pdap_client)
     assert request_info.type_ == RequestType.POST
-    full_expected_url: str = f"http://example.com/v3/source-manager/{expected_path}"
+    full_expected_url: str = f"http://example.com/v3/sync/{expected_path}"
     assert request_info.url == full_expected_url, f"Expected URL: {full_expected_url}, Actual URL: {request_info.url}"
     return expected_model(**request_info.json_)
 

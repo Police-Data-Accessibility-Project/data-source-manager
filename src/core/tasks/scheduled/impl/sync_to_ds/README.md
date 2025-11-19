@@ -17,7 +17,7 @@ Each task gathers requisite information from the SM database and sends a request
 Each DS endpoint follows the following format:
 
 ```text
-/v3/source-manager/{entity}/{action}
+/v3/sync/{entity}/{action}
 ```
 
 Synchronizations are designed to occur on an hourly basis.

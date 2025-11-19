@@ -12,7 +12,7 @@ class DeleteMetaURLsRequestBuilder(PDAPRequestBuilderBase):
         self.ds_app_ids = ds_app_ids
 
     async def inner_logic(self) -> None:
-        url: str = self.build_url("v3/source-manager/meta-urls/delete")
+        url: str = self.build_url("v3/sync/meta-urls/delete")
         await self.post(
             url=url,
             model=DSAppSyncDeleteRequestModel(

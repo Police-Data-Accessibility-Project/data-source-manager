@@ -14,7 +14,7 @@ class AddAgenciesRequestBuilder(PDAPRequestBuilderBase):
         self.request = request
 
     async def inner_logic(self) -> list[DSAppSyncAddResponseInnerModel]:
-        url: str = self.build_url("v3/source-manager/agencies/add")
+        url: str = self.build_url("v3/sync/agencies/add")
         raw_results = await self.post(
             url=url,
             model=self.request,
