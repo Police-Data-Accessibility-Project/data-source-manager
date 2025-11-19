@@ -12,7 +12,7 @@ class UpdateMetaURLsRequestBuilder(PDAPRequestBuilderBase):
         self.request = request
 
     async def inner_logic(self) -> None:
-        url: str = self.build_url("v3/source-manager/meta-urls/update")
+        url: str = self.build_url("v3/sync/meta-urls/update")
         await self.post(
             url=url,
             model=self.request

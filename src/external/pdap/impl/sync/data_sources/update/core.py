@@ -12,7 +12,7 @@ class UpdateDataSourcesRequestBuilder(PDAPRequestBuilderBase):
         self.request = request
 
     async def inner_logic(self) -> None:
-        url: str = self.build_url("v3/source-manager/data-sources/update")
+        url: str = self.build_url("v3/sync/data-sources/update")
         await self.post(
             url=url,
             model=self.request

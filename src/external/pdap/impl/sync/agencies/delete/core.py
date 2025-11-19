@@ -12,7 +12,7 @@ class DeleteAgenciesRequestBuilder(PDAPRequestBuilderBase):
         self.ds_app_ids = ds_app_ids
 
     async def inner_logic(self) -> None:
-        url: str = self.build_url("v3/source-manager/agencies/delete")
+        url: str = self.build_url("v3/sync/agencies/delete")
         await self.post(
             url=url,
             model=DSAppSyncDeleteRequestModel(

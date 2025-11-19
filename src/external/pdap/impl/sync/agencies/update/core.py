@@ -12,7 +12,7 @@ class UpdateAgenciesRequestBuilder(PDAPRequestBuilderBase):
         self.request = request
 
     async def inner_logic(self) -> None:
-        url: str = self.build_url("v3/source-manager/agencies/update")
+        url: str = self.build_url("v3/sync/agencies/update")
         await self.post(
             url=url,
             model=self.request
