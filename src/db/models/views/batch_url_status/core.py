@@ -11,7 +11,7 @@ CREATE MATERIALIZED VIEW batch_url_status_mat_view as (
                 select
                     1
                 from
-                    link_batch_urls lbu
+                    link_batches__urls lbu
                 where
                     lbu.batch_id = b.id
                 )
@@ -26,7 +26,7 @@ CREATE MATERIALIZED VIEW batch_url_status_mat_view as (
                 select
                     1
                 from
-                    link_batch_urls lbu
+                    link_batches__urls lbu
                 left join flag_url_validated fuv on fuv.url_id = lbu.url_id
                 where
                     lbu.batch_id = b.id
@@ -36,7 +36,7 @@ CREATE MATERIALIZED VIEW batch_url_status_mat_view as (
                 select
                     1
                 from
-                    link_batch_urls lbu
+                    link_batches__urls lbu
                 left join flag_url_validated fuv on fuv.url_id = lbu.url_id
                 where
                     lbu.batch_id = b.id

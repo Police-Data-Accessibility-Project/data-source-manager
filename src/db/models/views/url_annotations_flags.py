@@ -18,7 +18,7 @@ FROM urls u
          LEFT JOIN public.user_relevant_suggestions urs ON u.id = urs.url_id
          LEFT JOIN public.user_url_agency_suggestions uuas ON u.id = uuas.url_id
          LEFT JOIN public.reviewing_user_url ruu ON u.id = ruu.url_id
-         LEFT JOIN public.link_urls_agency cua on u.id = cua.url_id
+         LEFT JOIN public.link_agencies__urls cua on u.id = cua.url_id
     )
 """
 

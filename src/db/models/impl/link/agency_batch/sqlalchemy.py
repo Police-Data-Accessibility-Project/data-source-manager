@@ -10,7 +10,7 @@ class LinkAgencyBatch(
     BatchDependentMixin,
     AgencyDependentMixin,
 ):
-    __tablename__ = "link_agency_batches"
+    __tablename__ = "link_agencies__batches"
     __table_args__ = (
         PrimaryKeyConstraint(
             'batch_id',

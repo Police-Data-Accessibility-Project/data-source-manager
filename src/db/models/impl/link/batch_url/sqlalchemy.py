@@ -11,5 +11,5 @@ class LinkBatchURL(
     BatchDependentMixin,
     WithIDBase
 ):
-    __tablename__ = "link_batch_urls"
+    __tablename__ = "link_batches__urls"
 

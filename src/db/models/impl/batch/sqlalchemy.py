@@ -41,7 +41,7 @@ class Batch(WithIDBase):
     # Relationships
     urls = relationship(
         "URL",
-        secondary="link_batch_urls",
+        secondary="link_batches__urls",
         back_populates="batch",
         overlaps="url"
     )

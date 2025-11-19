@@ -7,4 +7,4 @@ class LinkAgencyLocation(
     AgencyDependentMixin,
     LocationDependentMixin,
 ):
-    __tablename__ = "link_agencies_locations"
+    __tablename__ = "link_agencies__locations"

@@ -66,7 +66,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     # Relationships
     batch = relationship(
         "Batch",
-        secondary="link_batch_urls",
+        secondary="link_batches__urls",
         back_populates="urls",
         uselist=False,
     )
@@ -82,7 +82,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     )
     tasks = relationship(
         "Task",
-        secondary="link_task_urls",
+        secondary="link_tasks__urls",
         back_populates="urls",
     )
     auto_agency_subtasks = relationship(
@@ -110,7 +110,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         "URLOptionalDataSourceMetadata", uselist=False, back_populates="url")
     confirmed_agencies = relationship(
         "Agency",
-        secondary="link_urls_agency"
+        secondary="link_agencies__urls"
 
     )
     data_source = relationship(
