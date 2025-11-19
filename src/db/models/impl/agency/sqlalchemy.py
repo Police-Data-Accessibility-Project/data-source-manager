@@ -35,5 +35,5 @@ class Agency(
         "LocationExpandedView",
         primaryjoin="Agency.id == LinkAgencyLocation.agency_id",
         secondaryjoin="LocationExpandedView.id == LinkAgencyLocation.location_id",
-        secondary="link_agencies_locations",
+        secondary="link_agencies__locations",
     )

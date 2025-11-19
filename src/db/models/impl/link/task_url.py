@@ -4,7 +4,7 @@ from src.db.models.templates_.base import Base
 
 
 class LinkTaskURL(Base):
-    __tablename__ = 'link_task_urls'
+    __tablename__ = 'link_tasks__urls'
     __table_args__ = (UniqueConstraint(
         "task_id",
         "url_id",
