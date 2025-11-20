@@ -29,7 +29,7 @@ TEST_ENTRIES = [
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
             url="not-found-path.com/submitted",
-            status=URLStatus.ERROR
+            status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
             accessed=True,
@@ -48,7 +48,7 @@ TEST_ENTRIES = [
     TestURLHTMLTaskSetupEntry(
         url_info=TestURLInfo(
             url="error-path.com/submitted",
-            status=URLStatus.ERROR
+            status=URLStatus.OK
         ),
         web_metadata_info=TestWebMetadataInfo(
             accessed=True,

@@ -23,9 +23,9 @@ async def test_get_batches_aggregated_metrics(
             adb_client=adb_client,
             strategy=CollectorType.MANUAL,
         )
-        url_mappings_error: list[SimpleURLMapping] = await create_urls(
+        url_mappings_broken: list[SimpleURLMapping] = await create_urls(
             adb_client=adb_client,
-            status=URLStatus.ERROR,
+            status=URLStatus.BROKEN,
             count=4,
         )
         url_mappings_ok: list[SimpleURLMapping] = await create_urls(
@@ -33,7 +33,7 @@ async def test_get_batches_aggregated_metrics(
             status=URLStatus.OK,
             count=11,
         )
-        url_mappings_all: list[SimpleURLMapping] = url_mappings_error + url_mappings_ok
+        url_mappings_all: list[SimpleURLMapping] = url_mappings_broken + url_mappings_ok
         url_ids_all: list[int] = [url_mapping.url_id for url_mapping in url_mappings_all]
         await create_batch_url_links(
             adb_client=adb_client,
@@ -88,5 +88,5 @@ async def test_get_batches_aggregated_metrics(
     assert inner_dto_manual.count_urls_pending == 15
     assert inner_dto_manual.count_urls_submitted == 6
     assert inner_dto_manual.count_urls_rejected == 9
-    assert inner_dto_manual.count_urls_errors == 12
+    assert inner_dto_manual.count_urls_errors == 0  # TODO: Change by adding URL Task Errors
     assert inner_dto_manual.count_urls_validated == 30
