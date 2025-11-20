@@ -1,8 +1,10 @@
 from fastapi import HTTPException
 
-from src.api.endpoints.submit.data_source.query import SubmitDataSourceURLProposalQueryBuilder
+from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
+from src.api.endpoints.submit.data_source.queries.core import SubmitDataSourceURLProposalQueryBuilder
+
+from src.api.endpoints.submit.data_source.queries.duplicate import GetDataSourceDuplicateQueryBuilder
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.api.endpoints.submit.data_source.response import SubmitDataSourceURLProposalResponse
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.queries.urls_exist.model import URLExistsResult
 from src.db.queries.urls_exist.query import URLsExistInDBQueryBuilder
@@ -21,15 +23,18 @@ async def submit_data_source_url_proposal(
             detail="Invalid URL"
         )
 
+    full_url = FullURL(request.source_url)
+
     url_exists_results: URLExistsResult = (await adb_client.run_query_builder(
         URLsExistInDBQueryBuilder(
-            full_urls=[FullURL(request.source_url)]
+            full_urls=[full_url]
         )
     ))[0]
     if url_exists_results.exists:
-        raise HTTPException(
-            status_code=400,
-            detail="URL already exists in database."
+        await adb_client.run_query_builder(
+            GetDataSourceDuplicateQueryBuilder(
+                url=full_url.id_form
+            )
         )
 
     return await adb_client.run_query_builder(

@@ -11,6 +11,7 @@ class DataSourceSubmissionRequest(RequestBase):
     name: str
     record_type: RecordType
     source_url: str
+    description: str | None = None
 
     # Optional URL DS Metadata
     coverage_start: date | None = None

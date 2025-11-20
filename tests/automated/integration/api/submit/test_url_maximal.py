@@ -32,6 +32,7 @@ async def test_maximal(
         request=URLSubmissionRequest(
             url="www.example.com",
             record_type=RecordType.INCARCERATION_RECORDS,
+            description="Example description",
             name="Example URL",
             location_id=pittsburgh_locality.location_id,
             agency_id=agency_id,
@@ -48,6 +49,7 @@ async def test_maximal(
     url: URL = urls[0]
     assert url.id == url_id
     assert url.url == "www.example.com"
+    assert url.description == "Example description"
 
     links: list[LinkUserSubmittedURL] = await adb_client.get_all(LinkUserSubmittedURL)
     assert len(links) == 1
