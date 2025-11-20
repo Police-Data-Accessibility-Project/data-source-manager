@@ -11,6 +11,7 @@ from starlette.responses import RedirectResponse
 from src.api.endpoints.agencies.routes import agencies_router
 from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
+from src.api.endpoints.check.routes import check_router
 from src.api.endpoints.collector.routes import collector_router
 from src.api.endpoints.contributions.routes import contributions_router
 from src.api.endpoints.data_source.routes import data_sources_router
@@ -183,7 +184,8 @@ routers = [
     contributions_router,
     agencies_router,
     data_sources_router,
-    meta_urls_router
+    meta_urls_router,
+    check_router
 ]
 
 for router in routers:
