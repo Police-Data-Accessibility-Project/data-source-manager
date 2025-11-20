@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import get_async_core
-from src.api.endpoints.submit.data_source.query import SubmitDataSourceURLProposalQueryBuilder
 
 from src.api.endpoints.submit.data_source.models.response.duplicate import \
     SubmitDataSourceURLDuplicateSubmissionResponse
 from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
+from src.api.endpoints.submit.data_source.queries.core import SubmitDataSourceURLProposalQueryBuilder
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
+from src.api.endpoints.submit.data_source.wrapper import submit_data_source_url_proposal
 from src.api.endpoints.submit.url.models.request import URLSubmissionRequest
 from src.api.endpoints.submit.url.models.response import URLSubmissionResponse
 from src.api.endpoints.submit.url.queries.core import SubmitURLQueryBuilder
@@ -44,8 +45,7 @@ async def submit_data_source(
     request: DataSourceSubmissionRequest,
     async_core: AsyncCore = Depends(get_async_core),
 ):
-    return await async_core.adb_client.run_query_builder(
-        SubmitDataSourceURLProposalQueryBuilder(
-            request=request,
-        )
+    return await submit_data_source_url_proposal(
+        request=request,
+        adb_client=async_core.adb_client
     )

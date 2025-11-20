@@ -4,7 +4,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
-from src.api.endpoints.submit.data_source.queries.duplicate import GetDataSourceDuplicateQueryBuilder
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
 from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
@@ -28,7 +27,10 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         super().__init__()
         self.request = request
 
-    async def run(self, session: AsyncSession) -> SubmitDataSourceURLProposalResponse:
+    async def run(
+        self,
+        session: AsyncSession
+    ) -> SubmitDataSourceURLProposalResponse:
         full_url = FullURL(full_url=self.request.source_url)
 
         # Begin by attempting to submit the full URL
@@ -43,15 +45,9 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         )
 
         session.add(url)
-        try:
-            await session.flush()
-        except IntegrityError:
-            qb = GetDataSourceDuplicateQueryBuilder(
-                url=full_url.id_form
-            )
-            await qb.run(session=session)
+        await session.flush()
 
-
+        # Standard Path
         url_id: int = url.id
 
         # Add Batch

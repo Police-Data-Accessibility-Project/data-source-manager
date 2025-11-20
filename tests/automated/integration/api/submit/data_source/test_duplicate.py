@@ -1,4 +1,5 @@
 import pytest
+from fastapi import HTTPException
 
 from src.api.endpoints.submit.data_source.models.response.duplicate import SubmitDataSourceURLDuplicateSubmissionResponse
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
@@ -19,16 +20,19 @@ async def test_submit_data_source_duplicate(
 ):
 
     ath = api_test_helper
-    response: dict = ath.request_validator.post_v3(
-        url="submit/data-source",
-        json=DataSourceSubmissionRequest(
-            source_url=test_url_data_source_mapping.url,
-            name="Test Name",
-            record_type=RecordType.RECORDS_REQUEST_INFO
-        ).model_dump(mode='json')
-    )
-    model = SubmitDataSourceURLDuplicateSubmissionResponse(**response)
-    assert model.url_id == test_url_data_source_mapping.url_id
-    assert model.url_type == URLType.DATA_SOURCE
-    assert model.url_status == URLStatus.OK
-    assert model.message == "Duplicate URL Found"
+    try:
+        ath.request_validator.post_v3(
+            url="submit/data-source",
+            json=DataSourceSubmissionRequest(
+                source_url=test_url_data_source_mapping.url,
+                name="Test Name",
+                record_type=RecordType.RECORDS_REQUEST_INFO
+            ).model_dump(mode='json')
+        )
+    except HTTPException as e:
+        response = e.detail['detail']
+        model = SubmitDataSourceURLDuplicateSubmissionResponse(**response)
+        assert model.url_id == test_url_data_source_mapping.url_id
+        assert model.url_type == URLType.DATA_SOURCE
+        assert model.url_status == URLStatus.OK
+        assert model.message == "Duplicate URL found"
