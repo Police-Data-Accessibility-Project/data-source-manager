@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 
+from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
 from src.api.endpoints.submit.data_source.query import SubmitDataSourceURLProposalQueryBuilder
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.api.endpoints.submit.data_source.response import SubmitDataSourceURLProposalResponse
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.queries.urls_exist.model import URLExistsResult
 from src.db.queries.urls_exist.query import URLsExistInDBQueryBuilder

@@ -12,6 +12,7 @@ from src.core.enums import RecordType
 from src.core.logger import AsyncCoreLogger
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
@@ -216,6 +217,21 @@ async def test_url_data_source_id(
         agency_ids=[test_agency_id]
     )
     return url_id
+
+@pytest_asyncio.fixture
+async def test_url_data_source_mapping(
+    db_data_creator: DBDataCreator,
+    test_agency_id: int
+) -> SimpleURLMapping:
+    url_mapping: SimpleURLMapping = (await db_data_creator.create_validated_urls(
+        record_type=RecordType.CRIME_STATISTICS,
+        validation_type=URLType.DATA_SOURCE,
+    ))[0]
+    await db_data_creator.link_urls_to_agencies(
+        url_ids=[url_mapping.url_id],
+        agency_ids=[test_agency_id]
+    )
+    return url_mapping
 
 @pytest_asyncio.fixture
 async def test_url_meta_url_id(

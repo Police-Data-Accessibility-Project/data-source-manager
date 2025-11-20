@@ -1,9 +1,11 @@
 from typing import Any
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
+from src.api.endpoints.submit.data_source.queries.duplicate import GetDataSourceDuplicateQueryBuilder
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.api.endpoints.submit.data_source.response import SubmitDataSourceURLProposalResponse
 from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
@@ -26,9 +28,10 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         super().__init__()
         self.request = request
 
-    async def run(self, session: AsyncSession) -> Any:
+    async def run(self, session: AsyncSession) -> SubmitDataSourceURLProposalResponse:
         full_url = FullURL(full_url=self.request.source_url)
 
+        # Begin by attempting to submit the full URL
         url = URL(
             url=full_url.id_form,
             scheme=full_url.scheme,
@@ -40,7 +43,14 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         )
 
         session.add(url)
-        await session.flush()
+        try:
+            await session.flush()
+        except IntegrityError:
+            qb = GetDataSourceDuplicateQueryBuilder(
+                url=full_url.id_form
+            )
+            await qb.run(session=session)
+
 
         url_id: int = url.id
 
