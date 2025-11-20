@@ -32,6 +32,7 @@ async def test_submit_data_source(
         json=DataSourceSubmissionRequest(
             source_url="https://example.com/",
             name="Example name",
+            description="Example description",
             record_type=RecordType.COMPLAINTS_AND_MISCONDUCT,
             coverage_start=date(year=2025, month=8, day=9),
             coverage_end=date(year=2025, month=8, day=10),
@@ -74,6 +75,7 @@ async def test_submit_data_source(
     assert url.trailing_slash == True
     assert url.source == URLSource.MANUAL
     assert url.status == URLStatus.OK
+    assert url.description == "Example description"
 
     # Check for Batch
     batch: Batch = await adb_client.one_or_none_model(Batch)

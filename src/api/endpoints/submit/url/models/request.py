@@ -10,3 +10,4 @@ class URLSubmissionRequest(RequestBase):
     name: str | None = None
     location_id: int | None = None
     agency_id: int | None = None
+    description: str | None = None
