@@ -15,6 +15,7 @@ from src.api.endpoints.check.routes import check_router
 from src.api.endpoints.collector.routes import collector_router
 from src.api.endpoints.contributions.routes import contributions_router
 from src.api.endpoints.data_source.routes import data_sources_router
+from src.api.endpoints.locations.routes import location_url_router
 from src.api.endpoints.meta_url.routes import meta_urls_router
 from src.api.endpoints.metrics.routes import metrics_router
 from src.api.endpoints.root import root_router
@@ -185,7 +186,8 @@ routers = [
     agencies_router,
     data_sources_router,
     meta_urls_router,
-    check_router
+    check_router,
+    location_url_router
 ]
 
 for router in routers:
