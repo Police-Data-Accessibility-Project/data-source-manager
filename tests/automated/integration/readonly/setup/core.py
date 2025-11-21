@@ -59,9 +59,6 @@ async def setup_readonly_data(
         adb_client=adb_client
     )
 
-
-
-
     # Add Data Source With Linked Agency
     maximal_data_source: int = await add_maximal_data_source(
         agency_1_id=agency_1_id,
