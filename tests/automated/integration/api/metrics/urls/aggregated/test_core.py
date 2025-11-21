@@ -47,7 +47,6 @@ async def test_get_urls_aggregated_metrics(api_test_helper):
         strategy=CollectorType.AUTO_GOOGLER,
     )
     url_mappings_2_ok: list[SimpleURLMapping] = await ddc.create_urls(batch_id=batch_2, count=4, status=URLStatus.OK)
-    url_mappings_2_error: list[SimpleURLMapping] = await ddc.create_urls(batch_id=batch_2, count=2, status=URLStatus.ERROR)
     url_mappings_2_validated: list[SimpleURLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLType.DATA_SOURCE)
     url_mappings_2_not_relevant: list[SimpleURLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLType.NOT_RELEVANT)
     url_ids_2_validated: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_validated]

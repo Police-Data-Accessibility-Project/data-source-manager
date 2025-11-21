@@ -46,12 +46,6 @@ async def test_get_backlog_metrics(api_test_helper):
         url_ids=not_relevant_url_ids_2[:4],
         validation_type=URLType.NOT_RELEVANT
     )
-    error_url_mappings_2: list[SimpleURLMapping] = await ddc.create_urls(
-        status=URLStatus.ERROR,
-        count=2
-    )
-    error_url_ids_2: list[int] = [url_mapping.url_id for url_mapping in error_url_mappings_2]
-    await ddc.create_batch_url_links(url_ids=error_url_ids_2, batch_id=batch_2_id)
 
     await adb_client.populate_backlog_snapshot(
         dt=today.subtract(months=2).naive()
