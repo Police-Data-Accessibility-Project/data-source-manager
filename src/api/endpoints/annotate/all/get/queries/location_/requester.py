@@ -20,7 +20,7 @@ class GetLocationSuggestionsRequester(RequesterBase):
         query = (
             select(
                 UserLocationSuggestion.location_id,
-                LocationExpandedView.display_name.label("location_name"),
+                LocationExpandedView.full_display_name.label("location_name"),
                 func.count(UserLocationSuggestion.user_id).label('user_count')
             )
             .join(
@@ -32,7 +32,7 @@ class GetLocationSuggestionsRequester(RequesterBase):
             )
             .group_by(
                 UserLocationSuggestion.location_id,
-                LocationExpandedView.display_name
+                LocationExpandedView.full_display_name
             )
             .order_by(
                 func.count(UserLocationSuggestion.user_id).desc()
