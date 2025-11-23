@@ -1,10 +1,9 @@
 from datetime import datetime
 from functools import wraps
-from typing import Optional, Type, Any, List, Sequence
+from typing import Optional, Any, List
 
-from sqlalchemy import select, func, Select, and_, update, Row, text, Engine
+from sqlalchemy import select, func, Select, and_, update, Row, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncEngine
-from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
@@ -50,7 +49,6 @@ from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.client.types import UserSuggestionModel
 from src.db.config_manager import ConfigManager
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
-from src.db.dto_converter import DTOConverter
 from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.raw_html import RawHTMLInfo
@@ -286,18 +284,6 @@ class AsyncDatabaseClient:
 
     # region record_type
 
-    @session_manager
-    async def add_auto_record_type_suggestions(
-        self,
-        session: AsyncSession,
-        url_and_record_type_list: list[tuple[int, RecordType]]
-    ):
-        for url_id, record_type in url_and_record_type_list:
-            suggestion = AutoRecordTypeSuggestion(
-                url_id=url_id,
-                record_type=record_type.value
-            )
-            session.add(suggestion)
 
     async def add_auto_record_type_suggestion(
         self,
@@ -380,59 +366,6 @@ class AsyncDatabaseClient:
 
     async def get_non_errored_urls_without_html_data(self) -> list[URLInfo]:
         return await self.run_query_builder(GetPendingURLsWithoutHTMLDataQueryBuilder())
-
-    async def get_urls_with_html_data_and_without_models(
-        self,
-        session: AsyncSession,
-        model: Type[Base]
-    ):
-        statement = (select(URL)
-                     .options(selectinload(URL.html_content))
-                     .where(URL.status == URLStatus.OK.value))
-        statement = self.statement_composer.exclude_urls_with_extant_model(
-            statement=statement,
-            model=model
-        )
-        statement = statement.limit(100).order_by(URL.id)
-        raw_result = await session.execute(statement)
-        urls: Sequence[Row[URL]] = raw_result.unique().scalars().all()
-        final_results = DTOConverter.url_list_to_url_with_html_list(urls)
-
-        return final_results
-
-    @session_manager
-    async def get_urls_with_html_data_and_without_auto_record_type_suggestion(
-        self,
-        session: AsyncSession
-    ):
-        return await self.get_urls_with_html_data_and_without_models(
-            session=session,
-            model=AutoRecordTypeSuggestion
-        )
-
-    async def has_urls_with_html_data_and_without_models(
-        self,
-        session: AsyncSession,
-        model: Type[Base]
-    ) -> bool:
-        statement = (select(URL)
-                     .join(URLCompressedHTML)
-                     .where(URL.status == URLStatus.OK.value))
-        # Exclude URLs with auto suggested record types
-        statement = self.statement_composer.exclude_urls_with_extant_model(
-            statement=statement,
-            model=model
-        )
-        statement = statement.limit(1)
-        scalar_result = await session.scalars(statement)
-        return bool(scalar_result.first())
-
-    @session_manager
-    async def has_urls_with_html_data_and_without_auto_record_type_suggestion(self, session: AsyncSession) -> bool:
-        return await self.has_urls_with_html_data_and_without_models(
-            session=session,
-            model=AutoRecordTypeSuggestion
-        )
 
     @session_manager
     async def one_or_none_model(
