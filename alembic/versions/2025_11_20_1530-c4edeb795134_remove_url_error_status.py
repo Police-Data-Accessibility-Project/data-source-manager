@@ -20,6 +20,12 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    op.execute("""
+    UPDATE urls
+    SET status = 'ok'
+    WHERE status = 'error';
+    """)
+
     remove_enum_value(
         enum_name="url_status",
         value_to_remove="error",
