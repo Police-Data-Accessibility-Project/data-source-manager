@@ -63,6 +63,7 @@ class TaskType(PyEnum):
     TASK_CLEANUP = "Task Cleanup"
     REFRESH_MATERIALIZED_VIEWS = "Refresh Materialized Views"
     UPDATE_URL_STATUS = "Update URL Status"
+    INTEGRITY_MONITOR = "Integrity Monitor"
 
     # Sync Tasks
     SYNC_AGENCIES_ADD = "Sync Agencies Add"
