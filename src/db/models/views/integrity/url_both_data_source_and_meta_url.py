@@ -1,5 +1,5 @@
 """
-    create view integrity__url_both_data_source_and_meta_url_view
+    create view integrity__url_both_data_source_and_meta_url_view as
     select
         ds.url_id
     from

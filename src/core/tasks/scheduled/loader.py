@@ -6,6 +6,7 @@ from src.core.tasks.scheduled.impl.backlog.operator import PopulateBacklogSnapsh
 from src.core.tasks.scheduled.impl.delete_logs.operator import DeleteOldLogsTaskOperator
 from src.core.tasks.scheduled.impl.delete_stale_screenshots.operator import DeleteStaleScreenshotsTaskOperator
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
+from src.core.tasks.scheduled.impl.integrity.operator import IntegrityMonitorTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
@@ -126,6 +127,13 @@ class ScheduledTaskOperatorLoader:
                 operator=RefreshMaterializedViewsOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.setup_flag("REFRESH_MATERIALIZED_VIEWS_TASK_FLAG")
+            ),
+            ScheduledTaskEntry(
+                operator=IntegrityMonitorTaskOperator(
+                    adb_client=self.adb_client
+                ),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("INTEGRITY_MONITOR_TASK_FLAG")
             ),
             # Sync
             ## Adds

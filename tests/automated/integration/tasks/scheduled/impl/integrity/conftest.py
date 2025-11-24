@@ -8,4 +8,6 @@ from src.db.client.async_ import AsyncDatabaseClient
 def operator(
     adb_client_test: AsyncDatabaseClient
 ) -> IntegrityMonitorTaskOperator:
-    raise NotImplementedError
+    return IntegrityMonitorTaskOperator(
+        adb_client=adb_client_test,
+    )

@@ -1,18 +1,20 @@
 """
     create view integrity__incomplete_data_sources_view as
         select
-            mu.url_id,
+            ds.url_id,
             fuv.url_id is not null as has_validated_flag,
             fuv.type as validated_type,
-            urt.url_id is not null as has_record_type
-
-        from ds_app_link_meta_url mu
-        left join flag_url_validated fuv on fuv.url_id = mu.url_id
-        left join url_record_type urt on urt.url_id = mu.url_id
+            urt.url_id is not null as has_record_type,
+            lau.url_id is not null as has_agency_flag
+        from ds_app_link_data_source ds
+        left join flag_url_validated fuv on fuv.url_id = ds.url_id
+        left join url_record_type urt on urt.url_id = ds.url_id
+        left join link_agencies__urls lau on lau.url_id = ds.url_id
         where
             fuv.url_id is null
         or fuv.type != 'data source'
         or urt.url_id is null
+        or lau.url_id is null
     """
 from sqlalchemy import Column, Boolean
 
@@ -33,3 +35,4 @@ class IntegrityIncompleteDataSource(
         name="url_type",
     )
     has_record_type = Column(Boolean)
+    has_agency_flag = Column(Boolean)

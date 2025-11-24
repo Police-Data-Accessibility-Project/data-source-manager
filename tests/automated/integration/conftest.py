@@ -6,6 +6,7 @@ import pytest_asyncio
 from starlette.testclient import TestClient
 
 from src.api.main import app
+from src.collectors.enums import URLStatus
 from src.collectors.manager import AsyncCollectorManager
 from src.core.core import AsyncCore
 from src.core.enums import RecordType
@@ -14,6 +15,8 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.url.core.enums import URLSource
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
 from src.security.manager import get_access_info
@@ -217,6 +220,18 @@ async def test_url_data_source_id(
         agency_ids=[test_agency_id]
     )
     return url_id
+
+@pytest_asyncio.fixture
+async def test_url_id(
+    db_data_creator: DBDataCreator,
+) -> int:
+    url = URL(
+        url="example.com",
+        source=URLSource.COLLECTOR,
+        trailing_slash=False,
+        status=URLStatus.OK
+    )
+    return await db_data_creator.adb_client.add(url, return_id=True)
 
 @pytest_asyncio.fixture
 async def test_url_data_source_mapping(
