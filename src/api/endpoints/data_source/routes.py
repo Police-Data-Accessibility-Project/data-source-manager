@@ -16,7 +16,7 @@ from src.core.core import AsyncCore
 
 data_sources_router = APIRouter(
     prefix="/data-sources",
-    tags=["data-source"]
+    tags=["Data Sources"]
 )
 
 

@@ -15,7 +15,7 @@ from src.core.core import AsyncCore
 
 meta_urls_router = APIRouter(
     prefix="/meta-urls",
-    tags=["meta-url"]
+    tags=["Meta Urls"]
 )
 
 @meta_urls_router.get("")

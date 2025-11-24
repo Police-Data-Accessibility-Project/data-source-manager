@@ -17,7 +17,7 @@ from src.api.endpoints.agencies.root.post.response import AgencyPostResponse
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
 
-agencies_router = APIRouter(prefix="/agencies", tags=["agencies"])
+agencies_router = APIRouter(prefix="/agencies", tags=["Agencies"])
 
 @agencies_router.get("")
 async def get_agencies(
