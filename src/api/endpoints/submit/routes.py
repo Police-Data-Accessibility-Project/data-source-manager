@@ -15,7 +15,7 @@ from src.core.core import AsyncCore
 from src.security.dtos.access_info import AccessInfo
 from src.security.manager import get_access_info
 
-submit_router = APIRouter(prefix="/submit", tags=["submit"])
+submit_router = APIRouter(prefix="/submit", tags=["Submit"])
 
 @submit_router.post(
     "/url"

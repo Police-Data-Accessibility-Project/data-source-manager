@@ -11,7 +11,7 @@ from src.db.models.impl.agency.enums import JurisdictionType
 from src.security.manager import get_access_info
 from src.security.dtos.access_info import AccessInfo
 
-search_router = APIRouter(prefix="/search", tags=["search"])
+search_router = APIRouter(prefix="/search", tags=["Search"])
 
 
 @search_router.get("/url")

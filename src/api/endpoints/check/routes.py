@@ -7,7 +7,7 @@ from src.core.core import AsyncCore
 
 check_router = APIRouter(
     prefix="/check",
-    tags=["check"]
+    tags=["Check"]
 )
 
 @check_router.get("/unique-url")
