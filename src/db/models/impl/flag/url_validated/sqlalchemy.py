@@ -1,4 +1,5 @@
 from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy.orm import Mapped
 
 from src.db.models.helpers import enum_column
 from src.db.models.impl.flag.url_validated.enums import URLType
@@ -19,7 +20,7 @@ class FlagURLValidated(
         ),
     )
 
-    type = enum_column(
+    type: Mapped[URLType] = enum_column(
         enum_type=URLType,
         name="url_type",
     )
