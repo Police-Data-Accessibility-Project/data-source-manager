@@ -57,29 +57,30 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 
 ### Scheduled Task Flags
 
-| Flag                                   | Description                                                                   |
-|----------------------------------------|-------------------------------------------------------------------------------|
-| `SCHEDULED_TASKS_FLAG`                 | All scheduled tasks. Disabling disables all other scheduled tasks.            |
-| `PUSH_TO_HUGGING_FACE_TASK_FLAG`       | Pushes data to HuggingFace.                                                   |
-| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG`  | Populates the backlog snapshot.                                               |
-| `DELETE_OLD_LOGS_TASK_FLAG`            | Deletes old logs.                                                             |
-| `RUN_URL_TASKS_TASK_FLAG`              | Runs URL tasks.                                                               |
-| `IA_PROBE_TASK_FLAG`                   | Extracts and links Internet Archives metadata to URLs.                        |
-| `IA_SAVE_TASK_FLAG`                    | Saves URLs to Internet Archives.                                              |
-| `MARK_TASK_NEVER_COMPLETED_TASK_FLAG`  | Marks tasks that were started but never completed (usually due to a restart). |
-| `DELETE_STALE_SCREENSHOTS_TASK_FLAG`   | Deletes stale screenshots for URLs already validated.                         |
-| `TASK_CLEANUP_TASK_FLAG`               | Cleans up tasks that are no longer needed. |
-| `REFRESH_MATERIALIZED_VIEWS_TASK_FLAG` | Refreshes materialized views. |
-| `UPDATE_URL_STATUS_TASK_FLAG` | Updates the status of URLs. |
-| `DS_APP_SYNC_AGENCY_ADD_TASK_FLAG`     | Adds new agencies to the Data Sources App|
-| `DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG`       | Updates existing agencies in the Data Sources App|
-| `DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG`       | Deletes agencies in the Data Sources App|
-| `DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG`     | Adds new data sources to the Data Sources App|
-| `DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG`  | Updates existing data sources in the Data Sources App|
-| `DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG`  | Deletes data sources in the Data Sources App|
-| `DS_APP_SYNC_META_URL_ADD_TASK_FLAG`        | Adds new meta URLs to the Data Sources App|
-| `DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG`     | Updates existing meta URLs in the Data Sources App|
-| `DS_APP_SYNC_META_URL_DELETE_TASK_FLAG`     | Deletes meta URLs in the Data Sources App|
+| Flag                                       | Description                                                                   |
+|--------------------------------------------|-------------------------------------------------------------------------------|
+| `SCHEDULED_TASKS_FLAG`                     | All scheduled tasks. Disabling disables all other scheduled tasks.            |
+| `PUSH_TO_HUGGING_FACE_TASK_FLAG`           | Pushes data to HuggingFace.                                                   |
+| `POPULATE_BACKLOG_SNAPSHOT_TASK_FLAG`      | Populates the backlog snapshot.                                               |
+| `DELETE_OLD_LOGS_TASK_FLAG`                | Deletes old logs.                                                             |
+| `RUN_URL_TASKS_TASK_FLAG`                  | Runs URL tasks.                                                               |
+| `IA_PROBE_TASK_FLAG`                       | Extracts and links Internet Archives metadata to URLs.                        |
+| `IA_SAVE_TASK_FLAG`                        | Saves URLs to Internet Archives.                                              |
+| `MARK_TASK_NEVER_COMPLETED_TASK_FLAG`      | Marks tasks that were started but never completed (usually due to a restart). |
+| `DELETE_STALE_SCREENSHOTS_TASK_FLAG`       | Deletes stale screenshots for URLs already validated.                         |
+| `TASK_CLEANUP_TASK_FLAG`                   | Cleans up tasks that are no longer needed. |
+| `REFRESH_MATERIALIZED_VIEWS_TASK_FLAG`     | Refreshes materialized views. |
+| `UPDATE_URL_STATUS_TASK_FLAG`              | Updates the status of URLs. |
+| `DS_APP_SYNC_AGENCY_ADD_TASK_FLAG`         | Adds new agencies to the Data Sources App|
+| `DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG`      | Updates existing agencies in the Data Sources App|
+| `DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG`      | Deletes agencies in the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG`    | Adds new data sources to the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG` | Updates existing data sources in the Data Sources App|
+| `DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG` | Deletes data sources in the Data Sources App|
+| `DS_APP_SYNC_META_URL_ADD_TASK_FLAG`       | Adds new meta URLs to the Data Sources App|
+| `DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG`    | Updates existing meta URLs in the Data Sources App|
+| `DS_APP_SYNC_META_URL_DELETE_TASK_FLAG`    | Deletes meta URLs in the Data Sources App|
+| `INTEGRITY_MONITOR_TASK_FLAG`              | Runs integrity checks. |
 
 ### URL Task Flags
 

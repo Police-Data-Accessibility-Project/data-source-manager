@@ -24,20 +24,15 @@ FROM urls u
 
 from sqlalchemy import PrimaryKeyConstraint, Column, Boolean
 
-from src.db.models.mixins import ViewMixin, URLDependentMixin
+from src.db.models.mixins import ViewMixin, URLDependentMixin, URLDependentViewMixin
 from src.db.models.templates_.base import Base
 
 
 class URLAnnotationFlagsView(
     Base,
-    ViewMixin,
-    URLDependentMixin
+    URLDependentViewMixin
 ):
     __tablename__ = "url_annotation_flags"
-    __table_args__ = (
-        PrimaryKeyConstraint("url_id"),
-        {"info": "view"}
-    )
 
     has_auto_record_type_suggestion = Column(Boolean, nullable=False)
     has_auto_relevant_suggestion = Column(Boolean, nullable=False)

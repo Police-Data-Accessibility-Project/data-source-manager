@@ -46,8 +46,11 @@ def location_id_column() -> Column[int]:
 
 CURRENT_TIME_SERVER_DEFAULT = func.now()
 
+VIEW_ARG = {"info": "view"}
+
 def url_id_primary_key_constraint() -> PrimaryKeyConstraint:
     return PrimaryKeyConstraint('url_id')
+
 
 def county_column(nullable: bool = False) -> Column[int]:
     return Column(

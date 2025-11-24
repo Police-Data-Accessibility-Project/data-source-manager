@@ -31,6 +31,7 @@ FROM
 """
 from sqlalchemy import Column, Integer, ForeignKey
 
+from src.db.models.helpers import VIEW_ARG
 from src.db.models.mixins import ViewMixin
 from src.db.models.templates_.base import Base
 
@@ -39,7 +40,7 @@ class DependentLocationView(Base, ViewMixin):
 
     __tablename__ = "dependent_locations"
     __table_args__ = (
-        {"info": "view"}
+        VIEW_ARG,
     )
 
     parent_location_id = Column(
