@@ -920,3 +920,6 @@ class AsyncDatabaseClient:
         await self.execute(
             text("REFRESH MATERIALIZED VIEW batch_url_status_mat_view")
         )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW mat_view__html_duplicate_url")
+        )

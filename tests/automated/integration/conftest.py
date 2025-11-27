@@ -222,6 +222,21 @@ async def test_url_data_source_id(
     return url_id
 
 @pytest_asyncio.fixture
+async def test_url_data_source_id_2(
+    db_data_creator: DBDataCreator,
+    test_agency_id: int
+) -> int:
+    url_id: int = (await db_data_creator.create_validated_urls(
+        record_type=RecordType.CAR_GPS,
+        validation_type=URLType.DATA_SOURCE,
+    ))[0].url_id
+    await db_data_creator.link_urls_to_agencies(
+        url_ids=[url_id],
+        agency_ids=[test_agency_id]
+    )
+    return url_id
+
+@pytest_asyncio.fixture
 async def test_url_id(
     db_data_creator: DBDataCreator,
 ) -> int:
@@ -232,6 +247,19 @@ async def test_url_id(
         status=URLStatus.OK
     )
     return await db_data_creator.adb_client.add(url, return_id=True)
+
+@pytest_asyncio.fixture
+async def test_url_id_2(
+    db_data_creator: DBDataCreator,
+) -> int:
+    url = URL(
+        url="example.com/2",
+        source=URLSource.COLLECTOR,
+        trailing_slash=False,
+        status=URLStatus.OK
+    )
+    return await db_data_creator.adb_client.add(url, return_id=True)
+
 
 @pytest_asyncio.fixture
 async def test_url_data_source_mapping(

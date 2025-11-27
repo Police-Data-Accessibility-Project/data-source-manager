@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.tasks.scheduled.impl.huggingface.queries.check.requester import CheckValidURLsUpdatedRequester
+from src.core.tasks.scheduled.impl.huggingface.queries.prereq.requester import CheckValidURLsUpdatedRequester
 from src.db.queries.base.builder import QueryBuilderBase
 
 

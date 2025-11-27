@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.tasks.scheduled.impl.huggingface.queries.cte import HuggingfacePrereqCTEContainer
 from src.core.tasks.scheduled.impl.huggingface.queries.get.convert import convert_fine_to_coarse_record_type, \
     convert_validated_type_to_relevant
 from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLoadingToHuggingFaceOutput
@@ -23,20 +24,25 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
 
 
     async def run(self, session: AsyncSession) -> list[GetForLoadingToHuggingFaceOutput]:
-        label_url_id = 'url_id'
         label_url = 'url'
         label_record_type_fine = 'record_type_fine'
         label_html = 'html'
         label_type = 'type'
 
 
+        cte = HuggingfacePrereqCTEContainer()
+
         query = (
             select(
-                URL.id.label(label_url_id),
+                cte.url_id,
                 URL.full_url.label(label_url),
                 URLRecordType.record_type.label(label_record_type_fine),
                 URLCompressedHTML.compressed_html.label(label_html),
                 FlagURLValidated.type.label(label_type)
+            )
+            .join(
+                URL,
+                cte.url_id == URL.id
             )
             .join(
                 URLRecordType,
@@ -65,7 +71,7 @@ class GetForLoadingToHuggingFaceQueryBuilder(QueryBuilderBase):
         final_results = []
         for result in db_results:
             output = GetForLoadingToHuggingFaceOutput(
-                url_id=result[label_url_id],
+                url_id=result[cte.url_id],
                 url=result[label_url],
                 relevant=convert_validated_type_to_relevant(
                     URLType(result[label_type])
