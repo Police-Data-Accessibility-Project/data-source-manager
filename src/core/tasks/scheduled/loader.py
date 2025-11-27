@@ -225,7 +225,7 @@ class ScheduledTaskOperatorLoader:
                 operator=UpdateURLStatusOperator(
                     adb_client=self.adb_client
                 ),
-                interval_minutes=IntervalEnum.HOURLY.value,
+                interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.setup_flag("UPDATE_URL_STATUS_TASK_FLAG")
             ),
 
