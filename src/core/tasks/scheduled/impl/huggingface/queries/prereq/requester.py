@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.functions import count
 
 from src.collectors.enums import URLStatus
+from src.core.tasks.scheduled.impl.huggingface.queries.cte import HuggingfacePrereqCTEContainer
 from src.db.enums import TaskType
 from src.db.helpers.query import not_exists_url, no_url_task_error, exists_url
 from src.db.helpers.session import session_helper as sh
@@ -32,21 +33,17 @@ class CheckValidURLsUpdatedRequester:
         )
 
     async def has_valid_urls(self, last_upload_at: datetime | None) -> bool:
+        cte = HuggingfacePrereqCTEContainer()
         query = (
-            select(count(URL.id))
-            .join(
-                URLCompressedHTML,
-                URL.id == URLCompressedHTML.url_id
-            )
-            .where(
-                exists_url(FlagURLValidated),
-                no_url_task_error(TaskType.PUSH_TO_HUGGINGFACE)
+            select(
+                cte.url_id
             )
         )
         if last_upload_at is not None:
-            query = query.where(URL.updated_at > last_upload_at)
-        url_count = await sh.scalar(
+            query = query.where(cte.updated_at > last_upload_at)
+        query = query.limit(1)
+        result = await sh.one_or_none(
             session=self.session,
             query=query
         )
-        return url_count > 0
+        return result is not None
