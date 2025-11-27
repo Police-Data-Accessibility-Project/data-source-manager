@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.execute("""
-    create extension pgcrypto;
+    create extension if not exists pgcrypto;
     """)
 
     op.execute("""
