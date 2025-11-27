@@ -3,17 +3,18 @@ from typing import final
 from typing_extensions import override
 
 from src.core.tasks.url.operators.agency_identification.subtasks.convert import \
-    convert_match_agency_response_to_subtask_data
+    convert_agency_suggestions_to_subtask_data
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.params import CKANAgencyIDSubtaskParams
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.ckan_.query import \
     GetCKANAgencyIDSubtaskParamsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
+from src.core.tasks.url.operators.agency_identification.subtasks.models.suggestion import AgencySuggestion
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.match_agency import MatchAgencyQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import \
     AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
 from src.external.pdap.client import PDAPClient
-from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 
 
 @final
@@ -35,12 +36,14 @@ class CKANAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
         subtask_data_list: list[AutoAgencyIDSubtaskData] = []
         for param in params:
             agency_name: str = param.collector_metadata["agency_name"]
-            response: MatchAgencyResponse = await self.pdap_client.match_agency(
-                name=agency_name
+            agency_suggestions: list[AgencySuggestion] = await self.adb_client.run_query_builder(
+                MatchAgencyQueryBuilder(
+                    agency_name=agency_name
+                )
             )
-            subtask_data: AutoAgencyIDSubtaskData = convert_match_agency_response_to_subtask_data(
+            subtask_data: AutoAgencyIDSubtaskData = convert_agency_suggestions_to_subtask_data(
                 url_id=param.url_id,
-                response=response,
+                agency_suggestions=agency_suggestions,
                 subtask_type=AutoAgencyIDSubtaskType.CKAN,
                 task_id=self.task_id
             )
