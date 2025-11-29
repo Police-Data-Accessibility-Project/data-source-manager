@@ -325,10 +325,6 @@ class AsyncDatabaseClient:
 
 
     @session_manager
-    async def add_html_content_infos(self, session: AsyncSession, html_content_infos: list[URLHTMLContentInfo]):
-        await self._add_models(session, URLHTMLContent, html_content_infos)
-
-    @session_manager
     async def has_non_errored_urls_without_html_data(self, session: AsyncSession) -> bool:
         statement = self.statement_composer.has_non_errored_urls_without_html_data()
         statement = statement.limit(1)

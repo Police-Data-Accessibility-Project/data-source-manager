@@ -1,16 +1,17 @@
-from sqlalchemy import UniqueConstraint, Column, Integer
+from sqlalchemy import UniqueConstraint, Column, Integer, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from src.db.models.mixins import CreatedAtMixin, URLDependentMixin
+from src.db.models.templates_.base import Base
 from src.db.models.templates_.with_id import WithIDBase
 
 
-class ReviewingUserURL(CreatedAtMixin, URLDependentMixin, WithIDBase):
+class ReviewingUserURL(CreatedAtMixin, URLDependentMixin, Base):
     __tablename__ = 'reviewing_user_url'
     __table_args__ = (
-        UniqueConstraint(
-        "url_id",
-        name="approving_user_url_uq_user_id_url_id"),
+        PrimaryKeyConstraint(
+            "url_id",
+        ),
     )
     user_id = Column(Integer, nullable=False)
 

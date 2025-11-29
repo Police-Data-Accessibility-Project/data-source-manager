@@ -6,6 +6,7 @@ from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.enums import TaskType
 from src.db.models.impl.url.error_info.pydantic import URLErrorInfoPydantic
 from src.db.models.impl.url.html.compressed.pydantic import URLCompressedHTMLPydantic
+from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.scrape_info.enums import ScrapeStatus
 from src.db.models.impl.url.scrape_info.pydantic import URLScrapeInfoInsertModel
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
@@ -33,8 +34,8 @@ def _convert_to_html_content_info_getter(tdo: UrlHtmlTDO) -> HTMLContentInfoGett
         url_id=tdo.url_info.id
     )
 
-def convert_to_html_content_info_list(tdos: list[UrlHtmlTDO]) -> list[URLHTMLContentInfo]:
-    html_content_infos = []
+def convert_to_html_content_info_list(tdos: list[UrlHtmlTDO]) -> list[URLHTMLContent]:
+    html_content_infos: list[URLHTMLContent] = []
     for tdo in tdos:
         if tdo.url_response_info.status != HTTPStatus.OK:
             continue

@@ -61,14 +61,14 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                     URL.status == URLStatus.OK.value,
                     # Must not have been previously annotated by user
                     ~exists(
-                        select(UserURLTypeSuggestion.id)
+                        select(UserURLTypeSuggestion.url_id)
                         .where(
                             UserURLTypeSuggestion.url_id == URL.id,
                             UserURLTypeSuggestion.user_id == self.user_id,
                         )
                     ),
                     ~exists(
-                        select(UserURLAgencySuggestion.id)
+                        select(UserURLAgencySuggestion.url_id)
                         .where(
                             UserURLAgencySuggestion.url_id == URL.id,
                             UserURLAgencySuggestion.user_id == self.user_id,

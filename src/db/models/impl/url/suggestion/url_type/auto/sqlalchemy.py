@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Boolean, UniqueConstraint, String, Float
+from sqlalchemy import Column, Boolean, UniqueConstraint, String, Float, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin, URLDependentMixin
+from src.db.models.templates_.base import Base
 from src.db.models.templates_.with_id import WithIDBase
 
 
@@ -9,7 +10,7 @@ class AutoRelevantSuggestion(
     UpdatedAtMixin,
     CreatedAtMixin,
     URLDependentMixin,
-    WithIDBase
+    Base,
 ):
     __tablename__ = "auto_relevant_suggestions"
 
@@ -19,6 +20,7 @@ class AutoRelevantSuggestion(
 
     __table_args__ = (
         UniqueConstraint("url_id", name="auto_relevant_suggestions_uq_url_id"),
+        PrimaryKeyConstraint("url_id"),
     )
 
     # Relationships
