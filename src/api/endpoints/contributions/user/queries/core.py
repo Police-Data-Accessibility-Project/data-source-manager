@@ -24,7 +24,7 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
 
         contributions_cte = ContributionsCTEContainer()
         record_type_agree: AgreementCTEContainer = get_record_type_agreement_cte_container(inner_cte)
-        agency_agree: AgreementCTEContainer = get_agency_agreement_cte_container(inner_cte)
+        agency_agree: AgreementCTEContainer = get_agency_agreement_cte_container()
         url_type_agree: AgreementCTEContainer = get_url_type_agreement_cte_container(inner_cte)
 
         query = (
