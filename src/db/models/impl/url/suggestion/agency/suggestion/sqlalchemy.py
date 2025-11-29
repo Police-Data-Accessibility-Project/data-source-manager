@@ -1,16 +1,20 @@
 import sqlalchemy as sa
+from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from src.db.models.mixins import CreatedAtMixin, AgencyDependentMixin
-from src.db.models.templates_.with_id import WithIDBase
+from src.db.models.templates_.base import Base
 
 
 class AgencyIDSubtaskSuggestion(
-    WithIDBase,
+    Base,
     CreatedAtMixin,
     AgencyDependentMixin,
 ):
     __tablename__ = "agency_id_subtask_suggestions"
+    __table_args__ = (
+        PrimaryKeyConstraint("agency_id", "subtask_id"),
+    )
 
     subtask_id = sa.Column(
         sa.Integer,

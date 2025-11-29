@@ -29,7 +29,7 @@ cte = (
         # One of the locations must be linked to an agency
         exists(
             select(
-                LinkAgencyLocation.id
+                LinkAgencyLocation.location_id
             )
             .join(
                 LocationIDSubtaskSuggestion,

@@ -75,7 +75,7 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
         uselist=False,
     )
     duplicates = relationship("Duplicate", back_populates="original_url")
-    html_content = relationship("URLHTMLContent", back_populates="url", cascade="all, delete-orphan")
+    html_content = relationship("URLHTMLContent", cascade="all, delete-orphan")
     task_errors = relationship(
         URLTaskError,
         cascade="all, delete-orphan"

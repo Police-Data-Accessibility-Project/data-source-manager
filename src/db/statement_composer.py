@@ -38,7 +38,7 @@ class StatementComposer:
             .join(URLWebMetadata)
             .outerjoin(URLScrapeInfo)
             .where(
-                URLScrapeInfo.id == None,
+                URLScrapeInfo.url_id == None,
                 ~exists(exclude_subquery),
                 URLWebMetadata.status_code == HTTPStatus.OK.value,
                 URLWebMetadata.content_type.like("%html%"),
