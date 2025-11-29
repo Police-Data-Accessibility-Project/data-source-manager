@@ -6,6 +6,7 @@ from discord_poster import DiscordPoster
 from fastapi import FastAPI
 from pdap_access_manager.access_manager.async_ import AccessManagerAsync
 from pdap_access_manager.models.auth import AuthInfo
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from src.api.endpoints.agencies.routes import agencies_router
@@ -165,6 +166,17 @@ app = FastAPI(
     docs_url='/api',
     version="0.1.0",
     lifespan=lifespan
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8888", # For local development
+        "https://pdap.io",
+        "https://pdap.dev"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/docs", include_in_schema=False)
