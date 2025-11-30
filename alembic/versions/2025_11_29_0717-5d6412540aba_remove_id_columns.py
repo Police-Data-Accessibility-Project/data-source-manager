@@ -66,7 +66,6 @@ BESPOKE_UNIQUE_IDS: dict[str, list[str]] = {
     "link_urls_redirect_url": ["source_url_id", "destination_url_id"],  #
     "link_urls_root_url": ["url_id", "root_url_id"],  #
     "url_html_content": ["url_id", "content_type"],  #
-    "duplicates": ["batch_id", "original_url_id"]
 }
 
 def drop_views():
