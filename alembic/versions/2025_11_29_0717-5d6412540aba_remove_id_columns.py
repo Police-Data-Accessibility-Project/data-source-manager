@@ -19,7 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 TABLES = [
     "task_errors",  #
-    "agency_id_subtask_suggestions",  #
     "auto_record_type_suggestions",  #
     "auto_relevant_suggestions",  #
     "duplicates",  #
@@ -63,7 +62,6 @@ USER_URL_ID_PRIMARY_KEY_TABLES = [
 
 BESPOKE_UNIQUE_IDS: dict[str, list[str]] = {
     "task_errors": ["task_id"],  #
-    "agency_id_subtask_suggestions": ["agency_id", "subtask_id"],  #
     "link_agencies__locations": ["agency_id", "location_id"],  #
     "link_urls_redirect_url": ["source_url_id", "destination_url_id"],  #
     "link_urls_root_url": ["url_id", "root_url_id"],  #
