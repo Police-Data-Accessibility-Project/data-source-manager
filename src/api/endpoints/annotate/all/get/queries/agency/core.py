@@ -30,6 +30,7 @@ class GetAgencySuggestionsQueryBuilder(QueryBuilderBase):
             location_id=self.location_id
         )
 
+        # TODO: Pull both in single query
         user_suggestions: list[AgencyAnnotationUserSuggestion] = \
             await requester.get_user_agency_suggestions()
         auto_suggestions: list[AgencyAnnotationAutoSuggestion] = \

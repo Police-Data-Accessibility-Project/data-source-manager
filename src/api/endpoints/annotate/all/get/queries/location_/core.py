@@ -24,6 +24,9 @@ class GetLocationSuggestionsQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> LocationAnnotationResponseOuterInfo:
         requester = GetLocationSuggestionsRequester(session)
+
+        # TODO: Pull both in single query
+        suggestions
         user_suggestions: list[LocationAnnotationUserSuggestion] = \
             await requester.get_user_location_suggestions(self.url_id)
         auto_suggestions: list[LocationAnnotationAutoSuggestion] = \
