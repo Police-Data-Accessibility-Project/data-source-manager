@@ -1,16 +1,15 @@
 from typing import Sequence
 
-from sqlalchemy import func, select, RowMapping
+from sqlalchemy import func, select, RowMapping, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationAutoSuggestion, \
-    AgencyAnnotationUserSuggestion
-from src.api.endpoints.annotate.all.get.queries.agency.suggestions_with_highest_confidence import \
-    SuggestionsWithHighestConfidenceCTE
+from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationSuggestion
+from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
-from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
+from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
+from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.templates.requester import RequesterBase
 
@@ -27,102 +26,97 @@ class GetAgencySuggestionsRequester(RequesterBase):
         self.url_id = url_id
         self.location_id = location_id
 
-    async def get_user_agency_suggestions(self) -> list[AgencyAnnotationUserSuggestion]:
-        query = (
+    async def get_agency_suggestions(self) -> list[AgencyAnnotationSuggestion]:
+        # All agencies with either a user or robo annotation
+        valid_agencies_cte = (
             select(
-                UserURLAgencySuggestion.agency_id,
-                func.count(UserURLAgencySuggestion.user_id).label("count"),
-                Agency.name.label("agency_name"),
+                Agency.id,
             )
-            .join(
-                Agency,
-                Agency.id == UserURLAgencySuggestion.agency_id
+            .where(
+                or_(
+                    exists_url(
+                        UserURLAgencySuggestion
+                    ),
+                    exists_url(
+                        URLAutoAgencyIDSubtask
+                    )
+                )
             )
-
+            .cte("valid_agencies")
         )
 
-        if self.location_id is not None:
-            query = (
-                query.join(
-                    LinkAgencyLocation,
-                    LinkAgencyLocation.agency_id == UserURLAgencySuggestion.agency_id
-                )
-                .where(
-                    LinkAgencyLocation.location_id == self.location_id
-                )
-            )
-
-        query = (
-            query.where(
-                UserURLAgencySuggestion.url_id == self.url_id
+        # Number of users who suggested each agency
+        user_suggestions_cte = (
+            select(
+                UserURLAgencySuggestion.url_id,
+                UserURLAgencySuggestion.agency_id,
+                func.count(UserURLAgencySuggestion.user_id).label('user_count')
             )
             .group_by(
                 UserURLAgencySuggestion.agency_id,
-                Agency.name
+                UserURLAgencySuggestion.url_id,
             )
-            .order_by(
-                func.count(UserURLAgencySuggestion.user_id).desc()
-            )
-            .limit(3)
+            .cte("user_suggestions")
         )
 
-        results: Sequence[RowMapping] = await sh.mappings(self.session, query=query)
-
-        return [
-            AgencyAnnotationUserSuggestion(
-                agency_id=autosuggestion["agency_id"],
-                user_count=autosuggestion["count"],
-                agency_name=autosuggestion["agency_name"],
-            )
-            for autosuggestion in results
-        ]
-
-
-    async def get_auto_agency_suggestions(self) -> list[AgencyAnnotationAutoSuggestion]:
-        cte = SuggestionsWithHighestConfidenceCTE()
-        query = (
+        # Maximum confidence of robo annotation, if any
+        robo_suggestions_cte = (
             select(
-                cte.agency_id,
-                cte.confidence,
-                Agency.name.label("agency_name"),
+                URLAutoAgencyIDSubtask.url_id,
+                Agency.id.label("agency_id"),
+                func.max(AgencyIDSubtaskSuggestion.confidence).label('robo_confidence')
+            )
+            .join(
+                AgencyIDSubtaskSuggestion,
+                AgencyIDSubtaskSuggestion.subtask_id == URLAutoAgencyIDSubtask.id
             )
             .join(
                 Agency,
-                Agency.id == cte.agency_id
+                Agency.id == AgencyIDSubtaskSuggestion.agency_id
+            )
+            .group_by(
+                URLAutoAgencyIDSubtask.url_id,
+                Agency.id
+            )
+            .cte("robo_suggestions")
+        )
+        # Join user and robo suggestions
+        joined_suggestions_query = (
+            select(
+                valid_agencies_cte.c.id.label("agency_id"),
+                Agency.name.label("agency_name"),
+                func.coalesce(user_suggestions_cte.c.user_count, 0).label('user_count'),
+                func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label('robo_confidence'),
+            )
+            .join(
+                Agency,
+                Agency.id == valid_agencies_cte.c.id
+            )
+            .outerjoin(
+                user_suggestions_cte,
+                and_(
+                    user_suggestions_cte.c.url_id == self.url_id,
+                    user_suggestions_cte.c.agency_id == Agency.id
+                )
+            )
+            .outerjoin(
+                robo_suggestions_cte,
+                and_(
+                    robo_suggestions_cte.c.url_id == self.url_id,
+                    robo_suggestions_cte.c.agency_id == Agency.id
+                )
             )
         )
 
-        if self.location_id is not None:
-            query = (
-                query.join(
-                    LinkAgencyLocation,
-                    LinkAgencyLocation.agency_id == cte.agency_id
-                )
-                .where(
-                    LinkAgencyLocation.location_id == self.location_id
-                )
+        # Return suggestions
+        mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
+        suggestions: list[AgencyAnnotationSuggestion] = [
+            AgencyAnnotationSuggestion(
+                **mapping
             )
-
-        query = (
-            query.where(
-                cte.url_id == self.url_id
-            )
-            .order_by(
-                cte.confidence.desc()
-            )
-            .limit(3)
-        )
-
-        results: Sequence[RowMapping] = await sh.mappings(self.session, query=query)
-
-        return [
-            AgencyAnnotationAutoSuggestion(
-                agency_id=autosuggestion["agency_id"],
-                confidence=autosuggestion["confidence"],
-                agency_name=autosuggestion["agency_name"],
-            )
-            for autosuggestion in results
+            for mapping in mappings
         ]
+        return suggestions
 
     async def get_not_found_count(self) -> int:
         query = (

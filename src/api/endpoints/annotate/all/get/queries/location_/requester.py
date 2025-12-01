@@ -2,8 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select, func, RowMapping, or_, and_
 
-from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationUserSuggestion, \
-    LocationAnnotationAutoSuggestion, LocationAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationSuggestion
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
@@ -38,12 +37,8 @@ class GetLocationSuggestionsRequester(RequesterBase):
         user_suggestions_cte = (
             select(
                 UserLocationSuggestion.url_id,
-                LocationExpandedView.id,
+                UserLocationSuggestion.location_id,
                 func.count(UserLocationSuggestion.user_id).label('user_count')
-            )
-            .outerjoin(
-                LocationExpandedView,
-                LocationExpandedView.id == UserLocationSuggestion.location_id
             )
             .group_by(
                 UserLocationSuggestion.location_id,
@@ -55,10 +50,10 @@ class GetLocationSuggestionsRequester(RequesterBase):
         robo_suggestions_cte = (
             select(
                 AutoLocationIDSubtask.url_id,
-                LocationExpandedView.id,
+                LocationExpandedView.id.label("location_id"),
                 func.max(LocationIDSubtaskSuggestion.confidence).label('robo_confidence')
             )
-            .outerjoin(
+            .join(
                 LocationExpandedView,
                 LocationExpandedView.id == LocationIDSubtaskSuggestion.location_id
             )
@@ -77,8 +72,8 @@ class GetLocationSuggestionsRequester(RequesterBase):
             select(
                 valid_locations_cte.c.id.label("location_id"),
                 LocationExpandedView.full_display_name.label("location_name"),
-                user_suggestions_cte.c.user_count,
-                robo_suggestions_cte.c.robo_confidence,
+                func.coalesce(user_suggestions_cte.c.user_count, 0).label("user_count"),
+                func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label("robo_confidence"),
             )
             .join(
                 LocationExpandedView,
@@ -109,81 +104,6 @@ class GetLocationSuggestionsRequester(RequesterBase):
         ]
         return suggestions
 
-    async def get_location_not_found_suggestions(self, url_id: int ) -> int:
-        query = (
-            select(
-                func.count(LinkUserSuggestionLocationNotFound.user_id)
-            )
-            .where(
-                LinkUserSuggestionLocationNotFound.url_id == url_id
-            )
-        )
-        return await self.scalar(query)
-
-    async def get_user_location_suggestions(self, url_id: int) -> list[LocationAnnotationUserSuggestion]:
-        query = (
-            select(
-                UserLocationSuggestion.location_id,
-                LocationExpandedView.full_display_name.label("location_name"),
-                func.count(UserLocationSuggestion.user_id).label('user_count')
-            )
-            .join(
-                LocationExpandedView,
-                LocationExpandedView.id == UserLocationSuggestion.location_id
-            )
-            .where(
-                UserLocationSuggestion.url_id == url_id
-            )
-            .group_by(
-                UserLocationSuggestion.location_id,
-                LocationExpandedView.full_display_name
-            )
-            .order_by(
-                func.count(UserLocationSuggestion.user_id).desc()
-            )
-        )
-        raw_results: Sequence[RowMapping] = await sh.mappings(self.session, query)
-        return [
-            LocationAnnotationUserSuggestion(
-                **raw_result
-            )
-            for raw_result in raw_results
-        ]
-
-
-
-    async def get_auto_location_suggestions(
-        self,
-        url_id: int
-    ) -> list[LocationAnnotationAutoSuggestion]:
-        query = (
-            select(
-                LocationExpandedView.full_display_name.label("location_name"),
-                LocationIDSubtaskSuggestion.location_id,
-                LocationIDSubtaskSuggestion.confidence,
-            )
-            .join(
-                LocationExpandedView,
-                LocationExpandedView.id == LocationIDSubtaskSuggestion.location_id
-            )
-            .join(
-                AutoLocationIDSubtask,
-                AutoLocationIDSubtask.id == LocationIDSubtaskSuggestion.subtask_id
-            )
-            .where(
-                AutoLocationIDSubtask.url_id == url_id
-            )
-            .order_by(
-                LocationIDSubtaskSuggestion.confidence.desc()
-            )
-        )
-        raw_results: Sequence[RowMapping] = await sh.mappings(self.session, query)
-        return [
-            LocationAnnotationAutoSuggestion(
-                **raw_result
-            )
-            for raw_result in raw_results
-        ]
 
     async def get_not_found_count(self, url_id: int) -> int:
         query = (
