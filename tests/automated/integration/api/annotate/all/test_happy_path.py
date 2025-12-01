@@ -1,6 +1,6 @@
 import pytest
 
-from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationUserSuggestion
+from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
@@ -140,20 +140,27 @@ async def test_annotate_all(
             user_id=99,
         )
     )
-    user_suggestions: list[LocationAnnotationUserSuggestion] = \
-        response.next_annotation.location_suggestions.user.suggestions
-    assert len(user_suggestions) == 2
+    suggestions: list[LocationAnnotationSuggestion] = response.next_annotation.location_suggestions.suggestions
+    assert len(suggestions) == 2
 
-    response_location_ids: list[int] = [location_suggestion.location_id for location_suggestion in user_suggestions]
-    assert set(response_location_ids) == {california.location_id, pennsylvania.location_id}
+    response_location_ids: list[int] = [
+        location_suggestion.location_id
+        for location_suggestion in suggestions]
 
-    response_location_names: list[str] = [location_suggestion.location_name for location_suggestion in user_suggestions]
+    assert set(response_location_ids) == {
+        california.location_id,
+        pennsylvania.location_id
+    }
+
+    response_location_names: list[str] = [
+        location_suggestion.location_name
+        for location_suggestion in suggestions]
     assert set(response_location_names) == {
         "California",
         "Pennsylvania"
     }
 
-    for user_suggestion in user_suggestions:
+    for user_suggestion in suggestions:
         assert user_suggestion.user_count == 1
 
     # Confirm 3 name suggestions

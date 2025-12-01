@@ -1,5 +1,4 @@
 import sqlalchemy as sa
-from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from src.db.models.mixins import CreatedAtMixin, AgencyDependentMixin
