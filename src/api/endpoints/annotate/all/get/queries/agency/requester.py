@@ -106,6 +106,12 @@ class GetAgencySuggestionsRequester(RequesterBase):
                     robo_suggestions_cte.c.agency_id == Agency.id
                 )
             )
+            .where(
+                or_(
+                    user_suggestions_cte.c.user_count > 0,
+                    robo_suggestions_cte.c.robo_confidence > 0
+                )
+            )
         )
 
         # Return suggestions

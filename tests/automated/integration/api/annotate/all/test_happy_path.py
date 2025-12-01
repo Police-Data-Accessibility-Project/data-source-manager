@@ -23,7 +23,9 @@ from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_fin
 async def test_annotate_all(
     api_test_helper,
     pennsylvania: USStateCreationInfo,
+    allegheny_county: USStateCreationInfo,
     california: USStateCreationInfo,
+    test_agency_id: int
 ):
     """
     Test the happy path workflow for the all-annotations endpoint

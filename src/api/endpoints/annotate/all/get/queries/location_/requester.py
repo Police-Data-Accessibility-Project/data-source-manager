@@ -93,6 +93,12 @@ class GetLocationSuggestionsRequester(RequesterBase):
                     robo_suggestions_cte.c.location_id == LocationExpandedView.id
                 )
             )
+            .where(
+                or_(
+                    user_suggestions_cte.c.user_count > 0,
+                    robo_suggestions_cte.c.robo_confidence > 0
+                )
+            )
         )
 
         mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
