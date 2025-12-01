@@ -26,6 +26,11 @@ async def test_annotate_anonymous(
     api_test_helper,
     pennsylvania: USStateCreationInfo,
 ):
+
+    # TODO: Update to include session ID
+
+    # TODO: If session ID not included, user gets same annotation as before?
+
     ath = api_test_helper
     ddc = ath.db_data_creator
     rv = ath.request_validator

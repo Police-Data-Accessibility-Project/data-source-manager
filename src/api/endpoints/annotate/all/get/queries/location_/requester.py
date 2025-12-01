@@ -2,7 +2,8 @@ from typing import Sequence
 
 from sqlalchemy import select, func, RowMapping, or_, and_
 
-from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
+from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggestions
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
@@ -15,7 +16,7 @@ from src.db.templates.requester import RequesterBase
 
 class GetLocationSuggestionsRequester(RequesterBase):
 
-    async def get_location_suggestions(self, url_id: int) -> list[LocationAnnotationSuggestion]:
+    async def get_location_suggestions(self, url_id: int) -> list[SuggestionModel]:
         # All locations with either a user or robo annotation
         valid_locations_cte = (
             select(
@@ -70,8 +71,8 @@ class GetLocationSuggestionsRequester(RequesterBase):
         # Join user and robo suggestions
         joined_suggestions_query = (
             select(
-                valid_locations_cte.c.id.label("location_id"),
-                LocationExpandedView.full_display_name.label("location_name"),
+                valid_locations_cte.c.id,
+                LocationExpandedView.full_display_name.label("display_name"),
                 func.coalesce(user_suggestions_cte.c.user_count, 0).label("user_count"),
                 func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label("robo_confidence"),
             )
@@ -102,14 +103,13 @@ class GetLocationSuggestionsRequester(RequesterBase):
         )
 
         mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
-        suggestions: list[LocationAnnotationSuggestion] = [
-            LocationAnnotationSuggestion(
+        suggestions: list[SuggestionModel] = [
+            SuggestionModel(
                 **mapping
             )
             for mapping in mappings
         ]
-        return suggestions
-
+        return sort_suggestions(suggestions)
 
     async def get_not_found_count(self, url_id: int) -> int:
         query = (

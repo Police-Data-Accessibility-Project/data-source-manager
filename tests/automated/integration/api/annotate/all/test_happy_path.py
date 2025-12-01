@@ -1,7 +1,7 @@
 import pytest
 
-from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
 from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
@@ -142,11 +142,11 @@ async def test_annotate_all(
             user_id=99,
         )
     )
-    suggestions: list[LocationAnnotationSuggestion] = response.next_annotation.location_suggestions.suggestions
+    suggestions: list[SuggestionModel] = response.next_annotation.location_suggestions.suggestions
     assert len(suggestions) == 2
 
     response_location_ids: list[int] = [
-        location_suggestion.location_id
+        location_suggestion.id
         for location_suggestion in suggestions]
 
     assert set(response_location_ids) == {
@@ -155,7 +155,7 @@ async def test_annotate_all(
     }
 
     response_location_names: list[str] = [
-        location_suggestion.location_name
+        location_suggestion.display_name
         for location_suggestion in suggestions]
     assert set(response_location_names) == {
         "California",

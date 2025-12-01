@@ -3,7 +3,8 @@ from typing import Sequence
 from sqlalchemy import func, select, RowMapping, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
+from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggestions
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
@@ -26,7 +27,7 @@ class GetAgencySuggestionsRequester(RequesterBase):
         self.url_id = url_id
         self.location_id = location_id
 
-    async def get_agency_suggestions(self) -> list[AgencyAnnotationSuggestion]:
+    async def get_agency_suggestions(self) -> list[SuggestionModel]:
         # All agencies with either a user or robo annotation
         valid_agencies_cte = (
             select(
@@ -83,8 +84,8 @@ class GetAgencySuggestionsRequester(RequesterBase):
         # Join user and robo suggestions
         joined_suggestions_query = (
             select(
-                valid_agencies_cte.c.id.label("agency_id"),
-                Agency.name.label("agency_name"),
+                valid_agencies_cte.c.id,
+                Agency.name.label("display_name"),
                 func.coalesce(user_suggestions_cte.c.user_count, 0).label('user_count'),
                 func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label('robo_confidence'),
             )
@@ -116,13 +117,13 @@ class GetAgencySuggestionsRequester(RequesterBase):
 
         # Return suggestions
         mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
-        suggestions: list[AgencyAnnotationSuggestion] = [
-            AgencyAnnotationSuggestion(
+        suggestions: list[SuggestionModel] = [
+            SuggestionModel(
                 **mapping
             )
             for mapping in mappings
         ]
-        return suggestions
+        return sort_suggestions(suggestions)
 
     async def get_not_found_count(self) -> int:
         query = (
