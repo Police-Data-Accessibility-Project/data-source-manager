@@ -40,6 +40,10 @@ async def search_agency(
         description="The jurisdiction type to search for",
         default=None
     ),
+    page: int = Query(
+        description="The page to search for",
+        default=1
+    ),
     access_info: AccessInfo = Depends(get_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> list[AgencySearchResponse]:
@@ -53,6 +57,7 @@ async def search_agency(
         SearchAgencyQueryBuilder(
             location_id=location_id,
             query=query,
-            jurisdiction_type=jurisdiction_type
+            jurisdiction_type=jurisdiction_type,
+            page=page
         )
     )

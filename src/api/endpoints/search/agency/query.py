@@ -20,11 +20,13 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
         location_id: int | None,
         query: str | None,
         jurisdiction_type: JurisdictionType | None,
+        page: int
     ):
         super().__init__()
         self.location_id = location_id
         self.query = query
         self.jurisdiction_type = jurisdiction_type
+        self.page = page
 
     async def run(self, session: AsyncSession) -> list[AgencySearchResponse]:
 
@@ -68,7 +70,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
                 ).desc()
             )
 
-        query = query.limit(50)
+        query = query.limit(10).offset((self.page - 1) * 10)
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query)
 

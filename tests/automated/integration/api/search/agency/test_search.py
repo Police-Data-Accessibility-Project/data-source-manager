@@ -61,3 +61,13 @@ async def test_search_agency(
         }
     )
     assert len(responses) == 3
+
+    # Test pagination
+    responses = api_test_helper.request_validator.get_v2(
+        url="/search/agency",
+        params={
+            "query": "A Agency",
+            "location_id": allegheny_county.location_id,
+            "page": 2
+        }
+    )
