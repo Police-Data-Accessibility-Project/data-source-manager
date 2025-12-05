@@ -1,3 +1,6 @@
+import uuid
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Query
 
 from src.api.dependencies import get_async_core
@@ -7,8 +10,10 @@ from src.api.endpoints.annotate.all.get.queries.agency.core import GetAgencySugg
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
 from src.api.endpoints.annotate.anonymous.get.query import GetNextURLForAnonymousAnnotationQueryBuilder
+from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
 from src.api.endpoints.annotate.anonymous.post.query import AddAnonymousAnnotationsToURLQueryBuilder
 from src.core.core import AsyncCore
+from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.security.dtos.access_info import AccessInfo
 from src.security.manager import get_access_info
 
@@ -33,26 +38,38 @@ url_id_query = Query(
 @annotate_router.get("/anonymous")
 async def get_next_url_for_all_annotations_anonymous(
     async_core: AsyncCore = Depends(get_async_core),
-) -> GetNextURLForAllAnnotationResponse:
+    session_id: UUID | None = Query(description="The session id of the anonymous user.", default=None)
+) -> GetNextURLForAnonymousAnnotationResponse:
+    # If session_id is not provided, generate new UUID
+    if session_id is None:
+        session_id: uuid.UUID = await async_core.adb_client.run_query_builder(
+            MakeAnonymousSessionQueryBuilder()
+        )
+
     return await async_core.adb_client.run_query_builder(
-        GetNextURLForAnonymousAnnotationQueryBuilder()
+        GetNextURLForAnonymousAnnotationQueryBuilder(session_id=session_id)
     )
+
 
 @annotate_router.post("/anonymous/{url_id}")
 async def annotate_url_for_all_annotations_and_get_next_url_anonymous(
     url_id: int,
     all_annotation_post_info: AllAnnotationPostInfo,
     async_core: AsyncCore = Depends(get_async_core),
-) -> GetNextURLForAllAnnotationResponse:
+    session_id: UUID = Query(description="The session id of the anonymous user")
+) -> GetNextURLForAnonymousAnnotationResponse:
     await async_core.adb_client.run_query_builder(
         AddAnonymousAnnotationsToURLQueryBuilder(
             url_id=url_id,
-            post_info=all_annotation_post_info
+            post_info=all_annotation_post_info,
+            session_id=session_id
         )
     )
 
     return await async_core.adb_client.run_query_builder(
-        GetNextURLForAnonymousAnnotationQueryBuilder()
+        GetNextURLForAnonymousAnnotationQueryBuilder(
+            session_id=session_id
+        )
     )
 
 

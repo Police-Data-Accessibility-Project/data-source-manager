@@ -1,0 +1,3 @@
+
+
+ANONYMOUS_VOTE_RATIO = 0.5

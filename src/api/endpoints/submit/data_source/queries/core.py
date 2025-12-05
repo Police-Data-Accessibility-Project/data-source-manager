@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from sqlalchemy.exc import IntegrityError
@@ -8,6 +9,7 @@ from src.api.endpoints.submit.data_source.request import DataSourceSubmissionReq
 from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -15,9 +17,11 @@ from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDa
 from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
 from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
 from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
+from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
+from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.util.models.full_url import FullURL
 
 
@@ -67,11 +71,23 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         )
         session.add(batch_url_link)
 
+        # Create single-use session id
+        session_id: uuid.UUID = await MakeAnonymousSessionQueryBuilder().run(session=session)
+
+        # Add URL Type Suggestion
+        url_type_suggestion = AnonymousAnnotationURLType(
+            url_id=url_id,
+            url_type=URLType.DATA_SOURCE,
+            session_id=session_id
+        )
+        session.add(url_type_suggestion)
+
         # Optionally add Record Type as suggestion
         if self.request.record_type is not None:
             record_type_suggestion = AnonymousAnnotationRecordType(
                 url_id=url_id,
-                record_type=self.request.record_type.value
+                record_type=self.request.record_type.value,
+                session_id=session_id
             )
             session.add(record_type_suggestion)
 
@@ -80,7 +96,8 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             agency_id_suggestions = [
                 AnonymousAnnotationAgency(
                     url_id=url_id,
-                    agency_id=agency_id
+                    agency_id=agency_id,
+                    session_id=session_id
                 )
                 for agency_id in self.request.agency_ids
             ]
@@ -91,7 +108,8 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             location_id_suggestions = [
                 AnonymousAnnotationLocation(
                     url_id=url_id,
-                    location_id=location_id
+                    location_id=location_id,
+                    session_id=session_id
                 )
                 for location_id in self.request.location_ids
             ]

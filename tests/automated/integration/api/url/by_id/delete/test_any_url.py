@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import pytest
 from sqlalchemy import select
 
@@ -44,6 +46,7 @@ from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelev
 from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
+from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -414,27 +417,34 @@ async def _setup(
             user_id=1,
         )
     )
+    session_id: UUID = await dbc.run_query_builder(
+        MakeAnonymousSessionQueryBuilder()
+    )
     ## ANONYMOUS
     for model in [
         ### Agency
         AnonymousAnnotationAgency(
             url_id=url.url_id,
-            agency_id=agency_id
+            agency_id=agency_id,
+            session_id=session_id,
         ),
         ### Record Type
         AnonymousAnnotationRecordType(
             url_id=url.url_id,
-            record_type=RecordType.BOOKING_REPORTS.value
+            record_type=RecordType.BOOKING_REPORTS.value,
+            session_id=session_id,
         ),
         ### URL Type
         AnonymousAnnotationURLType(
             url_id=url.url_id,
-            url_type=URLType.INDIVIDUAL_RECORD
+            url_type=URLType.INDIVIDUAL_RECORD,
+            session_id=session_id,
         ),
         ### Location
         AnonymousAnnotationLocation(
             url_id=url.url_id,
-            location_id=pittsburgh_id
+            location_id=pittsburgh_id,
+            session_id=session_id
         )
     ]:
         await dbc.add(model)

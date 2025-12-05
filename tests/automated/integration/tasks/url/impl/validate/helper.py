@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
@@ -8,6 +10,7 @@ from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
+from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from tests.conftest import db_data_creator
 from tests.helpers.counter import next_int
 from tests.helpers.data_creator.core import DBDataCreator
@@ -94,6 +97,11 @@ class TestValidateTaskHelper:
                     suggested_agency=agency_id
                 )
             )
+
+    async def get_anonymous_session_id(self) -> UUID:
+        return await self.adb_client.run_query_builder(
+            MakeAnonymousSessionQueryBuilder()
+        )
 
     async def add_location_suggestions(
         self,

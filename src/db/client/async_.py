@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import wraps
 from typing import Optional, Any, List
+from uuid import UUID, uuid4
 
 from sqlalchemy import select, func, Select, and_, update, Row, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncEngine
@@ -77,6 +78,7 @@ from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
+from src.db.models.impl.url.suggestion.anonymous import AnonymousSession
 from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
