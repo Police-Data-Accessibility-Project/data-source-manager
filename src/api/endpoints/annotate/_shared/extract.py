@@ -24,7 +24,7 @@ async def extract_and_format_get_annotation_result(
     session: AsyncSession,
     url: URL,
     batch_id: int | None = None
-):
+) -> GetNextURLForAllAnnotationResponse:
     html_response_info = DTOConverter.html_content_list_to_html_response_info(
         url.html_content
     )

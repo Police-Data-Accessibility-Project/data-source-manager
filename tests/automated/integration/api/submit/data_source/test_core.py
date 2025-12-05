@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 
 import pytest
 
@@ -7,6 +8,7 @@ from src.collectors.enums import URLStatus
 from src.core.enums import RecordType, BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -15,6 +17,8 @@ from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationE
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
 from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
+from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
+from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -91,20 +95,34 @@ async def test_submit_data_source(
     assert batch_url_link.batch_id == batch.id
     assert batch_url_link.url_id == url.id
 
+    # Check for anonymous annotations
+    url_type_suggestion: AnonymousAnnotationURLType = await adb_client.one_or_none_model(AnonymousAnnotationURLType)
+    assert url_type_suggestion is not None
+    assert url_type_suggestion.url_id == url.id
+    assert url_type_suggestion.url_type == URLType.DATA_SOURCE
+    session_id: UUID = url_type_suggestion.session_id
+
     # Check for Location Suggestion
     location_suggestion: AnonymousAnnotationLocation = await adb_client.one_or_none_model(AnonymousAnnotationLocation)
     assert location_suggestion is not None
     assert location_suggestion.location_id == pittsburgh_locality.location_id
+    assert location_suggestion.session_id == session_id
 
     # Check for Agency Suggestion
     agency_suggestion: AnonymousAnnotationAgency = await adb_client.one_or_none_model(AnonymousAnnotationAgency)
     assert agency_suggestion is not None
     assert agency_suggestion.agency_id == test_agency_id
+    assert agency_suggestion.session_id == session_id
 
     # Check for Name Suggestion
     name_suggestion: URLNameSuggestion = await adb_client.one_or_none_model(URLNameSuggestion)
     assert name_suggestion is not None
     assert name_suggestion.suggestion == "Example name"
+
+    # Check for Record Type Suggestion
+    record_type_suggestion: AnonymousAnnotationRecordType = await adb_client.one_or_none_model(AnonymousAnnotationRecordType)
+    assert record_type_suggestion.record_type == RecordType.COMPLAINTS_AND_MISCONDUCT
+    assert record_type_suggestion.session_id == session_id
 
     # Check for URL DS Optional Metadata
     optional_ds: URLOptionalDataSourceMetadata = await adb_client.one_or_none_model(URLOptionalDataSourceMetadata)

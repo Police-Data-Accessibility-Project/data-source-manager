@@ -5,6 +5,7 @@ from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, event
 from src.db.models.exceptions import WriteToViewError
 from src.db.models.helpers import get_created_at_column, CURRENT_TIME_SERVER_DEFAULT, url_id_primary_key_constraint, \
     VIEW_ARG
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class URLDependentMixin:
@@ -96,4 +97,14 @@ class URLDependentViewMixin(URLDependentMixin, ViewMixin):
     __table_args__ = (
         url_id_primary_key_constraint(),
         VIEW_ARG
+    )
+
+class AnonymousSessionMixin:
+    session_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            'anonymous_sessions.id',
+            ondelete="CASCADE",
+        ),
+        nullable=False
     )
