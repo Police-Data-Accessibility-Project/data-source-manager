@@ -48,10 +48,10 @@ async def test_annotate_anonymous(
     session_id: UUID = get_response_1.session_id
     assert session_id is not None
     assert get_response_1.next_annotation is not None
-    assert len(get_response_1.next_annotation.name_suggestions) == 1
-    name_suggestion: NameAnnotationSuggestion = get_response_1.next_annotation.name_suggestions[0]
-    assert name_suggestion.name is not None
-    assert name_suggestion.endorsement_count == 0
+    assert len(get_response_1.next_annotation.name_suggestions.suggestions) == 1
+    name_suggestion: NameAnnotationSuggestion = get_response_1.next_annotation.name_suggestions.suggestions[0]
+    assert name_suggestion.display_name is not None
+    assert name_suggestion.user_count == 0
 
     agency_id: int = await ddc.agency()
 
