@@ -1,11 +1,12 @@
 from typing import Sequence
 
-from sqlalchemy import select, func, RowMapping
+from sqlalchemy import select, func, RowMapping, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion, NameAnnotationResponseOuterInfo
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 
@@ -19,14 +20,18 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
         super().__init__()
         self.url_id = url_id
 
-    async def run(self, session: AsyncSession) -> list[NameAnnotationSuggestion]:
+    async def run(self, session: AsyncSession) -> NameAnnotationResponseOuterInfo:
         query = (
             select(
-                URLNameSuggestion.id.label('suggestion_id'),
-                URLNameSuggestion.suggestion.label('name'),
+                URLNameSuggestion.id.label('id'),
+                URLNameSuggestion.suggestion.label('display_name'),
                 func.count(
                     LinkUserNameSuggestion.user_id
-                ).label('endorsement_count'),
+                ).label('user_count'),
+                case(
+                    (URLNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE, 1),
+                    else_=0
+                ).label("robo_count")
             )
             .outerjoin(
                 LinkUserNameSuggestion,
@@ -47,12 +52,15 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
-        return [
+        suggestions = [
             NameAnnotationSuggestion(
                 **mapping
             )
             for mapping in mappings
         ]
+        return NameAnnotationResponseOuterInfo(
+            suggestions=suggestions
+        )
 
 
 

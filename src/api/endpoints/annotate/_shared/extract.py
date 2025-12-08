@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
 from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationResponseOuterInfo
-from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
-from src.api.endpoints.annotate.all.get.models.record_type import RecordTypeAnnotationSuggestion
+from src.api.endpoints.annotate.all.get.models.name import NameAnnotationResponseOuterInfo
+from src.api.endpoints.annotate.all.get.models.record_type import RecordTypeAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse, \
     GetNextURLForAllAnnotationInnerResponse
 from src.api.endpoints.annotate.all.get.models.url_type import URLTypeAnnotationSuggestion
@@ -32,7 +32,7 @@ async def extract_and_format_get_annotation_result(
         convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
             url.user_relevant_suggestions
         )
-    record_type_suggestions: list[RecordTypeAnnotationSuggestion] = \
+    record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = \
         convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
             url.user_record_type_suggestions
         )
@@ -40,7 +40,7 @@ async def extract_and_format_get_annotation_result(
         await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
     location_suggestions: LocationAnnotationResponseOuterInfo = \
         await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
-    name_suggestions: list[NameAnnotationSuggestion] = \
+    name_suggestions: NameAnnotationResponseOuterInfo = \
         await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
     return GetNextURLForAllAnnotationResponse(
         next_annotation=GetNextURLForAllAnnotationInnerResponse(

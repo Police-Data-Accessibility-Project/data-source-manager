@@ -48,10 +48,10 @@ async def test_annotate_all(
     # Get a valid URL to annotate
     get_response_1 = await ath.request_validator.get_next_url_for_all_annotations()
     assert get_response_1.next_annotation is not None
-    assert len(get_response_1.next_annotation.name_suggestions) == 1
-    name_suggestion = get_response_1.next_annotation.name_suggestions[0]
-    assert name_suggestion.name is not None
-    assert name_suggestion.endorsement_count == 0
+    assert len(get_response_1.next_annotation.name_suggestions.suggestions) == 1
+    name_suggestion = get_response_1.next_annotation.name_suggestions.suggestions[0]
+    assert name_suggestion.display_name is not None
+    assert name_suggestion.user_count == 0
 
     # Apply the second batch id as a filter and see that a different URL is returned
     get_response_2 = await ath.request_validator.get_next_url_for_all_annotations(
