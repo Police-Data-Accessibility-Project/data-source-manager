@@ -1,7 +1,7 @@
 from sqlalchemy import select, Column, CTE
 
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 
 
 class AnnotatedAndValidatedCTEContainer:

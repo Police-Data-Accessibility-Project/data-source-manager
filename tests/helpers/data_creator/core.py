@@ -10,9 +10,9 @@ from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetad
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
-from src.db.models.impl.agency.enums import AgencyType
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
@@ -68,12 +68,19 @@ class DBDataCreator:
     """
     Assists in the creation of test data
     """
-    def __init__(self, db_client: Optional[DatabaseClient] = None):
+    def __init__(
+        self,
+        db_client: DatabaseClient | None = None,
+        adb_client: AsyncDatabaseClient | None = None
+    ):
         if db_client is not None:
             self.db_client = db_client
         else:
             self.db_client = DatabaseClient()
-        self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
+        if adb_client is not None:
+            self.adb_client = adb_client
+        else:
+            self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
         self.clients = DBDataCreatorClientContainer(
             adb=self.adb_client,
             db=self.db_client
@@ -398,8 +405,8 @@ class DBDataCreator:
         record_type: RecordType = RecordType.RESOURCES,
         validation_type: URLType = URLType.DATA_SOURCE,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -414,8 +421,8 @@ class DBDataCreator:
         self,
         record_type: RecordType = RecordType.RESOURCES,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -436,9 +443,9 @@ class DBDataCreator:
         collector_metadata: dict | None = None,
         count: int = 1,
         batch_id: int | None = None
-    ) -> list[URLMapping]:
+    ) -> list[SimpleURLMapping]:
 
-        url_mappings: list[URLMapping] = await create_urls(
+        url_mappings: list[SimpleURLMapping] = await create_urls(
             adb_client=self.adb_client,
             status=status,
             source=source,
@@ -515,9 +522,10 @@ class DBDataCreator:
 
     async def create_agency(self, agency_id: int = 1) -> None:
         agency = Agency(
-            agency_id=agency_id,
+            id=agency_id,
             name=generate_test_name(agency_id),
-            agency_type=AgencyType.UNKNOWN
+            agency_type=AgencyType.UNKNOWN,
+            jurisdiction_type=JurisdictionType.LOCAL
         )
         await self.adb_client.add_all([agency])
 
@@ -527,9 +535,10 @@ class DBDataCreator:
         for _ in range(count):
             agency_id = next_int()
             agency = Agency(
-                agency_id=agency_id,
+                id=agency_id,
                 name=generate_test_name(agency_id),
-                agency_type=AgencyType.UNKNOWN
+                agency_type=AgencyType.UNKNOWN,
+                jurisdiction_type=JurisdictionType.LOCAL
             )
             agencies.append(agency)
             agency_ids.append(agency_id)

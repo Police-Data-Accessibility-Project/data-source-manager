@@ -12,6 +12,7 @@ class AgencyIDSubtaskSuggestion(
 ):
     __tablename__ = "agency_id_subtask_suggestions"
 
+
     subtask_id = sa.Column(
         sa.Integer,
         sa.ForeignKey("url_auto_agency_id_subtasks.id"),

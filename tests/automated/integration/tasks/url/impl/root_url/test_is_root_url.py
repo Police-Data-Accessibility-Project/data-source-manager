@@ -23,7 +23,8 @@ async def test_is_root_url(
     # Add URL that is a root URL
     url_insert_model = URLInsertModel(
         url=ROOT_URL,
-        source=URLSource.DATA_SOURCES
+        source=URLSource.DATA_SOURCES,
+        trailing_slash=False
     )
     url_id = (await operator.adb_client.bulk_insert([url_insert_model], return_ids=True))[0]
 

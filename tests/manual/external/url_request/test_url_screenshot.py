@@ -12,7 +12,7 @@ async def test_url_screenshot():
     """
 
     urls: list[str] = [
-        "https://www.example.com"
+        "www.example.com"
     ]
 
     responses: list[URLScreenshotResponse] = await get_screenshots(urls=urls)

@@ -8,7 +8,7 @@ from src.core.tasks.url.operators.screenshot.models.subsets import URLScreenshot
 from src.core.tasks.url.operators.screenshot.queries.get import GetURLsForScreenshotTaskQueryBuilder
 from src.core.tasks.url.operators.screenshot.queries.prereq import URLsForScreenshotTaskPrerequisitesQueryBuilder
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.url.screenshot.pydantic import URLScreenshotPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
@@ -31,7 +31,7 @@ class URLScreenshotTaskOperator(URLTaskOperatorBase):
             URLsForScreenshotTaskPrerequisitesQueryBuilder()
         )
 
-    async def get_urls_without_screenshot(self) -> list[URLMapping]:
+    async def get_urls_without_screenshot(self) -> list[SimpleURLMapping]:
         return await self.adb_client.run_query_builder(
             GetURLsForScreenshotTaskQueryBuilder()
         )
@@ -47,7 +47,7 @@ class URLScreenshotTaskOperator(URLTaskOperatorBase):
         await self.add_task_errors(insert_models)
 
     async def inner_task_logic(self) -> None:
-        url_mappings: list[URLMapping] = await self.get_urls_without_screenshot()
+        url_mappings: list[SimpleURLMapping] = await self.get_urls_without_screenshot()
         await self.link_urls_to_task(
             url_ids=[url_mapping.url_id for url_mapping in url_mappings]
         )

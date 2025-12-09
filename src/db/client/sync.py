@@ -1,41 +1,44 @@
 from functools import wraps
 from typing import List
 
-from sqlalchemy import create_engine, update, Select
+from sqlalchemy import create_engine, Select, Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
-from src.collectors.enums import URLStatus
-from src.db.config_manager import ConfigManager
-from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
-from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.models.impl.log.pydantic.info import LogInfo
-from src.db.dtos.url.mapping import URLMapping
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.core.pydantic.info import URLInfo
-from src.db.models.templates_.base import Base
-from src.db.models.impl.duplicate.sqlalchemy import Duplicate
-from src.db.models.impl.log.sqlalchemy import Log
-from src.db.models.impl.url.data_source.sqlalchemy import URLDataSource
-from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.batch.sqlalchemy import Batch
-from src.core.tasks.url.operators.submit_approved.tdo import SubmittedURLInfo
-from src.core.env_var_manager import EnvVarManager
 from src.core.enums import BatchStatus
+from src.core.env_var_manager import EnvVarManager
+from src.db.config_manager import ConfigManager
+from src.db.dtos.url.insert import InsertURLsInfo
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
+from src.db.models.impl.batch.pydantic.info import BatchInfo
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
+from src.db.models.impl.duplicate.sqlalchemy import Duplicate
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.log.pydantic.info import LogInfo
+from src.db.models.impl.log.sqlalchemy import Log
+from src.db.models.impl.url.core.pydantic.info import URLInfo
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.templates_.base import Base
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 # Database Client
 class DatabaseClient:
-    def __init__(self, db_url: str | None = None):
+    def __init__(
+        self,
+        engine: Engine | None = None
+    ):
         """Initialize the DatabaseClient."""
-        if db_url is None:
+        if engine is None:
             db_url = EnvVarManager.get().get_postgres_connection_string(is_async=True)
+            engine = create_engine(
+                url=db_url,
+                echo=ConfigManager.get_sqlalchemy_echo(),
+            )
 
-        self.engine = create_engine(
-            url=db_url,
-            echo=ConfigManager.get_sqlalchemy_echo(),
-        )
+        self.engine = engine
         self.session_maker = scoped_session(sessionmaker(bind=self.engine))
         self.session = None
 
@@ -116,11 +119,14 @@ class DatabaseClient:
     @session_manager
     def insert_url(self, session, url_info: URLInfo) -> int:
         """Insert a new URL into the database."""
+        url_and_scheme: URLAndScheme = get_url_and_scheme(url_info.url)
         url_entry = URL(
-            url=url_info.url,
+            url=url_and_scheme.url,
+            scheme=url_and_scheme.scheme,
             collector_metadata=url_info.collector_metadata,
             status=url_info.status,
             name=url_info.name,
+            trailing_slash=url_and_scheme.url.endswith('/'),
             source=url_info.source
         )
         if url_info.created_at is not None:
@@ -137,13 +143,13 @@ class DatabaseClient:
         return url_entry.id
 
     def insert_urls(self, url_infos: List[URLInfo], batch_id: int) -> InsertURLsInfo:
-        url_mappings = []
+        url_mappings: list[SimpleURLMapping] = []
         duplicates = []
         for url_info in url_infos:
             url_info.batch_id = batch_id
             try:
                 url_id = self.insert_url(url_info)
-                url_mappings.append(URLMapping(url_id=url_id, url=url_info.url))
+                url_mappings.append(SimpleURLMapping(url_id=url_id, url=url_info.url))
             except IntegrityError as e:
                 orig_url_info = self.get_url_info_by_url(url_info.url)
                 duplicate_info = DuplicateInsertInfo(
@@ -210,25 +216,6 @@ class DatabaseClient:
     ):
         url = session.query(URL).filter_by(id=url_info.id).first()
         url.collector_metadata = url_info.collector_metadata
-
-    @session_manager
-    def mark_urls_as_submitted(
-            self,
-            session: Session,
-            infos: list[SubmittedURLInfo]
-    ):
-        for info in infos:
-            url_id = info.url_id
-            data_source_id = info.data_source_id
-
-            url_data_source_object = URLDataSource(
-                url_id=url_id,
-                data_source_id=data_source_id
-            )
-            if info.submitted_at is not None:
-                url_data_source_object.created_at = info.submitted_at
-            session.add(url_data_source_object)
-
 
 if __name__ == "__main__":
     client = DatabaseClient()

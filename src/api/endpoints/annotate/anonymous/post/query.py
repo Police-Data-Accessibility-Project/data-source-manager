@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
@@ -11,10 +13,12 @@ from src.db.queries.base.builder import QueryBuilderBase
 class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
     def __init__(
         self,
+        session_id: UUID,
         url_id: int,
         post_info: AllAnnotationPostInfo
     ):
         super().__init__()
+        self.session_id = session_id
         self.url_id = url_id
         self.post_info = post_info
 
@@ -22,14 +26,16 @@ class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
         url_type_suggestion = AnonymousAnnotationURLType(
             url_id=self.url_id,
-            url_type=self.post_info.suggested_status
+            url_type=self.post_info.suggested_status,
+            session_id=self.session_id
         )
         session.add(url_type_suggestion)
 
         if self.post_info.record_type is not None:
             record_type_suggestion = AnonymousAnnotationRecordType(
                 url_id=self.url_id,
-                record_type=self.post_info.record_type
+                record_type=self.post_info.record_type,
+                session_id=self.session_id
             )
             session.add(record_type_suggestion)
 
@@ -37,7 +43,8 @@ class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
             location_suggestions = [
                 AnonymousAnnotationLocation(
                     url_id=self.url_id,
-                    location_id=location_id
+                    location_id=location_id,
+                    session_id=self.session_id
                 )
                 for location_id in self.post_info.location_info.location_ids
             ]
@@ -47,7 +54,8 @@ class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
             agency_suggestions = [
                 AnonymousAnnotationAgency(
                     url_id=self.url_id,
-                    agency_id=agency_id
+                    agency_id=agency_id,
+                    session_id=self.session_id
                 )
                 for agency_id in self.post_info.agency_info.agency_ids
             ]

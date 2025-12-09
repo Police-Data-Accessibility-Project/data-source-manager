@@ -48,11 +48,13 @@ def generate_urls(
     for i in range(count):
         val: int = next_int()
         results.append(URLInsertModel(
-            url=f"http://example.com/{val}",
+            url=f"example.com/{val}",
+            scheme="https",
             status=status,
             source=source,
             name=f"Example {val}",
             collector_metadata=collector_metadata,
+            trailing_slash=False
         ))
     return results
 
@@ -74,7 +76,7 @@ def generate_url_data_sources(
     return [
         URLDataSourcePydantic(
             url_id=url_id,
-            data_source_id=url_id,
+            ds_data_source_id=url_id,
         )
         for url_id in url_ids
     ]

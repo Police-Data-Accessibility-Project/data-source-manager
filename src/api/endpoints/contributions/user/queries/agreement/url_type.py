@@ -3,7 +3,7 @@ from sqlalchemy import select, func, and_
 from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 
 
 def get_url_type_agreement_cte_container(

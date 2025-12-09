@@ -1,0 +1,4 @@
+
+
+class IntegrityMonitorTaskException(Exception):
+    pass

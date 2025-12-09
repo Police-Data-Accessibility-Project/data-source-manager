@@ -1,5 +1,7 @@
 from sqlalchemy import select, or_, func, text
 
+from src.db.enums import TaskType
+from src.db.helpers.query import no_url_task_error
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
@@ -9,7 +11,7 @@ from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 IA_SAVE_VALID_ENTRIES_QUERY = (
     select(
         URL.id,
-        URL.url,
+        URL.full_url.label("url"),
         (URLInternetArchivesSaveMetadata.url_id.is_(None)).label("is_new"),
     )
     # URL must have been previously probed for its online status.
@@ -39,6 +41,7 @@ IA_SAVE_VALID_ENTRIES_QUERY = (
             URLInternetArchivesSaveMetadata.url_id.is_(None),
             URLInternetArchivesSaveMetadata.last_uploaded_at < func.now() - text("INTERVAL '1 month'")
         ),
+        no_url_task_error(TaskType.IA_SAVE),
         # Must have returned a 200 status code
         URLWebMetadata.status_code == 200
     )

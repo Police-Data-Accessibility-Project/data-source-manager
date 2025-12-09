@@ -20,17 +20,19 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
         location_id: int | None,
         query: str | None,
         jurisdiction_type: JurisdictionType | None,
+        page: int
     ):
         super().__init__()
         self.location_id = location_id
         self.query = query
         self.jurisdiction_type = jurisdiction_type
+        self.page = page
 
     async def run(self, session: AsyncSession) -> list[AgencySearchResponse]:
 
         query = (
             select(
-                Agency.agency_id,
+                Agency.id.label("agency_id"),
                 Agency.name.label("agency_name"),
                 Agency.jurisdiction_type,
                 Agency.agency_type,
@@ -40,7 +42,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
         if self.location_id is None:
             query = query.join(
                 LinkAgencyLocation,
-                LinkAgencyLocation.agency_id == Agency.agency_id
+                LinkAgencyLocation.agency_id == Agency.id
             ).join(
                 LocationExpandedView,
                 LocationExpandedView.id == LinkAgencyLocation.location_id
@@ -49,7 +51,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
             with_location_id_cte_container = WithLocationIdCTEContainer(self.location_id)
             query = query.join(
                 with_location_id_cte_container.cte,
-                with_location_id_cte_container.agency_id == Agency.agency_id
+                with_location_id_cte_container.agency_id == Agency.id
             ).join(
                 LocationExpandedView,
                 LocationExpandedView.id == with_location_id_cte_container.location_id
@@ -68,7 +70,7 @@ class SearchAgencyQueryBuilder(QueryBuilderBase):
                 ).desc()
             )
 
-        query = query.limit(50)
+        query = query.limit(10).offset((self.page - 1) * 10)
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query)
 

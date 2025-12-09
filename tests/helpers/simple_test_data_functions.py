@@ -10,14 +10,14 @@ from tests.helpers.counter import next_int
 def generate_test_urls(count: int) -> list[str]:
     results = []
     for i in range(count):
-        url = f"https://example.com/{uuid.uuid4().hex}"
+        url = f"example.com/{uuid.uuid4().hex}"
         results.append(url)
 
     return results
 
 
 def generate_test_url(i: int) -> str:
-    return f"https://test.com/{i}"
+    return f"test.com/{i}"
 
 def generate_test_name(i: int | None = None) -> str:
     if i is None:

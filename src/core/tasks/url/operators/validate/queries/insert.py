@@ -4,14 +4,14 @@ from sqlalchemy import update, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.tasks.url.operators.validate.queries.get.models.response import GetURLsForAutoValidationResponse
+from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.flag.auto_validated.pydantic import FlagURLAutoValidatedPydantic
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.link.url_agency.pydantic import LinkURLAgencyPydantic
-from src.db.models.impl.url.core.pydantic.upsert import URLUpsertModel
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.record_type.pydantic import URLRecordTypePydantic
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.helpers.session import session_helper as sh
+
 
 class InsertURLAutoValidationsQueryBuilder(QueryBuilderBase):
 

@@ -1,6 +1,6 @@
 import pytest
 
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.helpers.api_test_helper import APITestHelper
@@ -15,7 +15,7 @@ async def test_get_url_screenshot_success(
     ddc: DBDataCreator = api_test_helper.db_data_creator
     rv: RequestValidator = ath.request_validator
 
-    url_mapping: URLMapping = (await ddc.create_urls())[0]
+    url_mapping: SimpleURLMapping = (await ddc.create_urls())[0]
     url_id: int = url_mapping.url_id
 
     url_screenshot = URLScreenshot(

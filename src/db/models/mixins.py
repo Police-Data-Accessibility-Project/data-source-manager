@@ -3,7 +3,9 @@ from typing import ClassVar
 from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, event
 
 from src.db.models.exceptions import WriteToViewError
-from src.db.models.helpers import get_created_at_column, CURRENT_TIME_SERVER_DEFAULT
+from src.db.models.helpers import get_created_at_column, CURRENT_TIME_SERVER_DEFAULT, url_id_primary_key_constraint, \
+    VIEW_ARG
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class URLDependentMixin:
@@ -58,9 +60,15 @@ class AgencyDependentMixin:
         nullable=False
     )
 
-
 class CreatedAtMixin:
     created_at = get_created_at_column()
+
+class LastSyncedAtMixin:
+    last_synced_at = Column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=CURRENT_TIME_SERVER_DEFAULT
+    )
 
 
 class UpdatedAtMixin:
@@ -84,3 +92,19 @@ class ViewMixin:
     @staticmethod
     def _block_write(mapper, connection, target):
         raise WriteToViewError(f"{type(target).__name__} is a read-only view.")
+
+class URLDependentViewMixin(URLDependentMixin, ViewMixin):
+    __table_args__ = (
+        url_id_primary_key_constraint(),
+        VIEW_ARG
+    )
+
+class AnonymousSessionMixin:
+    session_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            'anonymous_sessions.id',
+            ondelete="CASCADE",
+        ),
+        nullable=False
+    )

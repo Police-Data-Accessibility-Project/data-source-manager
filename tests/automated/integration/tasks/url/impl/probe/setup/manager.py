@@ -8,6 +8,7 @@ from src.external.url_request.core import URLRequestInterface
 from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.response import URLProbeResponse
 from src.external.url_request.probe.models.wrapper import URLProbeResponseOuterWrapper
+from src.util.models.full_url import FullURL
 from tests.automated.integration.tasks.url.impl.probe.constants import TEST_URL, TEST_DEST_URL, TEST_SOURCE
 from tests.automated.integration.tasks.url.impl.probe.mocks.url_request_interface import MockURLRequestInterface
 
@@ -28,7 +29,8 @@ class TestURLProbeSetupManager:
         url_insert_model = URLInsertModel(
             url=url,
             status=url_status,
-            source=TEST_SOURCE
+            source=TEST_SOURCE,
+            trailing_slash=False
         )
         return (
             await self.adb_client.bulk_insert(
@@ -60,9 +62,9 @@ class TestURLProbeSetupManager:
         url: str = TEST_URL
     ) -> URLProbeResponseOuterWrapper:
         return URLProbeResponseOuterWrapper(
-            original_url=url,
+            original_url=FullURL(url),
             response=URLProbeResponse(
-                url=url,
+                url=FullURL(url),
                 status_code=status_code,
                 content_type=content_type,
                 error=error
@@ -75,8 +77,8 @@ class TestURLProbeSetupManager:
         dest_status_code: int,
         dest_content_type: str | None,
         dest_error: str | None,
-        source_url: str = TEST_URL,
-        redirect_url: str = TEST_DEST_URL
+        source_url: FullURL = FullURL(TEST_URL),
+        redirect_url: FullURL = FullURL(TEST_DEST_URL)
     ) -> URLProbeResponseOuterWrapper:
         if redirect_status_code not in (301, 302, 303, 307, 308):
             raise ValueError('Redirect response must be one of 301, 302, 303, 307, 308')

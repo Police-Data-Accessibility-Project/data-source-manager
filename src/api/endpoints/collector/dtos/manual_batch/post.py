@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.api.shared.models.request_base import RequestBase
 from src.core.enums import RecordType
 
 
@@ -16,7 +17,7 @@ class ManualBatchInnerInputDTO(BaseModel):
     supplying_entity: str | None = None
 
 
-class ManualBatchInputDTO(BaseModel):
+class ManualBatchInputDTO(RequestBase):
     name: str
     entries: list[ManualBatchInnerInputDTO] = Field(
         min_length=1,

@@ -13,7 +13,7 @@ class URLScreenshotPrerequisitesCTEContainer:
         self._cte: CTE = (
             select(
                 URL.id.label("url_id"),
-                URL.url,
+                URL.full_url.label("url"),
             )
             .join(
                 URLWebMetadata,

@@ -12,14 +12,14 @@ from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserName
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.utils.validate import is_valid_url
-from src.util.clean import clean_url
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import clean_url, get_url_and_scheme, is_valid_url
 
 
 class SubmitURLQueryBuilder(QueryBuilderBase):
@@ -41,11 +41,13 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
         if not valid:
             return convert_invalid_url_to_url_response(url_original)
 
-        # Clean URLs
+        # Clean URL
         url_clean: str = clean_url(url_original)
 
+        url_and_scheme: URLAndScheme = get_url_and_scheme(url_clean)
+
         # Check if duplicate
-        is_duplicate: bool = await DeduplicateURLQueryBuilder(url=url_clean).run(session)
+        is_duplicate: bool = await DeduplicateURLQueryBuilder(url=url_and_scheme.url).run(session)
         if is_duplicate:
             return convert_duplicate_urls_to_url_response(
                 clean_url=url_clean,
@@ -56,9 +58,12 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add URL
         url_insert = URL(
-            url=url_clean,
+            url=url_and_scheme.url,
+            scheme=url_and_scheme.scheme,
             source=URLSource.MANUAL,
             status=URLStatus.OK,
+            description=self.request.description,
+            trailing_slash=url_and_scheme.url.endswith('/'),
         )
         session.add(url_insert)
         await session.flush()
@@ -108,7 +113,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add agency ID as suggestion if exists
         if self.request.agency_id is not None:
-            agen_sugg = UserUrlAgencySuggestion(
+            agen_sugg = UserURLAgencySuggestion(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 agency_id=self.request.agency_id

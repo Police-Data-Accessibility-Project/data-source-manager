@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.handler import TaskHandler
 from src.core.tasks.mixins.link_urls import LinkURLsMixin
@@ -5,6 +7,7 @@ from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
 from src.core.tasks.scheduled.loader import ScheduledTaskOperatorLoader
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.core.tasks.scheduled.registry.core import ScheduledJobRegistry
+from src.core.tasks.scheduled.registry.format import format_job_datetime
 from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase
 
 
@@ -44,12 +47,17 @@ class AsyncScheduledTaskManager:
             enabled_entries.append(entry)
 
         initial_lag: int = 1
+
+        print("Adding the following scheduled tasks:")
+        print(f"TASK_NAME                | TASK_INTERVAL")
         for idx, entry in enumerate(enabled_entries):
-            await self._registry.add_job(
+            next_run_time: datetime = await self._registry.add_job(
                 func=self.run_task,
                 entry=entry,
                 minute_lag=idx + initial_lag
             )
+            run_time_str: str = format_job_datetime(next_run_time)
+            print(f"{entry.operator.task_type.value:<25}| {run_time_str}")
 
     def shutdown(self):
         self._registry.shutdown_scheduler()

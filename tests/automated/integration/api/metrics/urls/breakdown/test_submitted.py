@@ -48,10 +48,6 @@ async def test_get_urls_breakdown_submitted_metrics(api_test_helper):
                 status=URLCreationEnum.SUBMITTED
             ),
             TestURLCreationParameters(
-                count=4,
-                status=URLCreationEnum.ERROR
-            ),
-            TestURLCreationParameters(
                 count=5,
                 status=URLCreationEnum.VALIDATED
             ),

@@ -6,14 +6,12 @@ from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
 from src.api.endpoints.review.approve.query_.util import update_if_not_none
-from src.collectors.enums import URLStatus
-from src.db.constants import PLACEHOLDER_AGENCY_NAME
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
 from src.db.queries.base.builder import QueryBuilderBase
@@ -39,7 +37,7 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
 
         # Get existing agency ids
         existing_agencies = url.confirmed_agencies or []
-        existing_agency_ids = [agency.agency_id for agency in existing_agencies]
+        existing_agency_ids = [agency.id for agency in existing_agencies]
         new_agency_ids = self.approval_info.agency_ids or []
         await self._check_for_unspecified_agency_ids(existing_agency_ids, new_agency_ids)
 
@@ -68,9 +66,10 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
         optional_metadata = url.optional_data_source_metadata
         if optional_metadata is None:
             url.optional_data_source_metadata = URLOptionalDataSourceMetadata(
-                record_formats=self.approval_info.record_formats,
+                record_formats=self.approval_info.record_formats or [],
                 data_portal_type=self.approval_info.data_portal_type,
-                supplying_entity=self.approval_info.supplying_entity
+                supplying_entity=self.approval_info.supplying_entity,
+                access_types=[]
             )
         else:
             update_if_not_none(
@@ -143,7 +142,7 @@ class ApproveURLQueryBuilder(QueryBuilderBase):
             # Check if the new agency exists in the database
             query = (
                 select(Agency)
-                .where(Agency.agency_id == new_agency_id)
+                .where(Agency.id == new_agency_id)
             )
             existing_agency = await session.execute(query)
             existing_agency = existing_agency.scalars().first()

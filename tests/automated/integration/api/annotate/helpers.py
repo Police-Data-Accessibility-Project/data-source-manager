@@ -1,10 +1,10 @@
 from src.core.tasks.url.operators.html.scraper.parser.dtos.response_html import ResponseHTMLInfo
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 
 
 def check_url_mappings_match(
-    map_1: URLMapping,
-    map_2: URLMapping
+    map_1: SimpleURLMapping,
+    map_2: SimpleURLMapping
 ):
     assert map_1.url_id == map_2.url_id
     assert map_2.url == map_2.url

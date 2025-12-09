@@ -11,7 +11,7 @@ def get_agency_id_foreign_column(
     return Column(
         'agency_id',
         Integer(),
-        ForeignKey('agencies.agency_id', ondelete='CASCADE'),
+        ForeignKey('agencies.id', ondelete='CASCADE'),
         nullable=nullable
     )
 
@@ -46,8 +46,11 @@ def location_id_column() -> Column[int]:
 
 CURRENT_TIME_SERVER_DEFAULT = func.now()
 
+VIEW_ARG = {"info": "view"}
+
 def url_id_primary_key_constraint() -> PrimaryKeyConstraint:
     return PrimaryKeyConstraint('url_id')
+
 
 def county_column(nullable: bool = False) -> Column[int]:
     return Column(

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.db.models.impl.url.ds_meta_url.sqlalchemy import URLDSMetaURL
+from src.db.models.impl.url.ds_meta_url.sqlalchemy import DSAppLinkMetaURL
 
 
 class URLDSMetaURLPydantic(BaseModel):
@@ -10,5 +10,5 @@ class URLDSMetaURLPydantic(BaseModel):
     agency_id: int
 
     @classmethod
-    def sa_model(cls) -> type[URLDSMetaURL]:
-        return URLDSMetaURL
+    def sa_model(cls) -> type[DSAppLinkMetaURL]:
+        return DSAppLinkMetaURL

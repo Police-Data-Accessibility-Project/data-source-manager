@@ -3,23 +3,23 @@ from typing import Sequence
 from sqlalchemy import select, tuple_, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.tasks.url.operators.probe.queries.insert_redirects.convert import convert_to_url_mappings, \
-    convert_to_url_insert_models, convert_tdo_to_url_response_mappings, \
+from src.core.tasks.url.operators.probe.queries.insert_redirects.convert import convert_to_url_insert_models, \
+    convert_tdo_to_url_response_mappings, \
     convert_url_response_mapping_to_web_metadata_list
 from src.core.tasks.url.operators.probe.queries.insert_redirects.map import map_url_mappings_to_probe_responses
 from src.core.tasks.url.operators.probe.queries.insert_redirects.models.url_response_map import URLResponseMapping
-from src.core.tasks.url.operators.probe.queries.urls.exist.model import UrlExistsResult
-from src.core.tasks.url.operators.probe.queries.urls.exist.query import URLsExistInDBQueryBuilder
+from src.db.queries.urls_exist.model import URLExistsResult
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.full import FullURLMapping
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.link.url_redirect_url.pydantic import LinkURLRedirectURLPydantic
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.insert import URLWebMetadataPydantic
+from src.db.queries.urls_exist.query import URLsExistInDBQueryBuilder
 from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 from src.external.url_request.probe.models.response import URLProbeResponse
-from src.util.url_mapper import URLMapper
+from src.util.models.full_url import FullURL
+from src.util.url_mapper_.full import FullURLMapper
 
 
 class InsertRedirectsRequestManager:
@@ -27,24 +27,23 @@ class InsertRedirectsRequestManager:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_url_mappings_in_db(
+    async def check_if_urls_exist_in_db(
         self,
-        urls: list[str],
-    ):
-        results: list[UrlExistsResult] = await URLsExistInDBQueryBuilder(
-            urls=urls
+        urls: list[FullURL],
+    ) -> list[URLExistsResult]:
+        results: list[URLExistsResult] = await URLsExistInDBQueryBuilder(
+            full_urls=urls
         ).run(self.session)
-        extant_urls = [result for result in results if result.exists]
-        return convert_to_url_mappings(extant_urls)
+        return results
 
-    async def insert_new_urls(self, urls: list[str]) -> list[URLMapping]:
+    async def insert_new_urls(self, urls: list[FullURL]) -> list[FullURLMapping]:
         if len(urls) == 0:
             return []
         deduplicated_urls = list(set(urls))
         insert_models = convert_to_url_insert_models(deduplicated_urls)
         url_ids = await sh.bulk_insert(self.session, models=insert_models, return_ids=True)
         url_mappings = [
-            URLMapping(url=url, url_id=url_id)
+            FullURLMapping(full_url=url, url_id=url_id)
             for url, url_id
             in zip(deduplicated_urls, url_ids)
         ]
@@ -52,8 +51,8 @@ class InsertRedirectsRequestManager:
 
     async def add_web_metadata(
         self,
-        all_dest_url_mappings: list[URLMapping],
-        dest_url_to_probe_response_mappings: dict[str, URLProbeResponse],
+        all_dest_url_mappings: list[FullURLMapping],
+        dest_url_to_probe_response_mappings: dict[FullURL, URLProbeResponse],
         tdos: list[URLProbeTDO],
     ) -> None:
         dest_url_response_mappings = map_url_mappings_to_probe_responses(
@@ -72,7 +71,7 @@ class InsertRedirectsRequestManager:
     async def add_redirect_links(
         self,
         response_pairs: list[URLProbeRedirectResponsePair],
-        mapper: URLMapper
+        mapper: FullURLMapper
     ) -> None:
         # Get all existing links and exclude
         link_tuples: list[tuple[int, int]] = []

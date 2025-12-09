@@ -7,6 +7,7 @@ from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSug
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOperator
 from src.core.enums import RecordType
+from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.helpers.data_creator.core import DBDataCreator
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.deepseek import DeepSeekRecordClassifier
 
@@ -52,3 +53,9 @@ async def test_url_record_type_task(db_data_creator: DBDataCreator):
     for suggestion in suggestions:
         assert suggestion.record_type == RecordType.ACCIDENT_REPORTS.value
 
+    # Get URL Error Tasks
+    url_error_tasks: list[URLTaskError] = await db_data_creator.adb_client.get_all(URLTaskError)
+    assert len(url_error_tasks) == 1
+    url_error_task = url_error_tasks[0]
+    assert url_error_task.url_id == url_ids[1]
+    assert url_error_task.task_type == TaskType.RECORD_TYPE

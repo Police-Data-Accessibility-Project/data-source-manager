@@ -98,21 +98,16 @@ select
 from sqlalchemy import PrimaryKeyConstraint, Column, Integer
 
 from src.db.models.helpers import url_id_primary_key_constraint
-from src.db.models.mixins import ViewMixin, URLDependentMixin
+from src.db.models.mixins import ViewMixin, URLDependentMixin, URLDependentViewMixin
 from src.db.models.templates_.base import Base
 
 
 class URLAnnotationCount(
     Base,
-    ViewMixin,
-    URLDependentMixin
+    URLDependentViewMixin
 ):
 
     __tablename__ = "url_annotation_count_view"
-    __table_args__ = (
-        url_id_primary_key_constraint(),
-        {"info": "view"}
-    )
 
     auto_agency_count = Column(Integer, nullable=False)
     auto_location_count = Column(Integer, nullable=False)

@@ -8,7 +8,7 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
@@ -32,6 +32,7 @@ async def test_maximal(
         request=URLSubmissionRequest(
             url="www.example.com",
             record_type=RecordType.INCARCERATION_RECORDS,
+            description="Example description",
             name="Example URL",
             location_id=pittsburgh_locality.location_id,
             agency_id=agency_id,
@@ -48,15 +49,16 @@ async def test_maximal(
     url: URL = urls[0]
     assert url.id == url_id
     assert url.url == "www.example.com"
+    assert url.description == "Example description"
 
     links: list[LinkUserSubmittedURL] = await adb_client.get_all(LinkUserSubmittedURL)
     assert len(links) == 1
     link: LinkUserSubmittedURL = links[0]
     assert link.url_id == url_id
 
-    agen_suggs: list[UserUrlAgencySuggestion] = await adb_client.get_all(UserUrlAgencySuggestion)
+    agen_suggs: list[UserURLAgencySuggestion] = await adb_client.get_all(UserURLAgencySuggestion)
     assert len(agen_suggs) == 1
-    agen_sugg: UserUrlAgencySuggestion = agen_suggs[0]
+    agen_sugg: UserURLAgencySuggestion = agen_suggs[0]
     assert agen_sugg.url_id == url_id
     assert agen_sugg.agency_id == agency_id
 

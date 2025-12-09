@@ -11,12 +11,12 @@ from src.core.tasks.url.operators.root_url.queries.lookup.query import LookupRoo
 from src.core.tasks.url.operators.root_url.queries.lookup.response import LookupRootsURLResponse
 from src.core.tasks.url.operators.root_url.queries.prereq import CheckPrereqsForRootURLTaskQueryBuilder
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.flag.root_url.pydantic import FlagRootURLPydantic
 from src.db.models.impl.link.urls_root_url.pydantic import LinkURLRootURLPydantic
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
-from src.util.url_mapper import URLMapper
+from src.util.url_mapper_.simple import SimpleURLMapper
 
 
 @final
@@ -37,14 +37,14 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
 
     @override
     async def inner_task_logic(self) -> None:
-        all_task_mappings: list[URLMapping] = await self._get_urls_for_root_url_task()
+        all_task_mappings: list[SimpleURLMapping] = await self._get_urls_for_root_url_task()
 
         await self.link_urls_to_task(
             url_ids=[mapping.url_id for mapping in all_task_mappings]
         )
 
         # Get the Root URLs for all URLs
-        mapper = URLMapper(all_task_mappings)
+        mapper = SimpleURLMapper(all_task_mappings)
 
         # -- Identify and Derive Root URLs --
 
@@ -65,7 +65,7 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
             for response in derived_root_url_lookup_responses
             if response.url_id is None
         ]
-        new_derived_root_url_mappings: list[URLMapping] = await self._add_new_urls(derived_root_urls_not_in_db)
+        new_derived_root_url_mappings: list[SimpleURLMapping] = await self._add_new_urls(derived_root_urls_not_in_db)
 
         # Add these to the mapper
         mapper.add_mappings(new_derived_root_url_mappings)
@@ -105,7 +105,7 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
 
     async def _add_root_url_links(
         self,
-        mapper: URLMapper,
+        mapper: SimpleURLMapper,
         root_url_mappings: list[URLRootURLMapping],
     ):
         # For all task URLs that are not root URLs (i.e. 'branch' URLs):
@@ -115,8 +115,8 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
         branch_urls: list[str] = [mapping.url for mapping in root_url_mappings]
         root_urls: list[str] = [mapping.root_url for mapping in root_url_mappings]
 
-        root_url_db_mappings: list[URLMapping] = await self._lookup_root_urls(root_urls)
-        task_url_db_mappings: list[URLMapping] = mapper.get_mappings_by_url(branch_urls)
+        root_url_db_mappings: list[SimpleURLMapping] = await self._lookup_root_urls(root_urls)
+        task_url_db_mappings: list[SimpleURLMapping] = mapper.get_mappings_by_url(branch_urls)
 
         links: list[LinkURLRootURLPydantic] = convert_to_root_url_links(
             root_db_mappings=root_url_db_mappings,
@@ -131,7 +131,7 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
     ):
         await self._flag_as_root_urls(url_ids)
 
-    async def _get_urls_for_root_url_task(self) -> list[URLMapping]:
+    async def _get_urls_for_root_url_task(self) -> list[SimpleURLMapping]:
         builder = GetURLsForRootURLTaskQueryBuilder()
         return await self.adb_client.run_query_builder(builder)
 
@@ -139,15 +139,15 @@ class URLRootURLTaskOperator(URLTaskOperatorBase):
         builder = LookupRootURLsQueryBuilder(urls=list(set(urls)))
         return await self.adb_client.run_query_builder(builder)
 
-    async def _add_new_urls(self, urls: list[str]) -> list[URLMapping]:
+    async def _add_new_urls(self, urls: list[str]) -> list[SimpleURLMapping]:
         if len(urls) == 0:
             return []
         insert_models: list[URLInsertModel] = convert_to_url_insert_models(urls)
         url_ids: list[int] = await self.adb_client.bulk_insert(insert_models, return_ids=True)
-        mappings: list[URLMapping] = []
+        mappings: list[SimpleURLMapping] = []
         for url, url_id in zip(urls, url_ids):
             mappings.append(
-                URLMapping(
+                SimpleURLMapping(
                     url=url,
                     url_id=url_id
                 )

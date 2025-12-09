@@ -46,13 +46,13 @@ async def test_upsert_new_agencies(
 
     await adb_client.upsert_new_agencies([update_suggestion])
 
-    rows = await adb_client.get_all(Agency, order_by_attribute="agency_id")
+    rows: list[Agency] = await adb_client.get_all(Agency, order_by_attribute="id")
 
     assert len(rows) == 3
 
     d = {}
     for row in rows:
-        d[row.agency_id] = row.name
+        d[row.id] = row.name
 
     assert d[0] == "Updated Test Agency"
     assert d[1] == "Test Agency 1"

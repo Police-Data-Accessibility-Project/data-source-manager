@@ -29,10 +29,6 @@ async def test_get_batch_summaries(api_test_helper):
                     count=4,
                     status=URLCreationEnum.NOT_RELEVANT
                 ),
-                TestURLCreationParameters(
-                    count=3,
-                    status=URLCreationEnum.ERROR
-                )
             ]
         ),
         TestBatchCreationParameters(
@@ -78,10 +74,10 @@ async def test_get_batch_summaries(api_test_helper):
     result_2 = results[1]
     assert result_2.id == batch_2_id
     counts_2 = result_2.url_counts
-    assert counts_2.total == 7
+    assert counts_2.total == 4
     assert counts_2.not_relevant == 4
-    assert counts_2.errored == 3
-    assert counts_2.pending == 3
+    assert counts_2.errored == 0
+    assert counts_2.pending == 0
     assert counts_2.submitted == 0
     assert counts_2.duplicate == 0
 

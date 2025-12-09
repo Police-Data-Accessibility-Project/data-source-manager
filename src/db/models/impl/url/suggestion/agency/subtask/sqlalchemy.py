@@ -1,4 +1,4 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from src.db.models.helpers import enum_column
 from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
@@ -16,7 +16,7 @@ class URLAutoAgencyIDSubtask(
 
     __tablename__ = "url_auto_agency_id_subtasks"
 
-    type = enum_column(
+    type: Mapped[AutoAgencyIDSubtaskType] = enum_column(
         AutoAgencyIDSubtaskType,
         name="agency_auto_suggestion_method"
     )
@@ -24,7 +24,7 @@ class URLAutoAgencyIDSubtask(
         sa.Boolean(),
         nullable=False
     )
-    detail = enum_column(
+    detail: Mapped[SubtaskDetailCode] = enum_column(
         SubtaskDetailCode,
         name="agency_id_subtask_detail_code",
     )

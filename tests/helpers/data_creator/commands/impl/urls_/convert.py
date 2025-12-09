@@ -14,7 +14,7 @@ def convert_url_creation_enum_to_url_status(url_creation_enum: URLCreationEnum) 
         case URLCreationEnum.NOT_RELEVANT:
             return URLStatus.OK
         case URLCreationEnum.ERROR:
-            return URLStatus.ERROR
+            raise ValueError("Invalid URL Status")
         case URLCreationEnum.DUPLICATE:
             return URLStatus.DUPLICATE
         case _:

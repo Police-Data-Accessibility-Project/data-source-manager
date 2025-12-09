@@ -3,7 +3,7 @@ import pytest
 
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInnerInputDTO, ManualBatchInputDTO
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.collectors.enums import CollectorType
@@ -20,14 +20,14 @@ async def test_manual_batch(api_test_helper):
     dtos = []
     for i in range(50):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i}",
+            url=f"example.com/{i}",
         )
         dtos.append(dto)
 
     # Create 50 entries with URL and all optional fields
     for i in range(50):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+50}",
+            url=f"example.com/{i+50}",
             name=manual_batch_name,
             description=f"Description {i}",
             collector_metadata={
@@ -121,7 +121,10 @@ async def test_manual_batch(api_test_helper):
 
     def check_opt_metadata(metadata: URLOptionalDataSourceMetadata, no_optional: bool):
         assert metadata.url_id is not None
-        other_attributes = ["record_formats", "data_portal_type", "supplying_entity"]
+        other_attributes = [
+            "data_portal_type",
+            "supplying_entity"
+        ]
         return check_attributes(metadata, other_attributes, no_optional)
 
     # Confirm 50 have nothing but URL id
@@ -142,13 +145,13 @@ async def test_manual_batch(api_test_helper):
     more_dtos = []
     for i in range(49):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+100}",
+            url=f"example.com/{i+100}",
         )
         more_dtos.append(dto)
 
     for i in range(2):
         dto = ManualBatchInnerInputDTO(
-            url=f"https://example.com/{i+1}",
+            url=f"example.com/{i+1}",
         )
         more_dtos.append(dto)
 
@@ -162,7 +165,7 @@ async def test_manual_batch(api_test_helper):
     response = await ath.request_validator.submit_manual_batch(duplicate_input_dto)
     # Check duplicate URLs
     assert len(response.duplicate_urls) == 2
-    assert response.duplicate_urls == ['https://example.com/1', 'https://example.com/2']
+    assert response.duplicate_urls == ['example.com/1', 'example.com/2']
     assert len(response.urls) == 49
 
     # Check 149 URLs in database

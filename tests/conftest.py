@@ -7,18 +7,19 @@ import pytest
 import pytest_asyncio
 from aiohttp import ClientSession
 from alembic.config import Config
-from sqlalchemy import create_engine, inspect, MetaData
+from sqlalchemy import create_engine, inspect, MetaData, Engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from src.core.env_var_manager import EnvVarManager
-# Below are to prevent import errors
-from src.db.models.impl.missing import Missing  # noqa: F401
-from src.db.models.impl.log.sqlalchemy import Log  # noqa: F401
-from src.db.models.impl.task.error import TaskError  # noqa: F401
-from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate  # noqa: F401
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.helpers.connect import get_postgres_connection_string
+from src.db.models.impl.log.sqlalchemy import Log  # noqa: F401
+# Below are to prevent import errors
+from src.db.models.impl.missing import Missing  # noqa: F401
+from src.db.models.impl.task.error import TaskError  # noqa: F401
+from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate  # noqa: F401
 from src.util.helper_functions import load_from_environment
 from tests.helpers.alembic_runner import AlembicRunner
 from tests.helpers.data_creator.core import DBDataCreator
@@ -99,33 +100,55 @@ def setup_and_teardown():
         live_connection.close()
         engine.dispose()
 
-@pytest.fixture
-def wiped_database():
-    """Wipe all data from database."""
-    wipe_database(get_postgres_connection_string())
-
-
-
-@pytest.fixture
-def db_client_test(wiped_database) -> Generator[DatabaseClient, Any, None]:
-    # Drop pre-existing table
+@pytest.fixture(scope="session")
+def engine():
     conn = get_postgres_connection_string()
-    db_client = DatabaseClient(db_url=conn)
+    engine = create_engine(conn)
+    yield engine
+    engine.dispose()
+
+@pytest.fixture(scope="session")
+def async_engine():
+    conn = get_postgres_connection_string(is_async=True)
+    engine = create_async_engine(conn)
+    yield engine
+    engine.dispose()
+
+@pytest.fixture
+def wiped_database(
+    engine: Engine
+):
+    """Wipe all data from database."""
+    wipe_database(engine)
+
+
+
+@pytest.fixture
+def db_client_test(
+    wiped_database,
+    engine
+) -> Generator[DatabaseClient, Any, None]:
+    # Drop pre-existing table
+    db_client = DatabaseClient(engine)
     yield db_client
     db_client.engine.dispose()
 
 @pytest_asyncio.fixture
-async def populated_database(wiped_database) -> None:
-    conn = get_postgres_connection_string(is_async=True)
-    adb_client = AsyncDatabaseClient(db_url=conn)
+async def populated_database(
+    wiped_database,
+    async_engine: AsyncEngine
+) -> None:
+    adb_client = AsyncDatabaseClient(async_engine)
     await populate_database(adb_client)
 
 @pytest_asyncio.fixture
-async def adb_client_test(wiped_database) -> AsyncGenerator[AsyncDatabaseClient, Any]:
-    conn = get_postgres_connection_string(is_async=True)
-    adb_client = AsyncDatabaseClient(db_url=conn)
+async def adb_client_test(
+    wiped_database,
+    async_engine: AsyncEngine
+) -> AsyncGenerator[AsyncDatabaseClient, Any]:
+    adb_client = AsyncDatabaseClient(async_engine)
     yield adb_client
-    adb_client.engine.dispose()
+    await adb_client.engine.dispose()
 
 @pytest.fixture
 def db_data_creator(

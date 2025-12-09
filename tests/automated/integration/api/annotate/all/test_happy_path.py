@@ -1,7 +1,7 @@
 import pytest
 
-from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationUserSuggestion
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
 from src.api.endpoints.annotate.all.get.queries.core import GetNextURLForAllAnnotationQueryBuilder
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
 from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
@@ -10,11 +10,11 @@ from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPost
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
+from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
@@ -23,7 +23,9 @@ from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_fin
 async def test_annotate_all(
     api_test_helper,
     pennsylvania: USStateCreationInfo,
+    allegheny_county: USStateCreationInfo,
     california: USStateCreationInfo,
+    test_agency_id: int
 ):
     """
     Test the happy path workflow for the all-annotations endpoint
@@ -46,10 +48,10 @@ async def test_annotate_all(
     # Get a valid URL to annotate
     get_response_1 = await ath.request_validator.get_next_url_for_all_annotations()
     assert get_response_1.next_annotation is not None
-    assert len(get_response_1.next_annotation.name_suggestions) == 1
-    name_suggestion = get_response_1.next_annotation.name_suggestions[0]
-    assert name_suggestion.name is not None
-    assert name_suggestion.endorsement_count == 0
+    assert len(get_response_1.next_annotation.name_suggestions.suggestions) == 1
+    name_suggestion = get_response_1.next_annotation.name_suggestions.suggestions[0]
+    assert name_suggestion.display_name is not None
+    assert name_suggestion.user_count == 0
 
     # Apply the second batch id as a filter and see that a different URL is returned
     get_response_2 = await ath.request_validator.get_next_url_for_all_annotations(
@@ -110,7 +112,7 @@ async def test_annotate_all(
     assert suggested_types == {URLType.DATA_SOURCE, URLType.NOT_RELEVANT}
 
     # Should be one agency
-    all_agency_suggestions = await adb_client.get_all(UserUrlAgencySuggestion)
+    all_agency_suggestions = await adb_client.get_all(UserURLAgencySuggestion)
     assert len(all_agency_suggestions) == 3
     suggested_agency_ids: set[int] = {sugg.agency_id for sugg in all_agency_suggestions}
     assert agency_id in suggested_agency_ids
@@ -140,20 +142,27 @@ async def test_annotate_all(
             user_id=99,
         )
     )
-    user_suggestions: list[LocationAnnotationUserSuggestion] = \
-        response.next_annotation.location_suggestions.user.suggestions
-    assert len(user_suggestions) == 2
+    suggestions: list[SuggestionModel] = response.next_annotation.location_suggestions.suggestions
+    assert len(suggestions) == 2
 
-    response_location_ids: list[int] = [location_suggestion.location_id for location_suggestion in user_suggestions]
-    assert set(response_location_ids) == {california.location_id, pennsylvania.location_id}
+    response_location_ids: list[int] = [
+        location_suggestion.id
+        for location_suggestion in suggestions]
 
-    response_location_names: list[str] = [location_suggestion.location_name for location_suggestion in user_suggestions]
+    assert set(response_location_ids) == {
+        california.location_id,
+        pennsylvania.location_id
+    }
+
+    response_location_names: list[str] = [
+        location_suggestion.display_name
+        for location_suggestion in suggestions]
     assert set(response_location_names) == {
         "California",
         "Pennsylvania"
     }
 
-    for user_suggestion in user_suggestions:
+    for user_suggestion in suggestions:
         assert user_suggestion.user_count == 1
 
     # Confirm 3 name suggestions

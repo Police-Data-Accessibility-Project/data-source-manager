@@ -11,7 +11,7 @@ from src.db.models.impl.agency.enums import JurisdictionType
 from src.security.manager import get_access_info
 from src.security.dtos.access_info import AccessInfo
 
-search_router = APIRouter(prefix="/search", tags=["search"])
+search_router = APIRouter(prefix="/search", tags=["Search"])
 
 
 @search_router.get("/url")
@@ -40,6 +40,10 @@ async def search_agency(
         description="The jurisdiction type to search for",
         default=None
     ),
+    page: int = Query(
+        description="The page to search for",
+        default=1
+    ),
     access_info: AccessInfo = Depends(get_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> list[AgencySearchResponse]:
@@ -53,6 +57,7 @@ async def search_agency(
         SearchAgencyQueryBuilder(
             location_id=location_id,
             query=query,
-            jurisdiction_type=jurisdiction_type
+            jurisdiction_type=jurisdiction_type,
+            page=page
         )
     )

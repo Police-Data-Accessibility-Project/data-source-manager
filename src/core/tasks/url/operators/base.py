@@ -22,15 +22,3 @@ class URLTaskOperatorBase(
             outcome=TaskOperatorOutcome.SUCCESS,
             message="Task completed successfully"
         )
-
-    async def run_info(
-        self,
-        outcome: TaskOperatorOutcome,
-        message: str
-    ) -> TaskOperatorRunInfo:
-        return TaskOperatorRunInfo(
-            task_id=self.task_id,
-            task_type=self.task_type,
-            outcome=outcome,
-            message=message
-        )

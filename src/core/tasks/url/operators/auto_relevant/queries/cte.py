@@ -6,7 +6,7 @@ from src.db.enums import TaskType
 from src.db.helpers.query import not_exists_url, no_url_task_error
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.url.suggestion.relevant.auto.sqlalchemy import AutoRelevantSuggestion
+from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
 
 
 class AutoRelevantPrerequisitesCTEContainer:
