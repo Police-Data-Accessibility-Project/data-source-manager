@@ -132,7 +132,7 @@ class TestValidateTaskHelper:
     async def add_name_suggestion(
         self,
         count: int = 1,
-    ) -> str:
+    ) -> int:
         name = f"Test Validate Task Name"
         suggestion_id: int = await self.db_data_creator.name_suggestion(
             url_id=self.url_id,
@@ -144,7 +144,7 @@ class TestValidateTaskHelper:
                 suggestion_id=suggestion_id,
                 user_id=next_int(),
             )
-        return name
+        return suggestion_id
 
     async def check_name(self) -> None:
         urls: list[URL] = await self.adb_client.get_all(URL)

@@ -13,6 +13,7 @@ import pytest
 from src.core.enums import RecordType
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.link.anonymous_sessions__name_suggestion import LinkAnonymousSessionNameSuggestion
 from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
 from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
 from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
@@ -45,7 +46,7 @@ async def test_data_source(
 
     assert not await operator.meets_task_prerequisites()
 
-    await helper.add_name_suggestion(count=2)
+    suggestion_id: int = await helper.add_name_suggestion(count=1)
 
     assert not await operator.meets_task_prerequisites()
 
@@ -74,11 +75,16 @@ async def test_data_source(
             session_id=session_id,
             url_id=helper.url_id
         )
+        anon_name_link = LinkAnonymousSessionNameSuggestion(
+            suggestion_id=suggestion_id,
+            session_id=session_id
+        )
         for model in [
             anon_url_type,
             anon_record_type,
             anon_location,
-            anon_agency
+            anon_agency,
+            anon_name_link
         ]:
             await helper.adb_client.add(model)
 
