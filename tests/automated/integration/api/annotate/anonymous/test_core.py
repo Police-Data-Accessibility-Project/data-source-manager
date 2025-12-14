@@ -3,7 +3,6 @@ from uuid import UUID
 import pytest
 
 from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion
-from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.all.post.models.agency import AnnotationPostAgencyInfo
 from src.api.endpoints.annotate.all.post.models.location import AnnotationPostLocationInfo
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
@@ -12,10 +11,12 @@ from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnony
 from src.core.enums import RecordType
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.link.anonymous_sessions__name_suggestion import LinkAnonymousSessionNameSuggestion
 from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
 from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
 from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
 from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
+from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.mixins import URLDependentMixin
 from tests.automated.integration.api.annotate.anonymous.helper import get_next_url_for_anonymous_annotation, \
     post_and_get_next_url_for_anonymous_annotation
@@ -89,6 +90,16 @@ async def test_annotate_anonymous(
         assert len(instances) == 1
         instance: model = instances[0]
         assert instance.url_id == get_response_1.next_annotation.url_info.url_id
+
+    # Check for existence of name suggestion (2 were added by setup)
+    name_suggestions: list[URLNameSuggestion] = await ddc.adb_client.get_all(URLNameSuggestion)
+    assert len(name_suggestions) == 3
+
+    # Check for existence of link
+    link_instances: list[LinkAnonymousSessionNameSuggestion] = await ddc.adb_client.get_all(LinkAnonymousSessionNameSuggestion)
+    assert len(link_instances) == 1
+    link_instance: LinkAnonymousSessionNameSuggestion = link_instances[0]
+    assert link_instance.session_id == session_id
 
     # Run again without giving session ID, confirm original URL returned
     get_response_2: GetNextURLForAnonymousAnnotationResponse = await get_next_url_for_anonymous_annotation(rv)
