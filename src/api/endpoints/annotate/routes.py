@@ -15,7 +15,7 @@ from src.api.endpoints.annotate.anonymous.post.query import AddAnonymousAnnotati
 from src.core.core import AsyncCore
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.security.dtos.access_info import AccessInfo
-from src.security.manager import get_access_info
+from src.security.manager import get_access_info, get_standard_user_access_info
 
 annotate_router = APIRouter(
     prefix="/annotate",
@@ -76,7 +76,7 @@ async def annotate_url_for_all_annotations_and_get_next_url_anonymous(
 
 @annotate_router.get("/all")
 async def get_next_url_for_all_annotations(
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_standard_user_access_info),
         async_core: AsyncCore = Depends(get_async_core),
         batch_id: int | None = batch_query,
         anno_url_id: int | None = url_id_query
@@ -92,7 +92,7 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         url_id: int,
         all_annotation_post_info: AllAnnotationPostInfo,
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_standard_user_access_info),
         batch_id: int | None = batch_query,
         anno_url_id: int | None = url_id_query
 ) -> GetNextURLForAllAnnotationResponse:
