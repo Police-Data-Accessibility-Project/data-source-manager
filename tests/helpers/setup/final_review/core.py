@@ -3,15 +3,16 @@ from typing import Optional
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.impl.url.core.enums import URLSource
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.final_review.model import FinalReviewSetupInfo
 
 
 async def setup_for_get_next_url_for_final_review(
         db_data_creator: DBDataCreator,
-        annotation_count: int | None = None,
         include_user_annotations: bool = True,
-        include_miscellaneous_metadata: bool = True
+        include_miscellaneous_metadata: bool = True,
+        source: URLSource = URLSource.COLLECTOR
 ) -> FinalReviewSetupInfo:
     """
     Sets up the database to test the final_review functions
@@ -22,7 +23,8 @@ async def setup_for_get_next_url_for_final_review(
     batch_id = db_data_creator.batch()
     url_mapping = db_data_creator.urls(
         batch_id=batch_id,
-        url_count=1
+        url_count=1,
+        source=source
     ).url_mappings[0]
     if include_miscellaneous_metadata:
         await db_data_creator.url_miscellaneous_metadata(url_id=url_mapping.url_id)

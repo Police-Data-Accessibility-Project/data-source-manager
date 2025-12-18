@@ -1,8 +1,8 @@
-from sqlalchemy import Select, exists, select
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.api.endpoints.annotate._shared.extract import extract_and_format_get_annotation_result
+from src.api.endpoints.annotate._shared.queries import helper
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.collectors.enums import URLStatus
 from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
@@ -12,9 +12,6 @@ from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestio
 from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
-from src.db.models.views.unvalidated_url import UnvalidatedURL
-from src.db.models.views.url_anno_count import URLAnnotationCount
-from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -35,22 +32,9 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         self,
         session: AsyncSession
     ) -> GetNextURLForAllAnnotationResponse:
-        query = (
-            Select(URL)
-            # URL Must be unvalidated
-            .join(
-                UnvalidatedURL,
-                UnvalidatedURL.url_id == URL.id
-            )
-            .join(
-                URLAnnotationFlagsView,
-                URLAnnotationFlagsView.url_id == URL.id
-            )
-            .join(
-                URLAnnotationCount,
-                URLAnnotationCount.url_id == URL.id
-            )
-        )
+        query = helper.get_select()
+
+        # Add user annotation-specific joins and conditions
         if self.batch_id is not None:
             query = query.join(LinkBatchURL).where(LinkBatchURL.batch_id == self.batch_id)
         if self.url_id is not None:
@@ -102,18 +86,11 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                     )
             )
         )
-        # Add load options
-        query = query.options(
-            joinedload(URL.html_content),
-            joinedload(URL.user_relevant_suggestions),
-            joinedload(URL.user_record_type_suggestions),
-            joinedload(URL.name_suggestions),
-        )
 
-        query = query.order_by(
-            URLAnnotationCount.total_anno_count.desc(),
-            URL.id.asc()
-        ).limit(1)
+
+        # Conclude query with limit and sorting
+        query = helper.conclude(query)
+
         raw_results = (await session.execute(query)).unique()
         url: URL | None = raw_results.scalars().one_or_none()
         if url is None:

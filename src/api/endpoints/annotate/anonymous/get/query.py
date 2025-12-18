@@ -21,6 +21,7 @@ from src.db.models.views.unvalidated_url import UnvalidatedURL
 from src.db.models.views.url_anno_count import URLAnnotationCount
 from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
+from src.api.endpoints.annotate._shared.queries import helper
 
 
 class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
@@ -33,22 +34,11 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
         self.session_id = session_id
 
     async def run(self, session: AsyncSession) -> GetNextURLForAnonymousAnnotationResponse:
+        query = helper.get_select()
 
+        # Add anonymous annotation-specific conditions.
         query = (
-            Select(URL)
-            # URL Must be unvalidated
-            .join(
-                UnvalidatedURL,
-                UnvalidatedURL.url_id == URL.id
-            )
-            .join(
-                URLAnnotationFlagsView,
-                URLAnnotationFlagsView.url_id == URL.id
-            )
-            .join(
-                URLAnnotationCount,
-                URLAnnotationCount.url_id == URL.id
-            )
+            query
             .where(
                 URL.status == URLStatus.OK.value,
                 # Must not have been previously annotated by user
@@ -77,18 +67,8 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
                     )
                 )
             )
-            .options(
-                joinedload(URL.html_content),
-                joinedload(URL.user_relevant_suggestions),
-                joinedload(URL.user_record_type_suggestions),
-                joinedload(URL.name_suggestions),
-            )
-            .order_by(
-                URLAnnotationCount.total_anno_count.desc(),
-                URL.id.asc()
-            )
-            .limit(1)
         )
+        query = helper.conclude(query)
 
         raw_results = (await session.execute(query)).unique()
         url: URL | None = raw_results.scalars().one_or_none()

@@ -266,6 +266,7 @@ class DBDataCreator:
             url_count: int,
             collector_metadata: dict | None = None,
             outcome: URLCreationEnum = URLCreationEnum.OK,
+            source: URLSource = URLSource.COLLECTOR,
             created_at: datetime | None = None
     ) -> InsertURLsInfo:
         command = URLsDBDataCreatorCommand(
@@ -273,6 +274,7 @@ class DBDataCreator:
             url_count=url_count,
             collector_metadata=collector_metadata,
             status=outcome,
+            source=source,
             created_at=created_at
         )
         return self.run_command_sync(command)
