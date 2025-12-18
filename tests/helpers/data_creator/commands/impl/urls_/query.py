@@ -19,7 +19,8 @@ class URLsDBDataCreatorCommand(DBDataCreatorCommandBase):
         url_count: int,
         collector_metadata: dict | None = None,
         status: URLCreationEnum = URLCreationEnum.OK,
-        created_at: datetime | None = None
+        created_at: datetime | None = None,
+        source: URLSource = URLSource.COLLECTOR
     ):
         super().__init__()
         self.batch_id = batch_id
@@ -27,6 +28,7 @@ class URLsDBDataCreatorCommand(DBDataCreatorCommandBase):
         self.collector_metadata = collector_metadata
         self.status = status
         self.created_at = created_at
+        self.source = source
 
     async def run(self) -> InsertURLsInfo:
         raise NotImplementedError
@@ -45,7 +47,7 @@ class URLsDBDataCreatorCommand(DBDataCreatorCommandBase):
                     ) else None,
                     collector_metadata=self.collector_metadata,
                     created_at=self.created_at,
-                    source=URLSource.COLLECTOR
+                    source=self.source
                 )
             )
 
