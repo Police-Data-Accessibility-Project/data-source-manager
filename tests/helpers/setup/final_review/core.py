@@ -10,7 +10,6 @@ from tests.helpers.setup.final_review.model import FinalReviewSetupInfo
 
 async def setup_for_get_next_url_for_final_review(
         db_data_creator: DBDataCreator,
-        annotation_count: int | None = None,
         include_user_annotations: bool = True,
         include_miscellaneous_metadata: bool = True,
         source: URLSource = URLSource.COLLECTOR

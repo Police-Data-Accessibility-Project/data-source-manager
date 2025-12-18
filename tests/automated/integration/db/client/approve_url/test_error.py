@@ -11,7 +11,6 @@ from tests.helpers.data_creator.core import DBDataCreator
 async def test_approval_url_error(db_data_creator: DBDataCreator):
     setup_info = await setup_for_get_next_url_for_final_review(
         db_data_creator=db_data_creator,
-        annotation_count=3,
         include_user_annotations=True,
         include_miscellaneous_metadata=False
     )
