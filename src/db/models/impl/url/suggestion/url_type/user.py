@@ -15,7 +15,7 @@ class UserURLTypeSuggestion(
     URLDependentMixin,
     Base,
 ):
-    __tablename__ = "user_url_type_suggestions"
+    __tablename__ = "annotation__user__url_type"
     __table_args__ = (
         PrimaryKeyConstraint("url_id", "user_id"),
     )

@@ -13,7 +13,7 @@ class AnonymousAnnotationURLType(
     CreatedAtMixin,
     AnonymousSessionMixin
 ):
-    __tablename__ = "anonymous_annotation_url_type"
+    __tablename__ = "annotation__anon__url_type"
     __table_args__ = (
         PrimaryKeyConstraint("session_id", "url_id", "url_type"),
     )

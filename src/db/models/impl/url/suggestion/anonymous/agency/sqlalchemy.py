@@ -11,7 +11,7 @@ class AnonymousAnnotationAgency(
     CreatedAtMixin,
     AnonymousSessionMixin
 ):
-    __tablename__ = "anonymous_annotation_agency"
+    __tablename__ = "annotation__anon__agency"
     __table_args__ = (
         PrimaryKeyConstraint("session_id", "url_id", "agency_id"),
     )

@@ -10,12 +10,12 @@ class AgencyIDSubtaskSuggestion(
     CreatedAtMixin,
     AgencyDependentMixin,
 ):
-    __tablename__ = "agency_id_subtask_suggestions"
+    __tablename__ = "annotation__auto__agency__suggestions"
 
 
     subtask_id = sa.Column(
         sa.Integer,
-        sa.ForeignKey("url_auto_agency_id_subtasks.id"),
+        sa.ForeignKey("annotation__auto__agency__subtasks.id"),
         nullable=False
     )
     confidence = sa.Column(

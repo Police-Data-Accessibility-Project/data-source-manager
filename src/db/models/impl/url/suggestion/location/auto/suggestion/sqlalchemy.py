@@ -9,7 +9,7 @@ class LocationIDSubtaskSuggestion(
     Base,
 ):
 
-    __tablename__ = 'location_id_subtask_suggestions'
+    __tablename__ = 'annotation__auto__location__suggestions'
     __table_args__ = (
         PrimaryKeyConstraint(
             'subtask_id',
@@ -19,7 +19,7 @@ class LocationIDSubtaskSuggestion(
     )
     subtask_id = Column(
         Integer,
-        ForeignKey('auto_location_id_subtasks.id'),
+        ForeignKey('annotation__auto__location__subtasks.id'),
         nullable=False,
         primary_key=True,
     )

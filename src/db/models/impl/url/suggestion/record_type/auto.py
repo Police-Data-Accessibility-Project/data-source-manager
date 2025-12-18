@@ -14,7 +14,7 @@ class AutoRecordTypeSuggestion(
     URLDependentMixin,
     Base,
 ):
-    __tablename__ = "auto_record_type_suggestions"
+    __tablename__ = "annotation__auto__record_type"
     record_type = Column(postgresql.ENUM(*record_type_values, name='record_type'), nullable=False)
 
     __table_args__ = (

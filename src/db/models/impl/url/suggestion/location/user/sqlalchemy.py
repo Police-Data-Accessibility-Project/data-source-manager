@@ -12,7 +12,7 @@ class UserLocationSuggestion(
     LocationDependentMixin,
     URLDependentMixin
 ):
-    __tablename__ = 'user_location_suggestions'
+    __tablename__ = 'annotation__user__location'
     __table_args__ = (
         PrimaryKeyConstraint('url_id', 'location_id', 'user_id'),
     )

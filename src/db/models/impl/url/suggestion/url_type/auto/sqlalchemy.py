@@ -12,7 +12,7 @@ class AutoRelevantSuggestion(
     URLDependentMixin,
     Base,
 ):
-    __tablename__ = "auto_relevant_suggestions"
+    __tablename__ = "annotation__auto__url_type"
 
     relevant = Column(Boolean, nullable=True)
     confidence = Column(Float, nullable=True)

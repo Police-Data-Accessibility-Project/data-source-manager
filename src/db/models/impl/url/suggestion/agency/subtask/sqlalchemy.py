@@ -14,7 +14,7 @@ class URLAutoAgencyIDSubtask(
     CreatedAtMixin
 ):
 
-    __tablename__ = "url_auto_agency_id_subtasks"
+    __tablename__ = "annotation__auto__agency__subtasks"
 
     type: Mapped[AutoAgencyIDSubtaskType] = enum_column(
         AutoAgencyIDSubtaskType,
