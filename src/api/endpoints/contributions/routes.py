@@ -7,7 +7,7 @@ from src.api.endpoints.contributions.user.queries.core import GetUserContributio
 from src.api.endpoints.contributions.user.response import ContributionsUserResponse
 from src.core.core import AsyncCore
 from src.security.dtos.access_info import AccessInfo
-from src.security.manager import get_access_info, get_standard_user_access_info
+from src.security.manager import get_standard_user_access_info
 
 contributions_router = APIRouter(
     prefix="/contributions",
