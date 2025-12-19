@@ -6,10 +6,10 @@ from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
 from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggestions
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.views.location_expanded import LocationExpandedView
 from src.db.templates.requester import RequesterBase
 
@@ -25,10 +25,10 @@ class GetLocationSuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     exists_url(
-                        UserLocationSuggestion
+                        AnnotationLocationUser
                     ),
                     exists_url(
-                        AutoLocationIDSubtask
+                        AnnotationLocationAutoSubtask
                     )
                 )
             )
@@ -37,34 +37,34 @@ class GetLocationSuggestionsRequester(RequesterBase):
         # Number of users who suggested each location
         user_suggestions_cte = (
             select(
-                UserLocationSuggestion.url_id,
-                UserLocationSuggestion.location_id,
-                func.count(UserLocationSuggestion.user_id).label('user_count')
+                AnnotationLocationUser.url_id,
+                AnnotationLocationUser.location_id,
+                func.count(AnnotationLocationUser.user_id).label('user_count')
             )
             .group_by(
-                UserLocationSuggestion.location_id,
-                UserLocationSuggestion.url_id,
+                AnnotationLocationUser.location_id,
+                AnnotationLocationUser.url_id,
             )
             .cte("user_suggestions")
         )
         # Maximum confidence of robo annotation, if any
         robo_suggestions_cte = (
             select(
-                AutoLocationIDSubtask.url_id,
+                AnnotationLocationAutoSubtask.url_id,
                 LocationExpandedView.id.label("location_id"),
-                func.max(LocationIDSubtaskSuggestion.confidence).label('robo_confidence')
+                func.max(AnnotationLocationAutoSuggestion.confidence).label('robo_confidence')
             )
             .join(
                 LocationExpandedView,
-                LocationExpandedView.id == LocationIDSubtaskSuggestion.location_id
+                LocationExpandedView.id == AnnotationLocationAutoSuggestion.location_id
             )
             .join(
-                AutoLocationIDSubtask,
-                AutoLocationIDSubtask.id == LocationIDSubtaskSuggestion.subtask_id
+                AnnotationLocationAutoSubtask,
+                AnnotationLocationAutoSubtask.id == AnnotationLocationAutoSuggestion.subtask_id
             )
             .group_by(
                 LocationExpandedView.id,
-                AutoLocationIDSubtask.url_id,
+                AnnotationLocationAutoSubtask.url_id,
             )
             .cte("robo_suggestions")
         )

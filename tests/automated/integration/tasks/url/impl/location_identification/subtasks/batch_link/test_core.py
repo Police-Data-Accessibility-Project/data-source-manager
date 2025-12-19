@@ -2,10 +2,10 @@ import pytest
 
 from src.core.tasks.url.operators.location_id.core import LocationIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
 from src.db.models.impl.link.location_batch.sqlalchemy import LinkLocationBatch
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.data_creator.core import DBDataCreator
@@ -51,13 +51,13 @@ async def test_batch_link_subtask(
     assert not await operator.meets_task_prerequisites()
     assert operator._subtask is None
 
-    subtasks: list[AutoLocationIDSubtask] = await adb_client.get_all(AutoLocationIDSubtask)
+    subtasks: list[AnnotationLocationAutoSubtask] = await adb_client.get_all(AnnotationLocationAutoSubtask)
     assert len(subtasks) == 2
-    subtask: AutoLocationIDSubtask = subtasks[0]
+    subtask: AnnotationLocationAutoSubtask = subtasks[0]
     assert subtask.type == LocationIDSubtaskType.BATCH_LINK
     assert subtask.locations_found
 
-    suggestions: list[LocationIDSubtaskSuggestion] = await adb_client.get_all(LocationIDSubtaskSuggestion)
+    suggestions: list[AnnotationLocationAutoSuggestion] = await adb_client.get_all(AnnotationLocationAutoSuggestion)
     assert len(suggestions) == 2
 
     assert all(sugg.confidence == 80 for sugg in suggestions)

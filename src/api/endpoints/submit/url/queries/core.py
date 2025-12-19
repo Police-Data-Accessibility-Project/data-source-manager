@@ -8,15 +8,15 @@ from src.api.endpoints.submit.url.queries.convert import convert_invalid_url_to_
     convert_duplicate_urls_to_url_response
 from src.api.endpoints.submit.url.queries.dedupe import DeduplicateURLQueryBuilder
 from src.collectors.enums import URLStatus
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
 from src.db.queries.base.builder import QueryBuilderBase
 from src.util.models.url_and_scheme import URLAndScheme
 from src.util.url import clean_url, get_url_and_scheme, is_valid_url
@@ -77,7 +77,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add record type as suggestion if exists
         if self.request.record_type is not None:
-            rec_sugg = UserRecordTypeSuggestion(
+            rec_sugg = AnnotationUserRecordType(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 record_type=self.request.record_type.value
@@ -86,7 +86,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add name as suggestion if exists
         if self.request.name is not None:
-            name_sugg = URLNameSuggestion(
+            name_sugg = AnnotationNameSuggestion(
                 url_id=url_insert.id,
                 suggestion=self.request.name,
                 source=NameSuggestionSource.USER
@@ -104,7 +104,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add location ID as suggestion if exists
         if self.request.location_id is not None:
-            loc_sugg = UserLocationSuggestion(
+            loc_sugg = AnnotationLocationUser(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 location_id=self.request.location_id
@@ -113,7 +113,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add agency ID as suggestion if exists
         if self.request.agency_id is not None:
-            agen_sugg = UserURLAgencySuggestion(
+            agen_sugg = AnnotationAgencyUser(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 agency_id=self.request.agency_id

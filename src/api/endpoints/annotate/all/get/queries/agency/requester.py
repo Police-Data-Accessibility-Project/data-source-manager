@@ -8,10 +8,10 @@ from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggest
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.templates.requester import RequesterBase
 
 
@@ -36,10 +36,10 @@ class GetAgencySuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     exists_url(
-                        UserURLAgencySuggestion
+                        AnnotationAgencyUser
                     ),
                     exists_url(
-                        URLAutoAgencyIDSubtask
+                        AnnotationAgencyAutoSubtask
                     )
                 )
             )
@@ -49,13 +49,13 @@ class GetAgencySuggestionsRequester(RequesterBase):
         # Number of users who suggested each agency
         user_suggestions_cte = (
             select(
-                UserURLAgencySuggestion.url_id,
-                UserURLAgencySuggestion.agency_id,
-                func.count(UserURLAgencySuggestion.user_id).label('user_count')
+                AnnotationAgencyUser.url_id,
+                AnnotationAgencyUser.agency_id,
+                func.count(AnnotationAgencyUser.user_id).label('user_count')
             )
             .group_by(
-                UserURLAgencySuggestion.agency_id,
-                UserURLAgencySuggestion.url_id,
+                AnnotationAgencyUser.agency_id,
+                AnnotationAgencyUser.url_id,
             )
             .cte("user_suggestions")
         )
@@ -63,20 +63,20 @@ class GetAgencySuggestionsRequester(RequesterBase):
         # Maximum confidence of robo annotation, if any
         robo_suggestions_cte = (
             select(
-                URLAutoAgencyIDSubtask.url_id,
+                AnnotationAgencyAutoSubtask.url_id,
                 Agency.id.label("agency_id"),
-                func.max(AgencyIDSubtaskSuggestion.confidence).label('robo_confidence')
+                func.max(AnnotationAgencyAutoSuggestion.confidence).label('robo_confidence')
             )
             .join(
-                AgencyIDSubtaskSuggestion,
-                AgencyIDSubtaskSuggestion.subtask_id == URLAutoAgencyIDSubtask.id
+                AnnotationAgencyAutoSuggestion,
+                AnnotationAgencyAutoSuggestion.subtask_id == AnnotationAgencyAutoSubtask.id
             )
             .join(
                 Agency,
-                Agency.id == AgencyIDSubtaskSuggestion.agency_id
+                Agency.id == AnnotationAgencyAutoSuggestion.agency_id
             )
             .group_by(
-                URLAutoAgencyIDSubtask.url_id,
+                AnnotationAgencyAutoSubtask.url_id,
                 Agency.id
             )
             .cte("robo_suggestions")

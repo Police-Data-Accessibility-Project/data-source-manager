@@ -5,7 +5,7 @@
         u.id,
         count(anno.url_id) as cnt
     from urls u
-    inner join public.auto_location_id_subtasks anno on u.id = anno.url_id
+    inner join public.annotation__auto__location__subtasks anno on u.id = anno.url_id
     group by u.id
 )
 , auto_agency_count as (
@@ -13,7 +13,7 @@
         u.id,
         count(anno.url_id) as cnt
     from urls u
-    inner join public.url_auto_agency_id_subtasks anno on u.id = anno.url_id
+    inner join public.annotation__auto__agency__subtasks anno on u.id = anno.url_id
     group by u.id
 )
 , auto_url_type_count as (
@@ -21,7 +21,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.auto_relevant_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__auto__url_type anno on u.id = anno.url_id
         group by u.id
 )
 , auto_record_type_count as (
@@ -29,7 +29,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.auto_record_type_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__auto__record_type anno on u.id = anno.url_id
         group by u.id
 )
 , user_location_count as (
@@ -37,7 +37,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.user_location_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__user__location anno on u.id = anno.url_id
         group by u.id
 )
 , user_agency_count as (
@@ -45,7 +45,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.user_url_agency_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__user__agency anno on u.id = anno.url_id
         group by u.id
 )
 , user_url_type_count as (
@@ -53,7 +53,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.user_url_type_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__user__url_type anno on u.id = anno.url_id
         group by u.id
         )
 , user_record_type_count as (
@@ -61,7 +61,7 @@
             u.id,
             count(anno.url_id) as cnt
         from urls u
-             inner join public.user_record_type_suggestions anno on u.id = anno.url_id
+             inner join public.annotation__user__record_type anno on u.id = anno.url_id
         group by u.id
 )
 select

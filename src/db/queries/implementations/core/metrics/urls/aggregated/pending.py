@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.pending import GetMetricsURLsAggregatedPendingResponseDTO
 from src.collectors.enums import URLStatus
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
@@ -17,15 +17,15 @@ class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
 
     @property
     def has_user_relevant_annotation(self):
-        return self.get_exists_for_model(UserURLTypeSuggestion)
+        return self.get_exists_for_model(AnnotationUserURLType)
 
     @property
     def has_user_record_type_annotation(self):
-        return self.get_exists_for_model(UserRecordTypeSuggestion)
+        return self.get_exists_for_model(AnnotationUserRecordType)
 
     @property
     def has_user_agency_annotation(self):
-        return self.get_exists_for_model(UserURLAgencySuggestion)
+        return self.get_exists_for_model(AnnotationAgencyUser)
 
     def get_exists_for_model(self, model: Type[URLDependentMixin]):
         return self.query.c[

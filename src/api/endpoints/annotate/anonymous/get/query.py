@@ -11,12 +11,12 @@ from src.api.endpoints.annotate.anonymous.get.helpers import not_exists_anon_ann
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
 from src.collectors.enums import URLStatus
 from src.db.helpers.query import not_exists_url
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
 from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 from src.db.models.views.url_anno_count import URLAnnotationCount
 from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
@@ -44,19 +44,19 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
                 # Must not have been previously annotated by user
                 not_exists_anon_annotation(
                     session_id=self.session_id,
-                    anon_model=AnonymousAnnotationURLType
+                    anon_model=AnnotationAnonURLType
                 ),
                 not_exists_anon_annotation(
                     session_id=self.session_id,
-                    anon_model=AnonymousAnnotationRecordType
+                    anon_model=AnnotationAnonRecordType
                 ),
                 not_exists_anon_annotation(
                     session_id=self.session_id,
-                    anon_model=AnonymousAnnotationLocation
+                    anon_model=AnnotationLocationAnon
                 ),
                 not_exists_anon_annotation(
                     session_id=self.session_id,
-                    anon_model=AnonymousAnnotationAgency
+                    anon_model=AnnotationAgencyAnon
                 ),
                 ~exists(
                     select(

@@ -7,6 +7,11 @@ from src.api.endpoints.submit.data_source.request import DataSourceSubmissionReq
 from src.collectors.enums import URLStatus
 from src.core.enums import RecordType, BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
@@ -15,11 +20,6 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, UpdateMethodEnum, \
     RetentionScheduleEnum, AccessTypeEnum
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
 
@@ -96,31 +96,31 @@ async def test_submit_data_source(
     assert batch_url_link.url_id == url.id
 
     # Check for anonymous annotations
-    url_type_suggestion: AnonymousAnnotationURLType = await adb_client.one_or_none_model(AnonymousAnnotationURLType)
+    url_type_suggestion: AnnotationAnonURLType = await adb_client.one_or_none_model(AnnotationAnonURLType)
     assert url_type_suggestion is not None
     assert url_type_suggestion.url_id == url.id
     assert url_type_suggestion.url_type == URLType.DATA_SOURCE
     session_id: UUID = url_type_suggestion.session_id
 
     # Check for Location Suggestion
-    location_suggestion: AnonymousAnnotationLocation = await adb_client.one_or_none_model(AnonymousAnnotationLocation)
+    location_suggestion: AnnotationLocationAnon = await adb_client.one_or_none_model(AnnotationLocationAnon)
     assert location_suggestion is not None
     assert location_suggestion.location_id == pittsburgh_locality.location_id
     assert location_suggestion.session_id == session_id
 
     # Check for Agency Suggestion
-    agency_suggestion: AnonymousAnnotationAgency = await adb_client.one_or_none_model(AnonymousAnnotationAgency)
+    agency_suggestion: AnnotationAgencyAnon = await adb_client.one_or_none_model(AnnotationAgencyAnon)
     assert agency_suggestion is not None
     assert agency_suggestion.agency_id == test_agency_id
     assert agency_suggestion.session_id == session_id
 
     # Check for Name Suggestion
-    name_suggestion: URLNameSuggestion = await adb_client.one_or_none_model(URLNameSuggestion)
+    name_suggestion: AnnotationNameSuggestion = await adb_client.one_or_none_model(AnnotationNameSuggestion)
     assert name_suggestion is not None
     assert name_suggestion.suggestion == "Example name"
 
     # Check for Record Type Suggestion
-    record_type_suggestion: AnonymousAnnotationRecordType = await adb_client.one_or_none_model(AnonymousAnnotationRecordType)
+    record_type_suggestion: AnnotationAnonRecordType = await adb_client.one_or_none_model(AnnotationAnonRecordType)
     assert record_type_suggestion.record_type == RecordType.COMPLAINTS_AND_MISCONDUCT
     assert record_type_suggestion.session_id == session_id
 

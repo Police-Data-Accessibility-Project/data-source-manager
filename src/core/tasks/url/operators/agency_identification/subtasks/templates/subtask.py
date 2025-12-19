@@ -6,8 +6,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.models.run_info
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
-from src.db.models.impl.url.suggestion.agency.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
