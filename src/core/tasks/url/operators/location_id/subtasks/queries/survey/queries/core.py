@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.tasks.url.operators.location_id.subtasks.queries.survey.constants import SUBTASK_HIERARCHY_MAPPING
 from src.core.tasks.url.operators.location_id.subtasks.queries.survey.queries.eligible_counts import \
     ELIGIBLE_COUNTS_QUERY
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
 from src.db.queries.base.builder import QueryBuilderBase
 
 from src.db.helpers.session import session_helper as sh

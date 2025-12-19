@@ -1,41 +1,41 @@
 from sqlalchemy import select, func
 
 from src.core.tasks.url.operators.validate.queries.ctes.counts.core import ValidatedCountsCTEContainer
-from src.db.models.impl.link.anonymous_sessions__name_suggestion import LinkAnonymousSessionNameSuggestion
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
+from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 
 _user_counts = (
     select(
-        URLNameSuggestion.url_id,
-        URLNameSuggestion.suggestion.label("entity"),
+        AnnotationNameSuggestion.url_id,
+        AnnotationNameSuggestion.suggestion.label("entity"),
         func.count().label("votes")
     )
     .join(
         LinkUserNameSuggestion,
-        LinkUserNameSuggestion.suggestion_id == URLNameSuggestion.id
+        LinkUserNameSuggestion.suggestion_id == AnnotationNameSuggestion.id
     )
     .group_by(
-        URLNameSuggestion.url_id,
-        URLNameSuggestion.suggestion
+        AnnotationNameSuggestion.url_id,
+        AnnotationNameSuggestion.suggestion
     )
     .cte("user_counts")
 )
 
 _anon_counts = (
     select(
-        URLNameSuggestion.url_id,
-        URLNameSuggestion.suggestion.label("entity"),
+        AnnotationNameSuggestion.url_id,
+        AnnotationNameSuggestion.suggestion.label("entity"),
         func.count().label("votes")
     )
     .join(
-        LinkAnonymousSessionNameSuggestion,
-        LinkAnonymousSessionNameSuggestion.suggestion_id == URLNameSuggestion.id
+        AnnotationNameAnonEndorsement,
+        AnnotationNameAnonEndorsement.suggestion_id == AnnotationNameSuggestion.id
     )
     .group_by(
-        URLNameSuggestion.url_id,
-        URLNameSuggestion.suggestion
+        AnnotationNameSuggestion.url_id,
+        AnnotationNameSuggestion.suggestion
     )
     .cte("anon_counts")
 )

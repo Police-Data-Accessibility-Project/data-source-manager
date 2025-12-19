@@ -14,23 +14,23 @@ from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
 from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
@@ -638,7 +638,7 @@ class DBDataCreator:
         user_id: int,
         location_id: int,
     ):
-        suggestion = UserLocationSuggestion(
+        suggestion = AnnotationLocationUser(
             url_id=url_id,
             user_id=user_id,
             location_id=location_id,
@@ -654,7 +654,7 @@ class DBDataCreator:
     ) -> None:
         locations_found: bool = len(location_ids) > 0
         task_id: int = await self.task(url_ids=[url_id])
-        subtask = AutoLocationIDSubtask(
+        subtask = AnnotationLocationAutoSubtask(
             url_id=url_id,
             type=type_,
             task_id=task_id,
@@ -663,9 +663,9 @@ class DBDataCreator:
         subtask_id: int = await self.adb_client.add(subtask, return_id=True)
         if not locations_found:
             return
-        suggestions: list[LocationIDSubtaskSuggestion] = []
+        suggestions: list[AnnotationLocationAutoSuggestion] = []
         for location_id in location_ids:
-            suggestion = LocationIDSubtaskSuggestion(
+            suggestion = AnnotationLocationAutoSuggestion(
                 subtask_id=subtask_id,
                 location_id=location_id,
                 confidence=confidence
@@ -695,7 +695,7 @@ class DBDataCreator:
     ) -> int:
         if name is None:
             name = f"Test Name {next_int()}"
-        suggestion = URLNameSuggestion(
+        suggestion = AnnotationNameSuggestion(
             url_id=url_id,
             source=source,
             suggestion=name,

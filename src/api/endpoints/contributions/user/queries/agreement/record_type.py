@@ -3,7 +3,7 @@ from sqlalchemy import select, func, and_
 from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
 
 
 def get_record_type_agreement_cte_container(
@@ -16,8 +16,8 @@ def get_record_type_agreement_cte_container(
             func.count()
         )
         .join(
-            UserRecordTypeSuggestion,
-            UserRecordTypeSuggestion.url_id == inner_cte.url_id
+            AnnotationUserRecordType,
+            AnnotationUserRecordType.url_id == inner_cte.url_id
         )
         .group_by(
             inner_cte.user_id
@@ -31,14 +31,14 @@ def get_record_type_agreement_cte_container(
             func.count()
         )
         .join(
-            UserRecordTypeSuggestion,
-            UserRecordTypeSuggestion.url_id == inner_cte.url_id
+            AnnotationUserRecordType,
+            AnnotationUserRecordType.url_id == inner_cte.url_id
         )
         .join(
             URLRecordType,
             and_(
                 URLRecordType.url_id == inner_cte.url_id,
-                URLRecordType.record_type == UserRecordTypeSuggestion.record_type
+                URLRecordType.record_type == AnnotationUserRecordType.record_type
             )
         )
         .group_by(

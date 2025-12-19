@@ -1,14 +1,14 @@
 from sqlalchemy import select, func, exists, and_, or_, any_, cast, Float
 
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 
 
 def get_agency_agreement_cte_container() -> AgreementCTEContainer:
 
-    uuas = UserURLAgencySuggestion
+    uuas = AnnotationAgencyUser
     fuv = FlagURLValidated
     lau = LinkURLAgency
     # CTE 1: All validated Meta URLs/Data Sources and their agencies

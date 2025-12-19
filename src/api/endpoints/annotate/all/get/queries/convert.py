@@ -5,12 +5,12 @@ from src.api.endpoints.annotate.all.get.models.record_type import RecordTypeAnno
 from src.api.endpoints.annotate.all.get.models.url_type import URLTypeAnnotationSuggestion
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
 
 
 def convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
-    db_suggestions: list[UserURLTypeSuggestion]
+    db_suggestions: list[AnnotationUserURLType]
 ) -> list[URLTypeAnnotationSuggestion]:
     counter: Counter[URLType] = Counter()
     for suggestion in db_suggestions:
@@ -26,7 +26,7 @@ def convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
     return anno_suggestions
 
 def convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
-    db_suggestions: list[UserRecordTypeSuggestion]
+    db_suggestions: list[AnnotationUserRecordType]
 ) -> RecordTypeAnnotationResponseOuterInfo:
     counter: Counter[RecordType] = Counter()
     for suggestion in db_suggestions:

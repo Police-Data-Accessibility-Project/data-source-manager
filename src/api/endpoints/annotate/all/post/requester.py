@@ -2,16 +2,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate.all.post.models.name import AnnotationPostNameInfo
 from src.core.enums import RecordType
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
 from src.db.templates.requester import RequesterBase
 
 
@@ -33,7 +33,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
     ) -> None:
         if rt is None:
             return
-        record_type_suggestion = UserRecordTypeSuggestion(
+        record_type_suggestion = AnnotationUserRecordType(
             url_id=self.url_id,
             user_id=self.user_id,
             record_type=rt.value
@@ -44,7 +44,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
         self,
         url_type: URLType,
     ) -> None:
-        relevant_suggestion = UserURLTypeSuggestion(
+        relevant_suggestion = AnnotationUserURLType(
             url_id=self.url_id,
             user_id=self.user_id,
             type=url_type
@@ -53,7 +53,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
 
     def add_agency_ids(self, agency_ids: list[int]) -> None:
         for agency_id in agency_ids:
-            agency_suggestion = UserURLAgencySuggestion(
+            agency_suggestion = AnnotationAgencyUser(
                 url_id=self.url_id,
                 user_id=self.user_id,
                 agency_id=agency_id,
@@ -61,9 +61,9 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
             self.session.add(agency_suggestion)
 
     def add_location_ids(self, location_ids: list[int]) -> None:
-        locations: list[UserLocationSuggestion] = []
+        locations: list[AnnotationLocationUser] = []
         for location_id in location_ids:
-            locations.append(UserLocationSuggestion(
+            locations.append(AnnotationLocationUser(
                 url_id=self.url_id,
                 user_id=self.user_id,
                 location_id=location_id
@@ -83,7 +83,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
             )
             self.session.add(link)
             return
-        name_suggestion = URLNameSuggestion(
+        name_suggestion = AnnotationNameSuggestion(
             url_id=self.url_id,
             suggestion=name_info.new_name,
             source=NameSuggestionSource.USER

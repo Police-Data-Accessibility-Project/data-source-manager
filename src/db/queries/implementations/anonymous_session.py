@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.models.impl.url.suggestion.anonymous import AnonymousSession
+from src.db.models.impl.anon_session.sqlalchemy import AnonymousSession
 from src.db.queries.base.builder import QueryBuilderBase
 
 

@@ -7,7 +7,7 @@ from src.core.tasks.url.operators.record_type.tdo import URLRecordTypeTDO
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.with_html import URLWithHTML
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 
 
@@ -72,9 +72,9 @@ class URLRecordTypeTaskOperator(URLTaskOperatorBase):
             record_type = tdo.record_type
             url_and_record_type_list.append((url_id, record_type))
         # Add to database
-        suggestions: list[AutoRecordTypeSuggestion] = []
+        suggestions: list[AnnotationAutoRecordType] = []
         for url_id, record_type in url_and_record_type_list:
-            suggestion = AutoRecordTypeSuggestion(
+            suggestion = AnnotationAutoRecordType(
                 url_id=url_id,
                 record_type=record_type.value
             )

@@ -10,13 +10,13 @@ from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPost
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
 from src.core.enums import RecordType
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.link.anonymous_sessions__name_suggestion import LinkAnonymousSessionNameSuggestion
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.mixins import URLDependentMixin
 from tests.automated.integration.api.annotate.anonymous.helper import get_next_url_for_anonymous_annotation, \
     post_and_get_next_url_for_anonymous_annotation
@@ -81,10 +81,10 @@ async def test_annotate_anonymous(
     assert post_response_1.next_annotation.url_info.url_id != get_response_1.next_annotation.url_info.url_id
 
     for model in [
-        AnonymousAnnotationAgency,
-        AnonymousAnnotationLocation,
-        AnonymousAnnotationRecordType,
-        AnonymousAnnotationURLType
+        AnnotationAgencyAnon,
+        AnnotationLocationAnon,
+        AnnotationAnonRecordType,
+        AnnotationAnonURLType
     ]:
         instances: list[URLDependentMixin] = await ddc.adb_client.get_all(model)
         assert len(instances) == 1
@@ -92,13 +92,13 @@ async def test_annotate_anonymous(
         assert instance.url_id == get_response_1.next_annotation.url_info.url_id
 
     # Check for existence of name suggestion (2 were added by setup)
-    name_suggestions: list[URLNameSuggestion] = await ddc.adb_client.get_all(URLNameSuggestion)
+    name_suggestions: list[AnnotationNameSuggestion] = await ddc.adb_client.get_all(AnnotationNameSuggestion)
     assert len(name_suggestions) == 3
 
     # Check for existence of link
-    link_instances: list[LinkAnonymousSessionNameSuggestion] = await ddc.adb_client.get_all(LinkAnonymousSessionNameSuggestion)
+    link_instances: list[AnnotationNameAnonEndorsement] = await ddc.adb_client.get_all(AnnotationNameAnonEndorsement)
     assert len(link_instances) == 1
-    link_instance: LinkAnonymousSessionNameSuggestion = link_instances[0]
+    link_instance: AnnotationNameAnonEndorsement = link_instances[0]
     assert link_instance.session_id == session_id
 
     # Run again without giving session ID, confirm original URL returned

@@ -7,7 +7,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.
     SUBTASK_HIERARCHY_MAPPING
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.eligible_counts import \
     ELIGIBLE_COUNTS_QUERY
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 from src.db.queries.base.builder import QueryBuilderBase
 
 from src.db.helpers.session import session_helper as sh

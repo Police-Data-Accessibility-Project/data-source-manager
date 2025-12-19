@@ -2,31 +2,31 @@ from sqlalchemy import select, func
 
 from src.core.tasks.url.operators.validate.queries.ctes.counts.constants import ANONYMOUS_VOTE_RATIO
 from src.core.tasks.url.operators.validate.queries.ctes.counts.core import ValidatedCountsCTEContainer
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 
 _user_counts = (
     select(
-        UserRecordTypeSuggestion.url_id,
-        UserRecordTypeSuggestion.record_type.label("entity"),
+        AnnotationUserRecordType.url_id,
+        AnnotationUserRecordType.record_type.label("entity"),
         func.count().label("votes")
     )
     .group_by(
-        UserRecordTypeSuggestion.url_id,
-        UserRecordTypeSuggestion.record_type
+        AnnotationUserRecordType.url_id,
+        AnnotationUserRecordType.record_type
     )
 )
 
 _anon_counts = (
     select(
-        AnonymousAnnotationRecordType.url_id,
-        AnonymousAnnotationRecordType.record_type.label("entity"),
+        AnnotationAnonRecordType.url_id,
+        AnnotationAnonRecordType.record_type.label("entity"),
         (func.count() * ANONYMOUS_VOTE_RATIO).label("votes")
     )
     .group_by(
-        AnonymousAnnotationRecordType.url_id,
-        AnonymousAnnotationRecordType.record_type
+        AnnotationAnonRecordType.url_id,
+        AnnotationAnonRecordType.record_type
     )
 )
 

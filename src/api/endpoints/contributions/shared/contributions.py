@@ -1,6 +1,6 @@
 from sqlalchemy import select, func, CTE, Column
 
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
 
 
 class ContributionsCTEContainer:
@@ -8,11 +8,11 @@ class ContributionsCTEContainer:
     def __init__(self):
         self._cte = (
             select(
-                UserURLTypeSuggestion.user_id,
+                AnnotationUserURLType.user_id,
                 func.count().label("count")
             )
             .group_by(
-                UserURLTypeSuggestion.user_id
+                AnnotationUserURLType.user_id
             )
             .cte("contributions")
         )

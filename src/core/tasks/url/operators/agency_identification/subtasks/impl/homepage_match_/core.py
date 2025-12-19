@@ -7,8 +7,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_m
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.queries.get import \
     GetHomepageMatchSubtaskURLsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
-from src.db.models.impl.url.suggestion.agency.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
 
 
 class HomepageMatchSubtaskOperator(

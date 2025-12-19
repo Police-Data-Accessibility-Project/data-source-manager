@@ -27,8 +27,8 @@ class Agency(
     )
 
     # Relationships
-    automated_suggestions = relationship("AgencyIDSubtaskSuggestion")
-    user_suggestions = relationship("UserURLAgencySuggestion", back_populates="agency")
+    automated_suggestions = relationship("AnnotationAgencyAutoSuggestion")
+    user_suggestions = relationship("AnnotationAgencyUser", back_populates="agency")
     confirmed_urls = relationship("LinkURLAgency", back_populates="agency")
 
     locations = relationship(

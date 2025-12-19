@@ -1,16 +1,14 @@
-from typing import Any
-
 from sqlalchemy import select, case, literal, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseInnerDTO, \
     GetMetricsURLsBreakdownPendingResponseDTO
 from src.collectors.enums import URLStatus
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -21,19 +19,19 @@ class GetURLsBreakdownPendingMetricsQueryBuilder(QueryBuilderBase):
         flags = (
             select(
                 URL.id.label("url_id"),
-                case((UserRecordTypeSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
+                case((AnnotationUserRecordType.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_record_type_annotation"
                 ),
-                case((UserURLTypeSuggestion.url_id != None, literal(True)), else_=literal(False)).label(
+                case((AnnotationUserURLType.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_relevant_annotation"
                 ),
-                case((UserURLAgencySuggestion.url_id != None, literal(True)), else_=literal(False)).label(
+                case((AnnotationAgencyUser.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_agency_annotation"
                 ),
             )
-            .outerjoin(UserRecordTypeSuggestion, URL.id == UserRecordTypeSuggestion.url_id)
-            .outerjoin(UserURLTypeSuggestion, URL.id == UserURLTypeSuggestion.url_id)
-            .outerjoin(UserURLAgencySuggestion, URL.id == UserURLAgencySuggestion.url_id)
+            .outerjoin(AnnotationUserRecordType, URL.id == AnnotationUserRecordType.url_id)
+            .outerjoin(AnnotationUserURLType, URL.id == AnnotationUserURLType.url_id)
+            .outerjoin(AnnotationAgencyUser, URL.id == AnnotationAgencyUser.url_id)
         ).cte("flags")
 
         month = func.date_trunc('month', URL.created_at)
