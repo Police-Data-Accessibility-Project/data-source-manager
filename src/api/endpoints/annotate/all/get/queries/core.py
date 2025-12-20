@@ -4,17 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.annotate._shared.extract import extract_and_format_get_annotation_result
 from src.api.endpoints.annotate._shared.queries import helper
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
-from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
-from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
-from src.db.models.views.unvalidated_url import UnvalidatedURL
-from src.db.models.views.url_anno_count import URLAnnotationCount
-from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -45,7 +40,6 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         query = (
             query
             .where(
-                    URL.status == URLStatus.OK.value,
                     # Must not have been previously annotated by user
                     ~exists(
                         select(AnnotationUserURLType.url_id)
@@ -77,14 +71,6 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                         .where(
                             AnnotationUserRecordType.url_id == URL.id,
                             AnnotationUserRecordType.user_id == self.user_id,
-                        )
-                    ),
-                    ~exists(
-                        select(
-                            FlagURLSuspended.url_id
-                        )
-                        .where(
-                            FlagURLSuspended.url_id == URL.id,
                         )
                     )
             )
