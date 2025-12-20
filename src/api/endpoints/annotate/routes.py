@@ -12,6 +12,8 @@ from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQuer
 from src.api.endpoints.annotate.anonymous.get.query import GetNextURLForAnonymousAnnotationQueryBuilder
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
 from src.api.endpoints.annotate.anonymous.post.query import AddAnonymousAnnotationsToURLQueryBuilder
+from src.api.endpoints.annotate.migrate.query import MigrateAnonymousAnnotationsQueryBuilder
+from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.security.dtos.access_info import AccessInfo
@@ -113,6 +115,23 @@ async def annotate_url_for_all_annotations_and_get_next_url(
         url_id=anno_url_id
     )
 
+@annotate_router.post('/migrate')
+async def migrate_annotations_to_user(
+    async_core: AsyncCore = Depends(get_async_core),
+    access_info: AccessInfo = Depends(get_standard_user_access_info),
+    session_id: UUID = Query(description="The session id of the anonymous user")
+) -> MessageResponse:
+    """Migrate annotations from an anonymous session to a user's account."""
+    await async_core.adb_client.run_query_builder(
+        MigrateAnonymousAnnotationsQueryBuilder(
+            session_id=session_id,
+            user_id=access_info.user_id
+        )
+    )
+    return MessageResponse(
+        message="Annotations migrated successfully."
+    )
+
 @annotate_router.get("/suggestions/agencies/{url_id}")
 async def get_agency_suggestions(
     url_id: int,
@@ -126,3 +145,4 @@ async def get_agency_suggestions(
             location_id=location_id
         )
     )
+

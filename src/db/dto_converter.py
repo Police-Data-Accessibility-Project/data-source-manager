@@ -11,9 +11,9 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 
 class DTOConverter:
@@ -24,7 +24,7 @@ class DTOConverter:
 
     @staticmethod
     def final_review_annotation_relevant_info(
-        user_suggestions: list[AnnotationUserURLType],
+        user_suggestions: list[AnnotationURLTypeUser],
         auto_suggestion: AnnotationAutoURLType
     ) -> FinalReviewAnnotationRelevantInfo:
 
@@ -44,7 +44,7 @@ class DTOConverter:
 
     @staticmethod
     def final_review_annotation_record_type_info(
-        user_suggestions: list[AnnotationUserRecordType],
+        user_suggestions: list[AnnotationRecordTypeUser],
         auto_suggestion: AnnotationAutoRecordType
     ):
 

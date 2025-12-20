@@ -14,8 +14,8 @@ from src.core.enums import RecordType
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
-from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
-from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from tests.automated.integration.tasks.url.impl.validate.helper import TestValidateTaskHelper, DEFAULT_RECORD_TYPE
@@ -55,12 +55,12 @@ async def test_data_source(
     session_id_2: UUID = await helper.get_anonymous_session_id()
 
     for session_id in [session_id_1, session_id_2]:
-        anon_url_type = AnnotationAnonURLType(
+        anon_url_type = AnnotationURLTypeAnon(
             url_type=URLType.DATA_SOURCE,
             session_id=session_id,
             url_id=helper.url_id
         )
-        anon_record_type = AnnotationAnonRecordType(
+        anon_record_type = AnnotationRecordTypeAnon(
             record_type=DEFAULT_RECORD_TYPE,
             session_id=session_id,
             url_id=helper.url_id
@@ -101,7 +101,7 @@ async def test_data_source(
 
     # Add tiebreaker -- a single anonymous vote
     session_id_3: UUID = await helper.get_anonymous_session_id()
-    anon_record_type = AnnotationAnonRecordType(
+    anon_record_type = AnnotationRecordTypeAnon(
         record_type=DEFAULT_RECORD_TYPE,
         session_id=session_id_3,
         url_id=helper.url_id

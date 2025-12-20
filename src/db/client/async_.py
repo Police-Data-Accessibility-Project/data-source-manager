@@ -77,9 +77,9 @@ from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
@@ -263,7 +263,7 @@ class AsyncDatabaseClient:
     ):
         prior_suggestion = await self.get_user_suggestion(
             session,
-            model=AnnotationUserURLType,
+            model=AnnotationURLTypeUser,
             user_id=user_id,
             url_id=url_id
         )
@@ -271,7 +271,7 @@ class AsyncDatabaseClient:
             prior_suggestion.type = suggested_status.value
             return
 
-        suggestion = AnnotationUserURLType(
+        suggestion = AnnotationURLTypeUser(
             url_id=url_id,
             user_id=user_id,
             type=suggested_status.value
@@ -304,7 +304,7 @@ class AsyncDatabaseClient:
     ):
         prior_suggestion = await self.get_user_suggestion(
             session,
-            model=AnnotationUserRecordType,
+            model=AnnotationRecordTypeUser,
             user_id=user_id,
             url_id=url_id
         )
@@ -312,7 +312,7 @@ class AsyncDatabaseClient:
             prior_suggestion.record_type = record_type.value
             return
 
-        suggestion = AnnotationUserRecordType(
+        suggestion = AnnotationRecordTypeUser(
             url_id=url_id,
             user_id=user_id,
             record_type=record_type.value

@@ -6,8 +6,8 @@ from src.api.endpoints.annotate._shared.queries import helper
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
@@ -42,10 +42,10 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             .where(
                     # Must not have been previously annotated by user
                     ~exists(
-                        select(AnnotationUserURLType.url_id)
+                        select(AnnotationURLTypeUser.url_id)
                         .where(
-                            AnnotationUserURLType.url_id == URL.id,
-                            AnnotationUserURLType.user_id == self.user_id,
+                            AnnotationURLTypeUser.url_id == URL.id,
+                            AnnotationURLTypeUser.user_id == self.user_id,
                         )
                     ),
                     ~exists(
@@ -66,11 +66,11 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
                     ),
                     ~exists(
                         select(
-                            AnnotationUserRecordType.url_id
+                            AnnotationRecordTypeUser.url_id
                         )
                         .where(
-                            AnnotationUserRecordType.url_id == URL.id,
-                            AnnotationUserRecordType.user_id == self.user_id,
+                            AnnotationRecordTypeUser.url_id == URL.id,
+                            AnnotationRecordTypeUser.user_id == self.user_id,
                         )
                     )
             )

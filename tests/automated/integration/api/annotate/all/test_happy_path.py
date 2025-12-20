@@ -12,9 +12,9 @@ from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
@@ -106,7 +106,7 @@ async def test_annotate_all(
     # Check that all annotations are present in the database
 
     # Check URL Type Suggestions
-    all_relevance_suggestions: list[AnnotationUserURLType] = await adb_client.get_all(AnnotationUserURLType)
+    all_relevance_suggestions: list[AnnotationURLTypeUser] = await adb_client.get_all(AnnotationURLTypeUser)
     assert len(all_relevance_suggestions) == 4
     suggested_types: set[URLType] = {sugg.type for sugg in all_relevance_suggestions}
     assert suggested_types == {URLType.DATA_SOURCE, URLType.NOT_RELEVANT}
@@ -118,7 +118,7 @@ async def test_annotate_all(
     assert agency_id in suggested_agency_ids
 
     # Should be one record type
-    all_record_type_suggestions = await adb_client.get_all(AnnotationUserRecordType)
+    all_record_type_suggestions = await adb_client.get_all(AnnotationRecordTypeUser)
     assert len(all_record_type_suggestions) == 3
     suggested_record_types: set[RecordType] = {
         sugg.record_type for sugg in all_record_type_suggestions
@@ -172,6 +172,6 @@ async def test_annotate_all(
     assert "New Name" in suggested_names
 
     # Confirm 2 link user name suggestions
-    link_user_name_suggestions: list[LinkUserNameSuggestion] = await adb_client.get_all(LinkUserNameSuggestion)
+    link_user_name_suggestions: list[AnnotationNameUserEndorsement] = await adb_client.get_all(AnnotationNameUserEndorsement)
     assert len(link_user_name_suggestions) == 2
 

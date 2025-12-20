@@ -7,8 +7,8 @@ from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
-from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.queries.base.builder import QueryBuilderBase
 
@@ -27,7 +27,7 @@ class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> None:
 
-        url_type_suggestion = AnnotationAnonURLType(
+        url_type_suggestion = AnnotationURLTypeAnon(
             url_id=self.url_id,
             url_type=self.post_info.suggested_status,
             session_id=self.session_id
@@ -57,7 +57,7 @@ class AddAnonymousAnnotationsToURLQueryBuilder(QueryBuilderBase):
             session.add(name_suggestion)
 
         if self.post_info.record_type is not None:
-            record_type_suggestion = AnnotationAnonRecordType(
+            record_type_suggestion = AnnotationRecordTypeAnon(
                 url_id=self.url_id,
                 record_type=self.post_info.record_type,
                 session_id=self.session_id

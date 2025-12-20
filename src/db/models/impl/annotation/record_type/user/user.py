@@ -8,7 +8,7 @@ from src.db.models.templates_.with_id import WithIDBase
 from src.db.models.types import record_type_values
 
 
-class AnnotationUserRecordType(
+class AnnotationRecordTypeUser(
     UpdatedAtMixin,
     CreatedAtMixin,
     URLDependentMixin,

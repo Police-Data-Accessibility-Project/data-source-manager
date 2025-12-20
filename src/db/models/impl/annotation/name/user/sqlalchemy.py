@@ -4,7 +4,7 @@ from src.db.models.mixins import CreatedAtMixin
 from src.db.models.templates_.base import Base
 
 
-class LinkUserNameSuggestion(
+class AnnotationNameUserEndorsement(
     Base,
     CreatedAtMixin,
 ):

@@ -9,7 +9,7 @@ from src.db.models.templates_.base import Base
 from src.db.models.templates_.with_id import WithIDBase
 
 
-class AnnotationUserURLType(
+class AnnotationURLTypeUser(
     UpdatedAtMixin,
     CreatedAtMixin,
     URLDependentMixin,

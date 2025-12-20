@@ -5,9 +5,9 @@ from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLoc
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 
 async def add_full_data_sources_annotations(
@@ -26,17 +26,17 @@ async def add_full_data_sources_annotations(
         name_suggestion,
         return_id=True
     )
-    url_type_suggestion = AnnotationUserURLType(
+    url_type_suggestion = AnnotationURLTypeUser(
         url_id=url_id,
         user_id=user_id,
         type=URLType.DATA_SOURCE
     )
-    record_type_suggestion = AnnotationUserRecordType(
+    record_type_suggestion = AnnotationRecordTypeUser(
         user_id=user_id,
         url_id=url_id,
         record_type=RecordType.RECORDS_REQUEST_INFO.value
     )
-    user_name_suggestion = LinkUserNameSuggestion(
+    user_name_suggestion = AnnotationNameUserEndorsement(
         user_id=user_id,
         suggestion_id=name_suggestion_id,
     )
@@ -64,7 +64,7 @@ async def add_minimal_not_relevant_annotation(
     user_id: int,
     adb_client: AsyncDatabaseClient
 ) -> None:
-    url_type_suggestion = AnnotationUserURLType(
+    url_type_suggestion = AnnotationURLTypeUser(
         url_id=url_id,
         user_id=user_id,
         type=URLType.NOT_RELEVANT

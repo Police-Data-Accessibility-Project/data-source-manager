@@ -15,9 +15,9 @@ from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
@@ -118,12 +118,12 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     auto_record_type_suggestion = relationship(
         AnnotationAutoRecordType, uselist=False, back_populates="url")
     user_record_type_suggestions = relationship(
-        AnnotationUserRecordType, back_populates="url")
+        AnnotationRecordTypeUser, back_populates="url")
     # Relvant/URL Type
     auto_relevant_suggestion = relationship(
         AnnotationAutoURLType, uselist=False, back_populates="url")
     user_relevant_suggestions = relationship(
-        AnnotationUserURLType, back_populates="url")
+        AnnotationURLTypeUser, back_populates="url")
 
     reviewing_user = relationship(
         "ReviewingUserURL", uselist=False, back_populates="url")
