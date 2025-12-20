@@ -12,11 +12,11 @@ from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.queries.base.builder import QueryBuilderBase
 from src.util.models.url_and_scheme import URLAndScheme
 from src.util.url import clean_url, get_url_and_scheme, is_valid_url
@@ -77,7 +77,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
 
         # Add record type as suggestion if exists
         if self.request.record_type is not None:
-            rec_sugg = AnnotationUserRecordType(
+            rec_sugg = AnnotationRecordTypeUser(
                 user_id=self.user_id,
                 url_id=url_insert.id,
                 record_type=self.request.record_type.value
@@ -94,7 +94,7 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
             session.add(name_sugg)
             await session.flush()
 
-            link_name_sugg = LinkUserNameSuggestion(
+            link_name_sugg = AnnotationNameUserEndorsement(
                 suggestion_id=name_sugg.id,
                 user_id=self.user_id
             )

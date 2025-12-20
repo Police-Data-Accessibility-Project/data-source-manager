@@ -1,4 +1,4 @@
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.templates.markers.bulk.insert import BulkInsertableModel
 
 
@@ -8,5 +8,5 @@ class LinkUserNameSuggestionPydantic(BulkInsertableModel):
     user_id: int
 
     @classmethod
-    def sa_model(cls) -> type[LinkUserNameSuggestion]:
-        return LinkUserNameSuggestion
+    def sa_model(cls) -> type[AnnotationNameUserEndorsement]:
+        return AnnotationNameUserEndorsement

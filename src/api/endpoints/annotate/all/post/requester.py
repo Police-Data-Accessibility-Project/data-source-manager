@@ -7,11 +7,11 @@ from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLoc
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.templates.requester import RequesterBase
 
 
@@ -33,7 +33,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
     ) -> None:
         if rt is None:
             return
-        record_type_suggestion = AnnotationUserRecordType(
+        record_type_suggestion = AnnotationRecordTypeUser(
             url_id=self.url_id,
             user_id=self.user_id,
             record_type=rt.value
@@ -44,7 +44,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
         self,
         url_type: URLType,
     ) -> None:
-        relevant_suggestion = AnnotationUserURLType(
+        relevant_suggestion = AnnotationURLTypeUser(
             url_id=self.url_id,
             user_id=self.user_id,
             type=url_type
@@ -77,7 +77,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
         if name_info.empty:
             return
         if name_info.existing_name_id is not None:
-            link = LinkUserNameSuggestion(
+            link = AnnotationNameUserEndorsement(
                 user_id=self.user_id,
                 suggestion_id=name_info.existing_name_id,
             )
@@ -90,7 +90,7 @@ class AddAllAnnotationsToURLRequester(RequesterBase):
         )
         self.session.add(name_suggestion)
         await self.session.flush()
-        link = LinkUserNameSuggestion(
+        link = AnnotationNameUserEndorsement(
             user_id=self.user_id,
             suggestion_id=name_suggestion.id,
         )

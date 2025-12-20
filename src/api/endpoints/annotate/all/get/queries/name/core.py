@@ -7,7 +7,7 @@ from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggest
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -26,7 +26,7 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 AnnotationNameSuggestion.id.label('id'),
                 AnnotationNameSuggestion.suggestion.label('display_name'),
                 func.count(
-                    LinkUserNameSuggestion.user_id
+                    AnnotationNameUserEndorsement.user_id
                 ).label('user_count'),
                 case(
                     (AnnotationNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE, 1),
@@ -34,8 +34,8 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 ).label("robo_count")
             )
             .outerjoin(
-                LinkUserNameSuggestion,
-                LinkUserNameSuggestion.suggestion_id == AnnotationNameSuggestion.id,
+                AnnotationNameUserEndorsement,
+                AnnotationNameUserEndorsement.suggestion_id == AnnotationNameSuggestion.id,
             )
             .where(
                 AnnotationNameSuggestion.url_id == self.url_id,
@@ -45,7 +45,7 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 AnnotationNameSuggestion.suggestion,
             )
             .order_by(
-                func.count(LinkUserNameSuggestion.user_id).desc(),
+                func.count(AnnotationNameUserEndorsement.user_id).desc(),
                 AnnotationNameSuggestion.id.asc(),
             )
             .limit(3)

@@ -7,8 +7,8 @@ from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -19,18 +19,18 @@ class GetURLsBreakdownPendingMetricsQueryBuilder(QueryBuilderBase):
         flags = (
             select(
                 URL.id.label("url_id"),
-                case((AnnotationUserRecordType.url_id != None, literal(True)), else_=literal(False)).label(
+                case((AnnotationRecordTypeUser.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_record_type_annotation"
                 ),
-                case((AnnotationUserURLType.url_id != None, literal(True)), else_=literal(False)).label(
+                case((AnnotationURLTypeUser.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_relevant_annotation"
                 ),
                 case((AnnotationAgencyUser.url_id != None, literal(True)), else_=literal(False)).label(
                     "has_user_agency_annotation"
                 ),
             )
-            .outerjoin(AnnotationUserRecordType, URL.id == AnnotationUserRecordType.url_id)
-            .outerjoin(AnnotationUserURLType, URL.id == AnnotationUserURLType.url_id)
+            .outerjoin(AnnotationRecordTypeUser, URL.id == AnnotationRecordTypeUser.url_id)
+            .outerjoin(AnnotationURLTypeUser, URL.id == AnnotationURLTypeUser.url_id)
             .outerjoin(AnnotationAgencyUser, URL.id == AnnotationAgencyUser.url_id)
         ).cte("flags")
 

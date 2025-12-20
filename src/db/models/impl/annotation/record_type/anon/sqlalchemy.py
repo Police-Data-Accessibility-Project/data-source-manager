@@ -7,7 +7,7 @@ from src.db.models.mixins import URLDependentMixin, CreatedAtMixin, AnonymousSes
 from src.db.models.templates_.base import Base
 
 
-class AnnotationAnonRecordType(
+class AnnotationRecordTypeAnon(
     Base,
     URLDependentMixin,
     CreatedAtMixin,

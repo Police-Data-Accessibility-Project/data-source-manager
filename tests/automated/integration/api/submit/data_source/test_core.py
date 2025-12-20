@@ -10,8 +10,8 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
-from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
@@ -96,7 +96,7 @@ async def test_submit_data_source(
     assert batch_url_link.url_id == url.id
 
     # Check for anonymous annotations
-    url_type_suggestion: AnnotationAnonURLType = await adb_client.one_or_none_model(AnnotationAnonURLType)
+    url_type_suggestion: AnnotationURLTypeAnon = await adb_client.one_or_none_model(AnnotationURLTypeAnon)
     assert url_type_suggestion is not None
     assert url_type_suggestion.url_id == url.id
     assert url_type_suggestion.url_type == URLType.DATA_SOURCE
@@ -120,7 +120,7 @@ async def test_submit_data_source(
     assert name_suggestion.suggestion == "Example name"
 
     # Check for Record Type Suggestion
-    record_type_suggestion: AnnotationAnonRecordType = await adb_client.one_or_none_model(AnnotationAnonRecordType)
+    record_type_suggestion: AnnotationRecordTypeAnon = await adb_client.one_or_none_model(AnnotationRecordTypeAnon)
     assert record_type_suggestion.record_type == RecordType.COMPLAINTS_AND_MISCONDUCT
     assert record_type_suggestion.session_id == session_id
 

@@ -3,7 +3,7 @@ from sqlalchemy import select, func
 from src.core.tasks.url.operators.validate.queries.ctes.counts.core import ValidatedCountsCTEContainer
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 
 _user_counts = (
@@ -13,8 +13,8 @@ _user_counts = (
         func.count().label("votes")
     )
     .join(
-        LinkUserNameSuggestion,
-        LinkUserNameSuggestion.suggestion_id == AnnotationNameSuggestion.id
+        AnnotationNameUserEndorsement,
+        AnnotationNameUserEndorsement.suggestion_id == AnnotationNameSuggestion.id
     )
     .group_by(
         AnnotationNameSuggestion.url_id,

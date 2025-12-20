@@ -7,8 +7,8 @@ from src.api.endpoints.metrics.dtos.get.urls.aggregated.pending import GetMetric
 from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationUserURLType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
@@ -17,11 +17,11 @@ class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
 
     @property
     def has_user_relevant_annotation(self):
-        return self.get_exists_for_model(AnnotationUserURLType)
+        return self.get_exists_for_model(AnnotationURLTypeUser)
 
     @property
     def has_user_record_type_annotation(self):
-        return self.get_exists_for_model(AnnotationUserRecordType)
+        return self.get_exists_for_model(AnnotationRecordTypeUser)
 
     @property
     def has_user_agency_annotation(self):

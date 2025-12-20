@@ -9,10 +9,10 @@ from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.name.user.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationUserRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -75,13 +75,13 @@ async def test_maximal(
     assert name_sugg.suggestion == "Example URL"
     assert name_sugg.source == NameSuggestionSource.USER
 
-    name_link_suggs: list[LinkUserNameSuggestion] = await adb_client.get_all(LinkUserNameSuggestion)
+    name_link_suggs: list[AnnotationNameUserEndorsement] = await adb_client.get_all(AnnotationNameUserEndorsement)
     assert len(name_link_suggs) == 1
-    name_link_sugg: LinkUserNameSuggestion = name_link_suggs[0]
+    name_link_sugg: AnnotationNameUserEndorsement = name_link_suggs[0]
     assert name_link_sugg.suggestion_id == name_sugg.id
 
-    rec_suggs: list[AnnotationUserRecordType] = await adb_client.get_all(AnnotationUserRecordType)
+    rec_suggs: list[AnnotationRecordTypeUser] = await adb_client.get_all(AnnotationRecordTypeUser)
     assert len(rec_suggs) == 1
-    rec_sugg: AnnotationUserRecordType = rec_suggs[0]
+    rec_sugg: AnnotationRecordTypeUser = rec_suggs[0]
     assert rec_sugg.url_id == url_id
     assert rec_sugg.record_type == RecordType.INCARCERATION_RECORDS.value

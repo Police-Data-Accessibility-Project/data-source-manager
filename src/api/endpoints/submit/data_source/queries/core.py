@@ -12,8 +12,8 @@ from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
-from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
@@ -75,7 +75,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         session_id: uuid.UUID = await MakeAnonymousSessionQueryBuilder().run(session=session)
 
         # Add URL Type Suggestion
-        url_type_suggestion = AnnotationAnonURLType(
+        url_type_suggestion = AnnotationURLTypeAnon(
             url_id=url_id,
             url_type=URLType.DATA_SOURCE,
             session_id=session_id
@@ -84,7 +84,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
 
         # Optionally add Record Type as suggestion
         if self.request.record_type is not None:
-            record_type_suggestion = AnnotationAnonRecordType(
+            record_type_suggestion = AnnotationRecordTypeAnon(
                 url_id=url_id,
                 record_type=self.request.record_type.value,
                 session_id=session_id
