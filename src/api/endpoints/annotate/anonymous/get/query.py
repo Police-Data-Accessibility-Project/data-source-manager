@@ -1,27 +1,18 @@
-from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Select, func, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.api.endpoints.annotate._shared.extract import extract_and_format_get_annotation_result
+from src.api.endpoints.annotate._shared.queries import helper
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.api.endpoints.annotate.anonymous.get.helpers import not_exists_anon_annotation
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
-from src.collectors.enums import URLStatus
-from src.db.helpers.query import not_exists_url
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationAnonRecordType
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationAnonURLType
-from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.views.unvalidated_url import UnvalidatedURL
-from src.db.models.views.url_anno_count import URLAnnotationCount
-from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
-from src.api.endpoints.annotate._shared.queries import helper
 
 
 class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
@@ -40,7 +31,6 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
         query = (
             query
             .where(
-                URL.status == URLStatus.OK.value,
                 # Must not have been previously annotated by user
                 not_exists_anon_annotation(
                     session_id=self.session_id,
@@ -57,14 +47,6 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
                 not_exists_anon_annotation(
                     session_id=self.session_id,
                     anon_model=AnnotationAgencyAnon
-                ),
-                ~exists(
-                    select(
-                        FlagURLSuspended.url_id
-                    )
-                    .where(
-                        FlagURLSuspended.url_id == URL.id,
-                    )
                 )
             )
         )
