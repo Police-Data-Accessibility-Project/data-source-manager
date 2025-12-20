@@ -1,7 +1,8 @@
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import insert, select, delete
+from sqlalchemy import select, delete
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
@@ -45,8 +46,8 @@ class MigrateAnonymousAnnotationsQueryBuilder(QueryBuilderBase):
                 self.user_id
             ).where(
                 AnnotationAgencyAnon.session_id == self.session_id
-            )
-        )
+            ).distinct()
+        ).on_conflict_do_nothing(index_elements=["agency_id", "url_id", "user_id"])
         await session.execute(statement)
         # Delete all anonymous agency annotations.
         statement = delete(AnnotationAgencyAnon).where(
@@ -65,8 +66,8 @@ class MigrateAnonymousAnnotationsQueryBuilder(QueryBuilderBase):
                 self.user_id
             ).where(
                 AnnotationLocationAnon.session_id == self.session_id
-            )
-        )
+            ).distinct()
+        ).on_conflict_do_nothing(index_elements=["location_id", "url_id", "user_id"])
         await session.execute(statement)
         # Delete all anonymous location annotations.
         statement = delete(AnnotationLocationAnon).where(
@@ -84,8 +85,8 @@ class MigrateAnonymousAnnotationsQueryBuilder(QueryBuilderBase):
                 self.user_id
             ).where(
                 AnnotationRecordTypeAnon.session_id == self.session_id
-            )
-        )
+            ).distinct()
+        ).on_conflict_do_nothing(index_elements=["url_id", "user_id"])
         await session.execute(statement)
         # Delete all anonymous record type annotations.
         statement = delete(AnnotationRecordTypeAnon).where(
@@ -103,8 +104,8 @@ class MigrateAnonymousAnnotationsQueryBuilder(QueryBuilderBase):
                 self.user_id
             ).where(
                 AnnotationURLTypeAnon.session_id == self.session_id
-            )
-        )
+            ).distinct()
+        ).on_conflict_do_nothing(index_elements=["url_id", "user_id"])
         await session.execute(statement)
         # Delete all anonymous url type annotations.
         statement = delete(AnnotationURLTypeAnon).where(
@@ -121,8 +122,8 @@ class MigrateAnonymousAnnotationsQueryBuilder(QueryBuilderBase):
                 self.user_id
             ).where(
                 AnnotationNameAnonEndorsement.session_id == self.session_id
-            )
-        )
+            ).distinct()
+        ).on_conflict_do_nothing(index_elements=["suggestion_id", "user_id"])
         await session.execute(statement)
         # Delete all anonymous name annotations.
         statement = delete(AnnotationNameAnonEndorsement).where(
