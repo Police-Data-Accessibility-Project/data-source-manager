@@ -4,11 +4,16 @@ from sqlalchemy.orm import relationship, Mapped
 
 from src.collectors.enums import URLStatus
 from src.db.models.helpers import enum_column
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
@@ -107,23 +112,30 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     auto_location_subtasks = relationship(
         AnnotationLocationAutoSubtask
     )
+    anon_location_suggestions = relationship(
+        AnnotationLocationAnon)
 
     # Agency
     user_agency_suggestions = relationship(
         AnnotationAgencyUser, back_populates="url")
     auto_agency_subtasks = relationship(
-        AnnotationAgencyAutoSubtask
-    )
+        AnnotationAgencyAutoSubtask)
+    anon_agency_suggestions = relationship(
+        AnnotationAgencyAnon)
     # Record Type
     auto_record_type_suggestion = relationship(
         AnnotationAutoRecordType, uselist=False, back_populates="url")
     user_record_type_suggestions = relationship(
         AnnotationRecordTypeUser, back_populates="url")
+    anon_record_type_suggestions = relationship(
+        AnnotationRecordTypeAnon)
     # Relvant/URL Type
-    auto_relevant_suggestion = relationship(
+    auto_url_type_suggestions = relationship(
         AnnotationAutoURLType, uselist=False, back_populates="url")
-    user_relevant_suggestions = relationship(
+    user_url_type_suggestions = relationship(
         AnnotationURLTypeUser, back_populates="url")
+    anon_url_type_suggestions = relationship(
+        AnnotationURLTypeAnon)
 
     reviewing_user = relationship(
         "ReviewingUserURL", uselist=False, back_populates="url")

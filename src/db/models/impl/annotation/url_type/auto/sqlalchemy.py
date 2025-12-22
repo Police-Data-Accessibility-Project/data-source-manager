@@ -25,4 +25,4 @@ class AnnotationAutoURLType(
 
     # Relationships
 
-    url = relationship("URL", back_populates="auto_relevant_suggestion")
+    url = relationship("URL")

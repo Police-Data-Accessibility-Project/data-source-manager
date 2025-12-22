@@ -28,18 +28,25 @@ async def extract_and_format_get_annotation_result(
     html_response_info = DTOConverter.html_content_list_to_html_response_info(
         url.html_content
     )
+    # URL Types
     url_type_suggestions: list[URLTypeAnnotationSuggestion] = \
         convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
-            url.user_relevant_suggestions
+            url.user_url_type_suggestions,
+            url.anon_url_type_suggestions
         )
+    # Record Types
     record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = \
         convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
-            url.user_record_type_suggestions
+            url.user_record_type_suggestions,
+            url.anon_record_type_suggestions
         )
+    # Agencies
     agency_suggestions: AgencyAnnotationResponseOuterInfo = \
         await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
+    # Locations
     location_suggestions: LocationAnnotationResponseOuterInfo = \
         await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
+    # Names
     name_suggestions: NameAnnotationResponseOuterInfo = \
         await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
     return GetNextURLForAllAnnotationResponse(

@@ -29,4 +29,4 @@ class AnnotationURLTypeUser(
 
     # Relationships
 
-    url = relationship("URL", back_populates="user_relevant_suggestions")
+    url = relationship("URL")
