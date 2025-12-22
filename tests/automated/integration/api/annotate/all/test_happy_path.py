@@ -46,7 +46,7 @@ async def test_annotate_all(
     url_mapping_2 = setup_info_2.url_mapping
 
     # Get a valid URL to annotate
-    get_response_1 = await ath.request_validator.get_next_url_for_all_annotations()
+    get_response_1: GetNextURLForAllAnnotationResponse = await ath.request_validator.get_next_url_for_all_annotations()
     assert get_response_1.next_annotation is not None
     assert len(get_response_1.next_annotation.name_suggestions.suggestions) == 1
     name_suggestion = get_response_1.next_annotation.name_suggestions.suggestions[0]

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate.all.get.models.name import NameAnnotationSuggestion, NameAnnotationResponseOuterInfo
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
@@ -28,6 +29,9 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 func.count(
                     AnnotationNameUserEndorsement.user_id
                 ).label('user_count'),
+                func.count(
+                    AnnotationNameAnonEndorsement.session_id
+                ).label('anon_count'),
                 case(
                     (AnnotationNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE, 1),
                     else_=0
@@ -37,6 +41,10 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 AnnotationNameUserEndorsement,
                 AnnotationNameUserEndorsement.suggestion_id == AnnotationNameSuggestion.id,
             )
+            .outerjoin(
+                AnnotationNameAnonEndorsement,
+                AnnotationNameAnonEndorsement.suggestion_id == AnnotationNameSuggestion.id,
+            )
             .where(
                 AnnotationNameSuggestion.url_id == self.url_id,
             )
@@ -45,7 +53,9 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
                 AnnotationNameSuggestion.suggestion,
             )
             .order_by(
-                func.count(AnnotationNameUserEndorsement.user_id).desc(),
+                (func.count(AnnotationNameUserEndorsement.user_id) + func.count(
+                    AnnotationNameUserEndorsement.user_id
+                )).desc(),
                 AnnotationNameSuggestion.id.asc(),
             )
             .limit(3)
@@ -54,7 +64,10 @@ class GetNameSuggestionsQueryBuilder(QueryBuilderBase):
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)
         suggestions = [
             NameAnnotationSuggestion(
-                **mapping
+                id=mapping["id"],
+                display_name=mapping["display_name"],
+                user_count=mapping['user_count'] + (mapping['anon_count'] // 2),
+                robo_count=mapping["robo_count"]
             )
             for mapping in mappings
         ]
