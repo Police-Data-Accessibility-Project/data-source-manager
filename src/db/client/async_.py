@@ -268,7 +268,7 @@ class AsyncDatabaseClient:
             url_id=url_id
         )
         if prior_suggestion is not None:
-            prior_suggestion.type = suggested_status.value
+            prior_suggestion.agency_type = suggested_status.value
             return
 
         suggestion = AnnotationURLTypeUser(
