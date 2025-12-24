@@ -1,6 +1,7 @@
 from typing import ClassVar
 
 from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, event
+from sqlalchemy.orm import Mapped
 
 from src.db.models.exceptions import WriteToViewError
 from src.db.models.helpers import get_created_at_column, CURRENT_TIME_SERVER_DEFAULT, url_id_primary_key_constraint, \
@@ -41,7 +42,7 @@ class BatchDependentMixin:
     )
 
 class LocationDependentMixin:
-    location_id = Column(
+    location_id: Mapped[int] = Column(
         Integer,
         ForeignKey(
             'locations.id',
