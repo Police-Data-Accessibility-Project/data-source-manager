@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from http import HTTPStatus
-from typing import Any
+from typing import Any, TypeVar
 
 from pdap_access_manager.access_manager.async_ import AccessManagerAsync
 from pdap_access_manager.enums import RequestType
@@ -8,6 +8,7 @@ from pdap_access_manager.models.request import RequestInfo
 from pdap_access_manager.models.response import ResponseInfo
 from pydantic import BaseModel
 
+T = TypeVar("T", bound=BaseModel)
 
 class PDAPRequestBuilderBase(ABC):
 
@@ -36,6 +37,21 @@ class PDAPRequestBuilderBase(ABC):
         if response_info.status_code != HTTPStatus.OK:
             raise Exception(f"Failed to make request to PDAP: {response_info.data}")
         return response_info.data
+
+    async def get(
+        self,
+        url: str,
+        model: type[T]
+    ) -> T:
+        request_info = RequestInfo(
+            type_=RequestType.GET,
+            url=url,
+            headers=await self.access_manager.jwt_header()
+        )
+        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
+        if response_info.status_code != HTTPStatus.OK:
+            raise Exception(f"Failed to make request to PDAP: {response_info.data}")
+        return model(**response_info.data)
 
     @abstractmethod
     async def inner_logic(self) -> Any:
