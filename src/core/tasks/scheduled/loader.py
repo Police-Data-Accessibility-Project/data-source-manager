@@ -12,6 +12,7 @@ from src.core.tasks.scheduled.impl.internet_archives.save.operator import Intern
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
 from src.core.tasks.scheduled.impl.refresh_materialized_views.operator import RefreshMaterializedViewsOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
+from src.core.tasks.scheduled.impl.sync_from_ds.impl.follows.core import DSAppSyncUserFollowsGetTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.core import DSAppSyncAgenciesAddTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.core import DSAppSyncAgenciesDeleteTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.core import DSAppSyncAgenciesUpdateTaskOperator
@@ -136,6 +137,15 @@ class ScheduledTaskOperatorLoader:
                 enabled=self.setup_flag("INTEGRITY_MONITOR_TASK_FLAG")
             ),
             # Sync
+            ## Get
+            ScheduledTaskEntry(
+                operator=DSAppSyncUserFollowsGetTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_USER_FOLLOWS_GET_TASK_FLAG")
+            ),
             ## Adds
             ### Agency
             ScheduledTaskEntry(
