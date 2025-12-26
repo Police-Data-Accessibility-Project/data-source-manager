@@ -2,7 +2,7 @@
 This module contains helper functions for the annotate GET queries
 """
 
-from sqlalchemy import Select, case, exists, select
+from sqlalchemy import Select, case, CTE, ColumnElement
 from sqlalchemy.orm import joinedload
 
 from src.collectors.enums import URLStatus
@@ -15,10 +15,9 @@ from src.db.models.views.url_anno_count import URLAnnotationCount
 from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 
 
-def get_select() -> Select:
-    return (
-        Select(URL)
-
+def add_joins(query: Select) -> Select:
+    query = (
+        query
         .join(
             URLAnnotationFlagsView,
             URLAnnotationFlagsView.url_id == URL.id
@@ -28,10 +27,12 @@ def get_select() -> Select:
             URLAnnotationCount.url_id == URL.id
         )
     )
+    return query
 
-def conclude(query: Select) -> Select:
-    # Add common where conditions
-    query = query.where(
+def add_common_where_conditions(
+    query: Select,
+) -> Select:
+    return query.where(
         URL.status == URLStatus.OK.value,
         not_exists_url(
             FlagURLSuspended
@@ -42,29 +43,41 @@ def conclude(query: Select) -> Select:
         )
     )
 
-
-    query = (
-        # Add load options
-        query.options(
-            joinedload(URL.html_content),
-            joinedload(URL.user_url_type_suggestions),
-            joinedload(URL.user_record_type_suggestions),
-            joinedload(URL.anon_record_type_suggestions),
-            joinedload(URL.anon_url_type_suggestions),
-        )
-        # Sorting Priority
-        .order_by(
-            # Privilege manually submitted URLs first
-            case(
-                (URL.source == URLSource.MANUAL, 0),
-                else_=1
-            ).asc(),
-            # Break ties by favoring URL with higher total annotations
-            URLAnnotationCount.total_anno_count.desc(),
-            # Break additional ties by favoring least recently created URLs
-            URL.id.asc()
-        )
-        # Limit to 1 result
-        .limit(1)
+def add_load_options(
+    query: Select
+) -> Select:
+    return query.options(
+        joinedload(URL.html_content),
+        joinedload(URL.user_url_type_suggestions),
+        joinedload(URL.user_record_type_suggestions),
+        joinedload(URL.anon_record_type_suggestions),
+        joinedload(URL.anon_url_type_suggestions),
     )
-    return query
+
+def bool_sort(
+    condition: ColumnElement[bool]
+) -> ColumnElement[int]:
+    return case(
+        (condition, 0),
+        else_=1
+    ).asc()
+
+def common_sorts(
+    base_cte: CTE
+) -> list[ColumnElement[int]]:
+    return [
+        # Privilege URLs whose batches are associated with locations
+          # followed by ANY user
+        bool_sort(base_cte.c.followed_by_any_user),
+        # Privilege Manually Submitted URLs
+        bool_sort(URL.source == URLSource.MANUAL),
+        # Privilege based on total number of user annotations
+        URLAnnotationCount.user_url_type_count.desc(),
+        # Privilege based on total number of anon annotations
+        URLAnnotationCount.anon_url_type_count.desc(),
+        # Privilege based on total number of auto annotations
+        URLAnnotationCount.auto_url_type_count.desc(),
+        # Break additional ties by favoring least recently created URLs
+        URL.id.asc()
+    ]
+

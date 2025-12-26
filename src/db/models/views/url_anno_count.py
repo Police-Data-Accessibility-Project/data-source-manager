@@ -117,4 +117,8 @@ class URLAnnotationCount(
     user_location_count = Column(Integer, nullable=False)
     user_record_type_count = Column(Integer, nullable=False)
     user_url_type_count = Column(Integer, nullable=False)
+    anon_agency_count = Column(Integer, nullable=False)
+    anon_location_count = Column(Integer, nullable=False)
+    anon_record_type_count = Column(Integer, nullable=False)
+    anon_url_type_count = Column(Integer, nullable=False)
     total_anno_count = Column(Integer, nullable=False)
