@@ -17,7 +17,7 @@ from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.security.dtos.access_info import AccessInfo
-from src.security.manager import get_access_info, get_standard_user_access_info
+from src.security.manager import get_admin_access_info, get_standard_user_access_info
 
 annotate_router = APIRouter(
     prefix="/annotate",
@@ -136,7 +136,7 @@ async def migrate_annotations_to_user(
 async def get_agency_suggestions(
     url_id: int,
     async_core: AsyncCore = Depends(get_async_core),
-    access_info: AccessInfo = Depends(get_access_info),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     location_id: int | None = Query(default=None)
 ) -> AgencyAnnotationResponseOuterInfo:
     return await async_core.adb_client.run_query_builder(

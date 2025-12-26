@@ -4,7 +4,7 @@ import pytest
 from fastapi import HTTPException
 from jwt import InvalidTokenError
 
-from src.security.manager import SecurityManager, get_access_info
+from src.security.manager import SecurityManager, get_admin_access_info
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
 
@@ -64,6 +64,6 @@ def test_check_access_failure(mock_get_secret_key, mock_jwt_decode):
 
 def test_get_access_info(mock_get_secret_key, mock_jwt_decode):
 
-    access_info = get_access_info(token=VALID_TOKEN)
+    access_info = get_admin_access_info(token=VALID_TOKEN)
     assert access_info.user_id == 1
     assert Permissions.SOURCE_COLLECTOR in access_info.permissions

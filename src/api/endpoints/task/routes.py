@@ -9,7 +9,7 @@ from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInf
 from src.db.enums import TaskType
 from src.core.core import AsyncCore
 from src.core.enums import BatchStatus
-from src.security.manager import get_access_info
+from src.security.manager import get_admin_access_info
 from src.security.dtos.access_info import AccessInfo
 
 task_router = APIRouter(
@@ -34,7 +34,7 @@ async def get_tasks(
             default=None
         ),
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info)
+        access_info: AccessInfo = Depends(get_admin_access_info)
 ) -> GetTasksResponse:
     return await async_core.get_tasks(
         page=page,
@@ -45,7 +45,7 @@ async def get_tasks(
 @task_router.get("/status")
 async def get_task_status(
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info)
+        access_info: AccessInfo = Depends(get_admin_access_info)
 ) -> GetTaskStatusResponseInfo:
     return await async_core.get_current_task_status()
 
@@ -53,7 +53,7 @@ async def get_task_status(
 async def get_task_info(
         task_id: int = Path(description="The task id"),
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info)
+        access_info: AccessInfo = Depends(get_admin_access_info)
 ) -> TaskInfo:
     return await async_core.get_task_info(task_id)
 

@@ -64,7 +64,7 @@ class SecurityManager:
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_access_info(
+def get_admin_access_info(
         token: Annotated[str, Depends(oauth2_scheme)]
 ) -> AccessInfo:
     return SecurityManager().check_access(token, Permissions.SOURCE_COLLECTOR)

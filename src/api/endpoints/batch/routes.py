@@ -12,7 +12,7 @@ from src.collectors.enums import CollectorType
 from src.core.core import AsyncCore
 from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
 from src.security.dtos.access_info import AccessInfo
-from src.security.manager import get_access_info
+from src.security.manager import get_admin_access_info
 
 batch_router = APIRouter(
     prefix="/batch",
@@ -36,7 +36,7 @@ async def get_batch_status(
             default=1
         ),
         core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> GetBatchSummariesResponse:
     """
     Get the status of recent batches
@@ -52,7 +52,7 @@ async def get_batch_status(
 async def get_batch_info(
         batch_id: int = Path(description="The batch id"),
         core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> BatchSummary:
     return await core.get_batch_info(batch_id)
 
@@ -64,7 +64,7 @@ async def get_urls_by_batch(
             default=1
         ),
         core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> GetURLsByBatchResponse:
     return await core.get_urls_by_batch(batch_id, page=page)
 
@@ -76,7 +76,7 @@ async def get_duplicates_by_batch(
             default=1
         ),
         core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> GetDuplicatesByBatchResponse:
     return await core.get_duplicate_urls_by_batch(batch_id, page=page)
 
@@ -84,7 +84,7 @@ async def get_duplicates_by_batch(
 async def get_batch_logs(
         batch_id: int = Path(description="The batch id"),
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> GetBatchLogsResponse:
     """
     Retrieve the logs for a recent batch.
@@ -96,6 +96,6 @@ async def get_batch_logs(
 async def abort_batch(
         batch_id: int = Path(description="The batch id"),
         async_core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> MessageResponse:
     return await async_core.abort_batch(batch_id)
