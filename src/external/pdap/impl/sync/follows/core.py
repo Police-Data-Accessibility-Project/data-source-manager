@@ -8,6 +8,6 @@ class GetFollowsRequestBuilder(PDAPRequestBuilderBase):
         url: str = self.build_url("v3/sync/follows")
         response: SyncFollowGetOuterResponse = await self.get(
             url=url,
-            model=SyncFollowGetOuterResponse
+            return_model_type=SyncFollowGetOuterResponse
         )
         return response.follows
