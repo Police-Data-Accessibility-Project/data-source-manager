@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from src.api.endpoints.agencies.by_id.locations.get.response import AgencyGetLocationsResponse
-from src.api.endpoints.proposals.agencies.get.response import ProposalAgencyGetOuterResponse, ProposalAgencyGetResponse
+from src.api.endpoints.proposals.agencies.root.get.response import ProposalAgencyGetOuterResponse, ProposalAgencyGetResponse
 from src.db.models.impl.proposals.agency_.core import ProposalAgency
 from src.db.models.impl.proposals.enums import ProposalStatus
 from src.db.queries.base.builder import QueryBuilderBase

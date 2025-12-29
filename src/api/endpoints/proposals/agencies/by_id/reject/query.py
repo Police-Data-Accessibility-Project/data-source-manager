@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from sqlalchemy import select, RowMapping, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.proposals.agencies.reject.request import ProposalAgencyRejectRequestModel
-from src.api.endpoints.proposals.agencies.reject.response import ProposalAgencyRejectResponse
+from src.api.endpoints.proposals.agencies.by_id.reject.request import ProposalAgencyRejectRequestModel
+from src.api.endpoints.proposals.agencies.by_id.reject.response import ProposalAgencyRejectResponse
 from src.db.models.impl.proposals.agency_.core import ProposalAgency
 from src.db.models.impl.proposals.agency_.decision_info import ProposalAgencyDecisionInfo
 from src.db.models.impl.proposals.enums import ProposalStatus
