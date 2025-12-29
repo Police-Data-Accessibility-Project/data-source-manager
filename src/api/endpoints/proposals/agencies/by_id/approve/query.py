@@ -3,7 +3,7 @@ from sqlalchemy import select, func, RowMapping, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.proposals.agencies.approve.response import ProposalAgencyApproveResponse
+from src.api.endpoints.proposals.agencies.by_id.approve.response import ProposalAgencyApproveResponse
 from src.db.models.impl.agency.enums import JurisdictionType, AgencyType
 from src.db.models.impl.agency.sqlalchemy import Agency
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
