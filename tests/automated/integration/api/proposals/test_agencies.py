@@ -85,6 +85,7 @@ async def test_agencies(
     agencies: list[Agency] = await adb_client.get_all(Agency)
     assert len(agencies) == 1
     agency = agencies[0]
+    assert agency.id == agency_id
     assert agency.name == request.name
     assert agency.agency_type == request.agency_type
     assert agency.jurisdiction_type == request.jurisdiction_type

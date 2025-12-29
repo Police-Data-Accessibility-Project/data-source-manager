@@ -38,10 +38,27 @@ class PDAPRequestBuilderBase(ABC):
             raise Exception(f"Failed to make request to PDAP: {response_info.data}")
         return response_info.data
 
+    async def post_v2(
+        self,
+        url: str,
+        request_model: BaseModel,
+        return_model_type: type[T]
+    ) -> T:
+        request_info = RequestInfo(
+            type_=RequestType.POST,
+            url=url,
+            json_=request_model.model_dump(mode='json'),
+            headers=await self.access_manager.jwt_header()
+        )
+        response_info: ResponseInfo = await self.access_manager.make_request(request_info)
+        if response_info.status_code != HTTPStatus.OK:
+            raise Exception(f"Failed to make request to PDAP: {response_info.data}")
+        return return_model_type(**response_info.data)
+
     async def get(
         self,
         url: str,
-        model: type[T]
+        return_model_type: type[T]
     ) -> T:
         request_info = RequestInfo(
             type_=RequestType.GET,
@@ -51,7 +68,7 @@ class PDAPRequestBuilderBase(ABC):
         response_info: ResponseInfo = await self.access_manager.make_request(request_info)
         if response_info.status_code != HTTPStatus.OK:
             raise Exception(f"Failed to make request to PDAP: {response_info.data}")
-        return model(**response_info.data)
+        return return_model_type(**response_info.data)
 
     @abstractmethod
     async def inner_logic(self) -> Any:
