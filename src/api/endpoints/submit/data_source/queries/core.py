@@ -44,7 +44,6 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             trailing_slash=full_url.has_trailing_slash,
             name=self.request.name,
             description=self.request.description,
-            status=URLStatus.OK,
             source=URLSource.MANUAL,
         )
 

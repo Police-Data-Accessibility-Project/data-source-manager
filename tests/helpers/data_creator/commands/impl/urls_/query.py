@@ -40,7 +40,6 @@ class URLsDBDataCreatorCommand(DBDataCreatorCommandBase):
             url_infos.append(
                 URLInfo(
                     url=url,
-                    status=convert_url_creation_enum_to_url_status(self.status),
                     name="Test Name" if self.status in (
                         URLCreationEnum.VALIDATED,
                         URLCreationEnum.SUBMITTED,

@@ -439,7 +439,6 @@ class DBDataCreator:
 
     async def create_urls(
         self,
-        status: URLStatus = URLStatus.OK,
         source: URLSource = URLSource.COLLECTOR,
         record_type: RecordType | None = RecordType.RESOURCES,
         collector_metadata: dict | None = None,
@@ -449,7 +448,6 @@ class DBDataCreator:
 
         url_mappings: list[SimpleURLMapping] = await create_urls(
             adb_client=self.adb_client,
-            status=status,
             source=source,
             record_type=record_type,
             collector_metadata=collector_metadata,

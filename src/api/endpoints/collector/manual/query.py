@@ -53,7 +53,6 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
                 name=entry.name,
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,
-                status=URLStatus.OK.value,
                 source=URLSource.MANUAL,
                 trailing_slash=url_and_scheme.url.endswith('/'),
             )

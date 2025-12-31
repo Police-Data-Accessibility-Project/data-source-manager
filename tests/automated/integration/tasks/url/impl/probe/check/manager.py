@@ -1,12 +1,10 @@
 from sqlalchemy import select
 
-from src.collectors.enums import URLStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
-from src.db.models.materialized_views.url_status.enums import URLStatusEnum
 from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 
 
 class TestURLProbeCheckManager:
@@ -20,13 +18,13 @@ class TestURLProbeCheckManager:
     async def check_url(
         self,
         url_id: int,
-        expected_status: URLStatusEnum
+        expected_status: URLStatusViewEnum
     ):
         url: URLStatusMaterializedView = await self.adb_client.one_or_none(
-            statement=select(URLStatusMaterializedView).where(URLStatusMaterializedView.id == url_id)
+            statement=select(URLStatusMaterializedView).where(URLStatusMaterializedView.url_id == url_id)
         )
         assert url is not None
-        assert url.status == expected_status
+        assert url.status == expected_status.value
 
     async def check_web_metadata(
         self,

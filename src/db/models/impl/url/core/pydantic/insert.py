@@ -17,6 +17,5 @@ class URLInsertModel(BulkInsertableModel):
     scheme: str | None = None
     collector_metadata: dict | None = None
     name: str | None = None
-    status: URLStatus = URLStatus.OK
     source: URLSource
     trailing_slash: bool

@@ -29,8 +29,8 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
             dest_error=None
         )
     )
-    source_url_id = await setup_manager.setup_url(URLStatus.OK)
-    dest_url_id = await setup_manager.setup_url(URLStatus.OK, url=TEST_DEST_URL.replace("https://", ""))
+    source_url_id = await setup_manager.setup_url()
+    dest_url_id = await setup_manager.setup_url(TEST_DEST_URL.replace("https://", ""))
     # Add web metadata for destination URL, to prevent it from being pulled
     web_metadata = URLWebMetadataPydantic(
         url_id=dest_url_id,
@@ -42,14 +42,6 @@ async def test_url_probe_task_redirect_dest_exists_in_db(
     await setup_manager.adb_client.bulk_insert([web_metadata])
     run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
-    await check_manager.check_url(
-        url_id=source_url_id,
-        expected_status=URLStatus.OK
-    )
-    await check_manager.check_url(
-        url_id=dest_url_id,
-        expected_status=URLStatus.OK
-    )
     await check_manager.check_web_metadata(
         url_id=source_url_id,
         status_code=302,

@@ -27,7 +27,6 @@ async def add_maximal_data_source(
         collector_metadata={
             "url": "https://read-only.com/"
         },
-        status=URLStatus.OK,
         source=URLSource.COLLECTOR,
     )
     url_id: int = await adb_client.add(url, return_id=True)
@@ -82,7 +81,6 @@ async def add_minimal_data_source(
         name="Minimal name",
         trailing_slash=False,
         collector_metadata={},
-        status=URLStatus.OK,
         source=URLSource.ROOT_URL,
     )
     url_id: int = await adb_client.add(url, return_id=True)

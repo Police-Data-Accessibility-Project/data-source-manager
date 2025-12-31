@@ -1,5 +1,3 @@
-from src.collectors.enums import URLStatus
-from src.db.models.materialized_views.url_status.enums import URLStatusEnum
 from src.external.pdap.enums import DataSourcesURLStatus
 
 

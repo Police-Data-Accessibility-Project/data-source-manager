@@ -28,15 +28,12 @@ async def test_url_probe_task_no_redirect_ok(
         )
     )
     assert not await operator.meets_task_prerequisites()
-    url_id = await setup_manager.setup_url(URLStatus.OK)
+    url_id = await setup_manager.setup_url()
     assert await operator.meets_task_prerequisites()
     run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)
     assert not await operator.meets_task_prerequisites()
-    await check_manager.check_url(
-        url_id=url_id,
-        expected_status=URLStatus.OK
-    )
+
     await check_manager.check_web_metadata(
         url_id=url_id,
         status_code=200,

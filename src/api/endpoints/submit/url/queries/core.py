@@ -61,7 +61,6 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
             url=url_and_scheme.url,
             scheme=url_and_scheme.scheme,
             source=URLSource.MANUAL,
-            status=URLStatus.OK,
             description=self.request.description,
             trailing_slash=url_and_scheme.url.endswith('/'),
         )

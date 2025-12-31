@@ -79,7 +79,6 @@ async def test_add(
     assert content.access_notes is None
     assert content.access_types == []
     assert content.data_portal_type_other is None
-    assert content.url_status == DataSourcesURLStatus.OK
 
     assert content.agency_ids == [test_agency_id]
 

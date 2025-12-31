@@ -126,7 +126,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
                         # TODO: Change to convert web metadata result to URL Status
                         url_status=convert_sm_url_status_to_ds_url_status(
-                            sm_url_status=mapping[URLWebMetadata.status_code],
+                            mapping[URLWebMetadata.status_code],
                         ),
                         internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
                     )

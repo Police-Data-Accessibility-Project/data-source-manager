@@ -39,7 +39,6 @@ def generate_batch_url_links(
     ]
 
 def generate_urls(
-    status: URLStatus = URLStatus.OK,
     source: URLSource = URLSource.COLLECTOR,
     collector_metadata: dict | None = None,
     count: int = 1
@@ -50,7 +49,6 @@ def generate_urls(
         results.append(URLInsertModel(
             url=f"example.com/{val}",
             scheme="https",
-            status=status,
             source=source,
             name=f"Example {val}",
             collector_metadata=collector_metadata,

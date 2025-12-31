@@ -7,6 +7,7 @@ from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
 
@@ -18,6 +19,7 @@ async def test_submit_data_source_duplicate(
     pittsburgh_locality: LocalityCreationInfo,
     test_url_data_source_mapping: SimpleURLMapping
 ):
+    await api_test_helper.adb_client().refresh_materialized_views()
 
     ath = api_test_helper
     try:
@@ -34,5 +36,5 @@ async def test_submit_data_source_duplicate(
         model = SubmitDataSourceURLDuplicateSubmissionResponse(**response)
         assert model.url_id == test_url_data_source_mapping.url_id
         assert model.url_type == URLType.DATA_SOURCE
-        assert model.url_status == URLStatus.OK
+        assert model.url_status == URLStatusViewEnum.AWAITING_SUBMISSION
         assert model.message == "Duplicate URL found"

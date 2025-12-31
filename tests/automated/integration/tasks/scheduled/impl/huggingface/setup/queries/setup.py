@@ -38,7 +38,6 @@ class SetupTestPushToHuggingFaceEntryQueryBuilder(QueryBuilderBase):
             url = URL(
                 url=get_test_url(i),
                 scheme=None,
-                status=URLStatus.OK,
                 name=name,
                 description=description,
                 source=URLSource.COLLECTOR,

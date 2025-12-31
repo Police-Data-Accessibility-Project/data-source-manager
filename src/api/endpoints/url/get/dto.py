@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from src.collectors.enums import URLStatus
 from src.db.enums import URLMetadataAttributeType, ValidationStatus, ValidationSource, TaskType
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 
 
 class GetURLsResponseErrorInfo(BaseModel):
@@ -25,7 +26,7 @@ class GetURLsResponseInnerInfo(BaseModel):
     id: int
     batch_id: int | None
     url: str
-    status: URLStatus
+    status: URLStatusViewEnum | None
     collector_metadata: dict | None
     updated_at: datetime.datetime
     created_at: datetime.datetime

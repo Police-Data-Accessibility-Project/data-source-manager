@@ -5,10 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.endpoints.batch.dtos.get.summaries.counts import BatchSummaryURLCounts
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.collectors.enums import CollectorType
-from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.views.batch_url_status.core import BatchURLStatusMatView
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.core import BatchURLStatusMaterializedView
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.builder import URLCountsCTEQueryBuilder
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.labels import URLCountsLabels
@@ -20,7 +19,7 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
         self,
         page: int = 1,
         collector_type: CollectorType | None = None,
-        status: BatchURLStatusEnum | None = None,
+        status: BatchURLStatusViewEnum | None = None,
         batch_id: int | None = None,
     ):
         super().__init__()
@@ -41,7 +40,7 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
                 *builder.get_all(),
                 Batch.strategy,
                 Batch.status,
-                BatchURLStatusMatView.batch_url_status,
+                BatchURLStatusMaterializedView.batch_url_status,
                 Batch.parameters,
                 Batch.user_id,
                 Batch.compute_time,
@@ -50,8 +49,8 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
                 builder.query,
                 builder.get(count_labels.batch_id) == Batch.id,
             ).outerjoin(
-                BatchURLStatusMatView,
-                BatchURLStatusMatView.batch_id == Batch.id,
+                BatchURLStatusMaterializedView,
+                BatchURLStatusMaterializedView.batch_id == Batch.id,
             ).order_by(
                 Batch.id.asc()
             )
@@ -75,7 +74,6 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
                     date_generated=row.date_generated,
                     url_counts=BatchSummaryURLCounts(
                         total=row[count_labels.total],
-                        duplicate=row[count_labels.duplicate],
                         not_relevant=row[count_labels.not_relevant],
                         submitted=row[count_labels.submitted],
                         errored=row[count_labels.error],

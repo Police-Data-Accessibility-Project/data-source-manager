@@ -35,6 +35,7 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
         error = task.errors[0].error if len(task.errors) > 0 else None
         # Get error info if any
         # Get URLs
+        # TODO: Revise to include URL Status from URL Web metadata
         urls = task.urls
         url_infos = []
         for url in urls:
@@ -43,7 +44,6 @@ class GetTaskInfoQueryBuilder(QueryBuilderBase):
                 batch_id=url.batch.id,
                 url=url.url,
                 collector_metadata=url.collector_metadata,
-                status=URLStatus(url.status),
                 updated_at=url.updated_at
             )
             url_infos.append(url_info)

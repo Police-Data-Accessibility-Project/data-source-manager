@@ -39,11 +39,6 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     # The metadata from the collector
     collector_metadata = Column(JSON)
     # The outcome of the URL: submitted, human_labeling, rejected, duplicate, etc.
-    status: Mapped[URLStatus] = enum_column(
-            URLStatus,
-            name='url_status',
-            nullable=False
-    )
     trailing_slash = Column(Boolean, nullable=False)
 
     @hybrid_property

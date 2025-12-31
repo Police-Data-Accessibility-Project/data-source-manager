@@ -245,7 +245,6 @@ async def test_url_id(
         url="example.com",
         source=URLSource.COLLECTOR,
         trailing_slash=False,
-        status=URLStatus.OK
     )
     return await db_data_creator.adb_client.add(url, return_id=True)
 

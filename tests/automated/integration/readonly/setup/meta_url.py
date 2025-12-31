@@ -20,7 +20,6 @@ async def add_meta_url(
         collector_metadata={
             "url": "https://read-only-meta-url.com/"
         },
-        status=URLStatus.OK,
         source=URLSource.REDIRECT,
     )
     url_id: int = await adb_client.add(url, return_id=True)

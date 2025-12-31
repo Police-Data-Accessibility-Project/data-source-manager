@@ -23,12 +23,10 @@ class TestURLProbeSetupManager:
 
     async def setup_url(
         self,
-        url_status: URLStatus,
         url: str = TEST_URL
     ) -> int:
         url_insert_model = URLInsertModel(
             url=url,
-            status=url_status,
             source=TEST_SOURCE,
             trailing_slash=False
         )

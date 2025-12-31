@@ -1,6 +1,7 @@
 from sqlalchemy import RowMapping, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.tasks.url.operators.html.queries.helpers import has_non_errored_urls_without_html_data
 from src.db.models.impl import LinkBatchURL
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -13,7 +14,7 @@ class GetPendingURLsWithoutHTMLDataQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> list[URLInfo]:
         query = (
-            StatementComposer.has_non_errored_urls_without_html_data()
+            has_non_errored_urls_without_html_data()
             .limit(100)
             .order_by(URL.id)
         )
@@ -24,13 +25,7 @@ class GetPendingURLsWithoutHTMLDataQueryBuilder(QueryBuilderBase):
         for mapping in mappings:
             url_info = URLInfo(
                 id=mapping[URL.id],
-                batch_id=mapping[LinkBatchURL.batch_id],
-                url=mapping[URL.full_url],
-                collector_metadata=mapping[URL.collector_metadata],
-                status=mapping[URLStatusMaterializedView.status],
-                created_at=mapping[URL.created_at],
-                updated_at=mapping[URL.updated_at],
-                name=mapping[URL.name]
+                url=mapping["full_url"],
             )
             final_results.append(url_info)
 

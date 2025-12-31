@@ -31,7 +31,7 @@ async def test_url_probe_task_functional_equivalent(
             redirect_url=FullURL(TEST_URL + "/")
         )
     )
-    url_id = await setup_manager.setup_url(URLStatus.OK)
+    url_id = await setup_manager.setup_url()
     await run_task_and_confirm_success(operator)
 
     urls: list[URL] = await setup_manager.adb_client.get_all(URL)

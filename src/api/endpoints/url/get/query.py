@@ -6,13 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo, GetURLsResponseErrorInfo, GetURLsResponseInnerInfo
-from src.collectors.enums import URLStatus
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.models.impl import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.scrape_info.sqlalchemy import URLScrapeInfo
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
-from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
 from src.db.queries.base.builder import QueryBuilderBase
 
@@ -36,7 +34,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 func.array_agg(
                     aggregate_order_by(
                         func.jsonb_build_object(
-                            "type", URLTaskError.task_type,
+                            "task_type", URLTaskError.task_type,
                             "error", URLTaskError.error,
                             "created_at", URLTaskError.created_at
                         ),
@@ -63,14 +61,12 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 URL.name,
                 error_cte.c.error_array
             )
-            .join(
-                URLWebMetadata
-            )
             .outerjoin(
                 LinkBatchURL
             )
-            .join(
-                URLStatusMaterializedView
+            .outerjoin(
+                URLStatusMaterializedView,
+                URLStatusMaterializedView.url_id == URL.id
             )
             .outerjoin(
                 error_cte,
@@ -79,25 +75,23 @@ class GetURLsQueryBuilder(QueryBuilderBase):
             .outerjoin(
                 URLScrapeInfo
             )
+            .order_by(URL.id)
         )
-        statement = select(URL).options(
-            selectinload(URL.task_errors),
-            selectinload(URL.batch)
-        ).order_by(URL.id)
         if self.errors:
             # Only return URLs with errors
-            statement = statement.where(
+            query = query.where(
                 exists(
                     select(URLTaskError).where(URLTaskError.url_id == URL.id)
                 )
             )
-        add_standard_limit_and_offset(statement, self.page)
+        add_standard_limit_and_offset(query, self.page)
         mappings: Sequence[RowMapping] = await self.sh.mappings(session, query)
 
         final_results = []
         for mapping in mappings:
             error_results = []
-            for error in mapping["error_array"]:
+            error_array = mapping["error_array"] or []
+            for error in error_array:
                 error_result = GetURLsResponseErrorInfo(
                     task=error["task_type"],
                     error=error["error"],
@@ -108,7 +102,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 GetURLsResponseInnerInfo(
                     id=mapping[URL.id],
                     batch_id=mapping[LinkBatchURL.batch_id],
-                    url=mapping[URL.full_url],
+                    url=mapping["full_url"],
                     collector_metadata=mapping[URL.collector_metadata],
                     status=mapping[URLStatusMaterializedView.status],
                     created_at=mapping[URL.created_at],

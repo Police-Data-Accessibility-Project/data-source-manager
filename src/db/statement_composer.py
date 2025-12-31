@@ -25,57 +25,6 @@ class StatementComposer:
     """
 
     @staticmethod
-    def exclude_completed_html_task_subquery() -> ColumnElement[bool]:
-        return ~exists(
-            select(1)
-            .select_from(
-                LinkTaskURL
-            )
-            .join(
-                Task,
-                LinkTaskURL.task_id == Task.id
-            )
-            .where(
-                LinkTaskURL.url_id == URL.id,
-                Task.task_type == TaskType.HTML.value,
-                Task.task_status == TaskStatus.COMPLETE.value
-            )
-        )
-
-    @staticmethod
-    def has_non_errored_urls_without_html_data() -> Select:
-        query = (
-            select(
-                URL.id,
-                LinkBatchURL.batch_id,
-                URL.full_url,
-                URL.collector_metadata,
-                URLStatusMaterializedView.status,
-                URL.created_at,
-                URL.updated_at,
-                URL.name
-            )
-            .join(
-                URLWebMetadata
-            )
-            .outerjoin(
-                LinkBatchURL
-            )
-            .join(
-                URLStatusMaterializedView
-            )
-            .outerjoin(
-                URLScrapeInfo
-            )
-            .where(
-                URLScrapeInfo.url_id == None,
-                StatementComposer.exclude_completed_html_task_subquery,
-                URLWebMetadata.content_type.like("%html%"),
-            )
-        )
-        return query
-
-    @staticmethod
     def simple_count_subquery(model, attribute: str, label: str) -> Subquery:
         attr_value = getattr(model, attribute)
         return select(

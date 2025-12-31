@@ -38,7 +38,8 @@ class GetDataSourceDuplicateQueryBuilder(QueryBuilderBase):
                 FlagURLValidated.url_id == URL.id
             )
             .outerjoin(
-                URLStatusMaterializedView.status
+                URLStatusMaterializedView,
+                URLStatusMaterializedView.url_id == URL.id
             )
             .where(
                 URL.url == self.url

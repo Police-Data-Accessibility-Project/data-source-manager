@@ -10,6 +10,3 @@ async def mock_parse(self, url: str, html_content: str, content_type: str) -> Re
         description="fake description",
     )
 
-
-async def mock_get_from_cache(self, url: str) -> Optional[str]:
-    return None

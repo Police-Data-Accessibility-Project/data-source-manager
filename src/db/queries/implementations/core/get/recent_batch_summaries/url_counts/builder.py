@@ -3,8 +3,8 @@ from sqlalchemy.sql.functions import func
 
 from src.collectors.enums import CollectorType
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.views.batch_url_status.core import BatchURLStatusMatView
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.core import BatchURLStatusMaterializedView
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.helpers import add_page_offset
 from src.db.queries.implementations.core.get.recent_batch_summaries.url_counts.cte.all import ALL_CTE
@@ -21,7 +21,7 @@ class URLCountsCTEQueryBuilder(QueryBuilderBase):
         self,
         page: int = 1,
         collector_type: CollectorType | None = None,
-        status: BatchURLStatusEnum | None = None,
+        status: BatchURLStatusViewEnum | None = None,
         batch_id: int | None = None
     ):
         super().__init__(URLCountsLabels())
@@ -44,8 +44,8 @@ class URLCountsCTEQueryBuilder(QueryBuilderBase):
             )
             .select_from(Batch)
             .join(
-                BatchURLStatusMatView,
-                BatchURLStatusMatView.batch_id == Batch.id,
+                BatchURLStatusMaterializedView,
+                BatchURLStatusMaterializedView.batch_id == Batch.id,
             )
         )
         for cte in [SUBMITTED_CTE, PENDING_CTE, ALL_CTE, NOT_RELEVANT_CTE, ERROR_CTE]:
@@ -78,4 +78,4 @@ class URLCountsCTEQueryBuilder(QueryBuilderBase):
     def apply_status_filter(self, query: Select):
         if self.status is None:
             return query
-        return query.where(BatchURLStatusMatView.batch_url_status == self.status.value)
+        return query.where(BatchURLStatusMaterializedView.batch_url_status == self.status.value)

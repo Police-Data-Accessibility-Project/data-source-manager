@@ -25,12 +25,10 @@ async def test_get_batches_aggregated_metrics(
         )
         url_mappings_broken: list[SimpleURLMapping] = await create_urls(
             adb_client=adb_client,
-            status=URLStatus.BROKEN,
             count=4,
         )
         url_mappings_ok: list[SimpleURLMapping] = await create_urls(
             adb_client=adb_client,
-            status=URLStatus.OK,
             count=11,
         )
         url_mappings_all: list[SimpleURLMapping] = url_mappings_broken + url_mappings_ok

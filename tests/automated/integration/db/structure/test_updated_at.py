@@ -14,7 +14,6 @@ async def test_updated_at(db_data_creator: DBDataCreator):
 
     _ = await db_data_creator.create_urls(
         count=1,
-        status=URLStatus.OK
     )
 
     urls: list[URL] = await db_data_creator.adb_client.get_all(URL)
