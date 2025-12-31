@@ -3,6 +3,8 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.scrape_info.sqlalchemy import URLScrapeInfo
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
+from tests.automated.integration.tasks.url.impl.html.setup.models.entry import TestURLHTMLTaskSetupEntry
 from tests.automated.integration.tasks.url.impl.html.setup.models.record import TestURLHTMLTaskSetupRecord
 
 
@@ -51,9 +53,9 @@ class TestURLHTMLTaskCheckManager:
             assert url_scrape_info.status == expected_scrape_status
 
     async def _check_has_same_url_status(self):
-        urls: list[URL] = await self.adb_client.get_all(URL)
+        urls: list[URLStatusMaterializedView] = await self.adb_client.get_all(URLStatusMaterializedView)
         for url in urls:
-            entry = self._id_to_entry[url.id]
+            entry: TestURLHTMLTaskSetupEntry = self._id_to_entry[url.id]
             if entry.expected_result.web_metadata_status_marked_404:
                 continue
             assert url.status == entry.url_info.status, f"URL {url.url} has outcome {url.status} instead of {entry.url_info.status}"

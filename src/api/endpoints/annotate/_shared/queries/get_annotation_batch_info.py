@@ -42,7 +42,6 @@ class GetAnnotationBatchInfoQueryBuilder(QueryBuilderBase):
         )
 
         common_where_clause = [
-            URL.status == URLStatus.OK.value,
             LinkBatchURL.batch_id == self.batch_id,
         ]
 

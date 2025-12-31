@@ -42,7 +42,6 @@ async def test_approve_url_basic(db_data_creator: DBDataCreator):
     assert len(urls) == 1
     url = urls[0]
     assert url.id == url_mapping.url_id
-    assert url.status == URLStatus.OK
     assert url.name == "Test Name"
     assert url.description == "Test Description"
 

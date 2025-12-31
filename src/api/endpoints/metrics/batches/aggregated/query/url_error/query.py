@@ -28,7 +28,7 @@ class URLErrorByBatchStrategyQueryBuilder(QueryBuilderBase):
             .where(
                 exists_url(URLTaskError)
             )
-            .group_by(Batch.strategy, URL.status)
+            .group_by(Batch.strategy)
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)

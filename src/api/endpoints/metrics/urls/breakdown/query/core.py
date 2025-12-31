@@ -63,8 +63,7 @@ class GetURLsBreakdownPendingMetricsQueryBuilder(QueryBuilderBase):
                 FlagURLValidated.url_id == URL.id
             )
             .where(
-                FlagURLValidated.url_id.is_(None),
-                URL.status == URLStatus.OK
+                FlagURLValidated.url_id.is_(None)
             )
             .group_by(month)
             .order_by(month.asc())

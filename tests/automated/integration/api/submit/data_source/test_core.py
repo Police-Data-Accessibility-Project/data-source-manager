@@ -78,7 +78,6 @@ async def test_submit_data_source(
     assert url.scheme == "https"
     assert url.trailing_slash == True
     assert url.source == URLSource.MANUAL
-    assert url.status == URLStatus.OK
     assert url.description == "Example description"
 
     # Check for Batch

@@ -73,7 +73,6 @@ class AnnotationExistsCTEQueryBuilder(QueryBuilderBase):
             FlagURLValidated.url_id == URL.id
         )
         anno_exists_query = anno_exists_query.where(
-            URL.status == URLStatus.OK.value,
             FlagURLValidated.url_id.is_(None)
         )
         anno_exists_query = anno_exists_query.group_by(URL.id).cte("annotations_exist")

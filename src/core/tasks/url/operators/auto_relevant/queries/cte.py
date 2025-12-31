@@ -21,7 +21,6 @@ class AutoRelevantPrerequisitesCTEContainer:
                 URL.id == URLCompressedHTML.url_id
             )
             .where(
-                URL.status == URLStatus.OK.value,
                 not_exists_url(AnnotationAutoURLType),
                 no_url_task_error(TaskType.RELEVANCY)
             ).cte("auto_relevant_prerequisites")

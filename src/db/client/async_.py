@@ -831,7 +831,6 @@ class AsyncDatabaseClient:
             )
             .outerjoin(FlagURLValidated, URL.id == FlagURLValidated.url_id)
             .where(
-                URL.status == URLStatus.OK.value,
                 FlagURLValidated.url_id.is_(None),
             )
         )

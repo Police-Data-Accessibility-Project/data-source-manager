@@ -33,7 +33,6 @@ def add_common_where_conditions(
     query: Select,
 ) -> Select:
     return query.where(
-        URL.status == URLStatus.OK.value,
         not_exists_url(
             FlagURLSuspended
         ),

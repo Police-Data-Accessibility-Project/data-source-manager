@@ -12,6 +12,8 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
 from src.db.queries.base.builder import QueryBuilderBase
 from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
@@ -40,7 +42,7 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 # Required
                 URL.full_url,
                 URL.name,
-                URL.status,
+                URLWebMetadata.status_code,
                 URLRecordType.record_type,
                 agency_id_cte.c.agency_ids,
                 # Optional
@@ -71,6 +73,10 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
             .outerjoin(
                 URLOptionalDataSourceMetadata,
                 URL.id == URLOptionalDataSourceMetadata.url_id,
+            )
+            .outerjoin(
+                URLWebMetadata,
+                URL.id == URLWebMetadata.url_id
             )
             .outerjoin(
                 URLInternetArchivesProbeMetadata,
@@ -118,8 +124,9 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
+                        # TODO: Change to convert web metadata result to URL Status
                         url_status=convert_sm_url_status_to_ds_url_status(
-                            sm_url_status=mapping[URL.status],
+                            sm_url_status=mapping[URLWebMetadata.status_code],
                         ),
                         internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
                     )
