@@ -3,7 +3,6 @@ from typing import Sequence
 from sqlalchemy import select, exists, RowMapping, func
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo, GetURLsResponseErrorInfo, GetURLsResponseInnerInfo
 from src.db.client.helpers import add_standard_limit_and_offset
