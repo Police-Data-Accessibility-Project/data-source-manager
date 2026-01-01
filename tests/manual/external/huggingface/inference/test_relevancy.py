@@ -1,11 +1,10 @@
 import pytest
 from aiohttp import ClientSession
+from environs import Env
 
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.huggingface.inference.models.input import BasicInput
 from tests.manual.external.huggingface.inference.constants import EXAMPLE_WEBSITE
-
-from environs import Env
 
 
 @pytest.mark.asyncio

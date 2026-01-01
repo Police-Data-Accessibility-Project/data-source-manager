@@ -4,14 +4,14 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.pending import GetMetricsURLsAggregatedPendingResponseDTO
-from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.common.annotation_exists_.core import AnnotationExistsCTEQueryBuilder
+
 
 class PendingAnnotationExistsCTEQueryBuilder(AnnotationExistsCTEQueryBuilder):
 

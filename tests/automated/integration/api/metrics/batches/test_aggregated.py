@@ -1,6 +1,6 @@
 import pytest
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping

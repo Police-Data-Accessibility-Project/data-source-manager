@@ -1,8 +1,9 @@
-from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.collectors import CollectorType
-from src.core.enums import BatchStatus
 from test_automated.integration.core.helpers.common_test_procedures import run_collector_and_wait_for_completion
 from test_automated.integration.core.helpers.constants import ALLEGHENY_COUNTY_MUCKROCK_ID, ALLEGHENY_COUNTY_TOWN_NAMES
+
+from src.collectors import CollectorType
+from src.core.enums import BatchStatus
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 
 
 def test_muckrock_simple_search_collector_lifecycle(test_core):

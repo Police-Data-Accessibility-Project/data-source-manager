@@ -12,7 +12,6 @@ from src.external.url_request.dtos.url_response import URLResponseInfo
 from tests.automated.integration.tasks.url.impl.asserts import assert_prereqs_met, assert_task_ran_without_error
 from tests.helpers.data_creator.core import DBDataCreator
 
-
 MOCK_HTML_CONTENT = """
     <!DOCTYPE html>
     <html>

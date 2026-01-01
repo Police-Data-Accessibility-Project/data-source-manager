@@ -1,4 +1,3 @@
-from src.collectors.enums import URLStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.core.enums import URLSource

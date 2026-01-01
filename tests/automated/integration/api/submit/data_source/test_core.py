@@ -4,7 +4,6 @@ from uuid import UUID
 import pytest
 
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType, BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon

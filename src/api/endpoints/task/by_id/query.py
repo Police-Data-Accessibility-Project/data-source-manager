@@ -1,9 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload
 
 from src.api.endpoints.task.by_id.dto import TaskInfo
-from src.collectors.enums import URLStatus
 from src.db.enums import TaskType
 from src.db.models.impl.task.core import Task
 from src.db.models.impl.task.enums import TaskStatus

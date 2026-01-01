@@ -1,9 +1,9 @@
 import pytest
 from fastapi import HTTPException
 
-from src.api.endpoints.submit.data_source.models.response.duplicate import SubmitDataSourceURLDuplicateSubmissionResponse
+from src.api.endpoints.submit.data_source.models.response.duplicate import \
+    SubmitDataSourceURLDuplicateSubmissionResponse
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType

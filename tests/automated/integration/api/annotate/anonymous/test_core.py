@@ -15,6 +15,7 @@ from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
@@ -22,7 +23,6 @@ from src.db.models.impl.annotation.record_type.user.user import AnnotationRecord
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.mixins import URLDependentMixin
 from tests.automated.integration.api.annotate.anonymous.helper import get_next_url_for_anonymous_annotation, \
     post_and_get_next_url_for_anonymous_annotation

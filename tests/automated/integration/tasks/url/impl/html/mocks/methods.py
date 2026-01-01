@@ -1,5 +1,3 @@
-from typing import Optional
-
 from src.core.tasks.url.operators.html.scraper.parser.dtos.response_html import ResponseHTMLInfo
 
 

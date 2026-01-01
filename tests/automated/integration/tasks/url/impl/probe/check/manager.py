@@ -3,8 +3,8 @@ from sqlalchemy import select
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
-from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
 from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
 
 
 class TestURLProbeCheckManager:

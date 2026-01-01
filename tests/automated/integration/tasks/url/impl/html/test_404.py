@@ -12,6 +12,7 @@ from src.external.url_request.dtos.url_response import URLResponseInfo
 from tests.automated.integration.tasks.url.impl.asserts import assert_prereqs_met, assert_task_ran_without_error
 from tests.helpers.data_creator.core import DBDataCreator
 
+
 class _MockURLRequestInterface:
 
     async def make_requests_with_html(self, urls: list[str]) -> list[URLResponseInfo]:

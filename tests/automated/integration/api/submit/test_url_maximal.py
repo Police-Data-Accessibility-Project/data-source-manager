@@ -10,9 +10,9 @@ from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLoc
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo

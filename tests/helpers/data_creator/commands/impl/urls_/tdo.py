@@ -2,8 +2,6 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from src.core.enums import RecordType
-
 
 class SubmittedURLInfo(BaseModel):
     url_id: int

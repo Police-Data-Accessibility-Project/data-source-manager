@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters

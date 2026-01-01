@@ -1,6 +1,5 @@
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.util.models.full_url import FullURL

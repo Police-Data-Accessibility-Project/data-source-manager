@@ -1,12 +1,11 @@
 from sqlalchemy import select, CTE
 from sqlalchemy.orm import aliased
 
-from src.collectors.enums import URLStatus
 from src.db.enums import TaskType
 from src.db.helpers.query import not_exists_url, no_url_task_error
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
 
 
 class AutoRelevantPrerequisitesCTEContainer:

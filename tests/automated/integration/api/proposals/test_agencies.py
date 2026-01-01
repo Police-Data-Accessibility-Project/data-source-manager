@@ -3,9 +3,9 @@ import pytest
 from src.api.endpoints.proposals.agencies.by_id.approve.response import ProposalAgencyApproveResponse
 from src.api.endpoints.proposals.agencies.by_id.locations.get.response import ProposalAgencyGetLocationsOuterResponse
 from src.api.endpoints.proposals.agencies.by_id.put.request import ProposalAgencyPutRequest
-from src.api.endpoints.proposals.agencies.root.get.response import ProposalAgencyGetOuterResponse
 from src.api.endpoints.proposals.agencies.by_id.reject.request import ProposalAgencyRejectRequestModel
 from src.api.endpoints.proposals.agencies.by_id.reject.response import ProposalAgencyRejectResponse
+from src.api.endpoints.proposals.agencies.root.get.response import ProposalAgencyGetOuterResponse
 from src.api.endpoints.submit.agency.enums import AgencyProposalRequestStatus
 from src.api.endpoints.submit.agency.request import SubmitAgencyRequestModel
 from src.api.endpoints.submit.agency.response import SubmitAgencyProposalResponse

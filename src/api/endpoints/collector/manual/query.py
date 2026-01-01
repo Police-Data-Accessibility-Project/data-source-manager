@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInputDTO
 from src.api.endpoints.collector.dtos.manual_batch.response import ManualBatchResponseDTO
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL

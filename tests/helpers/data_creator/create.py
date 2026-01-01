@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus, RecordType
 from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient

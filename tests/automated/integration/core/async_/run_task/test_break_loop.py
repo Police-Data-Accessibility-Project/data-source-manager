@@ -4,10 +4,10 @@ from unittest.mock import AsyncMock, create_autospec
 import pytest
 
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
+from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.core.tasks.url.models.entry import URLTaskEntry
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.enums import TaskType
-from src.core.tasks.url.enums import TaskOperatorOutcome
 from tests.automated.integration.core.async_.helpers import setup_async_core
 from tests.helpers.data_creator.core import DBDataCreator
 

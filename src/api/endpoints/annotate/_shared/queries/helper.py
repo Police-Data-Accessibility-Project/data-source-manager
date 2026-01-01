@@ -5,7 +5,6 @@ This module contains helper functions for the annotate GET queries
 from sqlalchemy import Select, case, CTE, ColumnElement
 from sqlalchemy.orm import joinedload
 
-from src.collectors.enums import URLStatus
 from src.db.helpers.query import exists_url, not_exists_url
 from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
 from src.db.models.impl.url.core.enums import URLSource

@@ -10,7 +10,6 @@ from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPost
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.api.shared.models.message_response import MessageResponse
 from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInputDTO
@@ -32,6 +31,7 @@ from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
 from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
+from src.api.shared.models.message_response import MessageResponse
 from src.collectors.enums import CollectorType
 from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.core.enums import BatchStatus

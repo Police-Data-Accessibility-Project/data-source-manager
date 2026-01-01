@@ -1,11 +1,10 @@
 from datetime import datetime
 
-from src.collectors.enums import URLStatus, CollectorType
-from src.core.enums import BatchStatus, RecordType
+from src.collectors.enums import CollectorType
+from src.core.enums import BatchStatus
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel

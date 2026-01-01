@@ -10,6 +10,7 @@ from src.db.models.impl.annotation.agency.auto.suggestion.pydantic import Agency
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 from tests.helpers.data_creator.commands.impl.agency import AgencyCommand
 
+
 @final
 class AgencyAutoSuggestionsCommand(DBDataCreatorCommandBase):
 

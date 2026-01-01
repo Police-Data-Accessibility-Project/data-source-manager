@@ -1,9 +1,7 @@
-import asyncio
 from datetime import datetime
 
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.pydantic.upsert import URLUpsertModel
 from src.db.models.impl.url.core.sqlalchemy import URL
 from tests.helpers.data_creator.core import DBDataCreator

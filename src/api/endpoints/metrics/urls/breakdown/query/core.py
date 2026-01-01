@@ -3,12 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseInnerDTO, \
     GetMetricsURLsBreakdownPendingResponseDTO
-from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
+from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 
 

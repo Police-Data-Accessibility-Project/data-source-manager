@@ -1,6 +1,5 @@
 from typing import cast, Literal
 
-from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel

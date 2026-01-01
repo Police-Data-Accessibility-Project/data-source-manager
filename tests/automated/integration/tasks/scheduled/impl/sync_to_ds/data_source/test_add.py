@@ -5,7 +5,6 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.core import 
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.external.pdap.client import PDAPClient
-from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest, AddDataSourcesInnerRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseModel, \

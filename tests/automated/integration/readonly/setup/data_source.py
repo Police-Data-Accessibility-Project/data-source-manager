@@ -1,6 +1,5 @@
 from datetime import date
 
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.url_validated.enums import URLType

@@ -1,6 +1,5 @@
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
@@ -9,11 +8,11 @@ from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLo
 from src.db.client.async_ import AsyncDatabaseClient
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.check import check_results_called
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.data import generate_expected_outputs
+from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.enums import \
+    PushToHuggingFaceTestSetupStatusEnum
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.helper import setup_urls
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.models.input import \
     TestPushToHuggingFaceURLSetupEntryInput
-from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.enums import \
-    PushToHuggingFaceTestSetupStatusEnum
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 
 

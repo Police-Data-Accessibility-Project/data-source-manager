@@ -4,7 +4,6 @@ from src.core.tasks.url.operators.html.core import URLHTMLTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from tests.automated.integration.tasks.url.impl.asserts import assert_prereqs_not_met, assert_task_ran_without_error
-from tests.helpers.data_creator.core import DBDataCreator
 
 
 @pytest.mark.asyncio
