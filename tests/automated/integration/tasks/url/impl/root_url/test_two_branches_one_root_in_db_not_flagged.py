@@ -1,7 +1,6 @@
 import pytest
 
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
-from src.db.models.impl.flag.root_url.pydantic import FlagRootURLPydantic
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource

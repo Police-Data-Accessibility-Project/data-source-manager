@@ -5,6 +5,7 @@ from src.core.tasks.url.operators.agency_identification.core import AgencyIdenti
 from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 from tests.helpers.data_creator.core import DBDataCreator
 
+
 @pytest.mark.asyncio
 async def test_survey_flag(
     operator: AgencyIdentificationTaskOperator,

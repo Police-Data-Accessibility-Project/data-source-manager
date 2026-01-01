@@ -1,8 +1,9 @@
-from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.collectors import CollectorType
-from src.core.enums import BatchStatus
-from src.collectors.impl.ckan import group_search, package_search, organization_search
 from test_automated.integration.core.helpers.common_test_procedures import run_collector_and_wait_for_completion
+
+from src.collectors import CollectorType
+from src.collectors.impl.ckan import group_search, package_search, organization_search
+from src.core.enums import BatchStatus
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 
 
 def test_ckan_lifecycle(test_core):

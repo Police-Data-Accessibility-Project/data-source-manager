@@ -6,9 +6,9 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.external.internet_archives.models.capture import IACapture
-from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 from tests.automated.integration.tasks.scheduled.impl.internet_archives.probe.constants import TEST_URL_1, TEST_URL_2
 from tests.automated.integration.tasks.scheduled.impl.internet_archives.probe.setup import add_urls
+from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 
 
 @pytest.mark.asyncio

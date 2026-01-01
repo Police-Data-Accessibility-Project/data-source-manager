@@ -1,7 +1,6 @@
 import pytest
 
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
@@ -9,8 +8,8 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.models.impl.url.reviewing_user import ReviewingUserURL
-from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 from tests.helpers.data_creator.core import DBDataCreator
+from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
 @pytest.mark.asyncio
@@ -42,7 +41,6 @@ async def test_approve_url_basic(db_data_creator: DBDataCreator):
     assert len(urls) == 1
     url = urls[0]
     assert url.id == url_mapping.url_id
-    assert url.status == URLStatus.OK
     assert url.name == "Test Name"
     assert url.description == "Test Description"
 

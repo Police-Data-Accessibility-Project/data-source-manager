@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus, RecordType
 from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient
@@ -32,14 +32,12 @@ async def create_batch(
 
 async def create_urls(
     adb_client: AsyncDatabaseClient,
-    status: URLStatus = URLStatus.OK,
     source: URLSource = URLSource.COLLECTOR,
     record_type: RecordType | None = RecordType.RESOURCES,
     collector_metadata: dict | None = None,
     count: int = 1
 ) -> list[SimpleURLMapping]:
     urls: list[URLInsertModel] = generate_urls(
-        status=status,
         source=source,
         collector_metadata=collector_metadata,
         count=count,

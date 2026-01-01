@@ -10,7 +10,7 @@ from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.collectors.enums import CollectorType
 from src.core.core import AsyncCore
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.security.dtos.access_info import AccessInfo
 from src.security.manager import get_access_info
 
@@ -27,7 +27,7 @@ async def get_batch_status(
             description="Filter by collector type",
             default=None
         ),
-        status: BatchURLStatusEnum | None = Query(
+        status: BatchURLStatusViewEnum | None = Query(
             description="Filter by status",
             default=None
         ),

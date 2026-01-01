@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class BatchURLStatusEnum(Enum):
+class BatchURLStatusViewEnum(Enum):
     ERROR = "Error"
     NO_URLS = "No URLs"
     LABELING_COMPLETE = "Labeling Complete"

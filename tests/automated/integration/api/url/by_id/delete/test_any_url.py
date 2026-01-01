@@ -19,8 +19,13 @@ from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import An
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.change_log import ChangeLog
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
@@ -29,7 +34,6 @@ from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
-from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
@@ -40,10 +44,6 @@ from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.internet_archives.save.sqlalchemy import URLInternetArchivesSaveMetadata
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
-from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
-from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
-from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder

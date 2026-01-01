@@ -1,13 +1,14 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from environs import Env
 
+from src.collectors.impl.auto_googler.collector import AutoGooglerCollector
 from src.collectors.impl.auto_googler.dtos.input import AutoGooglerInputDTO
 from src.core.env_var_manager import EnvVarManager
 from src.core.logger import AsyncCoreLogger
-from src.collectors.impl.auto_googler.collector import AutoGooglerCollector
 from src.db.client.async_ import AsyncDatabaseClient
-from environs import Env
+
 
 @pytest.mark.asyncio
 async def test_autogoogler_collector(monkeypatch):

@@ -1,16 +1,13 @@
 from datetime import datetime
 
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 from tests.helpers.data_creator.commands.impl.annotate import AnnotateCommand
 from tests.helpers.data_creator.commands.impl.html_data import HTMLDataCreatorCommand
-from tests.helpers.data_creator.commands.impl.urls_.convert import convert_url_creation_enum_to_validated_type
 from tests.helpers.data_creator.commands.impl.urls_.query import URLsDBDataCreatorCommand
 from tests.helpers.data_creator.commands.impl.urls_v2.response import URLsV2Response
-from tests.helpers.data_creator.generate import generate_validated_flags
 from tests.helpers.data_creator.models.creation_info.url import URLCreationInfo
 
 

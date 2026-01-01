@@ -10,6 +10,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.shared.convert import convert_sm_u
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.queries.base.builder import QueryBuilderBase
 from src.external.pdap.impl.sync.meta_urls._shared.content import MetaURLSyncContentModel
 from src.external.pdap.impl.sync.meta_urls.add.request import AddMetaURLsOuterRequest, AddMetaURLsInnerRequest
@@ -36,7 +37,7 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
             select(
                 cte.url_id,
                 URL.full_url,
-                URL.status,
+                URLWebMetadata.status_code,
                 URLInternetArchivesProbeMetadata.archive_url,
                 agency_id_cte.c.agency_ids
             )
@@ -46,6 +47,10 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
             .join(
                 URL,
                 URL.id == cte.url_id,
+            )
+            .join(
+                URLWebMetadata,
+                URL.id == URLWebMetadata.url_id,
             )
             .outerjoin(
                 URLInternetArchivesProbeMetadata,
@@ -73,7 +78,7 @@ class DSAppSyncMetaURLsAddGetQueryBuilder(QueryBuilderBase):
                         agency_ids=mapping["agency_ids"],
                         internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
                         url_status=convert_sm_url_status_to_ds_url_status(
-                            sm_url_status=mapping[URL.status],
+                            mapping[URLWebMetadata.status_code],
                         ),
                     )
                 )

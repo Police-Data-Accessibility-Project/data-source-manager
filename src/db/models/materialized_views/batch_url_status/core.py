@@ -66,7 +66,7 @@ from src.db.models.mixins import ViewMixin, BatchDependentMixin
 from src.db.models.templates_.base import Base
 
 
-class BatchURLStatusMatView(
+class BatchURLStatusMaterializedView(
     Base,
     ViewMixin,
     BatchDependentMixin

@@ -11,10 +11,10 @@ from src.core.enums import RecordType
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
+from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 

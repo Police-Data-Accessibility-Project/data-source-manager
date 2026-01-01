@@ -36,13 +36,13 @@ from src.api.endpoints.task.by_id.query import GetTaskInfoQueryBuilder
 from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse, GetTasksResponseTaskInfo
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.api.endpoints.url.get.query import GetURLsQueryBuilder
-from src.collectors.enums import URLStatus, CollectorType
+from src.collectors.enums import CollectorType
 from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
 from src.core.enums import BatchStatus, RecordType
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.html.queries.get import \
+from src.core.tasks.url.operators.html.queries.get.query import \
     GetPendingURLsWithoutHTMLDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.db.client.helpers import add_standard_limit_and_offset
@@ -83,7 +83,7 @@ from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURL
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
 from src.db.queries.implementations.core.metrics.urls.aggregated.pending import \
@@ -320,14 +320,6 @@ class AsyncDatabaseClient:
         session.add(suggestion)
 
     # endregion record_type
-
-
-    @session_manager
-    async def has_non_errored_urls_without_html_data(self, session: AsyncSession) -> bool:
-        statement = self.statement_composer.has_non_errored_urls_without_html_data()
-        statement = statement.limit(1)
-        scalar_result = await session.scalars(statement)
-        return bool(scalar_result.first())
 
     @session_manager
     async def add_miscellaneous_metadata(self, session: AsyncSession, tdos: list[URLMiscellaneousMetadataTDO]):
@@ -700,7 +692,7 @@ class AsyncDatabaseClient:
         session,
         page: int,
         collector_type: CollectorType | None = None,
-        status: BatchURLStatusEnum | None = None,
+        status: BatchURLStatusViewEnum | None = None,
     ) -> GetBatchSummariesResponse:
         # Get only the batch_id, collector_type, status, and created_at
         builder = GetRecentBatchSummariesQueryBuilder(
@@ -831,7 +823,6 @@ class AsyncDatabaseClient:
             )
             .outerjoin(FlagURLValidated, URL.id == FlagURLValidated.url_id)
             .where(
-                URL.status == URLStatus.OK.value,
                 FlagURLValidated.url_id.is_(None),
             )
         )

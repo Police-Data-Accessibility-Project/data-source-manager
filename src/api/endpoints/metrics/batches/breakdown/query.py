@@ -1,4 +1,4 @@
-from sqlalchemy import select, case, Column
+from sqlalchemy import select, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.functions import coalesce
 
@@ -11,11 +11,9 @@ from src.api.endpoints.metrics.batches.breakdown.submitted.cte_ import SUBMITTED
 from src.api.endpoints.metrics.batches.breakdown.templates.cte_ import BatchesBreakdownURLCTE
 from src.api.endpoints.metrics.batches.breakdown.total.cte_ import TOTAL_CTE
 from src.api.endpoints.metrics.batches.breakdown.validated.cte_ import VALIDATED_CTE
-from src.collectors.enums import URLStatus, CollectorType
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.statement_composer import StatementComposer
 

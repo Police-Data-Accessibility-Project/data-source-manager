@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import Engine
 
 from src.db.models.templates_.base import Base
 
