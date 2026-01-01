@@ -18,7 +18,7 @@ class DSAppLinkSyncDataSourceUpdatePrerequisitesCTEContainer:
                 URL,
                 URL.id == DSAppLinkDataSource.url_id,
             )
-            .outerjoin(
+            .join(
                 URLRecordType,
                 URL.id == URLRecordType.url_id,
             )
