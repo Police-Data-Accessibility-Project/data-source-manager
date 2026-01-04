@@ -2,9 +2,8 @@ import pytest
 from starlette.exceptions import HTTPException
 
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
-from src.core.enums import RecordType
-from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 from tests.helpers.data_creator.core import DBDataCreator
+from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
 @pytest.mark.asyncio

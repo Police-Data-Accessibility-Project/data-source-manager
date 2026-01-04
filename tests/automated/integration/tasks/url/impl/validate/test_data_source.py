@@ -14,10 +14,10 @@ from src.core.enums import RecordType
 from src.core.tasks.url.operators.validate.core import AutoValidateURLTaskOperator
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from tests.automated.integration.tasks.url.impl.validate.helper import TestValidateTaskHelper, DEFAULT_RECORD_TYPE
 from tests.helpers.run import run_task_and_confirm_success
 

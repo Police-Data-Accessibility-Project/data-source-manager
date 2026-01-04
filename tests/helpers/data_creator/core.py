@@ -3,7 +3,7 @@ from http import HTTPStatus
 from typing import Optional, Any
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus, SuggestionType, RecordType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
@@ -20,13 +20,13 @@ from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import An
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
-from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.core.enums import URLSource
@@ -439,7 +439,6 @@ class DBDataCreator:
 
     async def create_urls(
         self,
-        status: URLStatus = URLStatus.OK,
         source: URLSource = URLSource.COLLECTOR,
         record_type: RecordType | None = RecordType.RESOURCES,
         collector_metadata: dict | None = None,
@@ -449,7 +448,6 @@ class DBDataCreator:
 
         url_mappings: list[SimpleURLMapping] = await create_urls(
             adb_client=self.adb_client,
-            status=status,
             source=source,
             record_type=record_type,
             collector_metadata=collector_metadata,

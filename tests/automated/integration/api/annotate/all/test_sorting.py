@@ -1,7 +1,6 @@
 import pytest
 
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.location__user_follow import LinkLocationUserFollow
 from src.db.models.impl.link.location_batch.sqlalchemy import LinkLocationBatch
 from src.db.models.impl.url.core.enums import URLSource

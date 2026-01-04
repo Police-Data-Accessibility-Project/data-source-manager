@@ -1,5 +1,3 @@
-from src.collectors.enums import URLStatus
-from src.core.enums import RecordType
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.templates_.base import Base
@@ -17,6 +15,5 @@ class URLInsertModel(BulkInsertableModel):
     scheme: str | None = None
     collector_metadata: dict | None = None
     name: str | None = None
-    status: URLStatus = URLStatus.OK
     source: URLSource
     trailing_slash: bool

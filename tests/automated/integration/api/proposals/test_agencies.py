@@ -1,12 +1,15 @@
 import pytest
 
-from src.api.endpoints.proposals.agencies.approve.response import ProposalAgencyApproveResponse
-from src.api.endpoints.proposals.agencies.get.response import ProposalAgencyGetOuterResponse
-from src.api.endpoints.proposals.agencies.reject.request import ProposalAgencyRejectRequestModel
-from src.api.endpoints.proposals.agencies.reject.response import ProposalAgencyRejectResponse
+from src.api.endpoints.proposals.agencies.by_id.approve.response import ProposalAgencyApproveResponse
+from src.api.endpoints.proposals.agencies.by_id.locations.get.response import ProposalAgencyGetLocationsOuterResponse
+from src.api.endpoints.proposals.agencies.by_id.put.request import ProposalAgencyPutRequest
+from src.api.endpoints.proposals.agencies.by_id.reject.request import ProposalAgencyRejectRequestModel
+from src.api.endpoints.proposals.agencies.by_id.reject.response import ProposalAgencyRejectResponse
+from src.api.endpoints.proposals.agencies.root.get.response import ProposalAgencyGetOuterResponse
 from src.api.endpoints.submit.agency.enums import AgencyProposalRequestStatus
 from src.api.endpoints.submit.agency.request import SubmitAgencyRequestModel
 from src.api.endpoints.submit.agency.response import SubmitAgencyProposalResponse
+from src.api.shared.models.message_response import MessageResponse
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
@@ -16,13 +19,15 @@ from tests.automated.integration.conftest import MOCK_USER_ID
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
+from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 
 
 @pytest.mark.asyncio
 async def test_agencies(
     api_test_helper: APITestHelper,
     pittsburgh_locality: LocalityCreationInfo,
-    allegheny_county: CountyCreationInfo
+    allegheny_county: CountyCreationInfo,
+    pennsylvania: USStateCreationInfo
 ):
     request = SubmitAgencyRequestModel(
         name="test_agency",
@@ -71,6 +76,78 @@ async def test_agencies(
     assert [loc.location_id for loc in proposal.locations] == request.location_ids
     assert proposal.created_at is not None
 
+    # Edit Endpoint
+    edit_response: MessageResponse = rv.put_v3(
+        f"/proposal/agencies/{proposal_id}",
+        expected_model=MessageResponse,
+        json=ProposalAgencyPutRequest(
+            name='Modified Agency',
+            type=AgencyType.AGGREGATED,
+            jurisdiction_type=JurisdictionType.COUNTY,
+        ).model_dump(mode="json")
+    )
+    assert edit_response.message == "Proposed agency updated."
+
+    # Confirm agency proposal is updated
+    get_response_1p5: ProposalAgencyGetOuterResponse = rv.get_v3(
+        "/proposal/agencies",
+        expected_model=ProposalAgencyGetOuterResponse
+    )
+    # Confirm agency is in response
+    assert len(get_response_1p5.results) == 1
+    proposal = get_response_1p5.results[0]
+    assert proposal.id == proposal_id
+    assert proposal.name == 'Modified Agency'
+    assert proposal.proposing_user_id == MOCK_USER_ID
+    assert proposal.agency_type == AgencyType.AGGREGATED
+    assert proposal.jurisdiction_type == JurisdictionType.COUNTY
+    assert [loc.location_id for loc in proposal.locations] == request.location_ids
+    assert proposal.created_at is not None
+
+
+    # Get locations for endpoint
+    get_locations_response: ProposalAgencyGetLocationsOuterResponse = rv.get_v3(
+        f"/proposal/agencies/{proposal_id}/locations",
+        expected_model=ProposalAgencyGetLocationsOuterResponse
+    )
+    assert len(get_locations_response.results) == 2
+    # Check Location IDs match
+    assert {loc.location_id for loc in get_locations_response.results} == {
+        allegheny_county.location_id,
+        pittsburgh_locality.location_id
+    }
+
+    # Add location to endpoint
+    add_locations_response: MessageResponse = rv.post_v3(
+        f"/proposal/agencies/{proposal_id}/locations/{pennsylvania.location_id}"
+    )
+    # Check that location is added
+    get_locations_response: ProposalAgencyGetLocationsOuterResponse = rv.get_v3(
+        f"/proposal/agencies/{proposal_id}/locations",
+        expected_model=ProposalAgencyGetLocationsOuterResponse
+    )
+    assert len(get_locations_response.results) == 3
+    assert {loc.location_id for loc in get_locations_response.results} == {
+        allegheny_county.location_id,
+        pittsburgh_locality.location_id,
+        pennsylvania.location_id
+    }
+
+    # Remove Location from endpoint
+    remove_location_response: MessageResponse = rv.delete_v3(
+        f"/proposal/agencies/{proposal_id}/locations/{pennsylvania.location_id}"
+    )
+    # Check that location is removed
+    get_locations_response: ProposalAgencyGetLocationsOuterResponse = rv.get_v3(
+        f"/proposal/agencies/{proposal_id}/locations",
+        expected_model=ProposalAgencyGetLocationsOuterResponse
+    )
+    assert len(get_locations_response.results) == 2
+    assert {loc.location_id for loc in get_locations_response.results} == {
+        allegheny_county.location_id,
+        pittsburgh_locality.location_id,
+    }
+
     # Call APPROVE endpoint
     approve_response: ProposalAgencyApproveResponse = rv.post_v3(
         f"/proposal/agencies/{proposal_id}/approve",
@@ -85,9 +162,10 @@ async def test_agencies(
     agencies: list[Agency] = await adb_client.get_all(Agency)
     assert len(agencies) == 1
     agency = agencies[0]
-    assert agency.name == request.name
-    assert agency.agency_type == request.agency_type
-    assert agency.jurisdiction_type == request.jurisdiction_type
+    assert agency.id == agency_id
+    assert agency.name == "Modified Agency"
+    assert agency.agency_type == AgencyType.AGGREGATED
+    assert agency.jurisdiction_type == JurisdictionType.COUNTY
 
     links: list[LinkAgencyLocation] = await adb_client.get_all(LinkAgencyLocation)
     assert len(links) == 2
@@ -106,7 +184,15 @@ async def test_agencies(
     submit_response_accepted_duplicate: SubmitAgencyProposalResponse = rv.post_v3(
         "/submit/agency",
         expected_model=SubmitAgencyProposalResponse,
-        json=request.model_dump(mode="json")
+        json=SubmitAgencyRequestModel(
+            name='Modified Agency',
+            agency_type=AgencyType.AGGREGATED,
+            jurisdiction_type=JurisdictionType.COUNTY,
+            location_ids=[
+                allegheny_county.location_id,
+                pittsburgh_locality.location_id
+            ]
+        ).model_dump(mode="json")
     )
     assert submit_response_accepted_duplicate.status == AgencyProposalRequestStatus.ACCEPTED_DUPLICATE
     assert submit_response_accepted_duplicate.proposal_id is None

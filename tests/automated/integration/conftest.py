@@ -6,7 +6,6 @@ import pytest_asyncio
 from starlette.testclient import TestClient
 
 from src.api.main import app
-from src.collectors.enums import URLStatus
 from src.collectors.manager import AsyncCollectorManager
 from src.core.core import AsyncCore
 from src.core.enums import RecordType
@@ -245,21 +244,9 @@ async def test_url_id(
         url="example.com",
         source=URLSource.COLLECTOR,
         trailing_slash=False,
-        status=URLStatus.OK
     )
     return await db_data_creator.adb_client.add(url, return_id=True)
 
-@pytest_asyncio.fixture
-async def test_url_id_2(
-    db_data_creator: DBDataCreator,
-) -> int:
-    url = URL(
-        url="example.com/2",
-        source=URLSource.COLLECTOR,
-        trailing_slash=False,
-        status=URLStatus.OK
-    )
-    return await db_data_creator.adb_client.add(url, return_id=True)
 
 
 @pytest_asyncio.fixture

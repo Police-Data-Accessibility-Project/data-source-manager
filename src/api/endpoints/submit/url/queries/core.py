@@ -7,16 +7,15 @@ from src.api.endpoints.submit.url.models.response import URLSubmissionResponse
 from src.api.endpoints.submit.url.queries.convert import convert_invalid_url_to_url_response, \
     convert_duplicate_urls_to_url_response
 from src.api.endpoints.submit.url.queries.dedupe import DeduplicateURLQueryBuilder
-from src.collectors.enums import URLStatus
 from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.queries.base.builder import QueryBuilderBase
 from src.util.models.url_and_scheme import URLAndScheme
 from src.util.url import clean_url, get_url_and_scheme, is_valid_url
@@ -61,7 +60,6 @@ class SubmitURLQueryBuilder(QueryBuilderBase):
             url=url_and_scheme.url,
             scheme=url_and_scheme.scheme,
             source=URLSource.MANUAL,
-            status=URLStatus.OK,
             description=self.request.description,
             trailing_slash=url_and_scheme.url.endswith('/'),
         )

@@ -1,6 +1,7 @@
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.core.tasks.url.operators.html.filter import filter_just_urls, filter_404_subset
 from src.core.tasks.url.operators.html.queries.insert.query import InsertURLHTMLInfoQueryBuilder
+from src.core.tasks.url.operators.html.queries.prerequisites import PendingURLsWithoutHTMLDataPrerequisitesQueryBuilder
 from src.core.tasks.url.operators.html.scraper.parser.core import HTMLResponseParser
 from src.core.tasks.url.operators.html.tdo import UrlHtmlTDO
 from src.db.client.async_ import AsyncDatabaseClient
@@ -26,7 +27,9 @@ class URLHTMLTaskOperator(URLTaskOperatorBase):
         return TaskType.HTML
 
     async def meets_task_prerequisites(self) -> bool:
-        return await self.adb_client.has_non_errored_urls_without_html_data()
+        return await self.run_query_builder(
+            PendingURLsWithoutHTMLDataPrerequisitesQueryBuilder()
+        )
 
     async def inner_task_logic(self) -> None:
         tdos = await self._get_non_errored_urls_without_html_data()

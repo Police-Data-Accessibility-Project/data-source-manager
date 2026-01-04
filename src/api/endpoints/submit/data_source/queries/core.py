@@ -1,12 +1,9 @@
 import uuid
-from typing import Any
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
@@ -44,7 +41,6 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             trailing_slash=full_url.has_trailing_slash,
             name=self.request.name,
             description=self.request.description,
-            status=URLStatus.OK,
             source=URLSource.MANUAL,
         )
 

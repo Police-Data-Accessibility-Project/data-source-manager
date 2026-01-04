@@ -22,7 +22,6 @@ class InsertURLQueryBuilder(QueryBuilderBase):
             url=url_and_scheme.url.rstrip('/'),
             scheme=url_and_scheme.scheme,
             collector_metadata=self.url_info.collector_metadata,
-            status=self.url_info.status.value,
             source=self.url_info.source,
             trailing_slash=url_and_scheme.url.endswith('/'),
         )

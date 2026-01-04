@@ -4,10 +4,10 @@ from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
-from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
+from src.db.models.impl.flag.url_validated.enums import URLType
 
 
 async def add_full_data_sources_annotations(

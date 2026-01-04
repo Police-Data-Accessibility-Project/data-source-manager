@@ -1,5 +1,3 @@
-from typing import Optional
-
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType

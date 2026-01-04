@@ -52,9 +52,7 @@ class TaskManager:
         while meets_prereq:
             print(f"Running {operator.task_type.value} Task")
             if count > TASK_REPEAT_THRESHOLD:
-                message = f"Task {operator.task_type.value} has been run more than {TASK_REPEAT_THRESHOLD} times in a row. Task loop terminated."
-                print(message)
-                await self.handler.post_to_discord(message=message)
+                await self._alert_task_repeat_threshold_exceeded(operator)
                 break
             run_info: TaskOperatorRunInfo = await operator.run_task()
             await self.conclude_task(run_info)
@@ -62,6 +60,11 @@ class TaskManager:
                 break
             count += 1
             meets_prereq = await operator.meets_task_prerequisites()
+
+    async def _alert_task_repeat_threshold_exceeded(self, operator):
+        message = f"Task {operator.task_type.value} has been run more than {TASK_REPEAT_THRESHOLD} times in a row. Task loop terminated."
+        print(message)
+        await self.handler.post_to_discord(message=message)
 
     async def trigger_task_run(self) -> None:
         await self.task_trigger.trigger_or_rerun()

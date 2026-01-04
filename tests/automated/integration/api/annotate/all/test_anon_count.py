@@ -1,5 +1,6 @@
-import pytest
 import uuid
+
+import pytest
 
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.core.enums import RecordType

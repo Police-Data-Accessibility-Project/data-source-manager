@@ -2,7 +2,6 @@ from sqlalchemy import Column, Text, String, JSON, case, literal, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped
 
-from src.collectors.enums import URLStatus
 from src.db.models.helpers import enum_column
 from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
 from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
@@ -10,19 +9,18 @@ from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgenc
 from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
 from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
 from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
-from src.db.models.impl.annotation.name.anon.sqlalchemy import AnnotationNameAnonEndorsement
 from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.checked_for_duplicate import URLCheckedForDuplicate
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
-from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
-from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
-from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
-from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.mixins import UpdatedAtMixin, CreatedAtMixin
 from src.db.models.templates_.with_id import WithIDBase
@@ -39,11 +37,6 @@ class URL(UpdatedAtMixin, CreatedAtMixin, WithIDBase):
     # The metadata from the collector
     collector_metadata = Column(JSON)
     # The outcome of the URL: submitted, human_labeling, rejected, duplicate, etc.
-    status: Mapped[URLStatus] = enum_column(
-            URLStatus,
-            name='url_status',
-            nullable=False
-    )
     trailing_slash = Column(Boolean, nullable=False)
 
     @hybrid_property

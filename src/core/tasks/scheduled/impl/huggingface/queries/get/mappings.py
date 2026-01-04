@@ -1,4 +1,3 @@
-from src.collectors.enums import URLStatus
 from src.core.enums import RecordType
 from src.core.tasks.scheduled.impl.huggingface.queries.get.enums import RecordTypeCoarse
 
