@@ -9,8 +9,3 @@ class CollectorType(Enum):
     MUCKROCK_ALL_SEARCH = "muckrock_all_search"
     CKAN = "ckan"
     MANUAL = "manual"
-
-class URLStatus(Enum):
-    OK = "ok"
-    ERROR = "error"
-    DUPLICATE = "duplicate"

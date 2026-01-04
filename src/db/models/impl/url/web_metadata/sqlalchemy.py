@@ -1,17 +1,20 @@
-from sqlalchemy import Column, Text, Boolean, Integer
+from sqlalchemy import Column, Text, Boolean, Integer, PrimaryKeyConstraint
 
 from src.db.models.mixins import URLDependentMixin, CreatedAtMixin, UpdatedAtMixin
-from src.db.models.templates_.with_id import WithIDBase
+from src.db.models.templates_.base import Base
 
 
 class URLWebMetadata(
-    WithIDBase,
+    Base,
     URLDependentMixin,
     CreatedAtMixin,
     UpdatedAtMixin
 ):
     """Contains information about the web page."""
     __tablename__ = "url_web_metadata"
+    __table_args__ = (
+        PrimaryKeyConstraint("url_id"),
+    )
 
     accessed = Column(
         Boolean(),

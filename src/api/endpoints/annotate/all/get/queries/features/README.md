@@ -1,0 +1,1 @@
+"Features" in this case refers to EXISTs subqueries which are separately calculated and used for sorting.  

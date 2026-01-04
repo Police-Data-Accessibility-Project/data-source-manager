@@ -2,7 +2,7 @@
 from environs import Env
 
 from src.core.tasks.url.operators.agency_identification.subtasks.flags.mappings import SUBTASK_TO_ENV_FLAG
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 
 
 class SubtaskFlagger:

@@ -1,5 +1,6 @@
 from src.core.tasks.url.operators.probe.tdo import URLProbeTDO
 from src.db.models.impl.url.web_metadata.insert import URLWebMetadataPydantic
+from src.external.url_request.probe.models.redirect import URLProbeRedirectResponsePair
 
 
 def convert_tdo_to_web_metadata_list(tdos: list[URLProbeTDO]) -> list[URLWebMetadataPydantic]:
@@ -16,3 +17,19 @@ def convert_tdo_to_web_metadata_list(tdos: list[URLProbeTDO]) -> list[URLWebMeta
         results.append(web_metadata_object)
     return results
 
+def convert_tdos_with_functional_equivalents_to_web_metadata_list(
+    tdos: list[URLProbeTDO]
+) -> list[URLWebMetadataPydantic]:
+    results: list[URLWebMetadataPydantic] = []
+    for tdo in tdos:
+        response: URLProbeRedirectResponsePair = tdo.response.response
+        dest = response.destination
+        web_metadata_object = URLWebMetadataPydantic(
+            url_id=tdo.url_mapping.url_id,
+            accessed=dest.status_code != 404,
+            status_code=dest.status_code,
+            content_type=dest.content_type,
+            error_message=dest.error
+        )
+        results.append(web_metadata_object)
+    return results

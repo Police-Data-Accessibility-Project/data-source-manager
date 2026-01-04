@@ -1,11 +1,10 @@
 from datetime import datetime
 
-from src.collectors.enums import URLStatus, CollectorType
-from src.core.enums import BatchStatus, RecordType
+from src.collectors.enums import CollectorType
+from src.core.enums import BatchStatus
 from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
@@ -39,7 +38,6 @@ def generate_batch_url_links(
     ]
 
 def generate_urls(
-    status: URLStatus = URLStatus.OK,
     source: URLSource = URLSource.COLLECTOR,
     collector_metadata: dict | None = None,
     count: int = 1
@@ -48,11 +46,12 @@ def generate_urls(
     for i in range(count):
         val: int = next_int()
         results.append(URLInsertModel(
-            url=f"http://example.com/{val}",
-            status=status,
+            url=f"example.com/{val}",
+            scheme="https",
             source=source,
             name=f"Example {val}",
             collector_metadata=collector_metadata,
+            trailing_slash=False
         ))
     return results
 
@@ -74,7 +73,7 @@ def generate_url_data_sources(
     return [
         URLDataSourcePydantic(
             url_id=url_id,
-            data_source_id=url_id,
+            ds_data_source_id=url_id,
         )
         for url_id in url_ids
     ]

@@ -6,12 +6,24 @@ from src.core.tasks.scheduled.impl.backlog.operator import PopulateBacklogSnapsh
 from src.core.tasks.scheduled.impl.delete_logs.operator import DeleteOldLogsTaskOperator
 from src.core.tasks.scheduled.impl.delete_stale_screenshots.operator import DeleteStaleScreenshotsTaskOperator
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
+from src.core.tasks.scheduled.impl.integrity.operator import IntegrityMonitorTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.probe.operator import InternetArchivesProbeTaskOperator
 from src.core.tasks.scheduled.impl.internet_archives.save.operator import InternetArchivesSaveTaskOperator
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
-from src.core.tasks.scheduled.impl.mark_never_completed.query import MarkTaskNeverCompletedQueryBuilder
 from src.core.tasks.scheduled.impl.refresh_materialized_views.operator import RefreshMaterializedViewsOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
+from src.core.tasks.scheduled.impl.sync_from_ds.impl.follows.core import DSAppSyncUserFollowsGetTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.core import DSAppSyncAgenciesAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.core import DSAppSyncAgenciesDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.core import DSAppSyncAgenciesUpdateTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.core import DSAppSyncDataSourcesAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.delete.core import \
+    DSAppSyncDataSourcesDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.core import \
+    DSAppSyncDataSourcesUpdateTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.core import DSAppSyncMetaURLsAddTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.core import DSAppSyncMetaURLsDeleteTaskOperator
+from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.core import DSAppSyncMetaURLsUpdateTaskOperator
 from src.core.tasks.scheduled.impl.task_cleanup.operator import TaskCleanupOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
@@ -115,5 +127,106 @@ class ScheduledTaskOperatorLoader:
                 operator=RefreshMaterializedViewsOperator(adb_client=self.adb_client),
                 interval_minutes=IntervalEnum.DAILY.value,
                 enabled=self.setup_flag("REFRESH_MATERIALIZED_VIEWS_TASK_FLAG")
-            )
+            ),
+            ScheduledTaskEntry(
+                operator=IntegrityMonitorTaskOperator(
+                    adb_client=self.adb_client
+                ),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("INTEGRITY_MONITOR_TASK_FLAG")
+            ),
+            # Sync
+            ## Get
+            ScheduledTaskEntry(
+                operator=DSAppSyncUserFollowsGetTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_USER_FOLLOWS_GET_TASK_FLAG")
+            ),
+            ## Adds
+            ### Agency
+            ScheduledTaskEntry(
+                operator=DSAppSyncAgenciesAddTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_ADD_TASK_FLAG")
+            ),
+            ### Meta URL
+            ScheduledTaskEntry(
+                operator=DSAppSyncMetaURLsAddTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_ADD_TASK_FLAG")
+            ),
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesAddTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_ADD_TASK_FLAG")
+            ),
+            ## Updates
+            ### Agency
+            ScheduledTaskEntry(
+                operator=DSAppSyncAgenciesUpdateTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_UPDATE_TASK_FLAG")
+            ),
+            ### Meta URL
+            ScheduledTaskEntry(
+                operator=DSAppSyncMetaURLsUpdateTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG")
+            ),
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesUpdateTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_UPDATE_TASK_FLAG")
+            ),
+            ## Deletes
+            ### Data Source
+            ScheduledTaskEntry(
+                operator=DSAppSyncDataSourcesDeleteTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_DATA_SOURCE_DELETE_TASK_FLAG")
+            ),
+            ### Meta URL
+            ScheduledTaskEntry(
+                operator=DSAppSyncMetaURLsDeleteTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_META_URL_DELETE_TASK_FLAG")
+            ),
+            ### Agency
+            ScheduledTaskEntry(
+                operator=DSAppSyncAgenciesDeleteTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.HOURLY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
+            ),
         ]

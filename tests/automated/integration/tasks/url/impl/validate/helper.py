@@ -1,13 +1,16 @@
+from uuid import UUID
+
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
 from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
 from src.db.models.impl.flag.auto_validated.sqlalchemy import FlagURLAutoValidated
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
+from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from tests.conftest import db_data_creator
 from tests.helpers.counter import next_int
 from tests.helpers.data_creator.core import DBDataCreator
@@ -95,6 +98,11 @@ class TestValidateTaskHelper:
                 )
             )
 
+    async def get_anonymous_session_id(self) -> UUID:
+        return await self.adb_client.run_query_builder(
+            MakeAnonymousSessionQueryBuilder()
+        )
+
     async def add_location_suggestions(
         self,
         count: int = 1,
@@ -124,7 +132,7 @@ class TestValidateTaskHelper:
     async def add_name_suggestion(
         self,
         count: int = 1,
-    ) -> str:
+    ) -> int:
         name = f"Test Validate Task Name"
         suggestion_id: int = await self.db_data_creator.name_suggestion(
             url_id=self.url_id,
@@ -136,7 +144,7 @@ class TestValidateTaskHelper:
                 suggestion_id=suggestion_id,
                 user_id=next_int(),
             )
-        return name
+        return suggestion_id
 
     async def check_name(self) -> None:
         urls: list[URL] = await self.adb_client.get_all(URL)

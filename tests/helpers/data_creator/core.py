@@ -3,34 +3,34 @@ from http import HTTPStatus
 from typing import Optional, Any
 
 from src.api.endpoints.annotate.agency.post.dto import URLAgencyAnnotationPostInfo
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus, SuggestionType, RecordType
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.client.sync import DatabaseClient
 from src.db.dtos.url.insert import InsertURLsInfo
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import TaskType
-from src.db.models.impl.agency.enums import AgencyType
+from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
@@ -68,12 +68,19 @@ class DBDataCreator:
     """
     Assists in the creation of test data
     """
-    def __init__(self, db_client: Optional[DatabaseClient] = None):
+    def __init__(
+        self,
+        db_client: DatabaseClient | None = None,
+        adb_client: AsyncDatabaseClient | None = None
+    ):
         if db_client is not None:
             self.db_client = db_client
         else:
             self.db_client = DatabaseClient()
-        self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
+        if adb_client is not None:
+            self.adb_client = adb_client
+        else:
+            self.adb_client: AsyncDatabaseClient = AsyncDatabaseClient()
         self.clients = DBDataCreatorClientContainer(
             adb=self.adb_client,
             db=self.db_client
@@ -259,6 +266,7 @@ class DBDataCreator:
             url_count: int,
             collector_metadata: dict | None = None,
             outcome: URLCreationEnum = URLCreationEnum.OK,
+            source: URLSource = URLSource.COLLECTOR,
             created_at: datetime | None = None
     ) -> InsertURLsInfo:
         command = URLsDBDataCreatorCommand(
@@ -266,6 +274,7 @@ class DBDataCreator:
             url_count=url_count,
             collector_metadata=collector_metadata,
             status=outcome,
+            source=source,
             created_at=created_at
         )
         return self.run_command_sync(command)
@@ -398,8 +407,8 @@ class DBDataCreator:
         record_type: RecordType = RecordType.RESOURCES,
         validation_type: URLType = URLType.DATA_SOURCE,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -414,8 +423,8 @@ class DBDataCreator:
         self,
         record_type: RecordType = RecordType.RESOURCES,
         count: int = 1
-    ) -> list[URLMapping]:
-        url_mappings: list[URLMapping] = await self.create_urls(
+    ) -> list[SimpleURLMapping]:
+        url_mappings: list[SimpleURLMapping] = await self.create_urls(
             record_type=record_type,
             count=count
         )
@@ -430,17 +439,15 @@ class DBDataCreator:
 
     async def create_urls(
         self,
-        status: URLStatus = URLStatus.OK,
         source: URLSource = URLSource.COLLECTOR,
         record_type: RecordType | None = RecordType.RESOURCES,
         collector_metadata: dict | None = None,
         count: int = 1,
         batch_id: int | None = None
-    ) -> list[URLMapping]:
+    ) -> list[SimpleURLMapping]:
 
-        url_mappings: list[URLMapping] = await create_urls(
+        url_mappings: list[SimpleURLMapping] = await create_urls(
             adb_client=self.adb_client,
-            status=status,
             source=source,
             record_type=record_type,
             collector_metadata=collector_metadata,
@@ -515,9 +522,10 @@ class DBDataCreator:
 
     async def create_agency(self, agency_id: int = 1) -> None:
         agency = Agency(
-            agency_id=agency_id,
+            id=agency_id,
             name=generate_test_name(agency_id),
-            agency_type=AgencyType.UNKNOWN
+            agency_type=AgencyType.UNKNOWN,
+            jurisdiction_type=JurisdictionType.LOCAL
         )
         await self.adb_client.add_all([agency])
 
@@ -527,9 +535,10 @@ class DBDataCreator:
         for _ in range(count):
             agency_id = next_int()
             agency = Agency(
-                agency_id=agency_id,
+                id=agency_id,
                 name=generate_test_name(agency_id),
-                agency_type=AgencyType.UNKNOWN
+                agency_type=AgencyType.UNKNOWN,
+                jurisdiction_type=JurisdictionType.LOCAL
             )
             agencies.append(agency)
             agency_ids.append(agency_id)
@@ -629,7 +638,7 @@ class DBDataCreator:
         user_id: int,
         location_id: int,
     ):
-        suggestion = UserLocationSuggestion(
+        suggestion = AnnotationLocationUser(
             url_id=url_id,
             user_id=user_id,
             location_id=location_id,
@@ -645,7 +654,7 @@ class DBDataCreator:
     ) -> None:
         locations_found: bool = len(location_ids) > 0
         task_id: int = await self.task(url_ids=[url_id])
-        subtask = AutoLocationIDSubtask(
+        subtask = AnnotationLocationAutoSubtask(
             url_id=url_id,
             type=type_,
             task_id=task_id,
@@ -654,9 +663,9 @@ class DBDataCreator:
         subtask_id: int = await self.adb_client.add(subtask, return_id=True)
         if not locations_found:
             return
-        suggestions: list[LocationIDSubtaskSuggestion] = []
+        suggestions: list[AnnotationLocationAutoSuggestion] = []
         for location_id in location_ids:
-            suggestion = LocationIDSubtaskSuggestion(
+            suggestion = AnnotationLocationAutoSuggestion(
                 subtask_id=subtask_id,
                 location_id=location_id,
                 confidence=confidence
@@ -686,7 +695,7 @@ class DBDataCreator:
     ) -> int:
         if name is None:
             name = f"Test Name {next_int()}"
-        suggestion = URLNameSuggestion(
+        suggestion = AnnotationNameSuggestion(
             url_id=url_id,
             source=source,
             suggestion=name,
@@ -698,7 +707,7 @@ class DBDataCreator:
         suggestion_id: int,
         user_id: int,
     ):
-        link = LinkUserNameSuggestion(
+        link = AnnotationNameUserEndorsement(
             suggestion_id=suggestion_id,
             user_id=user_id,
         )

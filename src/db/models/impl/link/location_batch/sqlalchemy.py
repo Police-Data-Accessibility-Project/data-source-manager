@@ -11,7 +11,7 @@ class LinkLocationBatch(
     CreatedAtMixin
 ):
 
-    __tablename__ = "link_location_batches"
+    __tablename__ = "link_batches__locations"
     __table_args__ = (
         PrimaryKeyConstraint(
             'batch_id',

@@ -4,14 +4,22 @@ import aiohttp
 import uvicorn
 from discord_poster import DiscordPoster
 from fastapi import FastAPI
-from pdap_access_manager import AccessManager
+from pdap_access_manager.access_manager.async_ import AccessManagerAsync
+from pdap_access_manager.models.auth import AuthInfo
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
+from src.api.endpoints.agencies.routes import agencies_router
 from src.api.endpoints.annotate.routes import annotate_router
 from src.api.endpoints.batch.routes import batch_router
+from src.api.endpoints.check.routes import check_router
 from src.api.endpoints.collector.routes import collector_router
 from src.api.endpoints.contributions.routes import contributions_router
+from src.api.endpoints.data_source.routes import data_sources_router
+from src.api.endpoints.locations.routes import location_url_router
+from src.api.endpoints.meta_url.routes import meta_urls_router
 from src.api.endpoints.metrics.routes import metrics_router
+from src.api.endpoints.proposals.routes import proposal_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
 from src.api.endpoints.submit.routes import submit_router
@@ -49,12 +57,9 @@ async def lifespan(app: FastAPI):
     env.read_env()
 
     # Initialize shared dependencies
-    db_client = DatabaseClient(
-        db_url=env_var_manager.get_postgres_connection_string()
-    )
-    adb_client = AsyncDatabaseClient(
-        db_url=env_var_manager.get_postgres_connection_string(is_async=True)
-    )
+
+    db_client = DatabaseClient()
+    adb_client = AsyncDatabaseClient()
     await setup_database(db_client)
     core_logger = AsyncCoreLogger(adb_client=adb_client)
 
@@ -72,10 +77,12 @@ async def lifespan(app: FastAPI):
         discord_poster=discord_poster
     )
     pdap_client = PDAPClient(
-        access_manager=AccessManager(
+        access_manager=AccessManagerAsync(
             data_sources_url=env_var_manager.pdap_api_url,
-            email=env_var_manager.pdap_email,
-            password=env_var_manager.pdap_password,
+            auth=AuthInfo(
+                email=env_var_manager.pdap_email,
+                password=env_var_manager.pdap_password,
+            ),
             api_key=env_var_manager.pdap_api_key,
             session=session
         )
@@ -161,6 +168,17 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8888", # For local development
+        "https://pdap.io",
+        "https://pdap.dev"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/docs", include_in_schema=False)
 async def redirect_docs():
@@ -177,7 +195,13 @@ routers = [
     search_router,
     metrics_router,
     submit_router,
-    contributions_router
+    contributions_router,
+    agencies_router,
+    data_sources_router,
+    meta_urls_router,
+    check_router,
+    location_url_router,
+    proposal_router
 ]
 
 for router in routers:

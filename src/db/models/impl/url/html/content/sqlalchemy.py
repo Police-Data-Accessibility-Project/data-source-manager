@@ -1,21 +1,20 @@
-from sqlalchemy import UniqueConstraint, Column, Text
+from sqlalchemy import UniqueConstraint, Column, Text, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from src.db.enums import PGEnum
 from src.db.models.mixins import UpdatedAtMixin, URLDependentMixin
+from src.db.models.templates_.base import Base
 from src.db.models.templates_.with_id import WithIDBase
 
 
 class URLHTMLContent(
     UpdatedAtMixin,
     URLDependentMixin,
-    WithIDBase
+    Base,
 ):
     __tablename__ = 'url_html_content'
-    __table_args__ = (UniqueConstraint(
-        "url_id",
-        "content_type",
-        name="uq_url_id_content_type"),
+    __table_args__ = (
+        PrimaryKeyConstraint("url_id", "content_type"),
     )
 
     content_type = Column(

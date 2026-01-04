@@ -26,7 +26,7 @@ class HasURLsWithoutProbeQueryBuilder(QueryBuilderBase):
             )
             .where(
                 or_(
-                    URLWebMetadata.id.is_(None),
+                    URLWebMetadata.url_id.is_(None),
                     URLWebMetadata.updated_at < datetime.now() - timedelta(days=30)
                 ),
                 no_url_task_error(TaskType.PROBE_URL)

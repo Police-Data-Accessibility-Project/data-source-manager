@@ -1,4 +1,5 @@
 from sqlalchemy import select, RowMapping
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.contributions.shared.contributions import ContributionsCTEContainer
@@ -23,7 +24,7 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
 
         contributions_cte = ContributionsCTEContainer()
         record_type_agree: AgreementCTEContainer = get_record_type_agreement_cte_container(inner_cte)
-        agency_agree: AgreementCTEContainer = get_agency_agreement_cte_container(inner_cte)
+        agency_agree: AgreementCTEContainer = get_agency_agreement_cte_container()
         url_type_agree: AgreementCTEContainer = get_url_type_agreement_cte_container(inner_cte)
 
         query = (
@@ -33,27 +34,40 @@ class GetUserContributionsQueryBuilder(QueryBuilderBase):
                 agency_agree.agreement.label("agency"),
                 url_type_agree.agreement.label("url_type")
             )
-            .join(
+            .outerjoin(
                 record_type_agree.cte,
                 contributions_cte.user_id == record_type_agree.user_id
             )
-            .join(
+            .outerjoin(
                 agency_agree.cte,
                 contributions_cte.user_id == agency_agree.user_id
             )
-            .join(
+            .outerjoin(
                 url_type_agree.cte,
                 contributions_cte.user_id == url_type_agree.user_id
             )
+            .where(
+                contributions_cte.user_id == self.user_id
+            )
         )
 
-        mapping: RowMapping = await sh.mapping(session, query=query)
+        try:
+            mapping: RowMapping = await sh.mapping(session, query=query)
+        except NoResultFound:
+            return ContributionsUserResponse(
+                count_validated=0,
+                agreement=ContributionsUserAgreement(
+                    record_type=0,
+                    agency=0,
+                    url_type=0
+                )
+            )
 
         return ContributionsUserResponse(
             count_validated=mapping.count,
             agreement=ContributionsUserAgreement(
-                record_type=mapping.record_type,
-                agency=mapping.agency,
-                url_type=mapping.url_type
+                record_type=mapping.record_type or 0,
+                agency=mapping.agency or 0,
+                url_type=mapping.url_type or 0
             )
         )

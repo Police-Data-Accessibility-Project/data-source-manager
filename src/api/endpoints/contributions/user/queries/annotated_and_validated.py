@@ -1,7 +1,7 @@
 from sqlalchemy import select, Column, CTE
 
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 
 class AnnotatedAndValidatedCTEContainer:
@@ -9,16 +9,16 @@ class AnnotatedAndValidatedCTEContainer:
     def __init__(self, user_id: int | None):
         self._cte = (
             select(
-                UserURLTypeSuggestion.user_id,
-                UserURLTypeSuggestion.url_id
+                AnnotationURLTypeUser.user_id,
+                AnnotationURLTypeUser.url_id
             )
             .join(
                 FlagURLValidated,
-                FlagURLValidated.url_id == UserURLTypeSuggestion.url_id
+                FlagURLValidated.url_id == AnnotationURLTypeUser.url_id
             )
         )
         if user_id is not None:
-            self._cte = self._cte.where(UserURLTypeSuggestion.user_id == user_id)
+            self._cte = self._cte.where(AnnotationURLTypeUser.user_id == user_id)
         self._cte = self._cte.cte("annotated_and_validated")
 
     @property

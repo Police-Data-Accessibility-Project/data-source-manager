@@ -1,7 +1,6 @@
 import pytest
 
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
-from src.db.models.impl.flag.root_url.pydantic import FlagRootURLPydantic
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
 from src.db.models.impl.url.core.enums import URLSource
@@ -26,20 +25,23 @@ async def test_two_branches_one_root_in_db_not_flagged(
     # Add root URL but do not mark as such
     url_insert_model_root = URLInsertModel(
         url=ROOT_URL,
-        source=URLSource.DATA_SOURCES
+        source=URLSource.DATA_SOURCES,
+        trailing_slash=False
     )
     url_id_root = (await operator.adb_client.bulk_insert([url_insert_model_root], return_ids=True))[0]
 
     # Add two URLs that are branches of that root URL
     url_insert_model_branch_1 = URLInsertModel(
         url=BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=False
     )
     url_id_branch_1 = (await operator.adb_client.bulk_insert([url_insert_model_branch_1], return_ids=True))[0]
 
     url_insert_model_branch_2 = URLInsertModel(
         url=SECOND_BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=False
     )
     url_id_branch_2 = (await operator.adb_client.bulk_insert([url_insert_model_branch_2], return_ids=True))[0]
 

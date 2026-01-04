@@ -5,14 +5,14 @@ from src.api.endpoints.submit.url.models.request import URLSubmissionRequest
 from src.api.endpoints.submit.url.models.response import URLSubmissionResponse
 from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -32,6 +32,7 @@ async def test_maximal(
         request=URLSubmissionRequest(
             url="www.example.com",
             record_type=RecordType.INCARCERATION_RECORDS,
+            description="Example description",
             name="Example URL",
             location_id=pittsburgh_locality.location_id,
             agency_id=agency_id,
@@ -48,38 +49,39 @@ async def test_maximal(
     url: URL = urls[0]
     assert url.id == url_id
     assert url.url == "www.example.com"
+    assert url.description == "Example description"
 
     links: list[LinkUserSubmittedURL] = await adb_client.get_all(LinkUserSubmittedURL)
     assert len(links) == 1
     link: LinkUserSubmittedURL = links[0]
     assert link.url_id == url_id
 
-    agen_suggs: list[UserUrlAgencySuggestion] = await adb_client.get_all(UserUrlAgencySuggestion)
+    agen_suggs: list[AnnotationAgencyUser] = await adb_client.get_all(AnnotationAgencyUser)
     assert len(agen_suggs) == 1
-    agen_sugg: UserUrlAgencySuggestion = agen_suggs[0]
+    agen_sugg: AnnotationAgencyUser = agen_suggs[0]
     assert agen_sugg.url_id == url_id
     assert agen_sugg.agency_id == agency_id
 
-    loc_suggs: list[UserLocationSuggestion] = await adb_client.get_all(UserLocationSuggestion)
+    loc_suggs: list[AnnotationLocationUser] = await adb_client.get_all(AnnotationLocationUser)
     assert len(loc_suggs) == 1
-    loc_sugg: UserLocationSuggestion = loc_suggs[0]
+    loc_sugg: AnnotationLocationUser = loc_suggs[0]
     assert loc_sugg.url_id == url_id
     assert loc_sugg.location_id == pittsburgh_locality.location_id
 
-    name_sugg: list[URLNameSuggestion] = await adb_client.get_all(URLNameSuggestion)
+    name_sugg: list[AnnotationNameSuggestion] = await adb_client.get_all(AnnotationNameSuggestion)
     assert len(name_sugg) == 1
-    name_sugg: URLNameSuggestion = name_sugg[0]
+    name_sugg: AnnotationNameSuggestion = name_sugg[0]
     assert name_sugg.url_id == url_id
     assert name_sugg.suggestion == "Example URL"
     assert name_sugg.source == NameSuggestionSource.USER
 
-    name_link_suggs: list[LinkUserNameSuggestion] = await adb_client.get_all(LinkUserNameSuggestion)
+    name_link_suggs: list[AnnotationNameUserEndorsement] = await adb_client.get_all(AnnotationNameUserEndorsement)
     assert len(name_link_suggs) == 1
-    name_link_sugg: LinkUserNameSuggestion = name_link_suggs[0]
+    name_link_sugg: AnnotationNameUserEndorsement = name_link_suggs[0]
     assert name_link_sugg.suggestion_id == name_sugg.id
 
-    rec_suggs: list[UserRecordTypeSuggestion] = await adb_client.get_all(UserRecordTypeSuggestion)
+    rec_suggs: list[AnnotationRecordTypeUser] = await adb_client.get_all(AnnotationRecordTypeUser)
     assert len(rec_suggs) == 1
-    rec_sugg: UserRecordTypeSuggestion = rec_suggs[0]
+    rec_sugg: AnnotationRecordTypeUser = rec_suggs[0]
     assert rec_sugg.url_id == url_id
     assert rec_sugg.record_type == RecordType.INCARCERATION_RECORDS.value

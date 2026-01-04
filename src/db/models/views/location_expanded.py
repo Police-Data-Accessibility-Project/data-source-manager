@@ -45,7 +45,6 @@ from src.db.models.templates_.with_id import WithIDBase
 class LocationExpandedView(
     WithIDBase,
     ViewMixin,
-    LocationDependentMixin
 ):
 
     __tablename__ = "locations_expanded"

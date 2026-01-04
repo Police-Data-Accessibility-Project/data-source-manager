@@ -3,7 +3,7 @@ from sqlalchemy import select, func, and_
 from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.url.suggestion.relevant.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 
 def get_url_type_agreement_cte_container(
@@ -17,8 +17,8 @@ def get_url_type_agreement_cte_container(
             func.count()
         )
         .join(
-            UserURLTypeSuggestion,
-            UserURLTypeSuggestion.url_id == inner_cte.url_id
+            AnnotationURLTypeUser,
+            AnnotationURLTypeUser.url_id == inner_cte.url_id
         )
         .join(
             FlagURLValidated,
@@ -36,14 +36,14 @@ def get_url_type_agreement_cte_container(
             func.count()
         )
         .join(
-            UserURLTypeSuggestion,
-            UserURLTypeSuggestion.url_id == inner_cte.url_id
+            AnnotationURLTypeUser,
+            AnnotationURLTypeUser.url_id == inner_cte.url_id
         )
         .join(
             FlagURLValidated,
             and_(
                 FlagURLValidated.url_id == inner_cte.url_id,
-                UserURLTypeSuggestion.type == FlagURLValidated.type
+                AnnotationURLTypeUser.type == FlagURLValidated.type
 
             )
         )

@@ -1,5 +1,6 @@
 import traceback
 from abc import ABC, abstractmethod
+from typing import Any
 
 from src.core.enums import BatchStatus
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
@@ -7,8 +8,10 @@ from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.task.enums import TaskStatus
+from src.db.models.impl.task.log import TaskLog
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
+from src.db.queries.base.builder import QueryBuilderBase
 
 
 class TaskOperatorBase(ABC):
@@ -53,9 +56,17 @@ class TaskOperatorBase(ABC):
                 message=str(e) + "\n" + stack_trace
             )
 
-    @abstractmethod
-    async def run_info(self, outcome: TaskOperatorOutcome, message: str) -> TaskOperatorRunInfo:
-        raise NotImplementedError
+    async def run_info(
+        self,
+        outcome: TaskOperatorOutcome,
+        message: str
+    ) -> TaskOperatorRunInfo:
+        return TaskOperatorRunInfo(
+            task_id=self.task_id,
+            task_type=self.task_type,
+            outcome=outcome,
+            message=message
+        )
 
 
     @abstractmethod
@@ -83,3 +94,17 @@ class TaskOperatorBase(ABC):
             for error in errors
         ]
         await self.adb_client.bulk_insert(inserts)
+
+    async def add_task_log(
+        self,
+        log: str
+    ) -> None:
+        task_log = TaskLog(
+            task_id=self.task_id,
+            log=log
+        )
+        await self.adb_client.add(task_log)
+
+    # Convenience forwarder functions
+    async def run_query_builder(self, query_builder: QueryBuilderBase) -> Any:
+        return await self.adb_client.run_query_builder(query_builder)

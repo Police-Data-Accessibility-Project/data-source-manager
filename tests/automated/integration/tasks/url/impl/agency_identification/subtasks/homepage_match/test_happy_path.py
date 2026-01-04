@@ -5,11 +5,11 @@ import pytest
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 from tests.helpers.data_creator.core import DBDataCreator
 
@@ -26,7 +26,7 @@ async def test_homepage_match(
     """
 
     # Create 2 root URLs
-    root_url_mappings: list[URLMapping] = (
+    root_url_mappings: list[SimpleURLMapping] = (
         await db_data_creator.create_urls(count=2)
     )
     root_url_ids: list[int] = [url_mapping.url_id for url_mapping in root_url_mappings]
@@ -60,7 +60,7 @@ async def test_homepage_match(
 
 
     # Create 2 Meta URLs and agencies for multi agency case
-    multi_meta_urls: list[URLMapping] = await db_data_creator.create_validated_urls(
+    multi_meta_urls: list[SimpleURLMapping] = await db_data_creator.create_validated_urls(
         count=2,
         validation_type=URLType.META_URL
     )
@@ -84,7 +84,7 @@ async def test_homepage_match(
     assert not await operator.meets_task_prerequisites()
 
     # Set up eligible URLs
-    eligible_urls: list[URLMapping] = await db_data_creator.create_urls(
+    eligible_urls: list[SimpleURLMapping] = await db_data_creator.create_urls(
         count=2,
     )
     single_url_id: int = eligible_urls[0].url_id
@@ -113,17 +113,17 @@ async def test_homepage_match(
     adb_client: AsyncDatabaseClient = db_data_creator.adb_client
 
     # Confirm presence of subtasks
-    subtasks: list[URLAutoAgencyIDSubtask] = await adb_client.get_all(URLAutoAgencyIDSubtask)
+    subtasks: list[AnnotationAgencyAutoSubtask] = await adb_client.get_all(AnnotationAgencyAutoSubtask)
     assert len(subtasks) == 2
 
     # Confirm both listed as agencies found
     assert all(subtask.agencies_found for subtask in subtasks)
 
-    url_id_to_subtask: dict[int, URLAutoAgencyIDSubtask] = {
+    url_id_to_subtask: dict[int, AnnotationAgencyAutoSubtask] = {
         subtask.url_id: subtask for subtask in subtasks
     }
-    single_subtask: URLAutoAgencyIDSubtask = url_id_to_subtask[single_url_id]
-    multi_subtask: URLAutoAgencyIDSubtask = url_id_to_subtask[multi_url_id]
+    single_subtask: AnnotationAgencyAutoSubtask = url_id_to_subtask[single_url_id]
+    multi_subtask: AnnotationAgencyAutoSubtask = url_id_to_subtask[multi_url_id]
 
     # Check subtasks have expected detail codes
     assert single_subtask.detail == SubtaskDetailCode.HOMEPAGE_SINGLE_AGENCY
@@ -131,16 +131,16 @@ async def test_homepage_match(
 
 
     # Get suggestions
-    suggestions: list[AgencyIDSubtaskSuggestion] = await adb_client.get_all(AgencyIDSubtaskSuggestion)
+    suggestions: list[AnnotationAgencyAutoSuggestion] = await adb_client.get_all(AnnotationAgencyAutoSuggestion)
     assert len(suggestions) == 3
 
     # Confirm each suggestion properly linked to expected subtask
-    subtask_id_to_suggestions: dict[int, list[AgencyIDSubtaskSuggestion]] = defaultdict(list)
+    subtask_id_to_suggestions: dict[int, list[AnnotationAgencyAutoSuggestion]] = defaultdict(list)
     for suggestion in suggestions:
         subtask_id_to_suggestions[suggestion.subtask_id].append(suggestion)
 
     # Check Single Agency Case Suggestion
-    single_suggestion: AgencyIDSubtaskSuggestion = \
+    single_suggestion: AnnotationAgencyAutoSuggestion = \
         subtask_id_to_suggestions[single_subtask.id][0]
     # Check Single Agency Case Suggestion has expected agency
     assert single_suggestion.agency_id == single_agency_id
@@ -148,7 +148,7 @@ async def test_homepage_match(
     assert single_suggestion.confidence == 95
 
     # Check Multi Agency Case Suggestion
-    multi_suggestions: list[AgencyIDSubtaskSuggestion] = subtask_id_to_suggestions[multi_subtask.id]
+    multi_suggestions: list[AnnotationAgencyAutoSuggestion] = subtask_id_to_suggestions[multi_subtask.id]
     # Check Multi Agency Case Suggestion has expected agencies
     assert {suggestion.agency_id for suggestion in multi_suggestions} \
         == set(multi_agency_ids)

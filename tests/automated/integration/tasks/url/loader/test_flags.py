@@ -12,7 +12,6 @@ from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMeta
 from src.core.tasks.url.operators.probe.core import URLProbeTaskOperator
 from src.core.tasks.url.operators.record_type.core import URLRecordTypeTaskOperator
 from src.core.tasks.url.operators.root_url.core import URLRootURLTaskOperator
-from src.core.tasks.url.operators.submit_approved.core import SubmitApprovedURLTaskOperator
 
 
 class FlagTestParams(BaseModel):
@@ -35,10 +34,6 @@ params = [
     FlagTestParams(
         env_var="URL_AGENCY_IDENTIFICATION_TASK_FLAG",
         operator=AgencyIdentificationTaskOperator
-    ),
-    FlagTestParams(
-        env_var="URL_SUBMIT_APPROVED_TASK_FLAG",
-        operator=SubmitApprovedURLTaskOperator
     ),
     FlagTestParams(
         env_var="URL_MISC_METADATA_TASK_FLAG",

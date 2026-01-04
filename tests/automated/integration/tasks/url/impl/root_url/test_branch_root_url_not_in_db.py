@@ -26,7 +26,8 @@ async def test_branch_root_url_not_in_db(
     # Add URL that is a branch of a root URL
     url_insert_model = URLInsertModel(
         url=BRANCH_URL,
-        source=URLSource.COLLECTOR
+        source=URLSource.COLLECTOR,
+        trailing_slash=False
     )
     branch_url_id = (await operator.adb_client.bulk_insert([url_insert_model], return_ids=True))[0]
 

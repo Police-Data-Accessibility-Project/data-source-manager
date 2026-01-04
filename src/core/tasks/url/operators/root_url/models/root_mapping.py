@@ -7,4 +7,5 @@ class URLRootURLMapping(BaseModel):
 
     @property
     def is_root_url(self) -> bool:
-        return self.url == self.root_url
+        # Add rstrip to handle trailing slashes
+        return self.url.rstrip("/") == self.root_url.rstrip("/")

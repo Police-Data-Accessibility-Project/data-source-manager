@@ -4,6 +4,8 @@ from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 class InsertURLQueryBuilder(QueryBuilderBase):
@@ -15,11 +17,13 @@ class InsertURLQueryBuilder(QueryBuilderBase):
 
     async def run(self, session: AsyncSession) -> int:
         """Insert a new URL into the database."""
+        url_and_scheme: URLAndScheme = get_url_and_scheme(self.url_info.url)
         url_entry = URL(
-            url=self.url_info.url,
+            url=url_and_scheme.url.rstrip('/'),
+            scheme=url_and_scheme.scheme,
             collector_metadata=self.url_info.collector_metadata,
-            status=self.url_info.status.value,
-            source=self.url_info.source
+            source=self.url_info.source,
+            trailing_slash=url_and_scheme.url.endswith('/'),
         )
         if self.url_info.created_at is not None:
             url_entry.created_at = self.url_info.created_at

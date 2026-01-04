@@ -11,11 +11,13 @@ async def add_urls(dbc: AsyncDatabaseClient) -> list[int]:
     insert_models: list[URLInsertModel] = [
         URLInsertModel(
             url=TEST_URL_1,
-            source=URLSource.COLLECTOR
+            source=URLSource.COLLECTOR,
+            trailing_slash=False
         ),
         URLInsertModel(
             url=TEST_URL_2,
-            source=URLSource.COLLECTOR
+            source=URLSource.COLLECTOR,
+            trailing_slash=False
         )
     ]
     return await dbc.bulk_insert(insert_models, return_ids=True)

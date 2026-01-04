@@ -1,16 +1,12 @@
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
-from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
-from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.api.endpoints.batch.dtos.post.abort import MessageResponse
+from src.api.shared.models.message_response import MessageResponse
 from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.api.endpoints.collector.dtos.collector_start import CollectorStartInfo
@@ -23,9 +19,6 @@ from src.api.endpoints.metrics.dtos.get.urls.aggregated.core import GetMetricsUR
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.pending import GetMetricsURLsAggregatedPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.pending import GetMetricsURLsBreakdownPendingResponseDTO
 from src.api.endpoints.metrics.dtos.get.urls.breakdown.submitted import GetMetricsURLsBreakdownSubmittedResponseDTO
-from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
-from src.api.endpoints.review.enums import RejectionReason
-from src.api.endpoints.review.next.dto import GetNextURLForFinalReviewOuterResponse
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
@@ -38,8 +31,7 @@ from src.core.tasks.url.manager import TaskManager
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
-from src.security.dtos.access_info import AccessInfo
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 
 
 class AsyncCore:
@@ -89,7 +81,7 @@ class AsyncCore:
     async def get_batch_statuses(
             self,
             collector_type: CollectorType | None,
-            status: BatchURLStatusEnum | None,
+            status: BatchURLStatusViewEnum | None,
             page: int
     ) -> GetBatchSummariesResponse:
         results = await self.adb_client.get_batch_summaries(
@@ -154,38 +146,8 @@ class AsyncCore:
             task_status=task_status
         )
 
-
     async def get_task_info(self, task_id: int) -> TaskInfo:
         return await self.adb_client.get_task_info(task_id=task_id)
-
-
-    #region Annotations and Review
-
-    async def get_next_url_for_all_annotations(
-            self,
-            user_id: int,
-            batch_id: int | None,
-            url_id: int | None
-    ) -> GetNextURLForAllAnnotationResponse:
-        return await self.adb_client.get_next_url_for_all_annotations(
-            batch_id=batch_id,
-            user_id=user_id,
-            url_id=url_id
-        )
-
-    async def submit_url_for_all_annotations(
-            self,
-            user_id: int,
-            url_id: int,
-            post_info: AllAnnotationPostInfo
-    ):
-        await self.adb_client.run_query_builder(
-            AddAllAnnotationsToURLQueryBuilder(
-                user_id=user_id,
-                url_id=url_id,
-                post_info=post_info
-            )
-        )
 
     async def upload_manual_batch(
             self,

@@ -1,15 +1,13 @@
 import pytest
 
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.dtos.url.mapping import URLMapping
-from src.db.helpers.connect import get_postgres_connection_string
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.data_creator.create import create_batch, create_url_data_sources, create_urls, \
     create_batch_url_links, create_validated_flags
-from tests.helpers.setup.wipe import wipe_database
 
 
 @pytest.mark.asyncio
@@ -25,17 +23,15 @@ async def test_get_batches_aggregated_metrics(
             adb_client=adb_client,
             strategy=CollectorType.MANUAL,
         )
-        url_mappings_error: list[URLMapping] = await create_urls(
+        url_mappings_broken: list[SimpleURLMapping] = await create_urls(
             adb_client=adb_client,
-            status=URLStatus.ERROR,
             count=4,
         )
-        url_mappings_ok: list[URLMapping] = await create_urls(
+        url_mappings_ok: list[SimpleURLMapping] = await create_urls(
             adb_client=adb_client,
-            status=URLStatus.OK,
             count=11,
         )
-        url_mappings_all: list[URLMapping] = url_mappings_error + url_mappings_ok
+        url_mappings_all: list[SimpleURLMapping] = url_mappings_broken + url_mappings_ok
         url_ids_all: list[int] = [url_mapping.url_id for url_mapping in url_mappings_all]
         await create_batch_url_links(
             adb_client=adb_client,
@@ -90,5 +86,5 @@ async def test_get_batches_aggregated_metrics(
     assert inner_dto_manual.count_urls_pending == 15
     assert inner_dto_manual.count_urls_submitted == 6
     assert inner_dto_manual.count_urls_rejected == 9
-    assert inner_dto_manual.count_urls_errors == 12
+    assert inner_dto_manual.count_urls_errors == 0  # TODO: Change by adding URL Task Errors
     assert inner_dto_manual.count_urls_validated == 30

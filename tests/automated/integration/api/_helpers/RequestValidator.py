@@ -10,7 +10,6 @@ from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPost
 from src.api.endpoints.batch.dtos.get.logs import GetBatchLogsResponse
 from src.api.endpoints.batch.dtos.get.summaries.response import GetBatchSummariesResponse
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
-from src.api.endpoints.batch.dtos.post.abort import MessageResponse
 from src.api.endpoints.batch.duplicates.dto import GetDuplicatesByBatchResponse
 from src.api.endpoints.batch.urls.dto import GetURLsByBatchResponse
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInputDTO
@@ -32,11 +31,12 @@ from src.api.endpoints.task.by_id.dto import TaskInfo
 from src.api.endpoints.task.dtos.get.task_status import GetTaskStatusResponseInfo
 from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
+from src.api.shared.models.message_response import MessageResponse
 from src.collectors.enums import CollectorType
 from src.collectors.impl.example.dtos.input import ExampleInputDTO
 from src.core.enums import BatchStatus
 from src.db.enums import TaskType
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.util.helper_functions import update_if_not_none
 
 
@@ -102,6 +102,24 @@ class RequestValidator:
             )
         return response.json()
 
+    def open_v3(
+        self,
+        method: str,
+        url: str,
+        params: dict | None = None,
+        expected_model: type[BaseModel] | None = None,
+        **kwargs
+    ) -> BaseModel | dict:
+        response = self.open_v2(
+            method=method,
+            url=url,
+            params=params,
+            **kwargs
+        )
+        if expected_model:
+            return expected_model(**response)
+        return response
+
     def get(
             self,
             url: str,
@@ -158,6 +176,66 @@ class RequestValidator:
             **kwargs
         )
 
+    def get_v3(
+        self,
+        url: str,
+        params: dict | None = None,
+        expected_model: BaseModel | None = None,
+        **kwargs
+    ):
+        return self.open_v3(
+            method="GET",
+            url=url,
+            params=params,
+            expected_model=expected_model,
+            **kwargs
+        )
+
+    def post_v3(
+        self,
+        url: str,
+        params: dict | None = None,
+        expected_model: BaseModel | None = None,
+        **kwargs
+    ):
+        return self.open_v3(
+            method="POST",
+            url=url,
+            params=params,
+            expected_model=expected_model,
+            **kwargs
+        )
+
+    def put_v3(
+        self,
+        url: str,
+        params: dict | None = None,
+        expected_model: BaseModel | None = None,
+        **kwargs
+    ):
+        return self.open_v3(
+            method="PUT",
+            url=url,
+            params=params,
+            expected_model=expected_model,
+            **kwargs
+        )
+
+    def delete_v3(
+        self,
+        url: str,
+        params: dict | None = None,
+        expected_model: BaseModel | None = None,
+        **kwargs
+    ):
+        return self.open_v3(
+            method="DELETE",
+            url=url,
+            params=params,
+            expected_model=expected_model,
+            **kwargs
+        )
+
 
     def put(
             self,
@@ -190,7 +268,7 @@ class RequestValidator:
     def get_batch_statuses(
             self,
             collector_type: CollectorType | None = None,
-            status: BatchURLStatusEnum | None = None,
+            status: BatchURLStatusViewEnum | None = None,
     ) -> GetBatchSummariesResponse:
         params = {}
         update_if_not_none(

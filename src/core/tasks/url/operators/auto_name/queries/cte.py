@@ -2,10 +2,10 @@ from sqlalchemy import select, exists, CTE, Column
 
 from src.db.enums import URLHTMLContentType, TaskType
 from src.db.helpers.query import no_url_task_error
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 
 
 class AutoNamePrerequisiteCTEContainer:
@@ -24,11 +24,11 @@ class AutoNamePrerequisiteCTEContainer:
                 URLHTMLContent.content_type == URLHTMLContentType.TITLE.value,
                 ~exists(
                     select(
-                        URLNameSuggestion.id
+                        AnnotationNameSuggestion.id
                     )
                     .where(
-                        URLNameSuggestion.url_id == URL.id,
-                        URLNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE.value,
+                        AnnotationNameSuggestion.url_id == URL.id,
+                        AnnotationNameSuggestion.source == NameSuggestionSource.HTML_METADATA_TITLE.value,
                     )
                 ),
                 no_url_task_error(TaskType.AUTO_NAME)

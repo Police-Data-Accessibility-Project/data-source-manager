@@ -3,6 +3,7 @@ import uuid
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import text
+from sqlalchemy.dialects.postgresql import ENUM
 
 
 def switch_enum_type(
@@ -94,6 +95,17 @@ def created_at_column() -> sa.Column:
         server_default=sa.text('now()'),
         nullable=False,
         comment='The time the row was created.'
+    )
+
+def enum_column(
+    column_name,
+    enum_name
+) -> sa.Column:
+    return sa.Column(
+        column_name,
+        ENUM(name=enum_name, create_type=False),
+        nullable=False,
+        comment=f'The {column_name} of the row.'
     )
 
 def updated_at_column() -> sa.Column:
@@ -284,3 +296,34 @@ def remove_enum_value(
             f"RENAME TO {_q_ident(enum_name)}"
         )
     )
+
+
+def create_updated_at_trigger(table_name: str) -> None:
+    """
+    Adds a trigger to the given table that automatically updates the
+    'updated_at' column to the current timestamp on UPDATE.
+
+    Parameters:
+        table_name (str): Name of the table to attach the trigger to.
+    """
+
+    # Step 1: Define the trigger function (only needs to exist once)
+    op.execute("""
+    CREATE OR REPLACE FUNCTION set_updated_at()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+    """)
+
+    # Step 2: Create the trigger for this specific table
+    trigger_name = f"{table_name}_updated_at_trigger"
+    op.execute(f"""
+    DROP TRIGGER IF EXISTS {trigger_name} ON {table_name};
+    CREATE TRIGGER {trigger_name}
+    BEFORE UPDATE ON {table_name}
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+    """)

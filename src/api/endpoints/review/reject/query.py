@@ -4,7 +4,6 @@ from starlette.exceptions import HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.api.endpoints.review.enums import RejectionReason
-from src.collectors.enums import URLStatus
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL

@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
-import pendulum
 import pytest
 
-from src.collectors.enums import CollectorType, URLStatus
-from src.db.dtos.url.mapping import URLMapping
+from src.collectors.enums import CollectorType
+from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
@@ -33,24 +32,23 @@ async def test_get_urls_aggregated_metrics(api_test_helper):
         strategy=CollectorType.MANUAL,
         date_generated=today - timedelta(days=1)
     )
-    url_mappings_0: list[URLMapping] = await ddc.create_urls(batch_id=batch_0)
+    url_mappings_0: list[SimpleURLMapping] = await ddc.create_urls(batch_id=batch_0)
     oldest_url_id: int = url_mappings_0[0].url_id
 
     batch_1: int = await ddc.create_batch(
         strategy=CollectorType.MANUAL,
     )
-    url_mappings_1_ok: list[URLMapping] = await ddc.create_urls(batch_id=batch_1, count=1)
-    url_mappings_1_submitted: list[URLMapping] = await ddc.create_submitted_urls(count=2)
+    url_mappings_1_ok: list[SimpleURLMapping] = await ddc.create_urls(batch_id=batch_1, count=1)
+    url_mappings_1_submitted: list[SimpleURLMapping] = await ddc.create_submitted_urls(count=2)
     url_ids_1_submitted: list[int] = [url_mapping.url_id for url_mapping in url_mappings_1_submitted]
     await ddc.create_batch_url_links(url_ids=url_ids_1_submitted, batch_id=batch_1)
 
     batch_2: int = await ddc.create_batch(
         strategy=CollectorType.AUTO_GOOGLER,
     )
-    url_mappings_2_ok: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=4, status=URLStatus.OK)
-    url_mappings_2_error: list[URLMapping] = await ddc.create_urls(batch_id=batch_2, count=2, status=URLStatus.ERROR)
-    url_mappings_2_validated: list[URLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLType.DATA_SOURCE)
-    url_mappings_2_not_relevant: list[URLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLType.NOT_RELEVANT)
+    url_mappings_2_ok: list[SimpleURLMapping] = await ddc.create_urls(batch_id=batch_2, count=4)
+    url_mappings_2_validated: list[SimpleURLMapping] = await ddc.create_validated_urls(count=1, validation_type=URLType.DATA_SOURCE)
+    url_mappings_2_not_relevant: list[SimpleURLMapping] = await ddc.create_validated_urls(count=5, validation_type=URLType.NOT_RELEVANT)
     url_ids_2_validated: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_validated]
     url_ids_2_not_relevant: list[int] = [url_mapping.url_id for url_mapping in url_mappings_2_not_relevant]
     await ddc.create_batch_url_links(

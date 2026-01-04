@@ -1,7 +1,7 @@
 from itertools import count
 
 from src.core.tasks.mixins.prereq import HasPrerequisitesMixin
-from src.core.tasks.scheduled.impl.huggingface.queries.check.core import CheckValidURLsUpdatedQueryBuilder
+from src.core.tasks.scheduled.impl.huggingface.queries.prereq.core import CheckValidURLsUpdatedQueryBuilder
 from src.core.tasks.scheduled.impl.huggingface.queries.get.core import GetForLoadingToHuggingFaceQueryBuilder
 from src.core.tasks.scheduled.impl.huggingface.queries.get.model import GetForLoadingToHuggingFaceOutput
 from src.core.tasks.scheduled.templates.operator import ScheduledTaskOperatorBase

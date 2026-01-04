@@ -9,6 +9,7 @@ from tqdm.asyncio import tqdm_asyncio
 
 from src.external.url_request.probe.convert import convert_client_response_to_probe_response, convert_to_error_response
 from src.external.url_request.probe.models.wrapper import URLProbeResponseOuterWrapper
+from src.util.models.full_url import FullURL
 from src.util.progress_bar import get_progress_bar_disabled
 
 
@@ -20,14 +21,14 @@ class URLProbeManager:
     ):
         self.session = session
 
-    async def probe_urls(self, urls: list[str]) -> list[URLProbeResponseOuterWrapper]:
+    async def probe_urls(self, urls: list[FullURL]) -> list[URLProbeResponseOuterWrapper]:
         return await tqdm_asyncio.gather(
             *[self._probe(url) for url in urls],
             timeout=60 * 10,  # 10 minutes,
             disable=get_progress_bar_disabled()
         )
 
-    async def _probe(self, url: str) -> URLProbeResponseOuterWrapper:
+    async def _probe(self, url: FullURL) -> URLProbeResponseOuterWrapper:
         try:
             response = await self._head(url)
             if not response.is_redirect and response.response.status_code == HTTPStatus.OK:
@@ -52,9 +53,9 @@ class URLProbeManager:
         except ClientOSError as e:
             return convert_to_error_response(url, error=f"Client OS Error: {e.errno}. {str(e)}")
 
-    async def _head(self, url: str) -> URLProbeResponseOuterWrapper:
+    async def _head(self, url: FullURL) -> URLProbeResponseOuterWrapper:
         try:
-            async with self.session.head(url, allow_redirects=True) as response:
+            async with self.session.head(str(url), allow_redirects=True) as response:
                 return URLProbeResponseOuterWrapper(
                     original_url=url,
                     response=convert_client_response_to_probe_response(
@@ -74,9 +75,9 @@ class URLProbeManager:
                 status_code=e.status
             )
 
-    async def _get(self, url: str) -> URLProbeResponseOuterWrapper:
+    async def _get(self, url: FullURL) -> URLProbeResponseOuterWrapper:
         try:
-            async with self.session.get(url, allow_redirects=True) as response:
+            async with self.session.get(str(url), allow_redirects=True) as response:
                 return URLProbeResponseOuterWrapper(
                     original_url=url,
                     response=convert_client_response_to_probe_response(

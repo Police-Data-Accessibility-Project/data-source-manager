@@ -1,7 +1,10 @@
 from pydantic import BaseModel
 
-
 class NameAnnotationSuggestion(BaseModel):
-    name: str
-    suggestion_id: int
-    endorsement_count: int
+    id: int
+    display_name: str
+    user_count: int
+    robo_count: int
+
+class NameAnnotationResponseOuterInfo(BaseModel):
+    suggestions: list[NameAnnotationSuggestion]

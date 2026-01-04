@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional
+from typing import Any, Generic
 
 from sqlalchemy import FromClause, ColumnClause
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ class QueryBuilderBase(Generic[LabelsType]):
     def __init__(self, labels: LabelsType | None = None):
         self.query: FromClause | None = None
         self.labels = labels
+        self.sh = sh
 
     def get(self, key: str) -> ColumnClause:
         return getattr(self.query.c, key)

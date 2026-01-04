@@ -55,8 +55,6 @@ class TaskType(PyEnum):
 
     # Scheduled Tasks
     PUSH_TO_HUGGINGFACE = "Push to Hugging Face"
-    SYNC_AGENCIES = "Sync Agencies"
-    SYNC_DATA_SOURCES = "Sync Data Sources"
     POPULATE_BACKLOG_SNAPSHOT = "Populate Backlog Snapshot"
     DELETE_OLD_LOGS = "Delete Old Logs"
     DELETE_STALE_SCREENSHOTS = "Delete Stale Screenshots"
@@ -64,6 +62,20 @@ class TaskType(PyEnum):
     RUN_URL_TASKS = "Run URL Task Cycles"
     TASK_CLEANUP = "Task Cleanup"
     REFRESH_MATERIALIZED_VIEWS = "Refresh Materialized Views"
+    UPDATE_URL_STATUS = "Update URL Status"
+    INTEGRITY_MONITOR = "Integrity Monitor"
+
+    # Sync Tasks
+    SYNC_AGENCIES_ADD = "Sync Agencies Add"
+    SYNC_AGENCIES_UPDATE = "Sync Agencies Update"
+    SYNC_AGENCIES_DELETE = "Sync Agencies Delete"
+    SYNC_DATA_SOURCES_ADD = "Sync Data Sources Add"
+    SYNC_DATA_SOURCES_UPDATE = "Sync Data Sources Update"
+    SYNC_DATA_SOURCES_DELETE = "Sync Data Sources Delete"
+    SYNC_META_URLS_ADD = "Sync Meta URLs Add"
+    SYNC_META_URLS_UPDATE = "Sync Meta URLs Update"
+    SYNC_META_URLS_DELETE = "Sync Meta URLs Delete"
+    SYNC_USER_FOLLOWS_GET = "Sync User Follows Get"
 
 class ChangeLogOperationType(PyEnum):
     INSERT = "INSERT"

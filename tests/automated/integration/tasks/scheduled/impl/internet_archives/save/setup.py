@@ -72,11 +72,13 @@ async def add_test_urls(adb_client: AsyncDatabaseClient) -> list[int]:
     url_inserts: list[URLInsertModel] = [
         URLInsertModel(
             url=TEST_URL_1,
-            source=URLSource.COLLECTOR
+            source=URLSource.COLLECTOR,
+            trailing_slash=False
         ),
         URLInsertModel(
             url=TEST_URL_2,
-            source=URLSource.COLLECTOR
+            source=URLSource.COLLECTOR,
+            trailing_slash=False
         )
     ]
     url_ids = await adb_client.bulk_insert(url_inserts, return_ids=True)

@@ -32,7 +32,7 @@ class Task(UpdatedAtMixin, WithIDBase):
     # Relationships
     urls = relationship(
         "URL",
-        secondary="link_task_urls",
+        secondary="link_tasks__urls",
         back_populates="tasks"
     )
     errors = relationship(TaskError)

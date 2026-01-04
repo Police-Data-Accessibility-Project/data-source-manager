@@ -28,6 +28,7 @@ async def test_get_urls(api_test_helper: APITestHelper):
     # Add errors
     await db_data_creator.task_errors(url_ids=url_ids)
 
+    await api_test_helper.adb_client().refresh_materialized_views()
 
     data: GetURLsResponseInfo = api_test_helper.request_validator.get_urls()
     assert data.count == 3

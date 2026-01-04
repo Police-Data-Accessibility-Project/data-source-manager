@@ -2,16 +2,14 @@ import pytest
 from starlette.exceptions import HTTPException
 
 from src.api.endpoints.review.approve.dto import FinalReviewApprovalInfo
-from src.core.enums import RecordType
-from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 from tests.helpers.data_creator.core import DBDataCreator
+from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
 @pytest.mark.asyncio
 async def test_approval_url_error(db_data_creator: DBDataCreator):
     setup_info = await setup_for_get_next_url_for_final_review(
         db_data_creator=db_data_creator,
-        annotation_count=3,
         include_user_annotations=True,
         include_miscellaneous_metadata=False
     )

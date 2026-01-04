@@ -6,18 +6,19 @@ from src.collectors.impl.muckrock.api_interface.core import MuckrockAPIInterface
 from src.collectors.impl.muckrock.api_interface.lookup_response import AgencyLookupResponse
 from src.collectors.impl.muckrock.enums import AgencyLookupResponseType
 from src.core.tasks.url.operators.agency_identification.subtasks.convert import \
-    convert_match_agency_response_to_subtask_data
+    convert_agency_suggestions_to_subtask_data
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.params import \
     MuckrockAgencyIDSubtaskParams
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.muckrock_.query import \
     GetMuckrockAgencyIDSubtaskParamsQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
+from src.core.tasks.url.operators.agency_identification.subtasks.models.suggestion import AgencySuggestion
+from src.core.tasks.url.operators.agency_identification.subtasks.queries.match_agency import MatchAgencyQueryBuilder
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
 from src.external.pdap.client import PDAPClient
-from src.external.pdap.dtos.match_agency.response import MatchAgencyResponse
 
 
 @final
@@ -52,12 +53,14 @@ class MuckrockAgencyIDSubtaskOperator(AgencyIDSubtaskOperatorBase):
                 )
                 subtask_data_list.append(data)
                 continue
-            match_agency_response: MatchAgencyResponse = await self.pdap_client.match_agency(
-                name=agency_lookup_response.name
+            agency_suggestions: list[AgencySuggestion] = await self.adb_client.run_query_builder(
+                MatchAgencyQueryBuilder(
+                    agency_name=agency_lookup_response.name
+                )
             )
-            subtask_data: AutoAgencyIDSubtaskData = convert_match_agency_response_to_subtask_data(
+            subtask_data: AutoAgencyIDSubtaskData = convert_agency_suggestions_to_subtask_data(
                 url_id=param.url_id,
-                response=match_agency_response,
+                agency_suggestions=agency_suggestions,
                 subtask_type=AutoAgencyIDSubtaskType.MUCKROCK,
                 task_id=self.task_id
             )

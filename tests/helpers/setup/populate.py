@@ -5,7 +5,8 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 async def populate_database(adb_client: AsyncDatabaseClient) -> None:
     """Populate database with test data."""
     url = URL(
-        url="https://www.test-data.com/static-test-data",
+        url="www.test-data.com/static-test-data",
+        scheme="https",
         name="Fake test data",
         description="Test data populated as a result of `reset_database`, "
                     "which imitates a validated URL synchronized from the Data Sources App.",

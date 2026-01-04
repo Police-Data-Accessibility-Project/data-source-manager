@@ -1,4 +1,5 @@
 from src.external.url_request.probe.models.wrapper import URLProbeResponseOuterWrapper
+from src.util.models.full_url import FullURL
 
 
 class MockURLRequestInterface:
@@ -13,10 +14,10 @@ class MockURLRequestInterface:
             responses = response_or_responses
 
         self._url_to_response = {
-            response.original_url: response for response in responses
+            response.original_url.id_form: response for response in responses
         }
 
-    async def probe_urls(self, urls: list[str]) -> list[URLProbeResponseOuterWrapper]:
+    async def probe_urls(self, urls: list[FullURL]) -> list[URLProbeResponseOuterWrapper]:
         return [
-            self._url_to_response[url] for url in urls
+            self._url_to_response[url.id_form] for url in urls
         ]

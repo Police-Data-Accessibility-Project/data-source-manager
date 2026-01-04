@@ -52,6 +52,12 @@ async def bulk_upsert(
     session: AsyncSession,
     models: list[BulkUpsertableModel],
 ) -> None:
+    """Bulk update sqlalchemy models via their pydantic counterparts.
+
+    WARNING: All non-id fields in the model will be updated on conflict. Do not include
+    attributes in the BulkUpdatableModel unless you intend to update them.
+
+    """
     if len(models) == 0:
         return
     # Parse models to get sa_model and id_field
@@ -205,15 +211,19 @@ async def bulk_update(
     session: AsyncSession,
     models: list[BulkUpdatableModel],
 ):
-    """Bulk update sqlalchemy models via their pydantic counterparts."""
+    """Bulk update sqlalchemy models via their pydantic counterparts.
+
+    WARNING: All non-id fields in the model will be updated. Do not include
+    attributes in the BulkUpdatableModel unless you intend to update them.
+    """
     if len(models) == 0:
         return
 
     parser = BulkActionParser(models)
 
     sa_model = parser.sa_model
-    id_field = parser.id_field
-    update_fields = parser.get_non_id_fields()
+    id_field: str = parser.id_field
+    update_fields: list[str] = parser.get_non_id_fields()
 
 
     for model in models:

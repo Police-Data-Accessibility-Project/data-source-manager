@@ -12,7 +12,7 @@ class CheckURLInternetArchivesCTEContainer:
         self._cte = (
             select(
                 URL.id.label("url_id"),
-                URL.url
+                URL.full_url.label("url")
             )
             .where(
                 or_(

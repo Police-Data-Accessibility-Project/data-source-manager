@@ -1,50 +1,80 @@
-from sqlalchemy import select, func, exists
+from sqlalchemy import select, func, exists, and_, or_, any_, cast, Float
 
-from src.api.endpoints.contributions.user.queries.annotated_and_validated import AnnotatedAndValidatedCTEContainer
 from src.api.endpoints.contributions.user.queries.templates.agreement import AgreementCTEContainer
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
-from src.db.models.impl.url.suggestion.agency.user import UserUrlAgencySuggestion
 
 
-def get_agency_agreement_cte_container(
-    inner_cte: AnnotatedAndValidatedCTEContainer
-) -> AgreementCTEContainer:
+def get_agency_agreement_cte_container() -> AgreementCTEContainer:
+
+    uuas = AnnotationAgencyUser
+    fuv = FlagURLValidated
+    lau = LinkURLAgency
+    # CTE 1: All validated Meta URLs/Data Sources and their agencies
+    validated_urls_with_agencies = (
+        select(
+            uuas.url_id,
+            func.array_agg(lau.agency_id).label("agency_ids"),
+        )
+        .join(fuv, fuv.url_id == uuas.url_id)
+        .join(lau, lau.url_id == uuas.url_id, isouter=True)
+        .where(
+            or_(
+                uuas.is_new.is_(None),
+                uuas.is_new.is_(False)
+            ),
+            or_(
+                fuv.type == "meta url",
+                fuv.type == "data source"
+            ),
+        )
+        .group_by(uuas.url_id)
+        .cte("validated_urls_with_agencies")
+    )
+
+    # CTE 2
+    cte_2 = (
+        select(
+            validated_urls_with_agencies.c.url_id,
+            validated_urls_with_agencies.c.agency_ids,
+            uuas.is_new,
+            uuas.user_id,
+            uuas.agency_id.label("suggested_agency_id"),
+            (uuas.agency_id == any_(validated_urls_with_agencies.c.agency_ids)).label(
+                "is_suggested_agency_validated"
+            ),
+        )
+        .join(
+            validated_urls_with_agencies,
+            validated_urls_with_agencies.c.url_id == uuas.url_id,
+        )
+        .cte("final")
+    )
 
     count_cte = (
         select(
-            inner_cte.user_id,
+            cte_2.c.user_id,
             func.count()
         )
-        .join(
-            UserUrlAgencySuggestion,
-            inner_cte.user_id == UserUrlAgencySuggestion.user_id
-        )
         .group_by(
-            inner_cte.user_id
+            cte_2.c.user_id
         )
-        .cte("agency_count_total")
+        .cte("count_cte")
     )
 
     agreed_cte = (
         select(
-            inner_cte.user_id,
+            cte_2.c.user_id,
             func.count()
         )
-        .join(
-            UserUrlAgencySuggestion,
-            inner_cte.user_id == UserUrlAgencySuggestion.user_id
-        )
         .where(
-            exists()
-            .where(
-                LinkURLAgency.url_id == UserUrlAgencySuggestion.url_id,
-                LinkURLAgency.agency_id == UserUrlAgencySuggestion.agency_id
-            )
+            cte_2.c.is_suggested_agency_validated.is_(True)
         )
         .group_by(
-            inner_cte.user_id
+            cte_2.c.user_id
         )
-        .cte("agency_count_agreed")
+        .cte("agreed_cte")
     )
 
     return AgreementCTEContainer(

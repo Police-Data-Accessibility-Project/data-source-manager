@@ -8,16 +8,16 @@ from src.api.endpoints.search.agency.query import SearchAgencyQueryBuilder
 from src.api.endpoints.search.dtos.response import SearchURLResponse
 from src.core.core import AsyncCore
 from src.db.models.impl.agency.enums import JurisdictionType
-from src.security.manager import get_access_info
+from src.security.manager import get_admin_access_info
 from src.security.dtos.access_info import AccessInfo
 
-search_router = APIRouter(prefix="/search", tags=["search"])
+search_router = APIRouter(prefix="/search", tags=["Search"])
 
 
 @search_router.get("/url")
 async def search_url(
     url: str = Query(description="The URL to search for"),
-    access_info: AccessInfo = Depends(get_access_info),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> SearchURLResponse:
     """
@@ -40,7 +40,11 @@ async def search_agency(
         description="The jurisdiction type to search for",
         default=None
     ),
-    access_info: AccessInfo = Depends(get_access_info),
+    page: int = Query(
+        description="The page to search for",
+        default=1
+    ),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> list[AgencySearchResponse]:
     if query is None and location_id is None and jurisdiction_type is None:
@@ -53,6 +57,7 @@ async def search_agency(
         SearchAgencyQueryBuilder(
             location_id=location_id,
             query=query,
-            jurisdiction_type=jurisdiction_type
+            jurisdiction_type=jurisdiction_type,
+            page=page
         )
     )

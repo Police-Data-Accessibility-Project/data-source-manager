@@ -34,7 +34,7 @@ WHITELISTED_ROOT_URLS_CTE: CTE = (
         # The connected URLs must be Meta URLs
         FlagURLValidated.type == URLType.META_URL,
         # Root URL can't be "https://catalog.data.gov"
-        URL.url != "https://catalog.data.gov"
+        URL.url != "catalog.data.gov"
     )
     .group_by(
         URL.id

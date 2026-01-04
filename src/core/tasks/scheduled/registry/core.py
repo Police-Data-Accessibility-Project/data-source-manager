@@ -25,7 +25,7 @@ class ScheduledJobRegistry:
         func: Callable,
         entry: ScheduledTaskEntry,
         minute_lag: int
-    ) -> None:
+    ) -> datetime:
         """
         Modifies:
             self._jobs
@@ -40,10 +40,8 @@ class ScheduledJobRegistry:
             misfire_grace_time=60,
             kwargs={"operator": entry.operator}
         )
-        run_time_str: str = format_job_datetime(job.next_run_time)
-        print(f"Adding {job.id} task to scheduler. " +
-              f"First run at {run_time_str}")
         self._jobs[entry.operator.task_type] = job
+        return job.next_run_time
 
     def start_scheduler(self) -> None:
         """

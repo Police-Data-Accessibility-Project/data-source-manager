@@ -2,11 +2,11 @@ from typing import Optional
 
 import pytest
 
-from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.core.sqlalchemy import URL
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.enums import TaskOperatorOutcome
+from src.core.tasks.url.operators.misc_metadata.core import URLMiscellaneousMetadataTaskOperator
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from tests.helpers.data_creator.core import DBDataCreator
 
 
@@ -122,12 +122,12 @@ async def test_url_miscellaneous_metadata_task(db_data_creator: DBDataCreator):
         assert url.description == expected_description, f"For url.id {url.id}, expected description {expected_description}, got {url.description}"
 
     expected_urls = {
-        common_crawler_url_id: (None, None, None),
-        auto_googler_url_id: (None, None, None),
+        common_crawler_url_id: ([], None, None),
+        auto_googler_url_id: ([], None, None),
         ckan_url_id: (["CSV", "JSON"], "Test Data Portal Type", "Test Supplying Entity"),
-        muckrock_simple_url_id: (None, None, None),
-        muckrock_county_url_id: (None, None, None),
-        muckrock_all_url_id: (None, None, None),
+        muckrock_simple_url_id: ([], None, None),
+        muckrock_county_url_id: ([], None, None),
+        muckrock_all_url_id: ([], None, None),
     }
 
     metadatas: list[URLOptionalDataSourceMetadata] = await db_data_creator.adb_client.get_all(URLOptionalDataSourceMetadata)

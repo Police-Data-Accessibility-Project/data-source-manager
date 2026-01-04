@@ -3,15 +3,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInputDTO
 from src.api.endpoints.collector.dtos.manual_batch.response import ManualBatchResponseDTO
-from src.collectors.enums import CollectorType, URLStatus
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.optional_data_source_metadata import URLOptionalDataSourceMetadata
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
 from src.db.queries.base.builder import QueryBuilderBase
+from src.util.models.url_and_scheme import URLAndScheme
+from src.util.url import get_url_and_scheme
 
 
 class UploadManualBatchQueryBuilder(QueryBuilderBase):
@@ -43,13 +45,16 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
         duplicate_urls: list[str] = []
 
         for entry in self.dto.entries:
+            url_and_scheme: URLAndScheme = get_url_and_scheme(entry.url)
+
             url = URL(
-                url=entry.url,
+                url=url_and_scheme.url.rstrip('/'),
+                scheme=url_and_scheme.scheme,
                 name=entry.name,
                 description=entry.description,
                 collector_metadata=entry.collector_metadata,
-                status=URLStatus.OK.value,
-                source=URLSource.MANUAL
+                source=URLSource.MANUAL,
+                trailing_slash=url_and_scheme.url.endswith('/'),
             )
 
 
@@ -78,9 +83,10 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
 
             optional_metadata = URLOptionalDataSourceMetadata(
                 url_id=url.id,
-                record_formats=entry.record_formats,
+                record_formats=entry.record_formats or [],
                 data_portal_type=entry.data_portal_type,
                 supplying_entity=entry.supplying_entity,
+                access_types=[]
             )
             session.add(optional_metadata)
             url_ids.append(url.id)
