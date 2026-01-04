@@ -16,12 +16,11 @@ from typing import Any, Type
 
 from sqlalchemy import case, func, Select, select
 
-from src.collectors.enums import URLStatus
-from src.db.queries.implementations.core.common.annotation_exists_.constants import ALL_ANNOTATION_MODELS
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.mixins import URLDependentMixin
 from src.db.queries.base.builder import QueryBuilderBase
+from src.db.queries.implementations.core.common.annotation_exists_.constants import ALL_ANNOTATION_MODELS
 
 
 class AnnotationExistsCTEQueryBuilder(QueryBuilderBase):
@@ -73,7 +72,6 @@ class AnnotationExistsCTEQueryBuilder(QueryBuilderBase):
             FlagURLValidated.url_id == URL.id
         )
         anno_exists_query = anno_exists_query.where(
-            URL.status == URLStatus.OK.value,
             FlagURLValidated.url_id.is_(None)
         )
         anno_exists_query = anno_exists_query.group_by(URL.id).cte("annotations_exist")

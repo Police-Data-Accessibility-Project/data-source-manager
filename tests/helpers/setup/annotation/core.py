@@ -1,4 +1,3 @@
-from src.collectors.enums import URLStatus
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.setup.annotation.model import AnnotationSetupInfo

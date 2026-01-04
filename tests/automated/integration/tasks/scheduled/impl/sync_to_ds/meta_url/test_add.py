@@ -22,6 +22,11 @@ async def test_add(
     mock_pdap_client: PDAPClient,
     test_agency_id: int
 ):
+    await db_data_creator.create_web_metadata(
+        url_ids=[test_url_meta_url_id]
+    )
+
+    await db_data_creator.adb_client.refresh_materialized_views()
     operator = DSAppSyncMetaURLsAddTaskOperator(
         adb_client=adb_client_test,
         pdap_client=mock_pdap_client
@@ -46,7 +51,6 @@ async def test_add(
 
     # Run task and confirm runs without error
     await run_task_and_confirm_success(operator)
-
     # Confirm expected method was called with expected parameters
     request: AddMetaURLsOuterRequest = extract_and_validate_sync_request(
         mock_pdap_client,

@@ -1,23 +1,19 @@
 from collections import Counter
 
-from src.api.endpoints.annotate.agency.get.dto import GetNextURLForAgencyAgencyInfo
 from src.api.endpoints.annotate.relevance.get.dto import RelevanceAnnotationResponseInfo
-from src.api.endpoints.review.next.dto import FinalReviewAnnotationRelevantInfo, FinalReviewAnnotationRecordTypeInfo, \
-    FinalReviewAnnotationAgencyInfo
-from src.core.enums import RecordType, SuggestionType
+from src.api.endpoints.review.next.dto import FinalReviewAnnotationRelevantInfo, FinalReviewAnnotationRecordTypeInfo
+from src.core.enums import RecordType
 from src.core.tasks.url.operators.html.scraper.parser.dtos.response_html import ResponseHTMLInfo
 from src.core.tasks.url.operators.html.scraper.parser.mapping import ENUM_TO_ATTRIBUTE_MAPPING
 from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.dtos.url.with_html import URLWithHTML
-from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 
 class DTOConverter:
@@ -28,8 +24,8 @@ class DTOConverter:
 
     @staticmethod
     def final_review_annotation_relevant_info(
-        user_suggestions: list[UserURLTypeSuggestion],
-        auto_suggestion: AutoRelevantSuggestion
+        user_suggestions: list[AnnotationURLTypeUser],
+        auto_suggestion: AnnotationAutoURLType
     ) -> FinalReviewAnnotationRelevantInfo:
 
         auto_value = RelevanceAnnotationResponseInfo(
@@ -48,8 +44,8 @@ class DTOConverter:
 
     @staticmethod
     def final_review_annotation_record_type_info(
-        user_suggestions: list[UserRecordTypeSuggestion],
-        auto_suggestion: AutoRecordTypeSuggestion
+        user_suggestions: list[AnnotationRecordTypeUser],
+        auto_suggestion: AnnotationAutoRecordType
     ):
 
         if auto_suggestion is None:

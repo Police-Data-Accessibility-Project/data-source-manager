@@ -12,6 +12,8 @@ from src.api.endpoints.meta_url.by_id.put.query import UpdateMetaURLQueryBuilder
 from src.api.endpoints.meta_url.by_id.put.request import UpdateMetaURLRequest
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
+from src.security.dtos.access_info import AccessInfo
+from src.security.manager import get_admin_access_info
 
 meta_urls_router = APIRouter(
     prefix="/meta-urls",
@@ -35,6 +37,7 @@ async def get_meta_urls(
 async def update_meta_url(
     url_id: int,
     request: UpdateMetaURLRequest,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await check_is_meta_url(url_id=url_id, adb_client=async_core.adb_client)
@@ -61,6 +64,7 @@ async def get_meta_url_agencies(
 async def add_agency_to_meta_url(
     url_id: int,
     agency_id: int,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await add_meta_url_agency_link(
@@ -74,6 +78,7 @@ async def add_agency_to_meta_url(
 async def remove_agency_from_meta_url(
     url_id: int,
     agency_id: int,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await delete_meta_url_agency_link(

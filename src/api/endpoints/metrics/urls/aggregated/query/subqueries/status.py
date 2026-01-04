@@ -4,8 +4,8 @@ from sqlalchemy import select, func, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.helpers.session import session_helper as sh
-from src.db.models.views.url_status.core import URLStatusMatView
-from src.db.models.views.url_status.enums import URLStatusViewEnum
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -18,13 +18,13 @@ class GetURLStatusCountQueryBuilder(QueryBuilderBase):
 
         query = (
             select(
-                URLStatusMatView.status,
+                URLStatusMaterializedView.status,
                 func.count(
-                    URLStatusMatView.url_id
+                    URLStatusMaterializedView.url_id
                 ).label("count")
             )
             .group_by(
-                URLStatusMatView.status
+                URLStatusMaterializedView.status
             )
         )
 

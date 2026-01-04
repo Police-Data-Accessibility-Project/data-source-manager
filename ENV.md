@@ -80,6 +80,7 @@ Note that some tasks/subtasks are themselves enabled by other tasks.
 | `DS_APP_SYNC_META_URL_ADD_TASK_FLAG`       | Adds new meta URLs to the Data Sources App|
 | `DS_APP_SYNC_META_URL_UPDATE_TASK_FLAG`    | Updates existing meta URLs in the Data Sources App|
 | `DS_APP_SYNC_META_URL_DELETE_TASK_FLAG`    | Deletes meta URLs in the Data Sources App|
+| `DS_APP_SYNC_USER_FOLLOWS_GET_TASK_FLAG`   | Gets user follows from the Data Sources App|
 | `INTEGRITY_MONITOR_TASK_FLAG`              | Runs integrity checks. |
 
 ### URL Task Flags

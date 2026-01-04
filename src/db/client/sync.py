@@ -124,7 +124,6 @@ class DatabaseClient:
             url=url_and_scheme.url,
             scheme=url_and_scheme.scheme,
             collector_metadata=url_info.collector_metadata,
-            status=url_info.status,
             name=url_info.name,
             trailing_slash=url_and_scheme.url.endswith('/'),
             source=url_info.source

@@ -7,6 +7,7 @@ from src.core.tasks.url.operators.agency_identification.dtos.suggestion import U
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 from tests.helpers.data_creator.commands.impl.agency import AgencyCommand
 
+
 @final
 class AgencyConfirmedSuggestionCommand(DBDataCreatorCommandBase):
 

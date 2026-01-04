@@ -6,10 +6,11 @@ from src.api.endpoints.annotate.all.get.models.suggestion import SuggestionModel
 from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggestions
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
 from src.db.models.views.location_expanded import LocationExpandedView
 from src.db.templates.requester import RequesterBase
 
@@ -25,10 +26,13 @@ class GetLocationSuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     exists_url(
-                        UserLocationSuggestion
+                        AnnotationLocationUser
                     ),
                     exists_url(
-                        AutoLocationIDSubtask
+                        AnnotationLocationAutoSubtask
+                    ),
+                    exists_url(
+                        AnnotationLocationAnon
                     )
                 )
             )
@@ -37,34 +41,48 @@ class GetLocationSuggestionsRequester(RequesterBase):
         # Number of users who suggested each location
         user_suggestions_cte = (
             select(
-                UserLocationSuggestion.url_id,
-                UserLocationSuggestion.location_id,
-                func.count(UserLocationSuggestion.user_id).label('user_count')
+                AnnotationLocationUser.url_id,
+                AnnotationLocationUser.location_id,
+                func.count(AnnotationLocationUser.user_id).label('user_count')
             )
             .group_by(
-                UserLocationSuggestion.location_id,
-                UserLocationSuggestion.url_id,
+                AnnotationLocationUser.location_id,
+                AnnotationLocationUser.url_id,
             )
             .cte("user_suggestions")
         )
+        # Number of anon users who suggested each location
+        anon_suggestions_cte = (
+            select(
+                AnnotationLocationAnon.url_id,
+                AnnotationLocationAnon.location_id,
+                func.count(AnnotationLocationAnon.session_id).label('anon_count')
+            )
+            .group_by(
+                AnnotationLocationAnon.location_id,
+                AnnotationLocationAnon.url_id,
+            )
+            .cte("anon_suggestions")
+        )
+
         # Maximum confidence of robo annotation, if any
         robo_suggestions_cte = (
             select(
-                AutoLocationIDSubtask.url_id,
+                AnnotationLocationAutoSubtask.url_id,
                 LocationExpandedView.id.label("location_id"),
-                func.max(LocationIDSubtaskSuggestion.confidence).label('robo_confidence')
+                func.max(AnnotationLocationAutoSuggestion.confidence).label('robo_confidence')
             )
             .join(
                 LocationExpandedView,
-                LocationExpandedView.id == LocationIDSubtaskSuggestion.location_id
+                LocationExpandedView.id == AnnotationLocationAutoSuggestion.location_id
             )
             .join(
-                AutoLocationIDSubtask,
-                AutoLocationIDSubtask.id == LocationIDSubtaskSuggestion.subtask_id
+                AnnotationLocationAutoSubtask,
+                AnnotationLocationAutoSubtask.id == AnnotationLocationAutoSuggestion.subtask_id
             )
             .group_by(
                 LocationExpandedView.id,
-                AutoLocationIDSubtask.url_id,
+                AnnotationLocationAutoSubtask.url_id,
             )
             .cte("robo_suggestions")
         )
@@ -75,6 +93,7 @@ class GetLocationSuggestionsRequester(RequesterBase):
                 LocationExpandedView.full_display_name.label("display_name"),
                 func.coalesce(user_suggestions_cte.c.user_count, 0).label("user_count"),
                 func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label("robo_confidence"),
+                func.coalesce(anon_suggestions_cte.c.anon_count, 0).label("anon_count"),
             )
             .join(
                 LocationExpandedView,
@@ -88,6 +107,13 @@ class GetLocationSuggestionsRequester(RequesterBase):
                 )
             )
             .outerjoin(
+                anon_suggestions_cte,
+                and_(
+                    anon_suggestions_cte.c.url_id == url_id,
+                    anon_suggestions_cte.c.location_id == LocationExpandedView.id
+                )
+            )
+            .outerjoin(
                 robo_suggestions_cte,
                 and_(
                     robo_suggestions_cte.c.url_id == url_id,
@@ -97,7 +123,8 @@ class GetLocationSuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     user_suggestions_cte.c.user_count > 0,
-                    robo_suggestions_cte.c.robo_confidence > 0
+                    robo_suggestions_cte.c.robo_confidence > 0,
+                    anon_suggestions_cte.c.anon_count > 0
                 )
             )
         )
@@ -105,7 +132,10 @@ class GetLocationSuggestionsRequester(RequesterBase):
         mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
         suggestions: list[SuggestionModel] = [
             SuggestionModel(
-                **mapping
+                id=mapping["id"],
+                display_name=mapping["display_name"],
+                user_count=mapping['user_count'] + (mapping['anon_count'] // 2),
+                robo_confidence=mapping["robo_confidence"]
             )
             for mapping in mappings
         ]

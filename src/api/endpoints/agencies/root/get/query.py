@@ -26,6 +26,9 @@ class GetAgenciesQueryBuilder(QueryBuilderBase):
             .options(
                 selectinload(Agency.locations)
             )
+            .order_by(
+                Agency.id.asc()
+            )
             .offset((self.page - 1) * 100)
             .limit(100)
         )

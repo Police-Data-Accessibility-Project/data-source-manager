@@ -36,7 +36,7 @@ class UpdateAgencyQueryBuilder(QueryBuilderBase):
         if self.request.name is not None:
             agency.name = self.request.name
         if self.request.type is not None:
-            agency.type = self.request.type
+            agency.agency_type = self.request.type
         if self.request.jurisdiction_type is not None:
             agency.jurisdiction_type = self.request.jurisdiction_type
 

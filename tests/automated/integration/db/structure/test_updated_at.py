@@ -1,9 +1,7 @@
-import asyncio
 from datetime import datetime
 
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.pydantic.upsert import URLUpsertModel
 from src.db.models.impl.url.core.sqlalchemy import URL
 from tests.helpers.data_creator.core import DBDataCreator
@@ -14,7 +12,6 @@ async def test_updated_at(db_data_creator: DBDataCreator):
 
     _ = await db_data_creator.create_urls(
         count=1,
-        status=URLStatus.OK
     )
 
     urls: list[URL] = await db_data_creator.adb_client.get_all(URL)

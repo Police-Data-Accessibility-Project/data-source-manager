@@ -1,11 +1,7 @@
-from collections import Counter
-
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.core.tasks.url.operators.auto_relevant.core import URLAutoRelevantTaskOperator
-from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.automated.integration.tasks.url.impl.asserts import assert_prereqs_not_met, assert_prereqs_met
 from tests.automated.integration.tasks.url.impl.auto_relevant.setup import setup_operator, setup_urls
@@ -31,7 +27,7 @@ async def test_url_auto_relevant_task(db_data_creator: DBDataCreator):
     adb_client = db_data_creator.adb_client
 
     # Confirm two annotations were created
-    suggestions: list[AutoRelevantSuggestion] = await adb_client.get_all(AutoRelevantSuggestion)
+    suggestions: list[AnnotationAutoURLType] = await adb_client.get_all(AnnotationAutoURLType)
     assert len(suggestions) == 2
     for suggestion in suggestions:
         assert suggestion.url_id in url_ids

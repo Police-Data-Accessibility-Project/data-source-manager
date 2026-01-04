@@ -1,4 +1,4 @@
-from src.db.models.impl.url.suggestion.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
+from src.db.models.impl.annotation.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
 
 

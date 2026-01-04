@@ -2,8 +2,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_locati
     NLPLocationMatchSubtaskInput
 from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask import AutoAgencyIDSubtaskData
 from src.core.tasks.url.operators.agency_identification.subtasks.models.suggestion import AgencySuggestion
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
 
 
 def convert_location_agency_mappings_to_subtask_data_list(

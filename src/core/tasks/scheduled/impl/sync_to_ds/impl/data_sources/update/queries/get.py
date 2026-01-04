@@ -12,6 +12,7 @@ from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.queries.base.builder import QueryBuilderBase
 from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
@@ -41,7 +42,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                 # Required
                 URL.full_url,
                 URL.name,
-                URL.status,
+                URLWebMetadata.status_code,
                 URLRecordType.record_type,
                 agency_id_cte.c.agency_ids,
                 # Optional
@@ -83,6 +84,10 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                 URLRecordType.url_id == URL.id,
             )
             .outerjoin(
+                URLWebMetadata,
+                URLWebMetadata.url_id == URL.id,
+            )
+            .outerjoin(
                 agency_id_cte,
                 cte.url_id == agency_id_cte.c.url_id
             )
@@ -122,7 +127,7 @@ class DSAppSyncDataSourcesUpdateGetQueryBuilder(QueryBuilderBase):
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
                         data_portal_type_other=mapping[URLOptionalDataSourceMetadata.data_portal_type_other],
                         url_status=convert_sm_url_status_to_ds_url_status(
-                            sm_url_status=mapping[URL.status],
+                            mapping[URLWebMetadata.status_code],
                         ),
                         internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
                     )

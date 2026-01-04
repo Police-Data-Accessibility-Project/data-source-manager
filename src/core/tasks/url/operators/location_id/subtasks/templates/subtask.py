@@ -7,8 +7,8 @@ from src.core.tasks.url.operators.location_id.subtasks.models.subtask import Aut
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
-from src.db.models.impl.url.suggestion.location.auto.suggestion.pydantic import LocationIDSubtaskSuggestionPydantic
+from src.db.models.impl.annotation.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
+from src.db.models.impl.annotation.location.auto.suggestion.pydantic import LocationIDSubtaskSuggestionPydantic
 from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 

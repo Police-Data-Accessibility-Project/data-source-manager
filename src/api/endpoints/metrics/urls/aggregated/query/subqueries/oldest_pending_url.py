@@ -3,11 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.dtos.get.urls.aggregated.core import GetMetricsURLValidatedOldestPendingURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.views.url_status.core import URLStatusMatView
-from src.db.models.views.url_status.enums import URLStatusViewEnum
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 
-from src.db.helpers.session import session_helper as sh
 
 class GetOldestPendingURLQueryBuilder(QueryBuilderBase):
 
@@ -18,14 +17,14 @@ class GetOldestPendingURLQueryBuilder(QueryBuilderBase):
 
         query = (
             select(
-                URLStatusMatView.url_id,
+                URLStatusMaterializedView.url_id,
                 URL.created_at
             )
             .join(
                 URL,
-                URLStatusMatView.url_id == URL.id
+                URLStatusMaterializedView.url_id == URL.id
             ).where(
-                URLStatusMatView.status.not_in(
+                URLStatusMaterializedView.status.not_in(
                     [
                         URLStatusViewEnum.SUBMITTED.value,
                         URLStatusViewEnum.ACCEPTED.value,

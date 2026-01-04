@@ -6,7 +6,6 @@ import pytest_asyncio
 from starlette.testclient import TestClient
 
 from src.api.main import app
-from src.collectors.enums import URLStatus
 from src.collectors.manager import AsyncCollectorManager
 from src.core.core import AsyncCore
 from src.core.enums import RecordType
@@ -19,7 +18,7 @@ from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
-from src.security.manager import get_access_info
+from src.security.manager import get_admin_access_info, get_standard_user_access_info
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
@@ -134,7 +133,8 @@ def override_access_info() -> AccessInfo:
 @pytest.fixture(scope="session")
 def client(disable_task_flags) -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
-        app.dependency_overrides[get_access_info] = override_access_info
+        app.dependency_overrides[get_admin_access_info] = override_access_info
+        app.dependency_overrides[get_standard_user_access_info] = override_access_info
         async_core: AsyncCore = c.app.state.async_core
 
         # Interfaces to the web should be mocked
@@ -244,21 +244,9 @@ async def test_url_id(
         url="example.com",
         source=URLSource.COLLECTOR,
         trailing_slash=False,
-        status=URLStatus.OK
     )
     return await db_data_creator.adb_client.add(url, return_id=True)
 
-@pytest_asyncio.fixture
-async def test_url_id_2(
-    db_data_creator: DBDataCreator,
-) -> int:
-    url = URL(
-        url="example.com/2",
-        source=URLSource.COLLECTOR,
-        trailing_slash=False,
-        status=URLStatus.OK
-    )
-    return await db_data_creator.adb_client.add(url, return_id=True)
 
 
 @pytest_asyncio.fixture

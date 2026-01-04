@@ -1,25 +1,22 @@
 import uuid
-from typing import Any
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
 from src.api.endpoints.submit.data_source.request import DataSourceSubmissionRequest
-from src.collectors.enums import URLStatus
 from src.core.enums import BatchStatus
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
 from src.util.models.full_url import FullURL
@@ -44,7 +41,6 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             trailing_slash=full_url.has_trailing_slash,
             name=self.request.name,
             description=self.request.description,
-            status=URLStatus.OK,
             source=URLSource.MANUAL,
         )
 
@@ -75,7 +71,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         session_id: uuid.UUID = await MakeAnonymousSessionQueryBuilder().run(session=session)
 
         # Add URL Type Suggestion
-        url_type_suggestion = AnonymousAnnotationURLType(
+        url_type_suggestion = AnnotationURLTypeAnon(
             url_id=url_id,
             url_type=URLType.DATA_SOURCE,
             session_id=session_id
@@ -84,7 +80,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
 
         # Optionally add Record Type as suggestion
         if self.request.record_type is not None:
-            record_type_suggestion = AnonymousAnnotationRecordType(
+            record_type_suggestion = AnnotationRecordTypeAnon(
                 url_id=url_id,
                 record_type=self.request.record_type.value,
                 session_id=session_id
@@ -94,7 +90,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         # Optionally add Agency ID suggestions
         if self.request.agency_ids is not None:
             agency_id_suggestions = [
-                AnonymousAnnotationAgency(
+                AnnotationAgencyAnon(
                     url_id=url_id,
                     agency_id=agency_id,
                     session_id=session_id
@@ -106,7 +102,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         # Optionally add Location ID suggestions
         if self.request.location_ids is not None:
             location_id_suggestions = [
-                AnonymousAnnotationLocation(
+                AnnotationLocationAnon(
                     url_id=url_id,
                     location_id=location_id,
                     session_id=session_id
@@ -117,7 +113,7 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
 
         # Optionally add name suggestion
         if self.request.name is not None:
-            name_suggestion = URLNameSuggestion(
+            name_suggestion = AnnotationNameSuggestion(
                 url_id=url_id,
                 suggestion=self.request.name,
                 source=NameSuggestionSource.USER
