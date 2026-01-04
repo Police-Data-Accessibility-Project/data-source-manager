@@ -18,14 +18,14 @@ from src.api.endpoints.proposals.agencies.by_id.reject.response import ProposalA
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
 from src.security.dtos.access_info import AccessInfo
-from src.security.manager import get_access_info
+from src.security.manager import get_admin_access_info
 
 proposal_router = APIRouter(prefix="/proposal", tags=["Pending"])
 
 @proposal_router.get("/agencies")
 async def get_pending_agencies(
     async_core: AsyncCore = Depends(get_async_core),
-    access_info: AccessInfo = Depends(get_access_info),
+    access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> ProposalAgencyGetOuterResponse:
     return await async_core.adb_client.run_query_builder(
         ProposalAgencyGetQueryBuilder(),
@@ -37,7 +37,7 @@ async def approve_proposed_agency(
     proposed_agency_id: int = Path(
         description="Proposed agency ID to approve"
     ),
-    access_info: AccessInfo = Depends(get_access_info),
+    access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> ProposalAgencyApproveResponse:
     return await async_core.adb_client.run_query_builder(
         ProposalAgencyApproveQueryBuilder(
@@ -53,7 +53,7 @@ async def reject_proposed_agency(
     proposed_agency_id: int = Path(
         description="Proposed agency ID to reject"
     ),
-    access_info: AccessInfo = Depends(get_access_info),
+    access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> ProposalAgencyRejectResponse:
     return await async_core.adb_client.run_query_builder(
         ProposalAgencyRejectQueryBuilder(

@@ -16,6 +16,8 @@ from src.api.endpoints.agencies.root.post.request import AgencyPostRequest
 from src.api.endpoints.agencies.root.post.response import AgencyPostResponse
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
+from src.security.dtos.access_info import AccessInfo
+from src.security.manager import get_admin_access_info
 
 agencies_router = APIRouter(prefix="/agencies", tags=["Agencies"])
 
@@ -34,7 +36,9 @@ async def get_agencies(
 @agencies_router.post("")
 async def create_agency(
     request: AgencyPostRequest,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
+
 ) -> AgencyPostResponse:
     return await async_core.adb_client.run_query_builder(
         AddAgencyQueryBuilder(request=request)
@@ -45,6 +49,7 @@ async def delete_agency(
     agency_id: int = Path(
         description="Agency ID to delete"
     ),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await async_core.adb_client.run_query_builder(
@@ -58,6 +63,7 @@ async def update_agency(
     agency_id: int = Path(
         description="Agency ID to update"
     ),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await async_core.adb_client.run_query_builder(
@@ -84,6 +90,7 @@ async def add_location_to_agency(
     location_id: int = Path(
         description="Location ID to add"
     ),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await async_core.adb_client.run_query_builder(
@@ -99,6 +106,7 @@ async def remove_location_from_agency(
     location_id: int = Path(
         description="Location ID to remove"
     ),
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await async_core.adb_client.run_query_builder(

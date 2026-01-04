@@ -18,7 +18,7 @@ from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.security.dtos.access_info import AccessInfo
 from src.security.enums import Permissions
-from src.security.manager import get_access_info, get_standard_user_access_info
+from src.security.manager import get_admin_access_info, get_standard_user_access_info
 from tests.automated.integration.api._helpers.RequestValidator import RequestValidator
 from tests.helpers.api_test_helper import APITestHelper
 from tests.helpers.data_creator.core import DBDataCreator
@@ -133,7 +133,7 @@ def override_access_info() -> AccessInfo:
 @pytest.fixture(scope="session")
 def client(disable_task_flags) -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
-        app.dependency_overrides[get_access_info] = override_access_info
+        app.dependency_overrides[get_admin_access_info] = override_access_info
         app.dependency_overrides[get_standard_user_access_info] = override_access_info
         async_core: AsyncCore = c.app.state.async_core
 
