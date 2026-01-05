@@ -1,7 +1,8 @@
 import uuid
+from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 
 from src.api.dependencies import get_async_core
 from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationResponseOuterInfo
@@ -40,7 +41,11 @@ url_id_query = Query(
 @annotate_router.get("/anonymous")
 async def get_next_url_for_all_annotations_anonymous(
     async_core: AsyncCore = Depends(get_async_core),
-    session_id: UUID | None = Query(description="The session id of the anonymous user.", default=None)
+    session_id: UUID | None = Query(description="The session id of the anonymous user.", default=None),
+    offset: int | None = Query(
+        description="Offset for annotation",
+        default=None
+    )
 ) -> GetNextURLForAnonymousAnnotationResponse:
     # If session_id is not provided, generate new UUID
     if session_id is None:
@@ -49,16 +54,23 @@ async def get_next_url_for_all_annotations_anonymous(
         )
 
     return await async_core.adb_client.run_query_builder(
-        GetNextURLForAnonymousAnnotationQueryBuilder(session_id=session_id)
+        GetNextURLForAnonymousAnnotationQueryBuilder(
+            session_id=session_id,
+            offset=offset
+        )
     )
 
 
 @annotate_router.post("/anonymous/{url_id}")
-async def annotate_url_for_all_annotations_and_get_next_url_anonymous(
+async def annotate_url_for_all_annotations(
     url_id: int,
     all_annotation_post_info: AllAnnotationPostInfo,
     async_core: AsyncCore = Depends(get_async_core),
-    session_id: UUID = Query(description="The session id of the anonymous user")
+    session_id: UUID = Query(description="The session id of the anonymous user"),
+    get_next_url: bool = Query(
+        description="Get next URL after submitting this URL",
+        default=True
+    )
 ) -> GetNextURLForAnonymousAnnotationResponse:
     await async_core.adb_client.run_query_builder(
         AddAnonymousAnnotationsToURLQueryBuilder(
@@ -67,6 +79,11 @@ async def annotate_url_for_all_annotations_and_get_next_url_anonymous(
             session_id=session_id
         )
     )
+    if not get_next_url:
+        return GetNextURLForAnonymousAnnotationResponse(
+            next_annotation=None,
+            session_id=session_id
+        )
 
     return await async_core.adb_client.run_query_builder(
         GetNextURLForAnonymousAnnotationQueryBuilder(
@@ -81,8 +98,17 @@ async def get_next_url_for_all_annotations(
         access_info: AccessInfo = Depends(get_standard_user_access_info),
         async_core: AsyncCore = Depends(get_async_core),
         batch_id: int | None = batch_query,
-        anno_url_id: int | None = url_id_query
+        anno_url_id: int | None = url_id_query,
+        offset: int | None = Query(
+            description="Offset for annotation",
+            default=None
+        )
 ) -> GetNextURLForAllAnnotationResponse:
+    if anno_url_id is not None and offset is not None:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="anno_url_id and offset query arguments cannot both be defined"
+        )
     return await async_core.adb_client.get_next_url_for_all_annotations(
         batch_id=batch_id,
         user_id=access_info.user_id,
@@ -90,13 +116,17 @@ async def get_next_url_for_all_annotations(
     )
 
 @annotate_router.post("/all/{url_id}")
-async def annotate_url_for_all_annotations_and_get_next_url(
+async def annotate_url_for_all_annotations(
         url_id: int,
         all_annotation_post_info: AllAnnotationPostInfo,
         async_core: AsyncCore = Depends(get_async_core),
         access_info: AccessInfo = Depends(get_standard_user_access_info),
         batch_id: int | None = batch_query,
-        anno_url_id: int | None = url_id_query
+        anno_url_id: int | None = url_id_query,
+        get_next_url: bool = Query(
+            description="Get next URL after submitting this URL",
+            default=True
+        )
 ) -> GetNextURLForAllAnnotationResponse:
     """
     Post URL annotation and get next URL to annotate
@@ -107,6 +137,11 @@ async def annotate_url_for_all_annotations_and_get_next_url(
                 url_id=url_id,
                 post_info=all_annotation_post_info
             )
+        )
+
+    if not get_next_url:
+        return GetNextURLForAllAnnotationResponse(
+            next_annotation=None
         )
 
     return await async_core.adb_client.get_next_url_for_all_annotations(

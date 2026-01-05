@@ -22,7 +22,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
         self,
         batch_id: int | None,
         user_id: int,
-        url_id: int | None = None
+        url_id: int | None = None,
+        offset: int | None = None
     ):
         super().__init__()
         self.batch_id = batch_id

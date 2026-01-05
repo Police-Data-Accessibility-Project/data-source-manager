@@ -15,15 +15,17 @@ from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUse
 from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.flag.url_validated.enums import URLType
+from tests.helpers.api_test_helper import APITestHelper
+from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
 from tests.helpers.data_creator.models.creation_info.us_state import USStateCreationInfo
 from tests.helpers.setup.final_review.core import setup_for_get_next_url_for_final_review
 
 
 @pytest.mark.asyncio
 async def test_annotate_all(
-    api_test_helper,
+    api_test_helper: APITestHelper,
     pennsylvania: USStateCreationInfo,
-    allegheny_county: USStateCreationInfo,
+    allegheny_county: CountyCreationInfo,
     california: USStateCreationInfo,
     test_agency_id: int
 ):
@@ -63,7 +65,7 @@ async def test_annotate_all(
 
     # Annotate the first and submit
     agency_id = await ath.db_data_creator.agency()
-    post_response_1 = await ath.request_validator.post_all_annotations_and_get_next(
+    post_response_1 = await ath.request_validator.post_all_annotations(
         url_id=url_mapping_1.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.DATA_SOURCE,
@@ -86,7 +88,7 @@ async def test_annotate_all(
     assert post_response_1.next_annotation.url_info.url_id == url_mapping_2.url_id
 
     # Upon submitting the second, confirm that no more URLs are returned through either POST or GET
-    post_response_2 = await ath.request_validator.post_all_annotations_and_get_next(
+    post_response_2 = await ath.request_validator.post_all_annotations(
         url_id=url_mapping_2.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.NOT_RELEVANT,
