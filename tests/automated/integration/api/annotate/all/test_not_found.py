@@ -24,7 +24,7 @@ async def test_not_found(
         db_data_creator=ath.db_data_creator, include_user_annotations=True
     )
 
-    post_response_1 = await ath.request_validator.post_all_annotations_and_get_next(
+    post_response_1 = await ath.request_validator.post_all_annotations(
         url_id=setup_info_1.url_mapping.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
             suggested_status=URLType.DATA_SOURCE,
