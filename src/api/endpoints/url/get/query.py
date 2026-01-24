@@ -4,7 +4,8 @@ from sqlalchemy import select, exists, RowMapping, func
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.endpoints.url.get.dto import GetURLsResponseInfo, GetURLsResponseErrorInfo, GetURLsResponseInnerInfo
+from src.api.endpoints.url.get.dto import GetURLsResponseInfo, GetURLsResponseErrorInfo, GetURLsResponseInnerInfo, \
+    GetURLStatusModel
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.models.impl import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -55,6 +56,7 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                 URL.full_url,
                 URL.collector_metadata,
                 URLStatusMaterializedView.status,
+                URLStatusMaterializedView.code,
                 URL.created_at,
                 URL.updated_at,
                 URL.name,
@@ -103,7 +105,10 @@ class GetURLsQueryBuilder(QueryBuilderBase):
                     batch_id=mapping[LinkBatchURL.batch_id],
                     url=mapping["full_url"],
                     collector_metadata=mapping[URL.collector_metadata],
-                    status=mapping[URLStatusMaterializedView.status],
+                    status=GetURLStatusModel(
+                        value=mapping[URLStatusMaterializedView.status],
+                        code=mapping[URLStatusMaterializedView.code]
+                    ),
                     created_at=mapping[URL.created_at],
                     updated_at=mapping[URL.updated_at],
                     errors=error_results,
