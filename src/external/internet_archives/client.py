@@ -1,4 +1,3 @@
-import asyncio
 from asyncio import Semaphore
 
 from aiolimiter import AsyncLimiter
@@ -6,6 +5,7 @@ from aiohttp import ClientSession
 
 from src.external.internet_archives.convert import convert_capture_to_archive_metadata
 from src.external.internet_archives.models.capture import IACapture
+from src.external.internet_archives.models.domain_search import IADomainSearchResult
 from src.external.internet_archives.models.ia_url_mapping import InternetArchivesURLMapping
 from src.external.internet_archives.models.save_response import InternetArchivesSaveResponseInfo
 
@@ -16,7 +16,6 @@ limiter = AsyncLimiter(
     time_period=50
 )
 sem = Semaphore(10)
-
 
 
 class InternetArchivesClient:
@@ -32,6 +31,45 @@ class InternetArchivesClient:
 
         self.s3_keys = env.str("INTERNET_ARCHIVE_S3_KEYS")
 
+    async def search_domain_urls(
+        self, domain: str, limit: int = 10000
+    ) -> IADomainSearchResult:
+        params = {
+            "url": f"*.{domain}/*",
+            "output": "json",
+            "filter": "statuscode:200",
+            "collapse": "urlkey",
+            "fl": "timestamp,original,length,digest,mimetype",
+            "limit": str(limit),
+            "gzip": "false",
+        }
+        try:
+            async with sem:
+                async with limiter:
+                    async with self.session.get(
+                        "http://web.archive.org/cdx/search/cdx",
+                        params=params,
+                    ) as response:
+                        raw_data = await response.json()
+                        if len(raw_data) <= 1:
+                            return IADomainSearchResult(
+                                domain=domain, captures=[]
+                            )
+                        fields = raw_data[0]
+                        captures = [
+                            IACapture(**dict(zip(fields, row)))
+                            for row in raw_data[1:]
+                        ]
+                        return IADomainSearchResult(
+                            domain=domain, captures=captures
+                        )
+        except Exception as e:
+            return IADomainSearchResult(
+                domain=domain,
+                captures=[],
+                error=f"{e.__class__.__name__}: {e}",
+            )
+
     async def _get_url_snapshot(self, url: str) -> IACapture | None:
         params = {
             "url": url,
@@ -44,7 +82,7 @@ class InternetArchivesClient:
         async with sem:
             async with limiter:
                 async with self.session.get(
-                    f"http://web.archive.org/cdx/search/cdx",
+                    "http://web.archive.org/cdx/search/cdx",
                     params=params
                 ) as response:
                     raw_data = await response.json()
@@ -82,7 +120,7 @@ class InternetArchivesClient:
 
     async def _save_url(self, url: str) -> int:
         async with self.session.post(
-            f"http://web.archive.org/save",
+            "http://web.archive.org/save",
             data={
                 "url": url,
                 "skip_first_archive": 1

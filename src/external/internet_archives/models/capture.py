@@ -6,3 +6,4 @@ class IACapture(BaseModel):
     original: str
     length: int
     digest: str
+    mimetype: str | None = None
