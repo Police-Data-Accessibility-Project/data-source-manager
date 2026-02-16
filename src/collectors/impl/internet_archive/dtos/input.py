@@ -2,8 +2,6 @@ from pydantic import BaseModel, Field
 
 
 DEFAULT_EXCLUDE_PATTERNS = [
-    r"\.css$", r"\.js$", r"\.png$", r"\.jpg$", r"\.jpeg$",
-    r"\.gif$", r"\.svg$", r"\.ico$", r"\.woff$", r"\.woff2$",
     r"/wp-content/", r"/wp-includes/", r"/wp-json/", r"/feed/",
     r"utm_", r"fbclid", r"xmlrpc\.php",
 ]
