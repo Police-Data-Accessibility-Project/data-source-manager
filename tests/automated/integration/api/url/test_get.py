@@ -36,8 +36,11 @@ async def test_get_urls(api_test_helper: APITestHelper):
     assert data.urls[0].url == iui.url_mappings[0].url
 
     for i in range(1, 3):
-        assert data.urls[i].url == iui.url_mappings[i].url
-        assert len(data.urls[i].errors) == 1
+        url_info = data.urls[i]
+        assert url_info.url == iui.url_mappings[i].url
+        assert len(url_info.errors) == 1
+        assert url_info.status.value is not None
+        assert url_info.status.code is not None
 
     # Retrieve data again with errors only
     data: GetURLsResponseInfo = api_test_helper.request_validator.get_urls(errors=True)

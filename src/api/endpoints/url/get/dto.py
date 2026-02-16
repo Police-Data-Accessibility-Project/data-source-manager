@@ -20,11 +20,15 @@ class GetURLsResponseMetadataInfo(BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
+class GetURLStatusModel(BaseModel):
+    value: URLStatusViewEnum
+    code: int
+
 class GetURLsResponseInnerInfo(BaseModel):
     id: int
     batch_id: int | None
     url: str
-    status: URLStatusViewEnum | None
+    status: GetURLStatusModel | None
     collector_metadata: dict | None
     updated_at: datetime.datetime
     created_at: datetime.datetime
