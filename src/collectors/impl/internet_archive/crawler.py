@@ -1,3 +1,4 @@
+"""Internet Archive crawler for discovering URLs via the CDX API."""
 from typing import AsyncGenerator
 from urllib.parse import urlparse
 
@@ -12,21 +13,24 @@ from src.external.internet_archives.client import InternetArchivesClient
 
 
 class InternetArchiveCrawler:
+    """Crawls Internet Archive CDX API to discover URLs for given domains."""
 
     def __init__(
-        self,
+        self: "InternetArchiveCrawler",
         urls: list[str],
         max_results_per_domain: int = 10000,
         exclude_patterns: list[str] | None = None,
         mime_type_allowlist: list[str] | None = None,
-    ):
+    ) -> None:
+        """Initialize the crawler with seed URLs and filtering options."""
         self.urls = urls
         self.max_results_per_domain = max_results_per_domain
         self.exclude_patterns = exclude_patterns or []
         self.mime_type_allowlist = mime_type_allowlist or ["text/html"]
         self.results: list[InternetArchiveOutputDTO] = []
 
-    def _extract_domains(self) -> list[str]:
+    def _extract_domains(self: "InternetArchiveCrawler") -> list[str]:
+        """Extract unique domains from the seed URLs."""
         domains = set()
         for url in self.urls:
             parsed = urlparse(url)
@@ -34,7 +38,8 @@ class InternetArchiveCrawler:
                 domains.add(parsed.hostname.lower())
         return sorted(domains)
 
-    async def run(self) -> AsyncGenerator[str, None]:
+    async def run(self: "InternetArchiveCrawler") -> AsyncGenerator[str, None]:
+        """Run the crawler and yield status messages."""
         seed_urls_lower = {u.lower().rstrip("/") for u in self.urls}
         domains = self._extract_domains()
 

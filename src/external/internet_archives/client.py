@@ -1,3 +1,4 @@
+"""Client for the Internet Archive CDX and Save APIs."""
 from asyncio import Semaphore
 
 from aiolimiter import AsyncLimiter
@@ -19,11 +20,13 @@ sem = Semaphore(10)
 
 
 class InternetArchivesClient:
+    """Client for interacting with the Internet Archive APIs."""
 
     def __init__(
-        self,
+        self: "InternetArchivesClient",
         session: ClientSession
-    ):
+    ) -> None:
+        """Initialize with an aiohttp session and load S3 keys from env."""
         self.session = session
 
         env = Env()
@@ -32,8 +35,9 @@ class InternetArchivesClient:
         self.s3_keys = env.str("INTERNET_ARCHIVE_S3_KEYS")
 
     async def search_domain_urls(
-        self, domain: str, limit: int = 10000
+        self: "InternetArchivesClient", domain: str, limit: int = 10000
     ) -> IADomainSearchResult:
+        """Search for all archived URLs under a domain via the CDX API."""
         params = {
             "url": f"*.{domain}/*",
             "output": "json",
@@ -70,7 +74,7 @@ class InternetArchivesClient:
                 error=f"{e.__class__.__name__}: {e}",
             )
 
-    async def _get_url_snapshot(self, url: str) -> IACapture | None:
+    async def _get_url_snapshot(self: "InternetArchivesClient", url: str) -> IACapture | None:
         params = {
             "url": url,
             "output": "json",
@@ -94,7 +98,8 @@ class InternetArchivesClient:
 
                     return IACapture(**d)
 
-    async def search_for_url_snapshot(self, url: str) -> InternetArchivesURLMapping:
+    async def search_for_url_snapshot(self: "InternetArchivesClient", url: str) -> InternetArchivesURLMapping:
+        """Search for a single URL snapshot in the Internet Archive."""
         try:
             capture: IACapture | None = await self._get_url_snapshot(url)
         except Exception as e:
@@ -118,7 +123,7 @@ class InternetArchivesClient:
             error=None
         )
 
-    async def _save_url(self, url: str) -> int:
+    async def _save_url(self: "InternetArchivesClient", url: str) -> int:
         async with self.session.post(
             "http://web.archive.org/save",
             data={
@@ -133,7 +138,8 @@ class InternetArchivesClient:
             response.raise_for_status()
             return response.status
 
-    async def save_to_internet_archives(self, url: str) -> InternetArchivesSaveResponseInfo:
+    async def save_to_internet_archives(self: "InternetArchivesClient", url: str) -> InternetArchivesSaveResponseInfo:
+        """Save a URL to the Internet Archive."""
         try:
             _: int = await self._save_url(url)
         except Exception as e:

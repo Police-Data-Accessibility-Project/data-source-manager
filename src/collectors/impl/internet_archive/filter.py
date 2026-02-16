@@ -1,3 +1,4 @@
+"""Filtering utilities for Internet Archive CDX captures."""
 import re
 from urllib.parse import urlparse, urlencode, parse_qs
 
@@ -5,17 +6,20 @@ from src.external.internet_archives.models.capture import IACapture
 
 
 class InternetArchiveCDXFilter:
+    """Filter and deduplicate Internet Archive CDX captures."""
 
     @staticmethod
     def filter_by_mime_type(
         captures: list[IACapture], allowlist: list[str]
     ) -> list[IACapture]:
+        """Filter captures to only include allowed MIME types."""
         return [c for c in captures if c.mimetype in allowlist]
 
     @staticmethod
     def filter_by_url_patterns(
         captures: list[IACapture], exclude_patterns: list[str]
     ) -> list[IACapture]:
+        """Remove captures whose URLs match any exclude pattern."""
         compiled = [re.compile(p) for p in exclude_patterns]
         return [
             c for c in captures
@@ -40,6 +44,7 @@ class InternetArchiveCDXFilter:
 
     @staticmethod
     def deduplicate_by_url(captures: list[IACapture]) -> list[IACapture]:
+        """Deduplicate captures by normalized URL, keeping the latest."""
         seen: dict[str, IACapture] = {}
         for capture in captures:
             normalized = InternetArchiveCDXFilter._normalize_url(
@@ -56,6 +61,7 @@ class InternetArchiveCDXFilter:
         allowlist: list[str],
         exclude_patterns: list[str],
     ) -> list[IACapture]:
+        """Apply all filters: MIME type, URL patterns, and deduplication."""
         captures = InternetArchiveCDXFilter.filter_by_mime_type(
             captures, allowlist
         )

@@ -1,3 +1,4 @@
+"""Integration tests for the Internet Archive collector API endpoint."""
 import time
 from unittest import mock
 
@@ -14,13 +15,13 @@ MOCK_PATH = (
 )
 
 
-def _make_mock_crawler(results: list[InternetArchiveOutputDTO], messages: list[str] | None = None):
+def _make_mock_crawler(results: list[InternetArchiveOutputDTO], messages: list[str] | None = None) -> mock.MagicMock:
     """Create a mock InternetArchiveCrawler class with the given results."""
     mock_cls = mock.MagicMock()
     mock_instance = mock.MagicMock()
     mock_instance.results = results
 
-    async def mock_run():
+    async def mock_run() -> None:
         for msg in (messages or ["Crawling..."]):
             yield msg
 
@@ -50,7 +51,8 @@ CANNED_RESULTS = [
 ]
 
 
-def test_internet_archive_collector(api_test_helper: APITestHelper):
+def test_internet_archive_collector(api_test_helper: APITestHelper) -> None:
+    """Test the Internet Archive collector API endpoint end-to-end."""
     ath = api_test_helper
 
     mock_cls = _make_mock_crawler(
@@ -83,7 +85,8 @@ def test_internet_archive_collector(api_test_helper: APITestHelper):
         assert "ia_digest" in url_info.collector_metadata
 
 
-def test_internet_archive_collector_empty_domain(api_test_helper: APITestHelper):
+def test_internet_archive_collector_empty_domain(api_test_helper: APITestHelper) -> None:
+    """Test the collector with a domain that returns no results."""
     ath = api_test_helper
 
     mock_cls = _make_mock_crawler(
@@ -108,7 +111,8 @@ def test_internet_archive_collector_empty_domain(api_test_helper: APITestHelper)
     assert len(batch_urls.urls) == 0
 
 
-def test_internet_archive_collector_api_error(api_test_helper: APITestHelper):
+def test_internet_archive_collector_api_error(api_test_helper: APITestHelper) -> None:
+    """Test the collector when the CDX API returns an error."""
     ath = api_test_helper
 
     mock_cls = _make_mock_crawler(

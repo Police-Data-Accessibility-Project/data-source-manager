@@ -1,3 +1,4 @@
+"""Manual lifecycle test for the Internet Archive collector."""
 import asyncio
 from unittest.mock import MagicMock
 
@@ -13,7 +14,8 @@ from src.db.client.async_ import AsyncDatabaseClient
 
 
 @pytest.fixture
-def manual_async_core(adb_client_test):
+def manual_async_core(adb_client_test: AsyncDatabaseClient) -> AsyncCore:
+    """Create an AsyncCore instance for manual testing."""
     logger = AsyncCoreLogger(adb_client=adb_client_test)
     adb_client = AsyncDatabaseClient()
     core = AsyncCore(
@@ -30,7 +32,8 @@ def manual_async_core(adb_client_test):
 
 @pytest.mark.manual
 @pytest.mark.asyncio
-async def test_internet_archive_lifecycle(manual_async_core: AsyncCore):
+async def test_internet_archive_lifecycle(manual_async_core: AsyncCore) -> None:
+    """Test the full Internet Archive collector lifecycle against live APIs."""
     core = manual_async_core
 
     dto = InternetArchiveInputDTO(

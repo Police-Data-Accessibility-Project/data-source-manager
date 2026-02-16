@@ -1,3 +1,4 @@
+"""Input DTO for the Internet Archive collector."""
 from pydantic import BaseModel, Field
 
 
@@ -8,6 +9,8 @@ DEFAULT_EXCLUDE_PATTERNS = [
 
 
 class InternetArchiveInputDTO(BaseModel):
+    """Input parameters for the Internet Archive collector."""
+
     urls: list[str] = Field(
         description="Seed URLs to extract domains from",
         min_length=1,

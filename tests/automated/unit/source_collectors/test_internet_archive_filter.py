@@ -1,3 +1,4 @@
+"""Tests for the Internet Archive CDX filter."""
 from src.collectors.impl.internet_archive.filter import InternetArchiveCDXFilter
 from src.external.internet_archives.models.capture import IACapture
 
@@ -9,6 +10,7 @@ def _capture(
     digest: str = "abc123",
     length: int = 1000,
 ) -> IACapture:
+    """Create an IACapture for testing."""
     return IACapture(
         original=url,
         mimetype=mimetype,
@@ -19,8 +21,10 @@ def _capture(
 
 
 class TestFilterByMimeType:
+    """Tests for MIME type filtering."""
 
-    def test_keeps_allowed_types(self):
+    def test_keeps_allowed_types(self: "TestFilterByMimeType") -> None:
+        """Test that only allowed MIME types are kept."""
         captures = [
             _capture("http://example.com/page", mimetype="text/html"),
             _capture("http://example.com/style.css", mimetype="text/css"),
@@ -32,7 +36,8 @@ class TestFilterByMimeType:
         assert len(result) == 1
         assert result[0].original == "http://example.com/page"
 
-    def test_multiple_allowed_types(self):
+    def test_multiple_allowed_types(self: "TestFilterByMimeType") -> None:
+        """Test filtering with multiple allowed MIME types."""
         captures = [
             _capture("http://example.com/page", mimetype="text/html"),
             _capture("http://example.com/doc.pdf", mimetype="application/pdf"),
@@ -43,7 +48,8 @@ class TestFilterByMimeType:
         )
         assert len(result) == 2
 
-    def test_empty_captures(self):
+    def test_empty_captures(self: "TestFilterByMimeType") -> None:
+        """Test filtering an empty list returns empty."""
         result = InternetArchiveCDXFilter.filter_by_mime_type(
             [], ["text/html"]
         )
@@ -51,8 +57,10 @@ class TestFilterByMimeType:
 
 
 class TestFilterByURLPatterns:
+    """Tests for URL pattern exclusion filtering."""
 
-    def test_excludes_static_assets(self):
+    def test_excludes_static_assets(self: "TestFilterByURLPatterns") -> None:
+        """Test that static asset URLs are excluded."""
         captures = [
             _capture("http://example.com/page"),
             _capture("http://example.com/style.css"),
@@ -65,7 +73,8 @@ class TestFilterByURLPatterns:
         assert len(result) == 1
         assert result[0].original == "http://example.com/page"
 
-    def test_excludes_cms_paths(self):
+    def test_excludes_cms_paths(self: "TestFilterByURLPatterns") -> None:
+        """Test that CMS paths are excluded."""
         captures = [
             _capture("http://example.com/page"),
             _capture("http://example.com/wp-content/uploads/file.pdf"),
@@ -76,7 +85,8 @@ class TestFilterByURLPatterns:
         )
         assert len(result) == 1
 
-    def test_excludes_tracking_params(self):
+    def test_excludes_tracking_params(self: "TestFilterByURLPatterns") -> None:
+        """Test that tracking parameter URLs are excluded."""
         captures = [
             _capture("http://example.com/page"),
             _capture("http://example.com/page?utm_source=twitter"),
@@ -89,8 +99,10 @@ class TestFilterByURLPatterns:
 
 
 class TestDeduplicateByURL:
+    """Tests for URL deduplication."""
 
-    def test_keeps_latest_capture(self):
+    def test_keeps_latest_capture(self: "TestDeduplicateByURL") -> None:
+        """Test that the latest capture is kept when deduplicating."""
         captures = [
             _capture("http://example.com/page", timestamp=20230101000000),
             _capture("http://example.com/page", timestamp=20240101000000),
@@ -99,7 +111,8 @@ class TestDeduplicateByURL:
         assert len(result) == 1
         assert result[0].timestamp == 20240101000000
 
-    def test_normalizes_trailing_slash(self):
+    def test_normalizes_trailing_slash(self: "TestDeduplicateByURL") -> None:
+        """Test that trailing slashes are normalized."""
         captures = [
             _capture("http://example.com/page", timestamp=20230101000000),
             _capture("http://example.com/page/", timestamp=20240101000000),
@@ -107,7 +120,8 @@ class TestDeduplicateByURL:
         result = InternetArchiveCDXFilter.deduplicate_by_url(captures)
         assert len(result) == 1
 
-    def test_normalizes_case(self):
+    def test_normalizes_case(self: "TestDeduplicateByURL") -> None:
+        """Test that domain case is normalized."""
         captures = [
             _capture("http://Example.COM/page", timestamp=20230101000000),
             _capture("http://example.com/page", timestamp=20240101000000),
@@ -115,7 +129,8 @@ class TestDeduplicateByURL:
         result = InternetArchiveCDXFilter.deduplicate_by_url(captures)
         assert len(result) == 1
 
-    def test_normalizes_fragments_ignored(self):
+    def test_normalizes_fragments_ignored(self: "TestDeduplicateByURL") -> None:
+        """Test that URL fragments are ignored during deduplication."""
         captures = [
             _capture("http://example.com/page#section1"),
             _capture("http://example.com/page#section2"),
@@ -123,7 +138,8 @@ class TestDeduplicateByURL:
         result = InternetArchiveCDXFilter.deduplicate_by_url(captures)
         assert len(result) == 1
 
-    def test_sorts_query_params(self):
+    def test_sorts_query_params(self: "TestDeduplicateByURL") -> None:
+        """Test that query parameters are sorted for deduplication."""
         captures = [
             _capture(
                 "http://example.com/page?b=2&a=1", timestamp=20230101000000
@@ -137,8 +153,10 @@ class TestDeduplicateByURL:
 
 
 class TestFilterAll:
+    """Tests for the combined filter pipeline."""
 
-    def test_end_to_end(self):
+    def test_end_to_end(self: "TestFilterAll") -> None:
+        """Test that all filters are applied in sequence."""
         captures = [
             _capture("http://example.com/page", mimetype="text/html"),
             _capture("http://example.com/style.css", mimetype="text/css"),

@@ -1,3 +1,4 @@
+"""Tests for the Internet Archive crawler."""
 from unittest import mock
 
 import pytest
@@ -12,6 +13,7 @@ def _make_capture(
     timestamp: int = 20240101000000,
     mimetype: str = "text/html",
 ) -> IACapture:
+    """Create an IACapture for testing."""
     return IACapture(
         original=url,
         timestamp=timestamp,
@@ -22,7 +24,8 @@ def _make_capture(
 
 
 @pytest.fixture
-def mock_search_domain_urls():
+def mock_search_domain_urls() -> mock.MagicMock:
+    """Patch InternetArchivesClient.search_domain_urls."""
     mock_path = (
         "src.collectors.impl.internet_archive.crawler"
         ".InternetArchivesClient.search_domain_urls"
@@ -32,7 +35,8 @@ def mock_search_domain_urls():
 
 
 @pytest.fixture
-def mock_env():
+def mock_env() -> mock.MagicMock:
+    """Patch the Env class used by InternetArchivesClient."""
     mock_path = (
         "src.external.internet_archives.client.Env"
     )
@@ -44,7 +48,9 @@ def mock_env():
 
 
 @pytest.mark.asyncio
-async def test_domain_extraction(mock_search_domain_urls, mock_env):
+@pytest.mark.usefixtures("mock_env")
+async def test_domain_extraction(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that domains are correctly extracted from seed URLs."""
     mock_search_domain_urls.return_value = IADomainSearchResult(
         domain="example.gov", captures=[]
     )
@@ -59,7 +65,9 @@ async def test_domain_extraction(mock_search_domain_urls, mock_env):
 
 
 @pytest.mark.asyncio
-async def test_multiple_domains(mock_search_domain_urls, mock_env):
+@pytest.mark.usefixtures("mock_env")
+async def test_multiple_domains(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that multiple domains are searched independently."""
     mock_search_domain_urls.return_value = IADomainSearchResult(
         domain="test.gov", captures=[]
     )
@@ -75,7 +83,9 @@ async def test_multiple_domains(mock_search_domain_urls, mock_env):
 
 
 @pytest.mark.asyncio
-async def test_seed_url_exclusion(mock_search_domain_urls, mock_env):
+@pytest.mark.usefixtures("mock_env")
+async def test_seed_url_exclusion(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that seed URLs are excluded from results."""
     seed = "https://example.gov/police-data"
     mock_search_domain_urls.return_value = IADomainSearchResult(
         domain="example.gov",
@@ -94,7 +104,9 @@ async def test_seed_url_exclusion(mock_search_domain_urls, mock_env):
 
 
 @pytest.mark.asyncio
-async def test_filtering_applied(mock_search_domain_urls, mock_env):
+@pytest.mark.usefixtures("mock_env")
+async def test_filtering_applied(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that MIME type filtering is applied."""
     mock_search_domain_urls.return_value = IADomainSearchResult(
         domain="example.gov",
         captures=[
@@ -113,8 +125,10 @@ async def test_filtering_applied(mock_search_domain_urls, mock_env):
 
 
 @pytest.mark.asyncio
-async def test_error_handling_continues(mock_search_domain_urls, mock_env):
-    async def side_effect(domain, limit):
+@pytest.mark.usefixtures("mock_env")
+async def test_error_handling_continues(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that errors on one domain do not stop other domains."""
+    async def side_effect(domain: str, limit: int) -> IADomainSearchResult:  # noqa: U100
         if domain == "broken.gov":
             return IADomainSearchResult(
                 domain=domain, captures=[], error="ConnectionError: timeout"
@@ -138,7 +152,9 @@ async def test_error_handling_continues(mock_search_domain_urls, mock_env):
 
 
 @pytest.mark.asyncio
-async def test_archive_url_format(mock_search_domain_urls, mock_env):
+@pytest.mark.usefixtures("mock_env")
+async def test_archive_url_format(mock_search_domain_urls: mock.MagicMock) -> None:
+    """Test that archive URLs are correctly formatted."""
     mock_search_domain_urls.return_value = IADomainSearchResult(
         domain="example.gov",
         captures=[

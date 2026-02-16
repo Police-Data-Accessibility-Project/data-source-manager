@@ -1,3 +1,4 @@
+"""Preprocessor for Internet Archive collector output."""
 from typing import List
 
 from src.core.preprocessors.base import PreprocessorBase
@@ -6,8 +7,10 @@ from src.db.models.impl.url.core.pydantic.info import URLInfo
 
 
 class InternetArchivePreprocessor(PreprocessorBase):
+    """Convert Internet Archive collector output into URLInfo objects."""
 
-    def preprocess(self, data: dict) -> List[URLInfo]:
+    def preprocess(self: "InternetArchivePreprocessor", data: dict) -> List[URLInfo]:
+        """Transform raw collector data into a list of URLInfo objects."""
         url_infos = []
         for domain_result in data["results"]:
             for url_entry in domain_result["urls"]:

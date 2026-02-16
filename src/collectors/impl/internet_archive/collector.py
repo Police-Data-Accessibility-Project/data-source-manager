@@ -1,3 +1,4 @@
+"""Internet Archive collector implementation."""
 from src.collectors.impl.base import AsyncCollectorBase
 from src.collectors.enums import CollectorType
 from src.collectors.impl.internet_archive.crawler import InternetArchiveCrawler
@@ -6,10 +7,13 @@ from src.core.preprocessors.internet_archive import InternetArchivePreprocessor
 
 
 class InternetArchiveCollector(AsyncCollectorBase):
+    """Collector that crawls the Internet Archive for URLs."""
+
     collector_type = CollectorType.INTERNET_ARCHIVE
     preprocessor = InternetArchivePreprocessor
 
-    async def run_implementation(self) -> None:
+    async def run_implementation(self: "InternetArchiveCollector") -> None:
+        """Run the Internet Archive crawler and store results."""
         await self.log("Running Internet Archive Crawler...")
         dto: InternetArchiveInputDTO = self.dto
         crawler = InternetArchiveCrawler(

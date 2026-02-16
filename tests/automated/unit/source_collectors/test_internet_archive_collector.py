@@ -1,3 +1,4 @@
+"""Tests for the Internet Archive collector."""
 from unittest import mock
 
 import pytest
@@ -15,7 +16,8 @@ from src.db.models.impl.url.core.pydantic.info import URLInfo
 
 
 @pytest.fixture
-def mock_crawler():
+def mock_crawler() -> mock.MagicMock:
+    """Create a mock InternetArchiveCrawler with canned results."""
     mock_path = (
         "src.collectors.impl.internet_archive.collector"
         ".InternetArchiveCrawler"
@@ -42,7 +44,7 @@ def mock_crawler():
             )
         ]
 
-        async def mock_run():
+        async def mock_run() -> None:
             yield "Searching example.gov..."
             yield "Found 2 URLs"
 
@@ -52,7 +54,8 @@ def mock_crawler():
 
 
 @pytest.mark.asyncio
-async def test_internet_archive_collector(mock_crawler):
+async def test_internet_archive_collector(mock_crawler: mock.MagicMock) -> None:
+    """Test that the collector runs the crawler and preprocesses results."""
     collector = InternetArchiveCollector(
         batch_id=1,
         dto=InternetArchiveInputDTO(
