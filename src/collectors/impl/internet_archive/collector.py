@@ -10,7 +10,7 @@ class InternetArchiveCollector(AsyncCollectorBase):
     preprocessor = InternetArchivePreprocessor
 
     async def run_implementation(self) -> None:
-        print("Running Internet Archive Crawler...")
+        await self.log("Running Internet Archive Crawler...")
         dto: InternetArchiveInputDTO = self.dto
         crawler = InternetArchiveCrawler(
             urls=dto.urls,
