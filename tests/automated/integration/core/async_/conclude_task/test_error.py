@@ -1,6 +1,5 @@
 import pytest
 
-from src.core.enums import BatchStatus
 from src.core.tasks.url.enums import TaskOperatorOutcome
 from src.db.models.impl.task.enums import TaskStatus
 from tests.automated.integration.core.async_.conclude_task.helpers import setup_run_info

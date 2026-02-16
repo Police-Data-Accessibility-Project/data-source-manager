@@ -2,10 +2,10 @@ import pytest
 
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
 from src.db.models.impl.link.agency_batch.sqlalchemy import LinkAgencyBatch
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
 from tests.helpers.batch_creation_parameters.core import TestBatchCreationParameters
 from tests.helpers.batch_creation_parameters.url_creation_parameters import TestURLCreationParameters
 from tests.helpers.data_creator.core import DBDataCreator
@@ -49,14 +49,14 @@ async def test_batch_link_subtask(
     assert not await operator.meets_task_prerequisites()
     assert operator._subtask is None
 
-    subtasks: list[URLAutoAgencyIDSubtask] = await adb_client.get_all(URLAutoAgencyIDSubtask)
+    subtasks: list[AnnotationAgencyAutoSubtask] = await adb_client.get_all(AnnotationAgencyAutoSubtask)
     assert len(subtasks) == 2
-    subtask: URLAutoAgencyIDSubtask = subtasks[0]
+    subtask: AnnotationAgencyAutoSubtask = subtasks[0]
     assert subtask.type == AutoAgencyIDSubtaskType.BATCH_LINK
 
     assert subtask.agencies_found
 
-    suggestions: list[AgencyIDSubtaskSuggestion] = await adb_client.get_all(AgencyIDSubtaskSuggestion)
+    suggestions: list[AnnotationAgencyAutoSuggestion] = await adb_client.get_all(AnnotationAgencyAutoSuggestion)
     assert len(suggestions) == 2
 
     assert all(sugg.confidence == 80 for sugg in suggestions)

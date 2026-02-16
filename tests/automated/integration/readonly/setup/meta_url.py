@@ -1,4 +1,3 @@
-from src.collectors.enums import URLStatus
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.url.core.enums import URLSource
@@ -20,7 +19,6 @@ async def add_meta_url(
         collector_metadata={
             "url": "https://read-only-meta-url.com/"
         },
-        status=URLStatus.OK,
         source=URLSource.REDIRECT,
     )
     url_id: int = await adb_client.add(url, return_id=True)

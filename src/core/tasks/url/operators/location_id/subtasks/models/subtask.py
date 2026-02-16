@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
-from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
+from src.db.models.impl.annotation.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
 
 
 class AutoLocationIDSubtaskData(BaseModel):

@@ -1,29 +1,15 @@
-from sqlalchemy import case, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.functions import coalesce, func
+from sqlalchemy.sql.functions import func
 
 from src.api.endpoints.metrics.batches.aggregated.dto import GetMetricsBatchesAggregatedResponseDTO, \
     GetMetricsBatchesAggregatedInnerResponseDTO
-from src.api.endpoints.metrics.batches.aggregated.query.all_urls.query import CountAllURLsByBatchStrategyQueryBuilder
-from src.api.endpoints.metrics.batches.aggregated.query.batch_status_.query import \
-    BatchStatusByBatchStrategyQueryBuilder
 from src.api.endpoints.metrics.batches.aggregated.query.requester_.requester import \
     GetBatchesAggregatedMetricsQueryRequester
-from src.api.endpoints.metrics.batches.aggregated.query.submitted_.query import \
-    CountSubmittedByBatchStrategyQueryBuilder
-from src.api.endpoints.metrics.batches.aggregated.query.url_error.query import URLErrorByBatchStrategyQueryBuilder
-from src.api.endpoints.metrics.batches.aggregated.query.validated_.query import \
-    ValidatedURLCountByBatchStrategyQueryBuilder
-from src.collectors.enums import URLStatus, CollectorType
+from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
-from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.statement_composer import StatementComposer
 
 
 class GetBatchesAggregatedMetricsQueryBuilder(QueryBuilderBase):

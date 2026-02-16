@@ -9,7 +9,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.templates.subta
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 
 
 class AgencyIdentificationTaskOperator(

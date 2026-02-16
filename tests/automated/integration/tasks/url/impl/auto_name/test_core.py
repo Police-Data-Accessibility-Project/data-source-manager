@@ -1,8 +1,8 @@
 import pytest
 
 from src.core.tasks.url.operators.auto_name.core import AutoNameURLTaskOperator
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.run import run_task_and_confirm_success
 
@@ -31,9 +31,9 @@ async def test_core(
     assert not await operator.meets_task_prerequisites()
 
     # Confirm suggestion was added
-    suggestions: list[URLNameSuggestion] = await db_data_creator.adb_client.get_all(URLNameSuggestion)
+    suggestions: list[AnnotationNameSuggestion] = await db_data_creator.adb_client.get_all(AnnotationNameSuggestion)
     assert len(suggestions) == 1
-    suggestion: URLNameSuggestion = suggestions[0]
+    suggestion: AnnotationNameSuggestion = suggestions[0]
     assert suggestion.url_id == url_id
     assert suggestion.suggestion == "test html content"
     assert suggestion.source == NameSuggestionSource.HTML_METADATA_TITLE

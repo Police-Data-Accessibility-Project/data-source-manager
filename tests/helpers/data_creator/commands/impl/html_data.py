@@ -1,11 +1,9 @@
-from src.db.dtos.url.html_content import URLHTMLContentInfo
-from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.dtos.url.raw_html import RawHTMLInfo
+from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.scrape_info.enums import ScrapeStatus
 from src.db.models.impl.url.scrape_info.pydantic import URLScrapeInfoInsertModel
 from tests.helpers.data_creator.commands.base import DBDataCreatorCommandBase
-from tests.helpers.data_creator.models.clients import DBDataCreatorClientContainer
 
 
 class HTMLDataCreatorCommand(DBDataCreatorCommandBase):

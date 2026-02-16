@@ -3,7 +3,7 @@ import pytest
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from tests.helpers.batch_creation_parameters.enums import URLCreationEnum
 from tests.helpers.data_creator.core import DBDataCreator
 
@@ -52,7 +52,7 @@ async def test_get_batch_summaries_pending_url_filter(api_test_helper):
 
     # Test filter for pending URLs and only retrieve the second batch
     pending_urls_results = ath.request_validator.get_batch_statuses(
-        status=BatchURLStatusEnum.HAS_UNLABELED_URLS
+        status=BatchURLStatusViewEnum.HAS_UNLABELED_URLS
     )
 
     assert len(pending_urls_results.results) == 1

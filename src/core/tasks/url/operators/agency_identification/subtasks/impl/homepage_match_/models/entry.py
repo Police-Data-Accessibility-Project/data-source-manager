@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.db.models.impl.url.suggestion.agency.subtask.enum import SubtaskDetailCode
+from src.db.models.impl.annotation.agency.auto.subtask.enum import SubtaskDetailCode
 
 
 class GetHomepageMatchParams(BaseModel):

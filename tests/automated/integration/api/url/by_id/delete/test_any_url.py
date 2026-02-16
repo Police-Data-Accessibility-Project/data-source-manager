@@ -7,6 +7,25 @@ from src.core.enums import RecordType
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.enums import ChangeLogOperationType
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType, SubtaskDetailCode
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationNameSuggestion
+from src.db.models.impl.annotation.name.user.sqlalchemy import AnnotationNameUserEndorsement
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.change_log import ChangeLog
 from src.db.models.impl.flag.checked_for_ia.sqlalchemy import FlagURLCheckedForInternetArchives
 from src.db.models.impl.flag.root_url.sqlalchemy import FlagRootURL
@@ -15,7 +34,6 @@ from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
 from src.db.models.impl.link.urls_root_url.sqlalchemy import LinkURLRootURL
-from src.db.models.impl.link.user_name_suggestion.sqlalchemy import LinkUserNameSuggestion
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
 from src.db.models.impl.link.user_suggestion_not_found.location.sqlalchemy import LinkUserSuggestionLocationNotFound
 from src.db.models.impl.link.user_suggestion_not_found.users_submitted_url.sqlalchemy import LinkUserSubmittedURL
@@ -26,24 +44,6 @@ from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.internet_archives.save.sqlalchemy import URLInternetArchivesSaveMetadata
 from src.db.models.impl.url.screenshot.sqlalchemy import URLScreenshot
-from src.db.models.impl.url.suggestion.agency.subtask.enum import SubtaskDetailCode, AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.sqlalchemy import URLNameSuggestion
-from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.queries.implementations.anonymous_session import MakeAnonymousSessionQueryBuilder
@@ -128,34 +128,34 @@ async def _check_results(
         # ANNOTATIONS
         ## AUTO
         ### Agency
-        URLAutoAgencyIDSubtask,
-        AgencyIDSubtaskSuggestion,
+        AnnotationAgencyAutoSubtask,
+        AnnotationAgencyAutoSuggestion,
         ### Record Type
-        AutoRecordTypeSuggestion,
+        AnnotationAutoRecordType,
         ### URL Type
-        AutoRelevantSuggestion,
+        AnnotationAutoURLType,
         ### Location
-        AutoLocationIDSubtask,
-        LocationIDSubtaskSuggestion,
+        AnnotationLocationAutoSubtask,
+        AnnotationLocationAutoSuggestion,
         ## USER
         ### Agency
-        UserURLAgencySuggestion,
+        AnnotationAgencyUser,
         ### Record Type
-        UserRecordTypeSuggestion,
+        AnnotationRecordTypeUser,
         ### URL Type
-        UserURLTypeSuggestion,
+        AnnotationURLTypeUser,
         ### Location
-        UserLocationSuggestion,
-        URLNameSuggestion,
+        AnnotationLocationUser,
+        AnnotationNameSuggestion,
         ## ANONYMOUS
         ### Agency
-        AnonymousAnnotationAgency,
+        AnnotationAgencyAnon,
         ### Location
-        AnonymousAnnotationLocation,
+        AnnotationLocationAnon,
         ### Record Type
-        AnonymousAnnotationRecordType,
+        AnnotationRecordTypeAnon,
         ### URL Type
-        AnonymousAnnotationURLType,
+        AnnotationURLTypeAnon,
     ]
     for model in models:
         assert await dbc.get_all(model) == []
@@ -316,7 +316,7 @@ async def _setup(
     ### Agency
     #### Subtask
     agency_subtask_id: int = await dbc.add(
-        URLAutoAgencyIDSubtask(
+        AnnotationAgencyAutoSubtask(
             url_id=url.url_id,
             task_id=task_id,
             agencies_found=True,
@@ -327,7 +327,7 @@ async def _setup(
     )
     ### Suggestion
     await dbc.add(
-        AgencyIDSubtaskSuggestion(
+        AnnotationAgencyAutoSuggestion(
             subtask_id=agency_subtask_id,
             agency_id=agency_id,
             confidence=60
@@ -335,14 +335,14 @@ async def _setup(
     )
     ### Record Type
     await dbc.add(
-        AutoRecordTypeSuggestion(
+        AnnotationAutoRecordType(
             url_id=url.url_id,
             record_type=RecordType.BOOKING_REPORTS.value
         )
     )
     ### Relevant
     await dbc.add(
-        AutoRelevantSuggestion(
+        AnnotationAutoURLType(
             url_id=url.url_id,
             relevant=True,
             confidence=0.5,
@@ -352,7 +352,7 @@ async def _setup(
     ### Location
     #### Subtask
     location_subtask_id: int = await dbc.add(
-        AutoLocationIDSubtask(
+        AnnotationLocationAutoSubtask(
             url_id=url.url_id,
             task_id=task_id,
             locations_found=True,
@@ -362,7 +362,7 @@ async def _setup(
     )
     #### Suggestion
     await dbc.add(
-        LocationIDSubtaskSuggestion(
+        AnnotationLocationAutoSuggestion(
             subtask_id=location_subtask_id,
             location_id=pittsburgh_id,
             confidence=50
@@ -371,7 +371,7 @@ async def _setup(
     ## USER
     ### Agency
     await dbc.add(
-        UserURLAgencySuggestion(
+        AnnotationAgencyUser(
             url_id=url.url_id,
             user_id=1,
             agency_id=agency_id,
@@ -380,7 +380,7 @@ async def _setup(
     )
     ### Record Type
     await dbc.add(
-        UserRecordTypeSuggestion(
+        AnnotationRecordTypeUser(
             url_id=url.url_id,
             user_id=1,
             record_type=RecordType.BOOKING_REPORTS.value,
@@ -388,7 +388,7 @@ async def _setup(
     )
     ### URL Type
     await dbc.add(
-        UserURLTypeSuggestion(
+        AnnotationURLTypeUser(
             url_id=url.url_id,
             type=URLType.INDIVIDUAL_RECORD,
             user_id=1
@@ -396,7 +396,7 @@ async def _setup(
     )
     ### Location
     await dbc.add(
-        UserLocationSuggestion(
+        AnnotationLocationUser(
             url_id=url.url_id,
             location_id=pittsburgh_id,
             user_id=1,
@@ -404,7 +404,7 @@ async def _setup(
     )
     ### Name
     name_suggestion_id: int = await dbc.add(
-        URLNameSuggestion(
+        AnnotationNameSuggestion(
             url_id=url.url_id,
             suggestion="Test Name",
             source=NameSuggestionSource.USER,
@@ -412,7 +412,7 @@ async def _setup(
         return_id=True
     )
     await dbc.add(
-        LinkUserNameSuggestion(
+        AnnotationNameUserEndorsement(
             suggestion_id=name_suggestion_id,
             user_id=1,
         )
@@ -423,25 +423,25 @@ async def _setup(
     ## ANONYMOUS
     for model in [
         ### Agency
-        AnonymousAnnotationAgency(
+        AnnotationAgencyAnon(
             url_id=url.url_id,
             agency_id=agency_id,
             session_id=session_id,
         ),
         ### Record Type
-        AnonymousAnnotationRecordType(
+        AnnotationRecordTypeAnon(
             url_id=url.url_id,
             record_type=RecordType.BOOKING_REPORTS.value,
             session_id=session_id,
         ),
         ### URL Type
-        AnonymousAnnotationURLType(
+        AnnotationURLTypeAnon(
             url_id=url.url_id,
             url_type=URLType.INDIVIDUAL_RECORD,
             session_id=session_id,
         ),
         ### Location
-        AnonymousAnnotationLocation(
+        AnnotationLocationAnon(
             url_id=url.url_id,
             location_id=pittsburgh_id,
             session_id=session_id

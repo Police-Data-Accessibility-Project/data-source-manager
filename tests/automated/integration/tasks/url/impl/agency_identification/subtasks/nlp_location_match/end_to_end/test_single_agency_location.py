@@ -2,9 +2,9 @@ import pytest
 
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
 from tests.helpers.data_creator.core import DBDataCreator
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -59,18 +59,18 @@ async def test_single_agency_location(
     assert not await operator.meets_task_prerequisites()
 
     # Check for presence of subtask
-    subtasks: list[URLAutoAgencyIDSubtask] = await adb_client.get_all(URLAutoAgencyIDSubtask)
+    subtasks: list[AnnotationAgencyAutoSubtask] = await adb_client.get_all(AnnotationAgencyAutoSubtask)
     assert len(subtasks) == 1
-    subtask: URLAutoAgencyIDSubtask = subtasks[0]
+    subtask: AnnotationAgencyAutoSubtask = subtasks[0]
     assert subtask.type == AutoAgencyIDSubtaskType.NLP_LOCATION_MATCH
 
     # Confirm subtask lists agencies found
     assert subtask.agencies_found
 
     # Confirm single agency suggestion in database
-    suggestions: list[AgencyIDSubtaskSuggestion] = await adb_client.get_all(AgencyIDSubtaskSuggestion)
+    suggestions: list[AnnotationAgencyAutoSuggestion] = await adb_client.get_all(AnnotationAgencyAutoSuggestion)
     assert len(suggestions) == 1
 
     # Confirm confidence of agency suggestion equal to location suggestion
-    suggestion: AgencyIDSubtaskSuggestion = suggestions[0]
+    suggestion: AnnotationAgencyAutoSuggestion = suggestions[0]
     assert suggestion.confidence == 68

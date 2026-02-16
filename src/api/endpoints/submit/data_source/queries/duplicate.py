@@ -8,6 +8,7 @@ from src.api.endpoints.submit.data_source.models.response.duplicate import \
     SubmitDataSourceURLDuplicateSubmissionResponse
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
 from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -29,12 +30,16 @@ class GetDataSourceDuplicateQueryBuilder(QueryBuilderBase):
         query = (
             select(
                 URL.id,
-                URL.status,
+                URLStatusMaterializedView.status,
                 FlagURLValidated.type
             )
             .outerjoin(
                 FlagURLValidated,
                 FlagURLValidated.url_id == URL.id
+            )
+            .outerjoin(
+                URLStatusMaterializedView,
+                URLStatusMaterializedView.url_id == URL.id
             )
             .where(
                 URL.url == self.url
@@ -48,7 +53,7 @@ class GetDataSourceDuplicateQueryBuilder(QueryBuilderBase):
         model = SubmitDataSourceURLDuplicateSubmissionResponse(
             message="Duplicate URL found",
             url_id=mapping[URL.id],
-            url_status=mapping[URL.status],
+            url_status=mapping[URLStatusMaterializedView.status],
             url_type=mapping[FlagURLValidated.type]
         )
         raise HTTPException(

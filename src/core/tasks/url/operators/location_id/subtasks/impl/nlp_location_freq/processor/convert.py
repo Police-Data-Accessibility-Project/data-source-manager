@@ -17,8 +17,8 @@ from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.pr
     SearchSimilarLocationsResponse
 from src.core.tasks.url.operators.location_id.subtasks.models.subtask import AutoLocationIDSubtaskData
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
 
 
 def convert_invalid_url_nlp_mappings_to_subtask_data_list(

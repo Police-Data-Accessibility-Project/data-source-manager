@@ -5,8 +5,8 @@ from src.core.tasks.url.operators.location_id.subtasks.models.subtask import Aut
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 from src.core.tasks.url.operators.location_id.subtasks.templates.subtask import LocationIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
 
 
 class LocationBatchLinkSubtaskOperator(LocationIDSubtaskOperatorBase):

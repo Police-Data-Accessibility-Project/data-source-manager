@@ -1,8 +1,8 @@
 from sqlalchemy import ColumnElement, exists
 
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
 
 
 def get_exists_subtask_query(
@@ -11,8 +11,8 @@ def get_exists_subtask_query(
     return (
         exists()
         .where(
-            URLAutoAgencyIDSubtask.url_id == URL.id,
-            URLAutoAgencyIDSubtask.type == subtask_type,
+            AnnotationAgencyAutoSubtask.url_id == URL.id,
+            AnnotationAgencyAutoSubtask.type == subtask_type,
         )
         .label("subtask_entry_exists")
     )

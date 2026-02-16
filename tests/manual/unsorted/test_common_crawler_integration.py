@@ -1,10 +1,7 @@
 import csv
-import datetime
-import json
 import os
 import shutil
 import tempfile
-from unittest.mock import patch
 
 import pytest
 from common_crawler.cache import CommonCrawlerCacheManager

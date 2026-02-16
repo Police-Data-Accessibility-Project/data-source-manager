@@ -1,7 +1,7 @@
 import pytest
 
-from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.core.tasks.url.operators.record_type.llm_api.record_classifier.deepseek import DeepSeekRecordClassifier
+from src.db.dtos.url.html_content import URLHTMLContentInfo
 
 
 @pytest.mark.asyncio

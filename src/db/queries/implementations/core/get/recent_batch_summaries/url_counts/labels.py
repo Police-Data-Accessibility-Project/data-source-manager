@@ -11,6 +11,5 @@ class URLCountsLabels(LabelsBase):
     submitted: str = "count_submitted"
     not_relevant: str = "count_not_relevant"
     error: str = "count_error"
-    duplicate: str = "count_duplicate"
 
 

@@ -1,6 +1,5 @@
 from sqlalchemy import select, func
 
-from src.collectors.enums import URLStatus
 from src.db.helpers.query import exists_url
 from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL

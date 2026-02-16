@@ -11,7 +11,7 @@ from src.api.endpoints.metrics.urls.aggregated.query.subqueries.url_type import 
 from src.core.enums import RecordType
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.views.url_status.enums import URLStatusViewEnum
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 
 

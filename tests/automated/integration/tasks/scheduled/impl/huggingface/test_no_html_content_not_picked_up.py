@@ -3,7 +3,6 @@ import pytest
 from src.core.enums import RecordType
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
-from src.core.tasks.scheduled.impl.huggingface.queries.get.enums import RecordTypeCoarse
 from src.db.client.async_ import AsyncDatabaseClient
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.check import check_not_called
 from tests.automated.integration.tasks.scheduled.impl.huggingface.setup.enums import \

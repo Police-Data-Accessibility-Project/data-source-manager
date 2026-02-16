@@ -31,7 +31,7 @@ from src.core.tasks.url.manager import TaskManager
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
 from src.db.models.impl.batch.pydantic.info import BatchInfo
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 
 
 class AsyncCore:
@@ -81,7 +81,7 @@ class AsyncCore:
     async def get_batch_statuses(
             self,
             collector_type: CollectorType | None,
-            status: BatchURLStatusEnum | None,
+            status: BatchURLStatusViewEnum | None,
             page: int
     ) -> GetBatchSummariesResponse:
         results = await self.adb_client.get_batch_summaries(

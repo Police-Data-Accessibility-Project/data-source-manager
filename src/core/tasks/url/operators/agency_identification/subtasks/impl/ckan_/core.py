@@ -13,7 +13,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.queries.match_a
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import \
     AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 from src.external.pdap.client import PDAPClient
 
 

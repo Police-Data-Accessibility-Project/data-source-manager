@@ -1,7 +1,7 @@
 import pytest
 
 from src.core.tasks.url.operators.location_id.core import LocationIdentificationTaskOperator
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
 from tests.helpers.data_creator.core import DBDataCreator
 
 

@@ -1,4 +1,4 @@
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 
 # Determines priority of subtasks, all else being equal.
 SUBTASK_HIERARCHY: list[AutoAgencyIDSubtaskType] = [

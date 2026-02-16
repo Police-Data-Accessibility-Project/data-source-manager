@@ -2,8 +2,8 @@ import pytest
 
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
 from src.core.enums import SuggestionType
-from tests.helpers.setup.annotation.core import setup_for_get_next_url_for_annotation
 from tests.helpers.data_creator.core import DBDataCreator
+from tests.helpers.setup.annotation.core import setup_for_get_next_url_for_annotation
 
 
 @pytest.mark.asyncio

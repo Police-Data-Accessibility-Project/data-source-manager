@@ -8,7 +8,7 @@ from src.core.tasks.url.operators.location_id.subtasks.queries.survey.queries.co
 from src.core.tasks.url.operators.location_id.subtasks.templates.subtask import LocationIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
 
 
 class LocationIdentificationTaskOperator(

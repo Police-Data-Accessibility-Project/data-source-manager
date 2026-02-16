@@ -8,10 +8,11 @@ from src.api.endpoints.annotate.all.get.queries._shared.sort import sort_suggest
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
 from src.db.models.impl.link.user_suggestion_not_found.agency.sqlalchemy import LinkUserSuggestionAgencyNotFound
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
 from src.db.templates.requester import RequesterBase
 
 
@@ -36,10 +37,13 @@ class GetAgencySuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     exists_url(
-                        UserURLAgencySuggestion
+                        AnnotationAgencyUser
                     ),
                     exists_url(
-                        URLAutoAgencyIDSubtask
+                        AnnotationAgencyAutoSubtask
+                    ),
+                    exists_url(
+                        AnnotationAgencyAnon
                     )
                 )
             )
@@ -49,34 +53,48 @@ class GetAgencySuggestionsRequester(RequesterBase):
         # Number of users who suggested each agency
         user_suggestions_cte = (
             select(
-                UserURLAgencySuggestion.url_id,
-                UserURLAgencySuggestion.agency_id,
-                func.count(UserURLAgencySuggestion.user_id).label('user_count')
+                AnnotationAgencyUser.url_id,
+                AnnotationAgencyUser.agency_id,
+                func.count(AnnotationAgencyUser.user_id).label('user_count')
             )
             .group_by(
-                UserURLAgencySuggestion.agency_id,
-                UserURLAgencySuggestion.url_id,
+                AnnotationAgencyUser.agency_id,
+                AnnotationAgencyUser.url_id,
             )
             .cte("user_suggestions")
+        )
+
+        # Number of anon users who suggested each agency
+        anon_suggestions_cte = (
+            select(
+                AnnotationAgencyAnon.url_id,
+                AnnotationAgencyAnon.agency_id,
+                func.count(AnnotationAgencyAnon.session_id).label('anon_count')
+            )
+            .group_by(
+                AnnotationAgencyAnon.agency_id,
+                AnnotationAgencyAnon.url_id,
+            )
+            .cte("anon_suggestions")
         )
 
         # Maximum confidence of robo annotation, if any
         robo_suggestions_cte = (
             select(
-                URLAutoAgencyIDSubtask.url_id,
+                AnnotationAgencyAutoSubtask.url_id,
                 Agency.id.label("agency_id"),
-                func.max(AgencyIDSubtaskSuggestion.confidence).label('robo_confidence')
+                func.max(AnnotationAgencyAutoSuggestion.confidence).label('robo_confidence')
             )
             .join(
-                AgencyIDSubtaskSuggestion,
-                AgencyIDSubtaskSuggestion.subtask_id == URLAutoAgencyIDSubtask.id
+                AnnotationAgencyAutoSuggestion,
+                AnnotationAgencyAutoSuggestion.subtask_id == AnnotationAgencyAutoSubtask.id
             )
             .join(
                 Agency,
-                Agency.id == AgencyIDSubtaskSuggestion.agency_id
+                Agency.id == AnnotationAgencyAutoSuggestion.agency_id
             )
             .group_by(
-                URLAutoAgencyIDSubtask.url_id,
+                AnnotationAgencyAutoSubtask.url_id,
                 Agency.id
             )
             .cte("robo_suggestions")
@@ -88,6 +106,7 @@ class GetAgencySuggestionsRequester(RequesterBase):
                 Agency.name.label("display_name"),
                 func.coalesce(user_suggestions_cte.c.user_count, 0).label('user_count'),
                 func.coalesce(robo_suggestions_cte.c.robo_confidence, 0).label('robo_confidence'),
+                func.coalesce(anon_suggestions_cte.c.anon_count, 0).label('anon_count'),
             )
             .join(
                 Agency,
@@ -101,6 +120,13 @@ class GetAgencySuggestionsRequester(RequesterBase):
                 )
             )
             .outerjoin(
+                anon_suggestions_cte,
+                and_(
+                    anon_suggestions_cte.c.url_id == self.url_id,
+                    anon_suggestions_cte.c.agency_id == Agency.id
+                )
+            )
+            .outerjoin(
                 robo_suggestions_cte,
                 and_(
                     robo_suggestions_cte.c.url_id == self.url_id,
@@ -110,7 +136,8 @@ class GetAgencySuggestionsRequester(RequesterBase):
             .where(
                 or_(
                     user_suggestions_cte.c.user_count > 0,
-                    robo_suggestions_cte.c.robo_confidence > 0
+                    robo_suggestions_cte.c.robo_confidence > 0,
+                    anon_suggestions_cte.c.anon_count > 0
                 )
             )
         )
@@ -119,7 +146,10 @@ class GetAgencySuggestionsRequester(RequesterBase):
         mappings: Sequence[RowMapping] = await self.mappings(joined_suggestions_query)
         suggestions: list[SuggestionModel] = [
             SuggestionModel(
-                **mapping
+                id=mapping["id"],
+                display_name=mapping["display_name"],
+                user_count=mapping['user_count'] + (mapping['anon_count'] // 2),
+                robo_confidence=mapping["robo_confidence"]
             )
             for mapping in mappings
         ]

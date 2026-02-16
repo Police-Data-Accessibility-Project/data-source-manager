@@ -1,41 +1,55 @@
-This is a multi-language repo containing scripts or tools for identifying and cataloguing Data Sources based on their URL and HTML content.
+# Data Source Manager
 
-# Index
+A FastAPI application for identifying and cataloguing police data sources. Part of the [Police Data Accessibility Project](https://pdap.io) (PDAP).
 
-name | description of purpose
---- | ---
-.github/workflows | Scheduling and automation
-agency_identifier | Matches URLs with an agency from the PDAP database
-annotation_pipeline | Automated pipeline for generating training data in our ML data source identification models. Manages common crawl, HTML tag collection, and Label Studio import/export
-html_tag_collector | Collects HTML header, meta, and title tags and appends them to a JSON file. The idea is to make a richer dataset for algorithm training and data labeling.
-identification_pipeline.py | The core python script uniting this modular pipeline. More details below.
-llm_api_logic | Scripts for accessing the openai API on PDAP's shared account
-source_collectors| Tools for extracting metadata from different sources, including CKAN data portals and Common Crawler
-collector_db | Database for storing data from source collectors
-collector_manager | A module which provides a unified interface for interacting with source collectors and relevant data
-core | A module which integrates other components, such as collector_manager and collector_db
-api | API for interacting with collector_manager, core, and collector_db
-local_database | Resources for setting up a test database for local development
-security_manager| A module which provides a unified interface for interacting with authentication and authorization |
-tests | Unit and integration tests |
-util | various utility functions |
+The Source Manager collects URLs from various sources, enriches them with metadata using automated tasks and ML models, supports human annotation for validation, and synchronizes approved data sources to the [Data Sources App](https://data-sources.pdap.io/api).
 
-## Installation
+## Quick Start
 
-```
+```bash
+# Install dependencies
 uv sync
+
+# Start the local database
+cd local_database && docker compose up -d && cd ..
+
+# Create a .env file (see ENV.md for all variables)
+# At minimum, set the POSTGRES_* variables to match local_database defaults.
+
+# Run the app
+fastapi dev main.py
 ```
 
-## How to use
+Then open `http://localhost:8000/api` for the interactive API docs.
 
-1. Create an .env file in this directory following the instructions in `ENV.md`
-   1. If necessary, start up the database using `docker compose up -d` while in the `local_database` directory
-2. Run `fastapi dev main.py` to start up the fast API server
-3. In a browser, navigate to `http://localhost:8000/docs` to see the full list of API endpoints
+Note: accessing API endpoints requires a valid Bearer token from the Data Sources API.
 
-Note that to access API endpoints, you will need to have a valid Bearer Token from the Data Sources API at `https://data-sources.pdap.io/api`
+## Documentation
 
-# Contributing
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/architecture.md) | System design, module structure, task system, data flow |
+| [API Reference](docs/api.md) | All 65 endpoints across 15 route groups |
+| [Development Guide](docs/development.md) | Local setup, environment variables, common workflows |
+| [Testing Guide](docs/testing.md) | Running tests, CI pipeline, writing new tests |
+| [Deployment](docs/deployment.md) | Docker, Alembic migrations, DS App synchronization |
+| [Collectors](docs/collectors.md) | Collector architecture and how to build new ones |
+| [Environment Variables](ENV.md) | Full reference for all env vars and feature flags |
+
+## Project Structure
+
+```
+src/
+├── api/            # FastAPI routers and endpoint logic
+├── core/           # Integration layer and task system
+├── db/             # SQLAlchemy models, async DB client, queries
+├── collectors/     # Pluggable URL collection strategies
+├── external/       # Clients for external services (HuggingFace, PDAP, etc.)
+├── security/       # JWT auth and permissions
+└── util/           # Shared helpers
+```
+
+## Contributing
 
 Thank you for your interest in contributing to this project! Please follow these guidelines:
 
@@ -43,184 +57,8 @@ Thank you for your interest in contributing to this project! Please follow these
 - If you want to work on something, create an issue first so the broader community can discuss it.
 - If you make a utility, script, app, or other useful bit of code: put it in a top-level directory with an appropriate name and dedicated README and add it to the index.
 
-# Testing
+## Code Quality
 
-Note that prior to running tests, you need to install [Docker](https://docs.docker.com/get-started/get-docker/) and have the Docker engine running.
+Docstrings and type hints are checked via a GitHub Action (`python_checks.yml`) using [pydocstyle](https://www.pydocstyle.org/en/stable/) and [mypy](https://mypy-lang.org/). These produce advisory PR comments and do *not* block merges.
 
-Tests can be run by spinning up the `docker-compose-test.yml` file in the root directory. This will start a two-container setup, consisting of the FastAPI Web App and a clean Postgres Database. 
-
-This can be done via the following command:
-
-```bash
-docker compose up -d
-```
-
-Following that, you will need to set up the uvicorn server using the following command:
-
-```bash
-docker exec data-source-identification-app-1 uvicorn api.main:app --host 0.0.0.0 --port 80
-```
-
-Note that while the container may mention the web app running on `0.0.0.0:8000`, the actual host may be `127.0.0.1:8000`.
-
-To access the API documentation, visit `http://{host}:8000/docs`.
-
-To run tests on the container, run:
-
-```bash
-docker exec data-source-identification-app-1 pytest /app/tests/automated
-```
-
-Be sure to inspect the `docker-compose.yml` file in the root directory -- some environment variables are dependant upon the Operating System you are using.
-
-# Diagrams
-
-## Identification pipeline plan
-
-```mermaid
-flowchart TD
-    SourceCollectors["**Source Collectors:** scripts for creating batches of potentially useful URLs using different strategies"]
-    Identifier["Batches are prepared for labeling by automatically collecting metadata and identifying low-hanging fruit properties"]
-    SourceCollectorLabeling["Human labeling of missing or uncertain metadata takes place in Source Collector Retool app"]
-    SourceCollectorReview["Human Final Review of the labeled sources, for submission or discard, in Retool"]
-    API["Submitting sources to the Data Sources API when they are Relevant and have an **Agency, Record Type, and Name**"]
-
-    SourceCollectors --> Identifier
-    Identifier --> SourceCollectorLabeling
-    SourceCollectorLabeling --> SourceCollectorReview
-    SourceCollectorReview --> API
-    API --> Search["Allowing users to search for data and browse maps"]
-    Search --> Sentiment["Capturing user sentiment and overall database utility"]
-    API --> MLModels["Improving ML metadata labelers: relevance, agency, record type, etc"]
-    API --> Missingness["Documenting data we have searched for and found to be missing"]
-    Missingness --> Maps["Mapping our progress and the overall state of data access"]
-
-    %% Default class for black stroke
-    classDef default fill:#fffbfa,stroke:#000,stroke-width:1px,color:#000;
-
-    %% Custom styles
-    class API gold;
-    class Search lightgold;
-    class MLModels,Missingness lightergold;
-
-    %% Define specific classes
-    classDef gray fill:#bfc0c0
-    classDef gold fill:#d5a23c
-    classDef lightgold fill:#fbd597
-    classDef lightergold fill:#fdf0dd
-    classDef byzantium fill:#dfd6de
-```
-
-## Training models by batching and annotating URLs
-
-```mermaid
-%% Here's a guide to mermaid syntax: https://mermaid.js.org/syntax/flowchart.html
-
-sequenceDiagram
-
-participant HF as Hugging Face
-participant GH as GitHub
-participant SC as Source Collector app
-participant PDAP as PDAP API
-
-loop create batches of URLs <br/>for human labeling
-  SC ->> SC: Crawl for a new batch<br/> of URLs with common_crawler<br/> or other methods
-  SC ->> SC: Add metadata to each batch<br/> with source_tag_collector
-  SC ->> SC: Add labeling tasks in <br/> the Source Collector app
-
-loop annotate URLs
-  SC ->> SC: Users label using<br/>Retool interface
-  SC ->> SC: Reviewers finalize <br/> and submit labels
-end
-
-loop update training data <br/> with new annotations
-  SC ->> SC: Check for completed <br/> annotation tasks
-  SC -->> PDAP: Submit labeled URLs to the app
-  SC ->> HF: Write all annotations to <br/> training-urls dataset
-  SC ->> SC: maintain batch status
-end
-
-loop model training
-  HF ->> HF: retrain ML models with <br/>updated data using <br/>trainer in hugging_face
-end
-
-end
-```
-
-# Docstring and Type Checking
-
-Docstrings and Type Checking are checked using the [pydocstyle](https://www.pydocstyle.org/en/stable/) and [mypy](https://mypy-lang.org/)
-modules, respectively. When making a pull request, a Github Action (`python_checks.yml`) will run and, 
-if it detects any missing docstrings or type hints in files that you have modified, post them in the Pull Request.
-
-These will *not* block any Pull request, but exist primarily as advisory comments to encourage good coding standards.
-
-Note that `python_checks.yml` will only function on pull requests made from within the repo, not from a forked repo.
-
-# Syncing to Data Sources App
-
-The Source Manager (SM) is part of a two app system, with the other app being the Data Sources (DS) App.
-
-
-## Add, Update, and Delete
-
-These are the core synchronization actions.
-
-In order to propagate changes to DS, we synchronize additions, updates, and deletions of the following entities:
-- Agencies
-- Data Sources
-- Meta URLs
-
-Each action for each entity occurs through a separate task. At the moment, there are nine tasks total.
-
-Each task gathers requisite information from the SM database and sends a request to one of nine corresponding endpoints in the DS API.
-
-Each DS endpoint follows the following format:
-
-```text
-/v3/sync/{entity}/{action}
-```
-
-Synchronizations are designed to occur on an hourly basis.
-
-Here is a high-level description of how each action works:
-
-### Add
-
-Adds the given entities to DS.
-
-These are denoted with the `/{entity}/add` path in the DS API.
-
-When an entity is added, it returns a unique DS ID that is mapped to the internal SM database ID via the DS app link tables.
-
-For an entity to be added, it must meet preconditions which are distinct for each entity:
-- Agencies: Must have an agency entry in the database and be linked to a location.
-- Data Sources: Must be a URL that has been internally validated as a data source and linked to an agency.
-- Meta URLs: Must be a URL that has been internally validated as a meta URL and linked to an agency.
-
-### Update
-
-Updates the given entities in DS.
-
-These are denoted with the `/{entity}/update` path in the DS API.
-
-These consist of submitting the updated entities (in full) to the requisite endpoint, and updating the local app link to indicate that the update occurred. All updates are designed to be full overwrites of the entity.
-
-For an entity to be updated, it must meet preconditions which are distinct for each entity:
-- Agencies: Must have either an agency row updated or an agency/location link updated or deleted.
-- Data Sources: One of the following must be updated:
-  - The URL table
-  - The record type table
-  - The optional data sources metadata table
-  - The agency link table (either an addition or deletion)
-- Meta URLs: Must be a URL that has been internally validated as a meta URL and linked to an agency.  Either the URL table or the agency link table (addition or deletion) must be updated.
-
-### Delete
-
-Deletes the given entities from DS.
-
-These are denoted with the `/{entity}/delete` path in the DS API.
-
-This consists of submitting a set of DS IDs to the requisite endpoint, and removing the associated DS app link entry in the SM database.
-
-When an entity with a corresponding DS App Link is deleted from the Source Manager, the core data is removed but a deletion flag is appended to the DS App Link entry, indicating that the entry is not yet removed from the DS App. The deletion task uses this flag to identify entities to be deleted, submits the deletion request to the DS API, and removes both the flag and the DS App Link.
+Note: `python_checks.yml` only runs on pull requests from within the repo, not from forks.

@@ -4,8 +4,8 @@ from src.core.tasks.url.operators.auto_name.queries.get import AutoNameGetInputs
 from src.core.tasks.url.operators.auto_name.queries.prereq import AutoNamePrerequisitesQueryBuilder
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.enums import TaskType
-from src.db.models.impl.url.suggestion.name.enums import NameSuggestionSource
-from src.db.models.impl.url.suggestion.name.pydantic import URLNameSuggestionPydantic
+from src.db.models.impl.annotation.name.suggestion.enums import NameSuggestionSource
+from src.db.models.impl.annotation.name.suggestion.pydantic import URLNameSuggestionPydantic
 
 
 class AutoNameURLTaskOperator(URLTaskOperatorBase):

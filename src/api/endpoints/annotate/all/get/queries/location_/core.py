@@ -15,7 +15,6 @@ class GetLocationSuggestionsQueryBuilder(QueryBuilderBase):
         super().__init__()
         self.url_id = url_id
 
-    # TODO: Test
     async def run(self, session: AsyncSession) -> LocationAnnotationResponseOuterInfo:
         requester = GetLocationSuggestionsRequester(session)
 

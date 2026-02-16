@@ -1,6 +1,5 @@
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.sqlalchemy import URL
 from tests.automated.integration.tasks.url.impl.asserts import assert_task_ran_without_error
 from tests.automated.integration.tasks.url.impl.probe.check.manager import TestURLProbeCheckManager
@@ -31,8 +30,8 @@ async def test_two_urls(
         ]
     )
     assert not await operator.meets_task_prerequisites()
-    url_id_1 = await setup_manager.setup_url(URLStatus.OK, url=url_1)
-    url_id_2 = await setup_manager.setup_url(URLStatus.OK, url=url_2)
+    url_id_1 = await setup_manager.setup_url(url_1)
+    url_id_2 = await setup_manager.setup_url(url_2)
     assert await operator.meets_task_prerequisites()
     run_info = await operator.run_task()
     assert_task_ran_without_error(run_info)

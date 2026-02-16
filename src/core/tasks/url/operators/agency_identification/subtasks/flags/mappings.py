@@ -1,4 +1,4 @@
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 
 SUBTASK_TO_ENV_FLAG: dict[AutoAgencyIDSubtaskType, str] = {
     AutoAgencyIDSubtaskType.HOMEPAGE_MATCH: "AGENCY_ID_HOMEPAGE_MATCH_FLAG",

@@ -2,7 +2,7 @@
 References an agency in the data sources database.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Sequence
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship, Mapped
 
 from src.db.models.helpers import enum_column
@@ -27,8 +27,8 @@ class Agency(
     )
 
     # Relationships
-    automated_suggestions = relationship("AgencyIDSubtaskSuggestion")
-    user_suggestions = relationship("UserURLAgencySuggestion", back_populates="agency")
+    automated_suggestions = relationship("AnnotationAgencyAutoSuggestion")
+    user_suggestions = relationship("AnnotationAgencyUser", back_populates="agency")
     confirmed_urls = relationship("LinkURLAgency", back_populates="agency")
 
     locations = relationship(

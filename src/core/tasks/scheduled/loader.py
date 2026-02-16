@@ -12,6 +12,7 @@ from src.core.tasks.scheduled.impl.internet_archives.save.operator import Intern
 from src.core.tasks.scheduled.impl.mark_never_completed.operator import MarkTaskNeverCompletedOperator
 from src.core.tasks.scheduled.impl.refresh_materialized_views.operator import RefreshMaterializedViewsOperator
 from src.core.tasks.scheduled.impl.run_url_tasks.operator import RunURLTasksTaskOperator
+from src.core.tasks.scheduled.impl.sync_from_ds.impl.follows.core import DSAppSyncUserFollowsGetTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.add.core import DSAppSyncAgenciesAddTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.delete.core import DSAppSyncAgenciesDeleteTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.agencies.update.core import DSAppSyncAgenciesUpdateTaskOperator
@@ -24,7 +25,6 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.add.core import DSA
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.delete.core import DSAppSyncMetaURLsDeleteTaskOperator
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.meta_urls.update.core import DSAppSyncMetaURLsUpdateTaskOperator
 from src.core.tasks.scheduled.impl.task_cleanup.operator import TaskCleanupOperator
-from src.core.tasks.scheduled.impl.update_url_status.operator import UpdateURLStatusOperator
 from src.core.tasks.scheduled.models.entry import ScheduledTaskEntry
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient
@@ -136,6 +136,15 @@ class ScheduledTaskOperatorLoader:
                 enabled=self.setup_flag("INTEGRITY_MONITOR_TASK_FLAG")
             ),
             # Sync
+            ## Get
+            ScheduledTaskEntry(
+                operator=DSAppSyncUserFollowsGetTaskOperator(
+                    adb_client=self.adb_client,
+                    pdap_client=self.pdap_client
+                ),
+                interval_minutes=IntervalEnum.DAILY.value,
+                enabled=self.setup_flag("DS_APP_SYNC_USER_FOLLOWS_GET_TASK_FLAG")
+            ),
             ## Adds
             ### Agency
             ScheduledTaskEntry(
@@ -220,13 +229,4 @@ class ScheduledTaskOperatorLoader:
                 interval_minutes=IntervalEnum.HOURLY.value,
                 enabled=self.setup_flag("DS_APP_SYNC_AGENCY_DELETE_TASK_FLAG")
             ),
-            ### URL
-            ScheduledTaskEntry(
-                operator=UpdateURLStatusOperator(
-                    adb_client=self.adb_client
-                ),
-                interval_minutes=IntervalEnum.DAILY.value,
-                enabled=self.setup_flag("UPDATE_URL_STATUS_TASK_FLAG")
-            ),
-
         ]

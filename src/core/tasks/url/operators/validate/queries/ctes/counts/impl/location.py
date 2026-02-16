@@ -2,32 +2,31 @@ from sqlalchemy import select, func
 
 from src.core.tasks.url.operators.validate.queries.ctes.counts.constants import ANONYMOUS_VOTE_RATIO
 from src.core.tasks.url.operators.validate.queries.ctes.counts.core import ValidatedCountsCTEContainer
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.impl.url.suggestion.location.user.sqlalchemy import UserLocationSuggestion
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.location.user.sqlalchemy import AnnotationLocationUser
 from src.db.models.views.unvalidated_url import UnvalidatedURL
 
 _user_counts = (
     select(
-        UserLocationSuggestion.url_id,
-        UserLocationSuggestion.location_id.label("entity"),
+        AnnotationLocationUser.url_id,
+        AnnotationLocationUser.location_id.label("entity"),
         func.count().label("votes")
     )
     .group_by(
-        UserLocationSuggestion.url_id,
-        UserLocationSuggestion.location_id
+        AnnotationLocationUser.url_id,
+        AnnotationLocationUser.location_id
     )
 )
 
 _anon_counts = (
     select(
-        AnonymousAnnotationLocation.url_id,
-        AnonymousAnnotationLocation.location_id.label("entity"),
+        AnnotationLocationAnon.url_id,
+        AnnotationLocationAnon.location_id.label("entity"),
         (func.count() / ANONYMOUS_VOTE_RATIO).label("votes")
     )
     .group_by(
-        AnonymousAnnotationLocation.url_id,
-        AnonymousAnnotationLocation.location_id
+        AnnotationLocationAnon.url_id,
+        AnnotationLocationAnon.location_id
     )
 )
 

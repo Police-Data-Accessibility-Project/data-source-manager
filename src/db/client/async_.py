@@ -1,7 +1,6 @@
 from datetime import datetime
 from functools import wraps
 from typing import Optional, Any, List
-from uuid import UUID, uuid4
 
 from sqlalchemy import select, func, Select, and_, update, Row, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncEngine
@@ -37,26 +36,27 @@ from src.api.endpoints.task.by_id.query import GetTaskInfoQueryBuilder
 from src.api.endpoints.task.dtos.get.tasks import GetTasksResponse, GetTasksResponseTaskInfo
 from src.api.endpoints.url.get.dto import GetURLsResponseInfo
 from src.api.endpoints.url.get.query import GetURLsQueryBuilder
-from src.collectors.enums import URLStatus, CollectorType
+from src.collectors.enums import CollectorType
 from src.collectors.queries.insert.urls.query import InsertURLsQueryBuilder
 from src.core.enums import BatchStatus, RecordType
 from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.queries.state import SetHuggingFaceUploadStateQueryBuilder
 from src.core.tasks.url.operators.agency_identification.dtos.suggestion import URLAgencySuggestionInfo
-from src.core.tasks.url.operators.html.queries.get import \
+from src.core.tasks.url.operators.html.queries.get.query import \
     GetPendingURLsWithoutHTMLDataQueryBuilder
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO
 from src.db.client.helpers import add_standard_limit_and_offset
 from src.db.client.types import UserSuggestionModel
 from src.db.config_manager import ConfigManager
 from src.db.constants import PLACEHOLDER_AGENCY_NAME
-from src.db.dtos.url.html_content import URLHTMLContentInfo
 from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.raw_html import RawHTMLInfo
 from src.db.enums import TaskType
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.agency.enums import AgencyType, JurisdictionType
 from src.db.models.impl.agency.sqlalchemy import Agency
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.batch.sqlalchemy import Batch
@@ -75,19 +75,15 @@ from src.db.models.impl.url.core.pydantic.info import URLInfo
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.html.compressed.sqlalchemy import URLCompressedHTML
-from src.db.models.impl.url.html.content.sqlalchemy import URLHTMLContent
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.anonymous import AnonymousSession
-from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
-from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.db.models.templates_.base import Base
-from src.db.models.views.batch_url_status.enums import BatchURLStatusEnum
+from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
 from src.db.queries.implementations.core.get.recent_batch_summaries.builder import GetRecentBatchSummariesQueryBuilder
 from src.db.queries.implementations.core.metrics.urls.aggregated.pending import \
@@ -231,7 +227,7 @@ class AsyncDatabaseClient:
         inputs: list[AutoRelevancyAnnotationInput]
     ):
         models = [
-            AutoRelevantSuggestion(
+            AnnotationAutoURLType(
                 url_id=input_.url_id,
                 relevant=input_.is_relevant,
                 confidence=input_.confidence,
@@ -267,15 +263,15 @@ class AsyncDatabaseClient:
     ):
         prior_suggestion = await self.get_user_suggestion(
             session,
-            model=UserURLTypeSuggestion,
+            model=AnnotationURLTypeUser,
             user_id=user_id,
             url_id=url_id
         )
         if prior_suggestion is not None:
-            prior_suggestion.type = suggested_status.value
+            prior_suggestion.agency_type = suggested_status.value
             return
 
-        suggestion = UserURLTypeSuggestion(
+        suggestion = AnnotationURLTypeUser(
             url_id=url_id,
             user_id=user_id,
             type=suggested_status.value
@@ -292,7 +288,7 @@ class AsyncDatabaseClient:
         url_id: int,
         record_type: RecordType
     ):
-        suggestion = AutoRecordTypeSuggestion(
+        suggestion = AnnotationAutoRecordType(
             url_id=url_id,
             record_type=record_type.value
         )
@@ -308,7 +304,7 @@ class AsyncDatabaseClient:
     ):
         prior_suggestion = await self.get_user_suggestion(
             session,
-            model=UserRecordTypeSuggestion,
+            model=AnnotationRecordTypeUser,
             user_id=user_id,
             url_id=url_id
         )
@@ -316,7 +312,7 @@ class AsyncDatabaseClient:
             prior_suggestion.record_type = record_type.value
             return
 
-        suggestion = UserRecordTypeSuggestion(
+        suggestion = AnnotationRecordTypeUser(
             url_id=url_id,
             user_id=user_id,
             record_type=record_type.value
@@ -324,14 +320,6 @@ class AsyncDatabaseClient:
         session.add(suggestion)
 
     # endregion record_type
-
-
-    @session_manager
-    async def has_non_errored_urls_without_html_data(self, session: AsyncSession) -> bool:
-        statement = self.statement_composer.has_non_errored_urls_without_html_data()
-        statement = statement.limit(1)
-        scalar_result = await session.scalars(statement)
-        return bool(scalar_result.first())
 
     @session_manager
     async def add_miscellaneous_metadata(self, session: AsyncSession, tdos: list[URLMiscellaneousMetadataTDO]):
@@ -570,7 +558,7 @@ class AsyncDatabaseClient:
                 )
                 await session.merge(agency)
 
-        url_agency_suggestion = UserURLAgencySuggestion(
+        url_agency_suggestion = AnnotationAgencyUser(
             url_id=url_id,
             agency_id=agency_id,
             user_id=user_id,
@@ -704,7 +692,7 @@ class AsyncDatabaseClient:
         session,
         page: int,
         collector_type: CollectorType | None = None,
-        status: BatchURLStatusEnum | None = None,
+        status: BatchURLStatusViewEnum | None = None,
     ) -> GetBatchSummariesResponse:
         # Get only the batch_id, collector_type, status, and created_at
         builder = GetRecentBatchSummariesQueryBuilder(
@@ -835,7 +823,6 @@ class AsyncDatabaseClient:
             )
             .outerjoin(FlagURLValidated, URL.id == FlagURLValidated.url_id)
             .where(
-                URL.status == URLStatus.OK.value,
                 FlagURLValidated.url_id.is_(None),
             )
         )

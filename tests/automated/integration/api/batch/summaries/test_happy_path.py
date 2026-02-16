@@ -68,7 +68,6 @@ async def test_get_batch_summaries(api_test_helper):
     assert counts_1.pending == 1
     assert counts_1.submitted == 2
     assert counts_1.not_relevant == 0
-    assert counts_1.duplicate == 0
     assert counts_1.errored == 0
 
     result_2 = results[1]
@@ -79,7 +78,6 @@ async def test_get_batch_summaries(api_test_helper):
     assert counts_2.errored == 0
     assert counts_2.pending == 0
     assert counts_2.submitted == 0
-    assert counts_2.duplicate == 0
 
     result_3 = results[2]
     assert result_3.id == batch_3_id
@@ -89,4 +87,3 @@ async def test_get_batch_summaries(api_test_helper):
     assert counts_3.errored == 0
     assert counts_3.pending == 7
     assert counts_3.submitted == 1
-    assert counts_3.duplicate == 7

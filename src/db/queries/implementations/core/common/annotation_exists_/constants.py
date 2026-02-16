@@ -1,15 +1,15 @@
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.user import UserURLAgencySuggestion
-from src.db.models.impl.url.suggestion.record_type.auto import AutoRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.record_type.user import UserRecordTypeSuggestion
-from src.db.models.impl.url.suggestion.url_type.auto.sqlalchemy import AutoRelevantSuggestion
-from src.db.models.impl.url.suggestion.url_type.user import UserURLTypeSuggestion
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.user.sqlalchemy import AnnotationAgencyUser
+from src.db.models.impl.annotation.record_type.auto.sqlalchemy import AnnotationAutoRecordType
+from src.db.models.impl.annotation.record_type.user.user import AnnotationRecordTypeUser
+from src.db.models.impl.annotation.url_type.auto.sqlalchemy import AnnotationAutoURLType
+from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 
 ALL_ANNOTATION_MODELS = [
-    AutoRecordTypeSuggestion,
-    AutoRelevantSuggestion,
-    URLAutoAgencyIDSubtask,
-    UserURLTypeSuggestion,
-    UserRecordTypeSuggestion,
-    UserURLAgencySuggestion
+    AnnotationAutoRecordType,
+    AnnotationAutoURLType,
+    AnnotationAgencyAutoSubtask,
+    AnnotationURLTypeUser,
+    AnnotationRecordTypeUser,
+    AnnotationAgencyUser
 ]

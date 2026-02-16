@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, call, AsyncMock
 import pytest
 
 from src.collectors.impl.muckrock.collectors.county.core import MuckrockCountyLevelSearchCollector
-from src.collectors.impl.muckrock.collectors.simple.core import MuckrockSimpleSearchCollector
-from src.db.client.async_ import AsyncDatabaseClient
-from src.core.logger import AsyncCoreLogger
 from src.collectors.impl.muckrock.collectors.county.dto import MuckrockCountySearchCollectorInputDTO
+from src.collectors.impl.muckrock.collectors.simple.core import MuckrockSimpleSearchCollector
 from src.collectors.impl.muckrock.collectors.simple.dto import MuckrockSimpleSearchCollectorInputDTO
 from src.collectors.impl.muckrock.fetch_requests.foia import FOIAFetchRequest
+from src.core.logger import AsyncCoreLogger
+from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 

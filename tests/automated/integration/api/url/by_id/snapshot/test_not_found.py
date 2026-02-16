@@ -1,7 +1,8 @@
 import pytest
+from fastapi import Response
 
 from tests.helpers.api_test_helper import APITestHelper
-from fastapi import Response
+
 
 @pytest.mark.asyncio
 async def test_get_url_screenshot_not_found(api_test_helper: APITestHelper):

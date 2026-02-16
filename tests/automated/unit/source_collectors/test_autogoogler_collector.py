@@ -2,11 +2,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.collectors.impl.auto_googler.dtos.query_results import GoogleSearchQueryResultsInnerDTO
-from src.collectors.impl.auto_googler.dtos.input import AutoGooglerInputDTO
-from src.db.client.async_ import AsyncDatabaseClient
-from src.core.logger import AsyncCoreLogger
 from src.collectors.impl.auto_googler.collector import AutoGooglerCollector
+from src.collectors.impl.auto_googler.dtos.input import AutoGooglerInputDTO
+from src.collectors.impl.auto_googler.dtos.query_results import GoogleSearchQueryResultsInnerDTO
+from src.core.logger import AsyncCoreLogger
+from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.pydantic.info import URLInfo
 

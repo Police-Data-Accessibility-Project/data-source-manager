@@ -3,9 +3,8 @@ from unittest.mock import AsyncMock
 import pytest
 from marshmallow import Schema, fields
 
-from src.core.logger import AsyncCoreLogger
-from src.collectors.impl.common_crawler import collector
 from src.collectors.impl.common_crawler import CommonCrawlerInputDTO
+from src.core.logger import AsyncCoreLogger
 
 
 class CommonCrawlerSchema(Schema):

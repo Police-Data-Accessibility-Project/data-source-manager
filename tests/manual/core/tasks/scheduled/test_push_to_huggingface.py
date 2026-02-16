@@ -1,8 +1,6 @@
 import pytest
-
 from environs import Env
 
-from src.core.env_var_manager import EnvVarManager
 from src.core.tasks.scheduled.impl.huggingface.operator import PushToHuggingFaceTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
 from src.external.huggingface.hub.client import HuggingFaceHubClient

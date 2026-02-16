@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from src.core.enums import RecordType
 from src.db.models.impl.flag.url_validated.enums import URLType
-from src.db.models.views.url_status.enums import URLStatusViewEnum
+from src.db.models.materialized_views.url_status.enums import URLStatusViewEnum
 
 class GetMetricsURLValidatedOldestPendingURL(BaseModel):
     url_id: int

@@ -2,12 +2,12 @@
 import pytest
 
 from src.api.endpoints.collector.dtos.manual_batch.post import ManualBatchInnerInputDTO, ManualBatchInputDTO
-from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
-from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
-from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.batch.sqlalchemy import Batch
 from src.collectors.enums import CollectorType
 from src.core.enums import RecordType
+from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
+from src.db.models.impl.url.core.sqlalchemy import URL
+from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 
 
 @pytest.mark.asyncio

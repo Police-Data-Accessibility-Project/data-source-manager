@@ -19,6 +19,7 @@ from src.api.endpoints.data_source.routes import data_sources_router
 from src.api.endpoints.locations.routes import location_url_router
 from src.api.endpoints.meta_url.routes import meta_urls_router
 from src.api.endpoints.metrics.routes import metrics_router
+from src.api.endpoints.proposals.routes import proposal_router
 from src.api.endpoints.root import root_router
 from src.api.endpoints.search.routes import search_router
 from src.api.endpoints.submit.routes import submit_router
@@ -199,7 +200,8 @@ routers = [
     data_sources_router,
     meta_urls_router,
     check_router,
-    location_url_router
+    location_url_router,
+    proposal_router
 ]
 
 for router in routers:

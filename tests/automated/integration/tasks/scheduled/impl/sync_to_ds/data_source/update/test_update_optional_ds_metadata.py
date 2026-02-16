@@ -1,7 +1,5 @@
 from datetime import date
 
-from sqlalchemy import update
-
 from src.api.shared.models.message_response import MessageResponse
 from src.core.enums import RecordType
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.update.core import \

@@ -2,9 +2,9 @@ import os
 
 import dotenv
 
-from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 
 
 def test_auto_googler_collector_lifecycle(test_core):

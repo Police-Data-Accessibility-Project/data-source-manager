@@ -2,7 +2,7 @@ from sqlalchemy import select, ColumnElement, Integer, func
 
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.eligible import \
     EligibleContainer
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 
 
 def sum_count(col: ColumnElement[bool], subtask_type: AutoAgencyIDSubtaskType) -> ColumnElement[int]:

@@ -2,7 +2,6 @@ import pytest
 from aiohttp import ClientSession
 
 from src.external.internet_archives.client import InternetArchivesClient
-from src.external.internet_archives.models.capture import IACapture
 
 # BASE_URL = "nola.gov/getattachment/NOPD/Policies/Chapter-12-1-Department-Operations-Manual-EFFECTIVE-1-14-18.pdf/"
 BASE_URL = "example.com"

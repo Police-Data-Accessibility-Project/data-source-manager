@@ -4,9 +4,9 @@ from src.collectors.enums import CollectorType
 from src.core.tasks.base.run_info import TaskOperatorRunInfo
 from src.core.tasks.url.operators.agency_identification.core import AgencyIdentificationTaskOperator
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.sqlalchemy import URLAutoAgencyIDSubtask
-from src.db.models.impl.url.suggestion.agency.suggestion.sqlalchemy import AgencyIDSubtaskSuggestion
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.sqlalchemy import AnnotationAgencyAutoSubtask
+from src.db.models.impl.annotation.agency.auto.suggestion.sqlalchemy import AnnotationAgencyAutoSuggestion
 from tests.helpers.asserts import assert_task_run_success
 from tests.helpers.data_creator.core import DBDataCreator
 
@@ -57,15 +57,15 @@ async def test_ckan_subtask(
     assert operator._subtask is None
 
     # Verify results
-    subtasks: list[URLAutoAgencyIDSubtask] = await adb_client.get_all(URLAutoAgencyIDSubtask)
+    subtasks: list[AnnotationAgencyAutoSubtask] = await adb_client.get_all(AnnotationAgencyAutoSubtask)
     assert len(subtasks) == 1
-    subtask: URLAutoAgencyIDSubtask = subtasks[0]
+    subtask: AnnotationAgencyAutoSubtask = subtasks[0]
     assert subtask.type == AutoAgencyIDSubtaskType.CKAN
     assert subtask.url_id == applicable_url_id
     subtask_id: int = subtask.id
 
-    suggestions: list[AgencyIDSubtaskSuggestion] = await adb_client.get_all(
-        AgencyIDSubtaskSuggestion
+    suggestions: list[AnnotationAgencyAutoSuggestion] = await adb_client.get_all(
+        AnnotationAgencyAutoSuggestion
     )
     assert len(suggestions) == 2
     assert {suggestion.agency_id for suggestion in suggestions} == {

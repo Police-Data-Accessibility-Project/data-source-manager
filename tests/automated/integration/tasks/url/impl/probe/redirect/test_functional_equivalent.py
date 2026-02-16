@@ -1,6 +1,5 @@
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 from src.util.models.full_url import FullURL
@@ -31,7 +30,7 @@ async def test_url_probe_task_functional_equivalent(
             redirect_url=FullURL(TEST_URL + "/")
         )
     )
-    url_id = await setup_manager.setup_url(URLStatus.OK)
+    url_id = await setup_manager.setup_url()
     await run_task_and_confirm_success(operator)
 
     urls: list[URL] = await setup_manager.adb_client.get_all(URL)

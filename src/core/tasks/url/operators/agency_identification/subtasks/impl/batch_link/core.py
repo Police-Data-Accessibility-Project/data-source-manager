@@ -6,8 +6,8 @@ from src.core.tasks.url.operators.agency_identification.subtasks.models.subtask 
 from src.core.tasks.url.operators.agency_identification.subtasks.models.suggestion import AgencySuggestion
 from src.core.tasks.url.operators.agency_identification.subtasks.templates.subtask import AgencyIDSubtaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.agency.subtask.enum import AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
 
 
 class AgencyBatchLinkSubtaskOperator(AgencyIDSubtaskOperatorBase):

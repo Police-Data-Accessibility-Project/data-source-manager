@@ -8,9 +8,9 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.nlp_locati
     NLPLocationMatchSubtaskInput, LocationAnnotationToAgencyIDMapping, LocationAnnotation
 from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.queries.ctes.subtask.impl.nlp_location import \
     NLP_LOCATION_CONTAINER
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
 from src.db.models.impl.link.agency_location.sqlalchemy import LinkAgencyLocation
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
 from src.db.queries.base.builder import QueryBuilderBase
 
 from src.db.helpers.session import session_helper as sh
@@ -21,21 +21,21 @@ class GetAgenciesLinkedToAnnotatedLocationsQueryBuilder(QueryBuilderBase):
         query = (
             select(
                 NLP_LOCATION_CONTAINER.url_id,
-                LocationIDSubtaskSuggestion.location_id,
-                LocationIDSubtaskSuggestion.confidence,
+                AnnotationLocationAutoSuggestion.location_id,
+                AnnotationLocationAutoSuggestion.confidence,
                 LinkAgencyLocation.agency_id,
             )
             .join(
-                AutoLocationIDSubtask,
-                AutoLocationIDSubtask.url_id == NLP_LOCATION_CONTAINER.url_id
+                AnnotationLocationAutoSubtask,
+                AnnotationLocationAutoSubtask.url_id == NLP_LOCATION_CONTAINER.url_id
             )
             .join(
-                LocationIDSubtaskSuggestion,
-                LocationIDSubtaskSuggestion.subtask_id == AutoLocationIDSubtask.id
+                AnnotationLocationAutoSuggestion,
+                AnnotationLocationAutoSuggestion.subtask_id == AnnotationLocationAutoSubtask.id
             )
             .join(
                 LinkAgencyLocation,
-                LinkAgencyLocation.location_id == LocationIDSubtaskSuggestion.location_id
+                LinkAgencyLocation.location_id == AnnotationLocationAutoSuggestion.location_id
             )
             .where(
                 ~NLP_LOCATION_CONTAINER.entry_exists

@@ -4,7 +4,6 @@ from sqlalchemy import select, func, RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.metrics.batches.aggregated.query.models.strategy_count import CountByBatchStrategyResponse
-from src.collectors.enums import URLStatus
 from src.db.helpers.query import exists_url
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.batch.sqlalchemy import Batch
@@ -28,7 +27,7 @@ class URLErrorByBatchStrategyQueryBuilder(QueryBuilderBase):
             .where(
                 exists_url(URLTaskError)
             )
-            .group_by(Batch.strategy, URL.status)
+            .group_by(Batch.strategy)
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)

@@ -75,6 +75,7 @@ class TaskType(PyEnum):
     SYNC_META_URLS_ADD = "Sync Meta URLs Add"
     SYNC_META_URLS_UPDATE = "Sync Meta URLs Update"
     SYNC_META_URLS_DELETE = "Sync Meta URLs Delete"
+    SYNC_USER_FOLLOWS_GET = "Sync User Follows Get"
 
 class ChangeLogOperationType(PyEnum):
     INSERT = "INSERT"

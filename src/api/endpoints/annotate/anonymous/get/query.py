@@ -1,25 +1,21 @@
-from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Select, func, exists, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.api.endpoints.annotate._shared.extract import extract_and_format_get_annotation_result
+from src.api.endpoints.annotate._shared.queries import helper
+from src.api.endpoints.annotate._shared.queries.helper import add_common_where_conditions, add_load_options, \
+    common_sorts
 from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllAnnotationResponse
+from src.api.endpoints.annotate.all.get.queries.features.followed_by_any_user import get_followed_by_any_user_feature
 from src.api.endpoints.annotate.anonymous.get.helpers import not_exists_anon_annotation
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
-from src.collectors.enums import URLStatus
-from src.db.helpers.query import not_exists_url
-from src.db.models.impl.flag.url_suspended.sqlalchemy import FlagURLSuspended
+from src.db.models.impl.annotation.agency.anon.sqlalchemy import AnnotationAgencyAnon
+from src.db.models.impl.annotation.location.anon.sqlalchemy import AnnotationLocationAnon
+from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
+from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.suggestion.anonymous.agency.sqlalchemy import AnonymousAnnotationAgency
-from src.db.models.impl.url.suggestion.anonymous.location.sqlalchemy import AnonymousAnnotationLocation
-from src.db.models.impl.url.suggestion.anonymous.record_type.sqlalchemy import AnonymousAnnotationRecordType
-from src.db.models.impl.url.suggestion.anonymous.url_type.sqlalchemy import AnonymousAnnotationURLType
-from src.db.models.views.unvalidated_url import UnvalidatedURL
-from src.db.models.views.url_anno_count import URLAnnotationCount
-from src.db.models.views.url_annotations_flags import URLAnnotationFlagsView
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -33,60 +29,49 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
         self.session_id = session_id
 
     async def run(self, session: AsyncSession) -> GetNextURLForAnonymousAnnotationResponse:
+        base_cte = select(
+            URL.id,
+            get_followed_by_any_user_feature()
+        ).cte("base")
 
+        query = select(
+            URL,
+            base_cte.c.followed_by_any_user,
+        ).join(
+            base_cte,
+            base_cte.c.id == URL.id
+        )
+        query = helper.add_joins(query)
+
+        anon_models = [
+            AnnotationURLTypeAnon,
+            AnnotationRecordTypeAnon,
+            AnnotationLocationAnon,
+            AnnotationAgencyAnon
+        ]
+
+        # Add anonymous annotation-specific conditions.
         query = (
-            Select(URL)
-            # URL Must be unvalidated
-            .join(
-                UnvalidatedURL,
-                UnvalidatedURL.url_id == URL.id
-            )
-            .join(
-                URLAnnotationFlagsView,
-                URLAnnotationFlagsView.url_id == URL.id
-            )
-            .join(
-                URLAnnotationCount,
-                URLAnnotationCount.url_id == URL.id
-            )
+            query
             .where(
-                URL.status == URLStatus.OK.value,
                 # Must not have been previously annotated by user
-                not_exists_anon_annotation(
-                    session_id=self.session_id,
-                    anon_model=AnonymousAnnotationURLType
-                ),
-                not_exists_anon_annotation(
-                    session_id=self.session_id,
-                    anon_model=AnonymousAnnotationRecordType
-                ),
-                not_exists_anon_annotation(
-                    session_id=self.session_id,
-                    anon_model=AnonymousAnnotationLocation
-                ),
-                not_exists_anon_annotation(
-                    session_id=self.session_id,
-                    anon_model=AnonymousAnnotationAgency
-                ),
-                ~exists(
-                    select(
-                        FlagURLSuspended.url_id
+                *[
+                    not_exists_anon_annotation(
+                        session_id=self.session_id,
+                        anon_model=anon_model
                     )
-                    .where(
-                        FlagURLSuspended.url_id == URL.id,
-                    )
-                )
+                    for anon_model in anon_models
+                ]
             )
-            .options(
-                joinedload(URL.html_content),
-                joinedload(URL.user_relevant_suggestions),
-                joinedload(URL.user_record_type_suggestions),
-                joinedload(URL.name_suggestions),
+        )
+        query = add_common_where_conditions(query)
+        query = add_load_options(query)
+        query = (
+            # Sorting Priority
+            query.order_by(
+                *common_sorts(base_cte)
             )
-            .order_by(
-                URLAnnotationCount.total_anno_count.desc(),
-                URL.id.asc()
-            )
+            # Limit to 1 result
             .limit(1)
         )
 

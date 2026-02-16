@@ -2,9 +2,9 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_m
     GetHomepageMatchParams
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.models.mapping import \
     SubtaskURLMapping
-from src.db.models.impl.url.suggestion.agency.subtask.enum import SubtaskDetailCode, AutoAgencyIDSubtaskType
-from src.db.models.impl.url.suggestion.agency.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
-from src.db.models.impl.url.suggestion.agency.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
+from src.db.models.impl.annotation.agency.auto.subtask.enum import SubtaskDetailCode, AutoAgencyIDSubtaskType
+from src.db.models.impl.annotation.agency.auto.subtask.pydantic import URLAutoAgencyIDSubtaskPydantic
+from src.db.models.impl.annotation.agency.auto.suggestion.pydantic import AgencyIDSubtaskSuggestionPydantic
 
 
 def convert_params_to_subtask_entries(

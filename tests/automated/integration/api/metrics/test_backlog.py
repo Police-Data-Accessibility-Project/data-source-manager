@@ -1,7 +1,6 @@
 import pendulum
 import pytest
 
-from src.collectors.enums import URLStatus
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.flag.url_validated.enums import URLType
 from tests.helpers.data_creator.core import DBDataCreator

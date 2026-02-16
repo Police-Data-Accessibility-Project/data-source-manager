@@ -9,11 +9,11 @@ from src.core.tasks.url.operators.location_id.subtasks.impl.nlp_location_freq.mo
 from src.core.tasks.url.operators.location_id.subtasks.models.subtask import AutoLocationIDSubtaskData
 from src.core.tasks.url.operators.location_id.subtasks.models.suggestion import LocationSuggestion
 from src.db.client.async_ import AsyncDatabaseClient
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
+from src.db.models.impl.annotation.location.auto.subtask.sqlalchemy import AnnotationLocationAutoSubtask
+from src.db.models.impl.annotation.location.auto.suggestion.sqlalchemy import AnnotationLocationAutoSuggestion
 from src.db.models.impl.link.task_url import LinkTaskURL
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
-from src.db.models.impl.url.suggestion.location.auto.subtask.pydantic import AutoLocationIDSubtaskPydantic
-from src.db.models.impl.url.suggestion.location.auto.subtask.sqlalchemy import AutoLocationIDSubtask
-from src.db.models.impl.url.suggestion.location.auto.suggestion.sqlalchemy import LocationIDSubtaskSuggestion
 from src.db.models.impl.url.task_error.sqlalchemy import URLTaskError
 from tests.helpers.asserts import assert_task_run_success
 from tests.helpers.data_creator.core import DBDataCreator
@@ -90,7 +90,7 @@ async def test_nlp_location_match(
     assert {task_link.task_id for task_link in task_links} == {operator._task_id}
 
     # Confirm two subtasks were created
-    subtasks: list[AutoLocationIDSubtask] = await adb_client.get_all(AutoLocationIDSubtask)
+    subtasks: list[AnnotationLocationAutoSubtask] = await adb_client.get_all(AnnotationLocationAutoSubtask)
     assert len(subtasks) == 2
     assert {subtask.url_id for subtask in subtasks} == set(url_ids)
     assert {subtask.task_id for subtask in subtasks} == {operator._task_id}
@@ -108,7 +108,7 @@ async def test_nlp_location_match(
     assert error_infos[0].error == "Test error"
 
     # Confirm two suggestions for happy path URL id
-    suggestions: list[LocationIDSubtaskSuggestion] = await adb_client.get_all(LocationIDSubtaskSuggestion)
+    suggestions: list[AnnotationLocationAutoSuggestion] = await adb_client.get_all(AnnotationLocationAutoSuggestion)
     assert len(suggestions) == 2
     # Confirm expected agency ids
     assert {suggestion.location_id for suggestion in suggestions} == {

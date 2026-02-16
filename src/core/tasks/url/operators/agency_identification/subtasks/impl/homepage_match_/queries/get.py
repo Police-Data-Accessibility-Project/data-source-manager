@@ -10,7 +10,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_m
 from src.core.tasks.url.operators.agency_identification.subtasks.impl.homepage_match_.queries.ctes.single_agency_case import \
     SINGLE_AGENCY_CASE_QUERY
 from src.db.helpers.session import session_helper as sh
-from src.db.models.impl.url.suggestion.agency.subtask.enum import SubtaskDetailCode
+from src.db.models.impl.annotation.agency.auto.subtask.enum import SubtaskDetailCode
 from src.db.queries.base.builder import QueryBuilderBase
 
 

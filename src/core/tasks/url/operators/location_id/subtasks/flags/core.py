@@ -1,7 +1,7 @@
 from environs import Env
 
 from src.core.tasks.url.operators.location_id.subtasks.flags.mappings import SUBTASK_TO_ENV_FLAG
-from src.db.models.impl.url.suggestion.location.auto.subtask.enums import LocationIDSubtaskType
+from src.db.models.impl.annotation.location.auto.subtask.enums import LocationIDSubtaskType
 
 
 class SubtaskFlagger:

@@ -5,9 +5,8 @@ from src.core.tasks.url.operators.auto_relevant.queries.prereq import AutoReleva
 from src.core.tasks.url.operators.auto_relevant.sort import separate_success_and_error_subsets
 from src.core.tasks.url.operators.base import URLTaskOperatorBase
 from src.db.client.async_ import AsyncDatabaseClient
-from src.db.models.impl.url.suggestion.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.enums import TaskType
-from src.db.models.impl.url.task_error.pydantic_.insert import URLTaskErrorPydantic
+from src.db.models.impl.annotation.url_type.auto.pydantic.input import AutoRelevancyAnnotationInput
 from src.db.models.impl.url.task_error.pydantic_.small import URLTaskErrorSmall
 from src.external.huggingface.inference.client import HuggingFaceInferenceClient
 from src.external.huggingface.inference.models.input import BasicInput

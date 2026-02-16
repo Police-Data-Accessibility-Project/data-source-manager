@@ -13,6 +13,8 @@ from src.api.endpoints.data_source.by_id.put.query import UpdateDataSourceQueryB
 from src.api.endpoints.data_source.by_id.put.request import DataSourcePutRequest
 from src.api.shared.models.message_response import MessageResponse
 from src.core.core import AsyncCore
+from src.security.dtos.access_info import AccessInfo
+from src.security.manager import get_admin_access_info
 
 data_sources_router = APIRouter(
     prefix="/data-sources",
@@ -45,6 +47,7 @@ async def get_data_source_by_id(
 async def update_data_source(
     url_id: int ,
     request: DataSourcePutRequest,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await check_is_data_source_url(url_id=url_id, adb_client=async_core.adb_client)
@@ -70,6 +73,7 @@ async def get_data_source_agencies(
 async def add_agency_to_data_source(
     url_id: int,
     agency_id: int,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await add_data_source_agency_link(
@@ -83,6 +87,7 @@ async def add_agency_to_data_source(
 async def remove_agency_from_data_source(
     url_id: int,
     agency_id: int,
+    access_info: AccessInfo = Depends(get_admin_access_info),
     async_core: AsyncCore = Depends(get_async_core),
 ) -> MessageResponse:
     await delete_data_source_agency_link(
