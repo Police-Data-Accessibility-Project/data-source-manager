@@ -133,7 +133,7 @@ async def start_muckrock_all_foia_collector(
 async def start_internet_archive_collector(
         dto: InternetArchiveInputDTO,
         core: AsyncCore = Depends(get_async_core),
-        access_info: AccessInfo = Depends(get_access_info),
+        access_info: AccessInfo = Depends(get_admin_access_info),
 ) -> CollectorStartInfo:
     """
     Start the Internet Archive crawler collector

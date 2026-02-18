@@ -13,7 +13,7 @@ from src.util.alembic_helpers import switch_enum_type
 
 # revision identifiers, used by Alembic.
 revision: str = '1fb2286a016c'
-down_revision: Union[str, None] = '1d3398f9cd8a'
+down_revision: Union[str, None] = '759ce7d0772b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
