@@ -22,6 +22,7 @@ class Batch(WithIDBase):
             'muckrock_simple_search',
             'common_crawler',
             'manual',
+            'internet_archive',
             name='batch_strategy'),
         nullable=False)
     user_id = Column(Integer, nullable=True)

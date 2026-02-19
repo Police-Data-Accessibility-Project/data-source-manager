@@ -8,4 +8,5 @@ class CollectorType(Enum):
     MUCKROCK_COUNTY_SEARCH = "muckrock_county_search"
     MUCKROCK_ALL_SEARCH = "muckrock_all_search"
     CKAN = "ckan"
+    INTERNET_ARCHIVE = "internet_archive"
     MANUAL = "manual"
