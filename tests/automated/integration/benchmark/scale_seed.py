@@ -149,7 +149,7 @@ async def create_scale_data(
         LocationIDSubtaskSuggestionPydantic(
             subtask_id=subtask_id,
             location_id=primary_location_id,
-            confidence=0.9,
+            confidence=1.0,
         )
         for subtask_id in location_subtask_ids
     ]
