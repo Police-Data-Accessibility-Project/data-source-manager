@@ -1,0 +1,56 @@
+name: Annotation Benchmark
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: python:3.11.9
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      GOOGLE_API_KEY: TEST
+      GOOGLE_CSE_ID: TEST
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run benchmark tests
+        run: |
+          uv run pytest tests/automated/integration/benchmark \
+            -m "manual and benchmark" \
+            --benchmark-json=benchmark-results.json \
+            -v
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: benchmark-results.json
+          retention-days: 90
