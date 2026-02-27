@@ -1,6 +1,34 @@
+import json
+import os
+
 import pytest
 
 from src.api.endpoints.annotate._shared.timing import AnnotationTimings, collect_timings
+
+_PHASE_ATTRS = (
+    "main_query_s",
+    "agency_suggestions_s",
+    "location_suggestions_s",
+    "name_suggestions_s",
+    "batch_info_s",
+    "format_s",
+)
+_PER_PHASE_FILE = os.environ.get("PER_PHASE_JSON", "per-phase-results.json")
+
+
+def _write_per_phase(key: str, all_timings: list[AnnotationTimings]) -> None:
+    n = len(all_timings)
+    if not n:
+        return
+    averages = {attr: sum(getattr(t, attr) for t in all_timings) / n for attr in _PHASE_ATTRS}
+    try:
+        with open(_PER_PHASE_FILE) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {}
+    data[key] = averages
+    with open(_PER_PHASE_FILE, "w") as f:
+        json.dump(data, f, indent=2)
 
 
 @pytest.mark.manual
@@ -26,19 +54,7 @@ def test_benchmark_annotate_all_per_phase(benchmark, benchmark_readonly_helper):
 
     benchmark(one_request)
 
-    n = len(all_timings)
-    if n:
-        avg = lambda attr: sum(getattr(t, attr) for t in all_timings) / n
-        print("\n--- Per-phase averages (s) ---")
-        for attr in (
-            "main_query_s",
-            "agency_suggestions_s",
-            "location_suggestions_s",
-            "name_suggestions_s",
-            "batch_info_s",
-            "format_s",
-        ):
-            print(f"  {attr}: {avg(attr):.4f}")
+    _write_per_phase("readonly", all_timings)
 
 
 @pytest.mark.manual
@@ -64,16 +80,4 @@ def test_benchmark_annotate_all_scale_per_phase(benchmark, scale_seeder):
 
     benchmark(one_request)
 
-    n = len(all_timings)
-    if n:
-        avg = lambda attr: sum(getattr(t, attr) for t in all_timings) / n
-        print(f"\n--- Per-phase averages (s) [{rv.url_count} URLs] ---")
-        for attr in (
-            "main_query_s",
-            "agency_suggestions_s",
-            "location_suggestions_s",
-            "name_suggestions_s",
-            "batch_info_s",
-            "format_s",
-        ):
-            print(f"  {attr}: {avg(attr):.4f}")
+    _write_per_phase(f"scale_{rv.url_count}", all_timings)
