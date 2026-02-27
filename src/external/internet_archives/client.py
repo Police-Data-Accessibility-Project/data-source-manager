@@ -149,7 +149,10 @@ class InternetArchivesClient:
     async def _get_save_status(self: "InternetArchivesClient", job_id: str) -> dict:
         async with self.session.get(
             f"https://web.archive.org/save/status/{job_id}",
-            headers={"Accept": "application/json"}
+            headers={
+                "Authorization": f"LOW {self.s3_keys}",
+                "Accept": "application/json"
+            }
         ) as response:
             response.raise_for_status()
             return await response.json(content_type=None)
