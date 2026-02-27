@@ -7,6 +7,7 @@ from src.api.endpoints.metrics.batches.aggregated.query.models.strategy_count im
 from src.collectors.enums import CollectorType
 from src.db.helpers.session import session_helper as sh
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.queries.base.builder import QueryBuilderBase
@@ -19,8 +20,13 @@ class CountSubmittedByBatchStrategyQueryBuilder(QueryBuilderBase):
     ]:
         query = (
             select(
-                Batch.strategy,
+                BatchStrategy.name.label("strategy"),
                 func.count(DSAppLinkDataSource.id).label("count")
+            )
+            .select_from(Batch)
+            .join(
+                BatchStrategy,
+                Batch.batch_strategy_id == BatchStrategy.id,
             )
             .join(
                 LinkBatchURL,
@@ -30,7 +36,7 @@ class CountSubmittedByBatchStrategyQueryBuilder(QueryBuilderBase):
                 DSAppLinkDataSource,
                 DSAppLinkDataSource.url_id == LinkBatchURL.url_id
             )
-            .group_by(Batch.strategy)
+            .group_by(BatchStrategy.name)
         )
 
         mappings: Sequence[RowMapping] = await sh.mappings(session, query=query)

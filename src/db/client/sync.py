@@ -12,6 +12,7 @@ from src.db.dtos.url.insert import InsertURLsInfo
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.duplicate.pydantic.insert import DuplicateInsertInfo
 from src.db.models.impl.duplicate.sqlalchemy import Duplicate
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
@@ -69,8 +70,12 @@ class DatabaseClient:
     @session_manager
     def insert_batch(self, session: Session, batch_info: BatchInfo) -> int:
         """Insert a new batch into the database and return its ID."""
+        strategy = session.query(BatchStrategy).filter_by(name=batch_info.strategy).first()
+        if strategy is None:
+            raise ValueError(f"Unknown batch strategy: {batch_info.strategy}")
+
         batch = Batch(
-            strategy=batch_info.strategy,
+            batch_strategy_id=strategy.id,
             user_id=batch_info.user_id,
             status=batch_info.status.value,
             parameters=batch_info.parameters,
@@ -91,7 +96,19 @@ class DatabaseClient:
     ) -> BatchInfo | None:
         """Retrieve a batch by ID."""
         batch = session.query(Batch).filter_by(id=batch_id).first()
-        return BatchInfo(**batch.__dict__)
+        if batch is None:
+            return None
+
+        return BatchInfo(
+            id=batch.id,
+            strategy=batch.batch_strategy.name,
+            status=BatchStatus(batch.status),
+            parameters=batch.parameters,
+            user_id=batch.user_id,
+            total_url_count=getattr(batch, "total_url_count", None),
+            compute_time=batch.compute_time,
+            date_generated=batch.date_generated,
+        )
 
 
     @session_manager
@@ -149,7 +166,7 @@ class DatabaseClient:
             try:
                 url_id = self.insert_url(url_info)
                 url_mappings.append(SimpleURLMapping(url_id=url_id, url=url_info.url))
-            except IntegrityError as e:
+            except IntegrityError:
                 orig_url_info = self.get_url_info_by_url(url_info.url)
                 duplicate_info = DuplicateInsertInfo(
                     batch_id=batch_id,
