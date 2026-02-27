@@ -5,14 +5,14 @@ Revises: 759ce7d0772b
 Create Date: 2026-02-26 00:00:00.000000
 
 """
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
 revision: str = 'c8e4f1a2b3d5'
-down_revision: Union[str, None] = '759ce7d0772b'
+down_revision: Optional[str] = '759ce7d0772b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -214,6 +214,7 @@ FROM urls u
 
 
 def upgrade() -> None:
+    """Convert url_annotation_count_view and url_annotation_flags to materialized views."""
     # Drop regular views
     op.execute("DROP VIEW IF EXISTS url_annotation_count_view")
     op.execute("DROP VIEW IF EXISTS url_annotation_flags")
@@ -232,6 +233,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Revert url_annotation_count_view and url_annotation_flags to regular views."""
     op.execute("DROP MATERIALIZED VIEW IF EXISTS url_annotation_count_view")
     op.execute("DROP MATERIALIZED VIEW IF EXISTS url_annotation_flags")
 
