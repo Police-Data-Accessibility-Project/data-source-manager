@@ -1,9 +1,16 @@
+"""Benchmarks for the GET /annotate/all endpoint."""
 import json
 import os
 
 import pytest
+from pytest_benchmark.fixture import BenchmarkFixture
 
-from src.api.endpoints.annotate._shared.timing import AnnotationTimings, collect_timings
+from src.api.endpoints.annotate._shared.timing import (
+    AnnotationTimings,
+    collect_timings,
+)
+from tests.automated.integration.benchmark.scale_seed import ScaleSeedResult
+from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 
 _PHASE_ATTRS = (
     "main_query_s",
@@ -20,7 +27,10 @@ def _write_per_phase(key: str, all_timings: list[AnnotationTimings]) -> None:
     n = len(all_timings)
     if not n:
         return
-    averages = {attr: sum(getattr(t, attr) for t in all_timings) / n for attr in _PHASE_ATTRS}
+    averages = {
+        attr: sum(getattr(t, attr) for t in all_timings) / n
+        for attr in _PHASE_ATTRS
+    }
     try:
         with open(_PER_PHASE_FILE) as f:
             data = json.load(f)
@@ -33,20 +43,28 @@ def _write_per_phase(key: str, all_timings: list[AnnotationTimings]) -> None:
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_http_roundtrip(benchmark, benchmark_readonly_helper):
+def test_benchmark_annotate_all_http_roundtrip(
+    benchmark: BenchmarkFixture,
+    benchmark_readonly_helper: ReadOnlyTestHelper,
+) -> None:
     """Total HTTP round-trip time for GET /annotate/all."""
     rv = benchmark_readonly_helper
-    benchmark(lambda: rv.api_test_helper.request_validator.get(url="/annotate/all"))
+    benchmark(
+        lambda: rv.api_test_helper.request_validator.get(url="/annotate/all")
+    )
 
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_per_phase(benchmark, benchmark_readonly_helper):
+def test_benchmark_annotate_all_per_phase(
+    benchmark: BenchmarkFixture,
+    benchmark_readonly_helper: ReadOnlyTestHelper,
+) -> None:
     """Per-phase server-side timing breakdown."""
     rv = benchmark_readonly_helper
-    all_timings = []
+    all_timings: list[AnnotationTimings] = []
 
-    def one_request():
+    def one_request() -> None:
         collector = AnnotationTimings()
         with collect_timings(collector):
             rv.api_test_helper.request_validator.get(url="/annotate/all")
@@ -59,20 +77,28 @@ def test_benchmark_annotate_all_per_phase(benchmark, benchmark_readonly_helper):
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_scale_http_roundtrip(benchmark, scale_seeder):
-    """Total HTTP round-trip time for GET /annotate/all against 10k-URL dataset."""
+def test_benchmark_annotate_all_scale_http_roundtrip(
+    benchmark: BenchmarkFixture,
+    scale_seeder: ScaleSeedResult,
+) -> None:
+    """Total HTTP round-trip time for GET /annotate/all at 10k-URL scale."""
     rv = scale_seeder
-    benchmark(lambda: rv.api_test_helper.request_validator.get(url="/annotate/all"))
+    benchmark(
+        lambda: rv.api_test_helper.request_validator.get(url="/annotate/all")
+    )
 
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_scale_per_phase(benchmark, scale_seeder):
+def test_benchmark_annotate_all_scale_per_phase(
+    benchmark: BenchmarkFixture,
+    scale_seeder: ScaleSeedResult,
+) -> None:
     """Per-phase server-side timing breakdown against 10k-URL dataset."""
     rv = scale_seeder
-    all_timings = []
+    all_timings: list[AnnotationTimings] = []
 
-    def one_request():
+    def one_request() -> None:
         collector = AnnotationTimings()
         with collect_timings(collector):
             rv.api_test_helper.request_validator.get(url="/annotate/all")

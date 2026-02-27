@@ -1,11 +1,17 @@
 import time
 from contextlib import contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Iterator
 
 
 @dataclass
 class AnnotationTimings:
+    """Per-phase server-side timing data for GET /annotate/all.
+
+    All values are in seconds.
+    """
+
     main_query_s: float = 0.0
     agency_suggestions_s: float = 0.0
     location_suggestions_s: float = 0.0
@@ -20,7 +26,10 @@ _active_collector: ContextVar["AnnotationTimings | None"] = ContextVar(
 
 
 @contextmanager
-def collect_timings(collector: AnnotationTimings):
+def collect_timings(
+    collector: AnnotationTimings,
+) -> Iterator[AnnotationTimings]:
+    """Activate *collector* so that _phase() calls record into it."""
     token = _active_collector.set(collector)
     try:
         yield collector
@@ -29,7 +38,7 @@ def collect_timings(collector: AnnotationTimings):
 
 
 @contextmanager
-def _phase(attr: str):
+def _phase(attr: str) -> Iterator[None]:
     collector = _active_collector.get()
     t0 = time.perf_counter()
     yield
