@@ -1,3 +1,4 @@
+"""Fixtures for annotation benchmark tests."""
 import pytest_asyncio
 from sqlalchemy import Engine
 from starlette.testclient import TestClient
@@ -15,6 +16,7 @@ from tests.helpers.setup.wipe import wipe_database
 async def benchmark_readonly_helper(
     client: TestClient, engine: Engine
 ) -> ReadOnlyTestHelper:
+    """Set up small realistic dataset for readonly benchmarks."""
     wipe_database(engine)
     db_data_creator = DBDataCreator()
     api_test_helper = APITestHelper(

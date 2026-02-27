@@ -1,3 +1,4 @@
+"""Scale seeding utilities for annotation load benchmarks."""
 from dataclasses import dataclass
 
 from src.db.client.async_ import AsyncDatabaseClient
@@ -17,6 +18,8 @@ from tests.helpers.data_creator.generate import generate_urls, generate_batch_ur
 
 @dataclass
 class ScaleSeedResult:
+    """Result of seeding the database with a large URL dataset."""
+
     api_test_helper: APITestHelper
     url_count: int
 
