@@ -48,6 +48,26 @@ jobs:
             --benchmark-json=benchmark-results.json \
             -v
 
+      - name: Post benchmark summary
+        run: |
+          uv run python - <<'EOF'
+          import json, os
+          with open("benchmark-results.json") as f:
+              data = json.load(f)
+          lines = [
+              "## Benchmark Results\n",
+              "| Test | Mean (ms) | Min (ms) | Max (ms) | Rounds |",
+              "|------|-----------|----------|----------|--------|",
+          ]
+          for b in data["benchmarks"]:
+              s = b["stats"]
+              lines.append(
+                  f"| {b['name']} | {s['mean']*1000:.2f} | {s['min']*1000:.2f} | {s['max']*1000:.2f} | {s['rounds']} |"
+              )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(lines))
+          EOF
+
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:
