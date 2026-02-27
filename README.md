@@ -59,6 +59,16 @@ Thank you for your interest in contributing to this project! Please follow these
 
 ## Code Quality
 
-Docstrings and type hints are checked via a GitHub Action (`python_checks.yml`) using [pydocstyle](https://www.pydocstyle.org/en/stable/) and [mypy](https://mypy-lang.org/). These produce advisory PR comments and do *not* block merges.
+Linting runs via flake8 in GitHub Actions (`python_checks.yml`) and posts advisory review comments (non-blocking).
+
+To run the same lint checks before committing, install and use the `prek` pre-commit hook runner:
+
+```bash
+uv sync --group dev
+uv run prek install
+
+# run hooks on all files
+uv run prek run --all-files
+```
 
 Note: `python_checks.yml` only runs on pull requests from within the repo, not from forks.
