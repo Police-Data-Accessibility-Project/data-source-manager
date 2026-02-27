@@ -26,22 +26,25 @@ async def extract_and_format_get_annotation_result(
     url: URL,
     batch_id: int | None = None
 ) -> GetNextURLForAllAnnotationResponse:
+    """Extract and format the annotation result for a URL."""
     with _phase("format_s"):
         html_response_info = DTOConverter.html_content_list_to_html_response_info(
             url.html_content
         )
         # URL Types
-        url_type_suggestions: list[URLTypeAnnotationSuggestion] = \
+        url_type_suggestions: list[URLTypeAnnotationSuggestion] = (
             convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
                 url.user_url_type_suggestions,
-                url.anon_url_type_suggestions
+                url.anon_url_type_suggestions,
             )
+        )
         # Record Types
-        record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = \
+        record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = (
             convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
                 url.user_record_type_suggestions,
-                url.anon_record_type_suggestions
+                url.anon_record_type_suggestions,
             )
+        )
     # Agencies
     with _phase("agency_suggestions_s"):
         agency_suggestions: AgencyAnnotationResponseOuterInfo = \
