@@ -80,7 +80,7 @@ jobs:
                   "name_suggestions_s", "batch_info_s", "format_s",
               ]
               for phase in phases:
-                  label = phase.replace("_s", "").replace("_", " ")
+                  label = phase.removesuffix("_s").replace("_", " ")
                   vals = " | ".join(
                       f"{per_phase[k].get(phase, 0)*1000:.2f} ms" for k in per_phase
                   )
