@@ -7,6 +7,7 @@ from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.external.pdap.client import PDAPClient
+from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.update.request import UpdateDataSourcesInnerRequest, \
     UpdateDataSourcesOuterRequest
@@ -72,10 +73,11 @@ async def test_update_url(
     ]
     assert content.source_url == "http://modified-example.com/"
     assert content.description == "Updated URL Description"
+    assert content.url_status == DataSourcesURLStatus.BROKEN
+    assert content.internet_archives_url is None
 
     # Check DS App Link Is Updated
     ds_app_link: DSAppLinkDataSource | None = await adb_client_test.one_or_none_model(model=DSAppLinkDataSource)
     assert ds_app_link is not None
     assert ds_app_link.ds_data_source_id == 67
     assert ds_app_link.last_synced_at > ds_app_linked_data_source_url.updated_at
-

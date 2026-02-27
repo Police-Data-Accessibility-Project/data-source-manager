@@ -3,10 +3,12 @@ from datetime import date
 import pytest
 from deepdiff import DeepDiff
 
-from src.api.endpoints.data_source.get.response import DataSourceGetOuterResponse, DataSourceGetResponse
+from src.api.endpoints.data_source.get.response import DataSourceGetOuterResponse, DataSourceGetResponse, \
+    DataSourceURLHealthResponse
 from src.core.enums import RecordType
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, UpdateMethodEnum, \
     RetentionScheduleEnum, AccessTypeEnum
+from src.db.models.materialized_views.url_health.enums import URLHealthViewEnum
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 
 
@@ -51,6 +53,18 @@ async def test_get(readonly_helper: ReadOnlyTestHelper):
             submission_notes="Read Only Submission Notes",
             access_notes="Read Only Access Notes",
             access_types=[AccessTypeEnum.WEBPAGE, AccessTypeEnum.API],
+            url_health=DataSourceURLHealthResponse(
+                value=URLHealthViewEnum.BROKEN,
+                code=300,
+                http_status_code=None,
+                redirect_url_id=None,
+                redirect_url=None,
+                redirect_http_status_code=None,
+                has_redirect=False,
+                redirect_is_healthy=False,
+                has_archive=False,
+                archive_url=None,
+            ),
         ).model_dump(mode='json'),
     )
 
