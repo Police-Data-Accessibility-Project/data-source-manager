@@ -49,46 +49,7 @@ jobs:
             -v
 
       - name: Post benchmark summary
-        run: |
-          uv run python - <<'EOF'
-          import json, os, pathlib
-          lines = []
-
-          with open("benchmark-results.json") as f:
-              data = json.load(f)
-          lines += [
-              "## Benchmark Results\n",
-              "| Test | Mean (ms) | Min (ms) | Max (ms) | Rounds |",
-              "|------|-----------|----------|----------|--------|",
-          ]
-          for b in data["benchmarks"]:
-              s = b["stats"]
-              lines.append(
-                  f"| {b['name']} | {s['mean']*1000:.2f} | {s['min']*1000:.2f} | {s['max']*1000:.2f} | {s['rounds']} |"
-              )
-
-          if pathlib.Path("per-phase-results.json").exists():
-              with open("per-phase-results.json") as f:
-                  per_phase = json.load(f)
-              lines += [
-                  "\n## Per-Phase Averages\n",
-                  "| Phase | " + " | ".join(per_phase.keys()) + " |",
-                  "|-------|" + "|".join("---:" for _ in per_phase) + "|",
-              ]
-              phases = [
-                  "main_query_s", "agency_suggestions_s", "location_suggestions_s",
-                  "name_suggestions_s", "batch_info_s", "format_s",
-              ]
-              for phase in phases:
-                  label = phase.removesuffix("_s").replace("_", " ")
-                  vals = " | ".join(
-                      f"{per_phase[k].get(phase, 0)*1000:.2f} ms" for k in per_phase
-                  )
-                  lines.append(f"| {label} | {vals} |")
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write("\n".join(lines))
-          EOF
+        run: uv run python scripts/post_benchmark_summary.py
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
