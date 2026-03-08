@@ -6,22 +6,7 @@ Run manually or via the [`benchmark` GHA workflow](../../../../.github/workflows
 ## What is measured
 
 Each benchmark hits `GET /annotate/all` and records either the total HTTP round-trip
-or a per-phase server-side breakdown.
-
-A **phase** is a named segment of the server-side request pipeline — one logical unit
-of work (e.g. a database query or serialisation step) whose duration is tracked
-independently. Phases are instrumented via `_phase()` context managers placed directly
-in the source code; the canonical list of phase names and their dataclass fields lives in
-[`src/api/endpoints/annotate/_shared/timing.py`](../../../../src/api/endpoints/annotate/_shared/timing.py).
-
-| Phase | What it measures |
-|---|---|
-| `main_query` | SELECT to fetch the next URL and its annotation state |
-| `agency_suggestions` | Agency suggestion query |
-| `location_suggestions` | Location suggestion query |
-| `name_suggestions` | Name suggestion query |
-| `batch_info` | Annotation batch metadata query |
-| `format` | Response serialisation (no DB query) |
+or a pyinstrument call-tree profile.
 
 Two fixture sizes are used:
 
@@ -30,13 +15,34 @@ Two fixture sizes are used:
 | `benchmark_readonly_helper` | Small realistic dataset |
 | `scale_seeder` | 10 000-URL dataset to surface query scaling behaviour |
 
+## Tests
+
+| Test | What it measures |
+|---|---|
+| `test_benchmark_annotate_all_http_roundtrip` | Total HTTP round-trip time (small dataset) |
+| `test_benchmark_annotate_all_profiled` | pyinstrument flamegraph (small dataset) |
+| `test_benchmark_annotate_all_scale_http_roundtrip` | Total HTTP round-trip time (10k-URL dataset) |
+| `test_benchmark_annotate_all_scale_profiled` | pyinstrument flamegraph (10k-URL dataset) |
+
+## Profiled tests
+
+The `_profiled` tests wrap each benchmark round with a `pyinstrument.Profiler`
+(`async_mode="enabled"`) so that time is attributed correctly across `await` boundaries.
+After all rounds complete, they write a self-contained interactive HTML flamegraph to
+`$PROFILE_DIR` (defaults to the current directory):
+
+- `profile_readonly.html`
+- `profile_scale_{url_count}.html`
+
+Open these files in any browser — no extra tooling required.
+
 ## Running locally
 
 Set the required environment variables (see [`ENV.md`](../../../../ENV.md) for values),
 then run:
 
 ```bash
-uv run pytest tests/automated/integration/benchmark \
+PROFILE_DIR=. uv run pytest tests/automated/integration/benchmark \
   -m "manual and benchmark" \
   --benchmark-json=benchmark-results.json \
   -v

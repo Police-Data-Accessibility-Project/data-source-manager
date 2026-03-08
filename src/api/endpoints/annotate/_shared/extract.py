@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.annotate._shared.queries.get_annotation_batch_info import GetAnnotationBatchInfoQueryBuilder
-from src.api.endpoints.annotate._shared.timing import _phase
 from src.api.endpoints.annotate.all.get.models.agency import AgencyAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.location import LocationAnnotationResponseOuterInfo
 from src.api.endpoints.annotate.all.get.models.name import NameAnnotationResponseOuterInfo
@@ -27,43 +26,38 @@ async def extract_and_format_get_annotation_result(
     batch_id: int | None = None
 ) -> GetNextURLForAllAnnotationResponse:
     """Extract and format the annotation result for a URL."""
-    with _phase("format_s"):
-        html_response_info = DTOConverter.html_content_list_to_html_response_info(
-            url.html_content
+    html_response_info = DTOConverter.html_content_list_to_html_response_info(
+        url.html_content
+    )
+    # URL Types
+    url_type_suggestions: list[URLTypeAnnotationSuggestion] = (
+        convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
+            url.user_url_type_suggestions,
+            url.anon_url_type_suggestions,
         )
-        # URL Types
-        url_type_suggestions: list[URLTypeAnnotationSuggestion] = (
-            convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
-                url.user_url_type_suggestions,
-                url.anon_url_type_suggestions,
-            )
+    )
+    # Record Types
+    record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = (
+        convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
+            url.user_record_type_suggestions,
+            url.anon_record_type_suggestions,
         )
-        # Record Types
-        record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = (
-            convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
-                url.user_record_type_suggestions,
-                url.anon_record_type_suggestions,
-            )
-        )
+    )
     # Agencies
-    with _phase("agency_suggestions_s"):
-        agency_suggestions: AgencyAnnotationResponseOuterInfo = \
-            await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
+    agency_suggestions: AgencyAnnotationResponseOuterInfo = \
+        await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
     # Locations
-    with _phase("location_suggestions_s"):
-        location_suggestions: LocationAnnotationResponseOuterInfo = \
-            await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
+    location_suggestions: LocationAnnotationResponseOuterInfo = \
+        await GetLocationSuggestionsQueryBuilder(url_id=url.id).run(session)
     # Names
-    with _phase("name_suggestions_s"):
-        name_suggestions: NameAnnotationResponseOuterInfo = \
-            await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
-    with _phase("batch_info_s"):
-        batch_info = await GetAnnotationBatchInfoQueryBuilder(
-            batch_id=batch_id,
-            models=[
-                AnnotationAgencyUser,
-            ]
-        ).run(session)
+    name_suggestions: NameAnnotationResponseOuterInfo = \
+        await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
+    batch_info = await GetAnnotationBatchInfoQueryBuilder(
+        batch_id=batch_id,
+        models=[
+            AnnotationAgencyUser,
+        ]
+    ).run(session)
     return GetNextURLForAllAnnotationResponse(
         next_annotation=GetNextURLForAllAnnotationInnerResponse(
             url_info=SimpleURLMapping(

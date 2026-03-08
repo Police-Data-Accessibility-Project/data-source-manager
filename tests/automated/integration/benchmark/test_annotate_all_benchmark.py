@@ -1,44 +1,21 @@
 """Benchmarks for the GET /annotate/all endpoint."""
-import json
 import os
 
 import pytest
+from pyinstrument import Profiler
 from pytest_benchmark.fixture import BenchmarkFixture
 
-from src.api.endpoints.annotate._shared.timing import (
-    AnnotationTimings,
-    collect_timings,
-)
 from tests.automated.integration.benchmark.scale_seed import ScaleSeedResult
 from tests.automated.integration.readonly.helper import ReadOnlyTestHelper
 
-_PHASE_ATTRS = (
-    "main_query_s",
-    "agency_suggestions_s",
-    "location_suggestions_s",
-    "name_suggestions_s",
-    "batch_info_s",
-    "format_s",
-)
-_PER_PHASE_FILE = os.environ.get("PER_PHASE_JSON", "per-phase-results.json")
+_PROFILE_DIR = os.environ.get("PROFILE_DIR", ".")
 
 
-def _write_per_phase(key: str, all_timings: list[AnnotationTimings]) -> None:
-    n = len(all_timings)
-    if not n:
-        return
-    averages = {
-        attr: sum(getattr(t, attr) for t in all_timings) / n
-        for attr in _PHASE_ATTRS
-    }
-    try:
-        with open(_PER_PHASE_FILE) as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = {}
-    data[key] = averages
-    with open(_PER_PHASE_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+def _save_profile(profiler: Profiler, name: str) -> None:
+    """Write profiler HTML flamegraph to PROFILE_DIR."""
+    path = os.path.join(_PROFILE_DIR, f"{name}.html")
+    with open(path, "w") as f:
+        f.write(profiler.output_html())
 
 
 @pytest.mark.manual
@@ -56,23 +33,20 @@ def test_benchmark_annotate_all_http_roundtrip(
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_per_phase(
+def test_benchmark_annotate_all_profiled(
     benchmark: BenchmarkFixture,
     benchmark_readonly_helper: ReadOnlyTestHelper,
 ) -> None:
-    """Per-phase server-side timing breakdown."""
+    """Pyinstrument call-tree profile of GET /annotate/all (small dataset)."""
     rv = benchmark_readonly_helper
-    all_timings: list[AnnotationTimings] = []
+    profiler = Profiler(async_mode="enabled")
 
     def one_request() -> None:
-        collector = AnnotationTimings()
-        with collect_timings(collector):
+        with profiler:
             rv.api_test_helper.request_validator.get(url="/annotate/all")
-        all_timings.append(collector)
 
     benchmark(one_request)
-
-    _write_per_phase("readonly", all_timings)
+    _save_profile(profiler, "profile_readonly")
 
 
 @pytest.mark.manual
@@ -90,20 +64,17 @@ def test_benchmark_annotate_all_scale_http_roundtrip(
 
 @pytest.mark.manual
 @pytest.mark.benchmark
-def test_benchmark_annotate_all_scale_per_phase(
+def test_benchmark_annotate_all_scale_profiled(
     benchmark: BenchmarkFixture,
     scale_seeder: ScaleSeedResult,
 ) -> None:
-    """Per-phase server-side timing breakdown against 10k-URL dataset."""
+    """Pyinstrument profile of GET /annotate/all (10k-URL dataset)."""
     rv = scale_seeder
-    all_timings: list[AnnotationTimings] = []
+    profiler = Profiler(async_mode="enabled")
 
     def one_request() -> None:
-        collector = AnnotationTimings()
-        with collect_timings(collector):
+        with profiler:
             rv.api_test_helper.request_validator.get(url="/annotate/all")
-        all_timings.append(collector)
 
     benchmark(one_request)
-
-    _write_per_phase(f"scale_{rv.url_count}", all_timings)
+    _save_profile(profiler, f"profile_scale_{rv.url_count}")

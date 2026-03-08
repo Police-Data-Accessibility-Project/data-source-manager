@@ -13,7 +13,6 @@ from src.db.models.impl.annotation.record_type.user.user import AnnotationRecord
 from src.db.models.impl.annotation.url_type.user.sqlalchemy import AnnotationURLTypeUser
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.api.endpoints.annotate._shared.timing import _phase
 from src.db.queries.base.builder import QueryBuilderBase
 
 
@@ -92,9 +91,8 @@ class GetNextURLForAllAnnotationQueryBuilder(QueryBuilderBase):
             .limit(1)
         )
 
-        with _phase("main_query_s"):
-            raw_results = (await session.execute(query)).unique()
-            url: URL | None = raw_results.scalars().one_or_none()
+        raw_results = (await session.execute(query)).unique()
+        url: URL | None = raw_results.scalars().one_or_none()
         if url is None:
             return GetNextURLForAllAnnotationResponse(
                 next_annotation=None
