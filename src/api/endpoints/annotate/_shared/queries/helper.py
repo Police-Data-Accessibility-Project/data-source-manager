@@ -20,12 +20,10 @@ def add_joins(query: Select) -> Select:
         .join(
             URLAnnotationFlagsView,
             URLAnnotationFlagsView.url_id == URL.id,
-            isouter=True
         )
         .join(
             URLAnnotationCount,
             URLAnnotationCount.url_id == URL.id,
-            isouter=True
         )
     )
     return query

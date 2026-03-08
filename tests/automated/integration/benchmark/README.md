@@ -6,8 +6,12 @@ Run manually or via the [`benchmark` GHA workflow](../../../../.github/workflows
 ## What is measured
 
 Each benchmark hits `GET /annotate/all` and records either the total HTTP round-trip
-or a per-phase server-side breakdown. Phases are instrumented via `_phase()` context
-managers in the source; the canonical list lives in
+or a per-phase server-side breakdown.
+
+A **phase** is a named segment of the server-side request pipeline — one logical unit
+of work (e.g. a database query or serialisation step) whose duration is tracked
+independently. Phases are instrumented via `_phase()` context managers placed directly
+in the source code; the canonical list of phase names and their dataclass fields lives in
 [`src/api/endpoints/annotate/_shared/timing.py`](../../../../src/api/endpoints/annotate/_shared/timing.py).
 
 | Phase | What it measures |
