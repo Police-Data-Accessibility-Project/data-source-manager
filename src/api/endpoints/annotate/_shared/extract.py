@@ -25,21 +25,24 @@ async def extract_and_format_get_annotation_result(
     url: URL,
     batch_id: int | None = None
 ) -> GetNextURLForAllAnnotationResponse:
+    """Extract and format the annotation result for a URL."""
     html_response_info = DTOConverter.html_content_list_to_html_response_info(
         url.html_content
     )
     # URL Types
-    url_type_suggestions: list[URLTypeAnnotationSuggestion] = \
+    url_type_suggestions: list[URLTypeAnnotationSuggestion] = (
         convert_user_url_type_suggestion_to_url_type_annotation_suggestion(
             url.user_url_type_suggestions,
-            url.anon_url_type_suggestions
+            url.anon_url_type_suggestions,
         )
+    )
     # Record Types
-    record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = \
+    record_type_suggestions: RecordTypeAnnotationResponseOuterInfo = (
         convert_user_record_type_suggestion_to_record_type_annotation_suggestion(
             url.user_record_type_suggestions,
-            url.anon_record_type_suggestions
+            url.anon_record_type_suggestions,
         )
+    )
     # Agencies
     agency_suggestions: AgencyAnnotationResponseOuterInfo = \
         await GetAgencySuggestionsQueryBuilder(url_id=url.id).run(session)
@@ -49,6 +52,12 @@ async def extract_and_format_get_annotation_result(
     # Names
     name_suggestions: NameAnnotationResponseOuterInfo = \
         await GetNameSuggestionsQueryBuilder(url_id=url.id).run(session)
+    batch_info = await GetAnnotationBatchInfoQueryBuilder(
+        batch_id=batch_id,
+        models=[
+            AnnotationAgencyUser,
+        ]
+    ).run(session)
     return GetNextURLForAllAnnotationResponse(
         next_annotation=GetNextURLForAllAnnotationInnerResponse(
             url_info=SimpleURLMapping(
@@ -59,12 +68,7 @@ async def extract_and_format_get_annotation_result(
             url_type_suggestions=url_type_suggestions,
             record_type_suggestions=record_type_suggestions,
             agency_suggestions=agency_suggestions,
-            batch_info=await GetAnnotationBatchInfoQueryBuilder(
-                batch_id=batch_id,
-                models=[
-                    AnnotationAgencyUser,
-                ]
-            ).run(session),
+            batch_info=batch_info,
             location_suggestions=location_suggestions,
             name_suggestions=name_suggestions
         )
