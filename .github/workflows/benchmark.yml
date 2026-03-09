@@ -2,6 +2,9 @@ name: Annotation Benchmark
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   benchmark:
