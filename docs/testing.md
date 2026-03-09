@@ -74,6 +74,16 @@ The pipeline has a 20-minute timeout.
 
 A separate workflow (`.github/workflows/python_checks.yml`) runs flake8 linting via reviewdog on pull requests. These are advisory warnings and do not block merges.
 
+For local lint checks before commit, use `prek`:
+
+```bash
+uv sync --group dev
+uv run prek install
+uv run prek run --all-files
+```
+
+The hook and CI use the same flake8 configuration from `.flake8`.
+
 ## Test Structure
 
 ```

@@ -69,7 +69,6 @@ async def test_add(
     assert content.detail_level is None
     assert content.agency_supplied is None
     assert content.agency_originated is None
-    assert content.agency_described_not_in_database is None
     assert content.update_method is None
     assert content.readme_url is None
     assert content.originating_entity is None
