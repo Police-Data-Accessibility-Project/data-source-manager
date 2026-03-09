@@ -1,6 +1,7 @@
 from sqlalchemy import select, literal, Exists, Label, or_
 
 from src.db.models.templates_.base import Base
+from src.db.models.views.integrity.federal_agencies_wrong_location import IntegrityFederalAgenciesWrongLocation
 from src.db.models.views.integrity.incomplete_data_sources import IntegrityIncompleteDataSource
 from src.db.models.views.integrity.incomplete_meta_urls import IntegrityIncompleteMetaURL
 from src.db.models.views.integrity.non_federal_agencies_no_location import IntegrityNonFederalAgenciesNoLocation
@@ -27,6 +28,7 @@ class IntegrityTaskCTEContainer:
     ):
         self.models: list[type[Base]] = [
             IntegrityURLBothDataSourceAndMetaURL,
+            IntegrityFederalAgenciesWrongLocation,
             IntegrityNonFederalAgenciesNoLocation,
             IntegrityIncompleteMetaURL,
             IntegrityIncompleteDataSource,
@@ -58,4 +60,3 @@ class IntegrityTaskCTEContainer:
     @property
     def select_all_columns_query(self) -> select:
         return select(self.cte)
-

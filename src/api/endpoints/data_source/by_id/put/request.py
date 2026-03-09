@@ -27,7 +27,6 @@ class DataSourcePutRequest(BaseModel):
     agency_supplied: bool | None = None
     agency_originated: bool | None = None
     agency_aggregation: AgencyAggregationEnum | None = None
-    agency_described_not_in_database: str | None = None
     update_method: UpdateMethodEnum | None = None
     readme_url: str | None = None
     originating_entity: str | None = None
@@ -47,7 +46,6 @@ class DataSourcePutRequest(BaseModel):
             self.agency_supplied is not None or
             self.agency_originated is not None or
             self.agency_aggregation is not None or
-            self.agency_described_not_in_database is not None or
             self.update_method is not None or
             self.readme_url is not None or
             self.originating_entity is not None or
