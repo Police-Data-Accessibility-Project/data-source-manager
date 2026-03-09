@@ -113,6 +113,10 @@ See `ENV.md` for the full reference. Key categories:
 
 ## Important Notes
 
+- Follow the repository's linting style guide when writing or editing Python:
+  - Run `flake8` with this exact ignore set in mind: `E501,W291,W293,D401,D400,E402,E302,D200,D202,D205,W503,E203,D204,D403`
+  - Keep import ordering and blank-line usage compliant with `flake8` defaults aside from the ignore list above
+  - Prefer concise docstrings where present and avoid introducing new docstring violations outside ignored codes
 - The app exposes its API docs at `/api` (not the default `/docs` — `/docs` redirects to `/api`).
 - CORS is configured for `localhost:8888`, `pdap.io`, and `pdap.dev`.
 - Two permission levels: `access_source_collector` (general) and `source_collector_final_review` (final review).

@@ -137,7 +137,6 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             agency_supplied=self.request.agency_supplied,
             agency_originated=self.request.agency_originated,
             agency_aggregation=self.request.agency_aggregation,
-            agency_described_not_in_database=self.request.agency_described_not_in_database,
             data_portal_type=self.request.data_portal_type,
             update_method=self.request.update_method,
             readme_url=self.request.readme_url,
