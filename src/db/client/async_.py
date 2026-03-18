@@ -915,3 +915,9 @@ class AsyncDatabaseClient:
         await self.execute(
             text("REFRESH MATERIALIZED VIEW mat_view__html_duplicate_url")
         )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW CONCURRENTLY url_annotation_count_view")
+        )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW CONCURRENTLY url_annotation_flags")
+        )
