@@ -42,6 +42,8 @@ async def test_annotate_sorting(
         db_data_creator=ath.db_data_creator,
         include_user_annotations=True
     )
+    # Refresh so that the new annotation counts are reflected in the materialized view
+    await dbc.refresh_materialized_views()
     get_response_2 = await ath.request_validator.get_next_url_for_all_annotations()
     assert get_response_2.next_annotation is not None
     assert get_response_2.next_annotation.url_info.url_id == setup_info_high_annotations.url_mapping.url_id

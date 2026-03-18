@@ -31,7 +31,6 @@ def build_data_source_get_query() -> Select:
             URLOptionalDataSourceMetadata.coverage_end,
             URLOptionalDataSourceMetadata.agency_supplied,
             URLOptionalDataSourceMetadata.agency_aggregation,
-            URLOptionalDataSourceMetadata.agency_described_not_in_database,
             URLOptionalDataSourceMetadata.agency_originated,
             URLOptionalDataSourceMetadata.update_method,
             URLOptionalDataSourceMetadata.readme_url,

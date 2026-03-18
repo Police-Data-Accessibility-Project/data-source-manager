@@ -40,7 +40,8 @@ async def submit_url(
         409: {
             "model": SubmitDataSourceURLDuplicateSubmissionResponse
         }
-    }
+    },
+    dependencies=[Depends(get_standard_user_access_info)]
 )
 async def submit_data_source(
     request: DataSourceSubmissionRequest,

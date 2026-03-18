@@ -49,7 +49,6 @@ def process_data_source_get_mapping(
         agency_supplied=mapping[URLOptionalDataSourceMetadata.agency_supplied],
         agency_aggregation=mapping[URLOptionalDataSourceMetadata.agency_aggregation],
         agency_originated=mapping[URLOptionalDataSourceMetadata.agency_originated],
-        agency_described_not_in_database=mapping[URLOptionalDataSourceMetadata.agency_described_not_in_database],
         update_method=mapping[URLOptionalDataSourceMetadata.update_method],
         readme_url=mapping[URLOptionalDataSourceMetadata.readme_url],
         originating_entity=mapping[URLOptionalDataSourceMetadata.originating_entity],
