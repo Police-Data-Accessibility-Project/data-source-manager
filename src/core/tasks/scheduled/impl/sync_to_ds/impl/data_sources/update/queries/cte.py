@@ -1,9 +1,11 @@
-from sqlalchemy import select, or_, Column, CTE
+from sqlalchemy import select, or_, Column, CTE, and_, exists
 
+from src.db.models.impl.link.url_redirect_url.sqlalchemy import LinkURLRedirectURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
 
 
 class DSAppLinkSyncDataSourceUpdatePrerequisitesCTEContainer:
@@ -32,6 +34,35 @@ class DSAppLinkSyncDataSourceUpdatePrerequisitesCTEContainer:
                     URLOptionalDataSourceMetadata.updated_at > DSAppLinkDataSource.last_synced_at,
                     URLRecordType.created_at > DSAppLinkDataSource.last_synced_at,
                     URLRecordType.updated_at > DSAppLinkDataSource.last_synced_at,
+                    exists(
+                        select(URLWebMetadata.url_id).where(
+                            and_(
+                                URLWebMetadata.url_id == DSAppLinkDataSource.url_id,
+                                URLWebMetadata.updated_at > DSAppLinkDataSource.last_synced_at,
+                            )
+                        )
+                    ),
+                    exists(
+                        select(LinkURLRedirectURL.source_url_id).where(
+                            and_(
+                                LinkURLRedirectURL.source_url_id == DSAppLinkDataSource.url_id,
+                                LinkURLRedirectURL.updated_at > DSAppLinkDataSource.last_synced_at,
+                            )
+                        )
+                    ),
+                    exists(
+                        select(LinkURLRedirectURL.source_url_id)
+                        .join(
+                            URLWebMetadata,
+                            URLWebMetadata.url_id == LinkURLRedirectURL.destination_url_id,
+                        )
+                        .where(
+                            and_(
+                                LinkURLRedirectURL.source_url_id == DSAppLinkDataSource.url_id,
+                                URLWebMetadata.updated_at > DSAppLinkDataSource.last_synced_at,
+                            )
+                        )
+                    ),
                 )
             ).cte("ds_app_link_sync_data_source_update_prerequisites")
         )

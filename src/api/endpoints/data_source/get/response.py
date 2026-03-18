@@ -5,6 +5,20 @@ from pydantic import BaseModel
 from src.core.enums import RecordType
 from src.db.models.impl.url.optional_ds_metadata.enums import AgencyAggregationEnum, UpdateMethodEnum, \
     RetentionScheduleEnum, AccessTypeEnum
+from src.db.models.materialized_views.url_health.enums import URLHealthViewEnum
+
+
+class DataSourceURLHealthResponse(BaseModel):
+    value: URLHealthViewEnum
+    code: int
+    http_status_code: int | None = None
+    redirect_url_id: int | None = None
+    redirect_url: str | None = None
+    redirect_http_status_code: int | None = None
+    has_redirect: bool = False
+    redirect_is_healthy: bool = False
+    has_archive: bool = False
+    archive_url: str | None = None
 
 
 class DataSourceGetResponse(BaseModel):
@@ -37,6 +51,7 @@ class DataSourceGetResponse(BaseModel):
     submission_notes: str | None = None
     access_notes: str | None = None
     access_types: list[AccessTypeEnum]
+    url_health: DataSourceURLHealthResponse | None = None
 
 class DataSourceGetOuterResponse(BaseModel):
     results: list[DataSourceGetResponse]
