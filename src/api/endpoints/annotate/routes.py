@@ -9,6 +9,10 @@ from src.api.endpoints.annotate.all.get.models.response import GetNextURLForAllA
 from src.api.endpoints.annotate.all.get.queries.agency.core import GetAgencySuggestionsQueryBuilder
 from src.api.endpoints.annotate.all.post.models.request import AllAnnotationPostInfo
 from src.api.endpoints.annotate.all.post.query import AddAllAnnotationsToURLQueryBuilder
+from src.api.endpoints.annotate.missing.get.models import MissingAnnotationQueueResponse
+from src.api.endpoints.annotate.missing.get.query import GetMissingAnnotationQueueQueryBuilder
+from src.api.endpoints.annotate.missing.post.models import ResolveMissingAnnotationRequest
+from src.api.endpoints.annotate.missing.post.query import ResolveMissingAnnotationQueryBuilder
 from src.api.endpoints.annotate.anonymous.get.query import GetNextURLForAnonymousAnnotationQueryBuilder
 from src.api.endpoints.annotate.anonymous.get.response import GetNextURLForAnonymousAnnotationResponse
 from src.api.endpoints.annotate.anonymous.post.query import AddAnonymousAnnotationsToURLQueryBuilder
@@ -146,3 +150,31 @@ async def get_agency_suggestions(
         )
     )
 
+
+@annotate_router.get("/missing")
+async def get_missing_annotations_queue(
+    async_core: AsyncCore = Depends(get_async_core),
+    access_info: AccessInfo = Depends(get_standard_user_access_info),
+    limit: int = Query(default=200, ge=1, le=1000),
+) -> MissingAnnotationQueueResponse:
+    return await async_core.adb_client.run_query_builder(
+        GetMissingAnnotationQueueQueryBuilder(
+            limit=limit
+        )
+    )
+
+
+@annotate_router.post("/missing/{url_id}")
+async def resolve_missing_annotation(
+    url_id: int,
+    post_info: ResolveMissingAnnotationRequest,
+    async_core: AsyncCore = Depends(get_async_core),
+    access_info: AccessInfo = Depends(get_standard_user_access_info),
+) -> MessageResponse:
+    return await async_core.adb_client.run_query_builder(
+        ResolveMissingAnnotationQueryBuilder(
+            user_id=access_info.user_id,
+            url_id=url_id,
+            post_info=post_info,
+        )
+    )

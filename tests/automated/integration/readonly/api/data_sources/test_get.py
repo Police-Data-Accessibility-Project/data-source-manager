@@ -21,7 +21,10 @@ async def test_get(readonly_helper: ReadOnlyTestHelper):
     outer_response = DataSourceGetOuterResponse(**raw_json)
 
     assert len(outer_response.results) == 2
-    response: DataSourceGetResponse = outer_response.results[0]
+    response: DataSourceGetResponse = next(
+        r for r in outer_response.results
+        if r.url_id == readonly_helper.maximal_data_source_url_id
+    )
 
     diff = DeepDiff(
         response.model_dump(mode='json'),
