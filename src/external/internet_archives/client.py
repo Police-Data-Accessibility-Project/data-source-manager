@@ -1,4 +1,5 @@
 """Client for the Internet Archive CDX and Save APIs."""
+from asyncio import sleep
 from asyncio import Semaphore
 
 from aiolimiter import AsyncLimiter
@@ -123,25 +124,73 @@ class InternetArchivesClient:
             error=None
         )
 
-    async def _save_url(self: "InternetArchivesClient", url: str) -> int:
+    async def _save_url(self: "InternetArchivesClient", url: str) -> str:
         async with self.session.post(
-            "http://web.archive.org/save",
+            "https://web.archive.org/save",
             data={
                 "url": url,
                 "skip_first_archive": 1
             },
             headers={
                 "Authorization": f"LOW {self.s3_keys}",
+                "Accept": "application/json",
+                "Capture-Output": "json",
+            }
+        ) as response:
+            response.raise_for_status()
+            payload: dict = await response.json(content_type=None)
+            job_id = payload.get("job_id")
+            if not job_id:
+                raise ValueError(
+                    f"Save request for URL {url} succeeded without job_id: {payload}"
+                )
+            return str(job_id)
+
+    async def _get_save_status(self: "InternetArchivesClient", job_id: str) -> dict:
+        async with self.session.get(
+            f"https://web.archive.org/save/status/{job_id}",
+            headers={
+                "Authorization": f"LOW {self.s3_keys}",
                 "Accept": "application/json"
             }
         ) as response:
             response.raise_for_status()
-            return response.status
+            return await response.json(content_type=None)
+
+    async def _wait_for_save_completion(
+        self: "InternetArchivesClient",
+        job_id: str,
+        max_attempts: int = 10,
+        poll_interval_seconds: float = 2.0
+    ) -> str | None:
+        for _ in range(max_attempts):
+            payload = await self._get_save_status(job_id)
+            raw_status = payload.get("status")
+            status = str(raw_status).lower() if raw_status is not None else ""
+
+            if status == "success":
+                return None
+
+            if status in {"error", "failed", "failure"}:
+                status_message = payload.get("message")
+                if status_message:
+                    return str(status_message)
+                return f"Save request failed with payload: {payload}"
+
+            await sleep(poll_interval_seconds)
+
+        return f"Timed out waiting for Internet Archive save completion for job_id={job_id}"
 
     async def save_to_internet_archives(self: "InternetArchivesClient", url: str) -> InternetArchivesSaveResponseInfo:
         """Save a URL to the Internet Archive."""
         try:
-            _: int = await self._save_url(url)
+            job_id: str = await self._save_url(url)
+            save_error: str | None = await self._wait_for_save_completion(job_id)
+            if save_error:
+                return InternetArchivesSaveResponseInfo(
+                    url=url,
+                    error=save_error
+                )
         except Exception as e:
             return InternetArchivesSaveResponseInfo(
                 url=url,

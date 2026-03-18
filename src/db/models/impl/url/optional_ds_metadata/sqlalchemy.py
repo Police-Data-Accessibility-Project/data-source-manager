@@ -26,7 +26,6 @@ class URLOptionalDataSourceMetadata(
     agency_supplied = Column(Boolean, nullable=True)
     agency_originated = Column(Boolean, nullable=True)
     agency_aggregation: Mapped[AgencyAggregationEnum] = enum_column(AgencyAggregationEnum, name="agency_aggregation_enum")
-    agency_described_not_in_database = Column(String, nullable=True)
     update_method: Mapped[UpdateMethodEnum] = enum_column(UpdateMethodEnum, name="update_method_enum")
     readme_url = Column(String, nullable=True)
     originating_entity = Column(String, nullable=True)

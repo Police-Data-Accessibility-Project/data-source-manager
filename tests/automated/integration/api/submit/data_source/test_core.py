@@ -43,7 +43,6 @@ async def test_submit_data_source(
             agency_supplied=True,
             agency_originated=False,
             agency_aggregation=AgencyAggregationEnum.STATE,
-            agency_described_not_in_database="Test agency described not in database",
             update_method=UpdateMethodEnum.NO_UPDATES,
             readme_url="https://example.com/readme",
             originating_entity="Test Originating Entity",
@@ -131,7 +130,6 @@ async def test_submit_data_source(
     assert optional_ds.agency_supplied
     assert not optional_ds.agency_originated
     assert optional_ds.agency_aggregation == AgencyAggregationEnum.STATE
-    assert optional_ds.agency_described_not_in_database == "Test agency described not in database"
     assert optional_ds.data_portal_type == "Test data portal"
     assert optional_ds.update_method == UpdateMethodEnum.NO_UPDATES
     assert optional_ds.readme_url == "https://example.com/readme"
@@ -149,4 +147,3 @@ async def test_submit_data_source(
         "Test record format",
         "Test record format 2"
     ]
-

@@ -70,8 +70,6 @@ class UpdateDataSourceQueryBuilder(QueryBuilderBase):
             value_dict["agency_originated"] = self.request.agency_originated
         if self.request.agency_aggregation is not None:
             value_dict["agency_aggregation"] = self.request.agency_aggregation
-        if self.request.agency_described_not_in_database is not None:
-            value_dict["agency_described_not_in_database"] = self.request.agency_described_not_in_database
         if self.request.update_method is not None:
             value_dict["update_method"] = self.request.update_method
         if self.request.readme_url is not None:
@@ -119,5 +117,4 @@ class UpdateDataSourceQueryBuilder(QueryBuilderBase):
             )
 
             await session.execute(statement)
-
 

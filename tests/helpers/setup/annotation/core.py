@@ -19,4 +19,5 @@ async def setup_for_get_next_url_for_annotation(
             url.url_id for url in insert_urls_info.url_mappings
         ]
     )
+    await db_data_creator.adb_client.refresh_materialized_views()
     return AnnotationSetupInfo(batch_id=batch_id, insert_urls_info=insert_urls_info)

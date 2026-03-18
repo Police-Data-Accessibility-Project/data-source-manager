@@ -45,7 +45,6 @@ async def test_get(readonly_helper: ReadOnlyTestHelper):
             agency_supplied=False,
             agency_originated=True,
             agency_aggregation=AgencyAggregationEnum.LOCALITY,
-            agency_described_not_in_database="ReadOnly Agency Not In DB",
             update_method=UpdateMethodEnum.NO_UPDATES,
             readme_url="https://read-only-readme.com",
             originating_entity="ReadOnly Agency Originating",
