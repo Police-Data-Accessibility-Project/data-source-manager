@@ -5,16 +5,16 @@ Revises: 1fb2286a016c
 Create Date: 2026-02-27 12:00:00.000000
 
 """
-from typing import Sequence, Union
+from typing import Optional, Sequence
 
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
 revision: str = "c4f9bbf8a201"
-down_revision: Union[str, None] = "1fb2286a016c"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: Optional[str] = "f831e447b1cb"
+branch_labels: Optional[str | Sequence[str]] = None
+depends_on: Optional[str | Sequence[str]] = None
 
 
 def _create_url_status_mat_view() -> None:
@@ -122,11 +122,13 @@ def _create_url_status_mat_view() -> None:
 
 
 def upgrade() -> None:
+    """Add missing location/agency status to url_status_mat_view."""
     op.execute("DROP MATERIALIZED VIEW IF EXISTS url_status_mat_view")
     _create_url_status_mat_view()
 
 
 def downgrade() -> None:
+    """Revert url_status_mat_view to version without missing location/agency."""
     op.execute("DROP MATERIALIZED VIEW IF EXISTS url_status_mat_view")
     op.execute(
         """
