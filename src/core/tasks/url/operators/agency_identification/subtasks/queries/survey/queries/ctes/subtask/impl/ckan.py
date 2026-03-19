@@ -6,6 +6,7 @@ from src.core.tasks.url.operators.agency_identification.subtasks.queries.survey.
     get_exists_subtask_query
 from src.db.models.impl.annotation.agency.auto.subtask.enum import AutoAgencyIDSubtaskType
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 
@@ -24,8 +25,12 @@ cte = (
         Batch,
         Batch.id == LinkBatchURL.batch_id,
     )
+    .join(
+        BatchStrategy,
+        Batch.batch_strategy_id == BatchStrategy.id,
+    )
     .where(
-        Batch.strategy == CollectorType.CKAN.value,
+        BatchStrategy.name == CollectorType.CKAN.value,
 
     )
     .cte("ckan_eligible")

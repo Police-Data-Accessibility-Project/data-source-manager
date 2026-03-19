@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, TIMESTAMP, Float, JSON
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import Column, Integer, TIMESTAMP, Float, JSON, ForeignKey
 from sqlalchemy.orm import relationship, Mapped
 
 from src.core.enums import BatchStatus
@@ -12,19 +11,12 @@ from src.db.models.types import batch_status_enum
 class Batch(WithIDBase):
     __tablename__ = 'batches'
 
-    strategy = Column(
-        postgresql.ENUM(
-            'example',
-            'ckan',
-            'muckrock_county_search',
-            'auto_googler',
-            'muckrock_all_search',
-            'muckrock_simple_search',
-            'common_crawler',
-            'manual',
-            'internet_archive',
-            name='batch_strategy'),
-        nullable=False)
+    batch_strategy_id = Column(
+        Integer,
+        ForeignKey("batch_strategies.id"),
+        nullable=False,
+        index=True,
+    )
     user_id = Column(Integer, nullable=True)
     # Gives the status of the batch
     status: Mapped[BatchStatus] = Column(
@@ -40,6 +32,11 @@ class Batch(WithIDBase):
     parameters = Column(JSON)
 
     # Relationships
+    batch_strategy = relationship(
+        "BatchStrategy",
+        back_populates="batches",
+        lazy="joined",
+    )
     urls = relationship(
         "URL",
         secondary="link_batches__urls",
@@ -50,3 +47,9 @@ class Batch(WithIDBase):
     # missings = relationship("Missing", back_populates="batch")
     logs = relationship(Log, back_populates="batch")
     duplicates = relationship("Duplicate", back_populates="batch")
+
+    @property
+    def strategy(self) -> str | None:
+        if self.batch_strategy is None:
+            return None
+        return self.batch_strategy.name
