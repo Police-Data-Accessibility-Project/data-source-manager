@@ -396,14 +396,16 @@ class RequestValidator:
     async def get_next_url_for_all_annotations(
             self,
             batch_id: int | None = None,
-            anno_url_id: int | None = None
+            anno_url_id: int | None = None,
+            offset: int | None = None
     ) -> GetNextURLForAllAnnotationResponse:
         params = {}
         update_if_not_none(
             target=params,
             source={
                 "batch_id": batch_id,
-                "anno_url_id": anno_url_id
+                "anno_url_id": anno_url_id,
+                "offset": offset
             }
         )
         data = self.get(
@@ -412,19 +414,21 @@ class RequestValidator:
         )
         return GetNextURLForAllAnnotationResponse(**data)
 
-    async def post_all_annotations_and_get_next(
+    async def post_all_annotations(
             self,
             url_id: int,
             all_annotations_post_info: AllAnnotationPostInfo,
             batch_id: int | None = None,
-            anno_url_id: int | None = None
+            anno_url_id: int | None = None,
+            get_next_url: bool = True
     ) -> GetNextURLForAllAnnotationResponse:
         params = {}
         update_if_not_none(
             target=params,
             source={
                 "batch_id": batch_id,
-                "anno_url_id": anno_url_id
+                "anno_url_id": anno_url_id,
+                "get_next_url": get_next_url
             }
         )
         data = self.post(

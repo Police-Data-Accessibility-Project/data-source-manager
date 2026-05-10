@@ -167,5 +167,3 @@ async def test_annotate_anonymous(
     assert len(name_suggestions) == 1
     annotation_name: AnnotationNameUserEndorsement = name_suggestions[0]
     assert annotation_name.user_id == MOCK_USER_ID
-
-

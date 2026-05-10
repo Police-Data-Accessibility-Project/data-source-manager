@@ -27,7 +27,7 @@ async def test_annotate_all_post_batch_filtering(api_test_helper):
     url_mapping_3 = setup_info_3.url_mapping
 
     # Submit the first annotation, using the third batch id, and receive the third URL
-    post_response_1 = await ath.request_validator.post_all_annotations_and_get_next(
+    post_response_1 = await ath.request_validator.post_all_annotations(
         url_id=url_mapping_1.url_id,
         batch_id=setup_info_3.batch_id,
         all_annotations_post_info=AllAnnotationPostInfo(

@@ -21,7 +21,7 @@ async def test_annotate_all_validation_error(api_test_helper):
     url_mapping_1 = setup_info_1.url_mapping
 
     with pytest.raises(FailedValidationException) as e:
-        response = await ath.request_validator.post_all_annotations_and_get_next(
+        response = await ath.request_validator.post_all_annotations(
             url_id=url_mapping_1.url_id,
             all_annotations_post_info=AllAnnotationPostInfo(
                 suggested_status=URLType.NOT_RELEVANT,

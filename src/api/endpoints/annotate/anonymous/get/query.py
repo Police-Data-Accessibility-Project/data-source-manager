@@ -23,10 +23,12 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
 
     def __init__(
         self,
-        session_id: UUID
+        session_id: UUID,
+        offset: int | None = None
     ):
         super().__init__()
         self.session_id = session_id
+        self.offset = offset
 
     async def run(self, session: AsyncSession) -> GetNextURLForAnonymousAnnotationResponse:
         base_cte = select(
@@ -66,11 +68,17 @@ class GetNextURLForAnonymousAnnotationQueryBuilder(QueryBuilderBase):
         )
         query = add_common_where_conditions(query)
         query = add_load_options(query)
+        if self.offset is not None:
+            offset = 0
+        else:
+            offset = self.offset
+
         query = (
             # Sorting Priority
             query.order_by(
                 *common_sorts(base_cte)
             )
+            .offset(offset)
             # Limit to 1 result
             .limit(1)
         )

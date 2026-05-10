@@ -33,7 +33,7 @@ async def test_annotate_all_post_batch_filtering(api_test_helper: APITestHelper)
     )
     assert get_response_2.next_annotation.url_info.url_id == url_mapping_3.url_id
 
-    post_response_3 = await ath.request_validator.post_all_annotations_and_get_next(
+    post_response_3 = await ath.request_validator.post_all_annotations(
         url_id=url_mapping_1.url_id,
         anno_url_id=url_mapping_3.url_id,
         all_annotations_post_info=AllAnnotationPostInfo(
