@@ -7,6 +7,7 @@ from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
+from src.db.models.materialized_views.url_health.sqlalchemy import URLHealthMaterializedView
 
 
 def build_data_source_get_query() -> Select:
@@ -30,7 +31,6 @@ def build_data_source_get_query() -> Select:
             URLOptionalDataSourceMetadata.coverage_end,
             URLOptionalDataSourceMetadata.agency_supplied,
             URLOptionalDataSourceMetadata.agency_aggregation,
-            URLOptionalDataSourceMetadata.agency_described_not_in_database,
             URLOptionalDataSourceMetadata.agency_originated,
             URLOptionalDataSourceMetadata.update_method,
             URLOptionalDataSourceMetadata.readme_url,
@@ -39,7 +39,18 @@ def build_data_source_get_query() -> Select:
             URLOptionalDataSourceMetadata.scraper_url,
             URLOptionalDataSourceMetadata.submission_notes,
             URLOptionalDataSourceMetadata.access_notes,
-            URLOptionalDataSourceMetadata.access_types
+            URLOptionalDataSourceMetadata.access_types,
+
+            URLHealthMaterializedView.health,
+            URLHealthMaterializedView.code,
+            URLHealthMaterializedView.status_code,
+            URLHealthMaterializedView.redirect_url_id,
+            URLHealthMaterializedView.redirect_url,
+            URLHealthMaterializedView.redirect_status_code,
+            URLHealthMaterializedView.has_redirect,
+            URLHealthMaterializedView.redirect_is_healthy,
+            URLHealthMaterializedView.has_archive,
+            URLHealthMaterializedView.archive_url,
         )
         .join(
             URLRecordType,
@@ -59,6 +70,10 @@ def build_data_source_get_query() -> Select:
         .outerjoin(
             URLOptionalDataSourceMetadata,
             URLOptionalDataSourceMetadata.url_id == URL.id
+        )
+        .outerjoin(
+            URLHealthMaterializedView,
+            URLHealthMaterializedView.url_id == URL.id,
         )
         .options(
             selectinload(URL.confirmed_agencies),

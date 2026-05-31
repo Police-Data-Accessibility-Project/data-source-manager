@@ -1,5 +1,6 @@
 import uuid
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.endpoints.submit.data_source.models.response.standard import SubmitDataSourceURLProposalResponse
@@ -12,6 +13,7 @@ from src.db.models.impl.annotation.name.suggestion.sqlalchemy import AnnotationN
 from src.db.models.impl.annotation.record_type.anon.sqlalchemy import AnnotationRecordTypeAnon
 from src.db.models.impl.annotation.url_type.anon.sqlalchemy import AnnotationURLTypeAnon
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
@@ -51,8 +53,14 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
         url_id: int = url.id
 
         # Add Batch
+        strategy_id: int | None = await session.scalar(
+            select(BatchStrategy.id).where(BatchStrategy.name == "manual")
+        )
+        if strategy_id is None:
+            raise ValueError("Unknown batch strategy: manual")
+
         batch = Batch(
-            strategy='manual',
+            batch_strategy_id=strategy_id,
             status=BatchStatus.READY_TO_LABEL,
             parameters={}
         )
@@ -129,7 +137,6 @@ class SubmitDataSourceURLProposalQueryBuilder(QueryBuilderBase):
             agency_supplied=self.request.agency_supplied,
             agency_originated=self.request.agency_originated,
             agency_aggregation=self.request.agency_aggregation,
-            agency_described_not_in_database=self.request.agency_described_not_in_database,
             data_portal_type=self.request.data_portal_type,
             update_method=self.request.update_method,
             readme_url=self.request.readme_url,

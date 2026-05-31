@@ -28,7 +28,6 @@ class DataSourceSyncContentModel(BaseModel):
     agency_supplied: bool | None = None
     agency_originated: bool | None = None
     agency_aggregation: AgencyAggregationEnum | None = None
-    agency_described_not_in_database: str | None = None
     update_method: UpdateMethodEnum | None = None
     readme_url: str | None = None
     originating_entity: str | None = None

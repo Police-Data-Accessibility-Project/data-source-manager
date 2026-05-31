@@ -71,6 +71,8 @@ async def setup_for_get_next_url_for_final_review(
     else:
         user_agency_id = None
 
+    await db_data_creator.adb_client.refresh_materialized_views()
+
     return FinalReviewSetupInfo(
         batch_id=batch_id,
         url_mapping=url_mapping,

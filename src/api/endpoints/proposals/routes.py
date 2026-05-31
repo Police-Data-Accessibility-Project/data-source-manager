@@ -74,7 +74,10 @@ async def get_agency_locations(
         GetProposalAgencyLocationsQueryBuilder(agency_id=proposed_agency_id)
     )
 
-@proposal_router.post("/agencies/{proposed_agency_id}/locations/{location_id}")
+@proposal_router.post(
+    "/agencies/{proposed_agency_id}/locations/{location_id}",
+    dependencies=[Depends(get_admin_access_info)],
+)
 async def add_location_to_agency(
     proposed_agency_id: int = Path(
         description="Agency ID to add location to"
@@ -89,7 +92,10 @@ async def add_location_to_agency(
     )
     return MessageResponse(message="Location added to agency.")
 
-@proposal_router.delete("/agencies/{proposed_agency_id}/locations/{location_id}")
+@proposal_router.delete(
+    "/agencies/{proposed_agency_id}/locations/{location_id}",
+    dependencies=[Depends(get_admin_access_info)],
+)
 async def remove_location_from_agency(
     proposed_agency_id: int = Path(
         description="Agency ID to remove location from"
@@ -104,7 +110,10 @@ async def remove_location_from_agency(
     )
     return MessageResponse(message="Location removed from agency.")
 
-@proposal_router.put("/agencies/{proposed_agency_id}")
+@proposal_router.put(
+    "/agencies/{proposed_agency_id}",
+    dependencies=[Depends(get_admin_access_info)],
+)
 async def update_agency(
     request: ProposalAgencyPutRequest,
     proposed_agency_id: int = Path(

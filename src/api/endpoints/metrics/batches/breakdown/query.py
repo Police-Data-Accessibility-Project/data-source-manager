@@ -14,8 +14,8 @@ from src.api.endpoints.metrics.batches.breakdown.validated.cte_ import VALIDATED
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.queries.base.builder import QueryBuilderBase
-from src.db.statement_composer import StatementComposer
 
 
 class GetBatchesBreakdownMetricsQueryBuilder(QueryBuilderBase):
@@ -28,13 +28,14 @@ class GetBatchesBreakdownMetricsQueryBuilder(QueryBuilderBase):
         self.page = page
 
     async def run(self, session: AsyncSession) -> GetMetricsBatchesBreakdownResponseDTO:
-        sc = StatementComposer
-
         main_query = select(
-            Batch.strategy,
+            BatchStrategy.name.label("strategy"),
             Batch.id,
             Batch.status,
             Batch.date_generated.label("created_at"),
+        ).join(
+            BatchStrategy,
+            Batch.batch_strategy_id == BatchStrategy.id,
         )
 
         all_ctes: list[BatchesBreakdownURLCTE] = [

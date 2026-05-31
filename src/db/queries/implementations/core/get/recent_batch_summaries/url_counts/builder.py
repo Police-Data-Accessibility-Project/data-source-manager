@@ -3,6 +3,7 @@ from sqlalchemy.sql.functions import func
 
 from src.collectors.enums import CollectorType
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.materialized_views.batch_url_status.core import BatchURLStatusMaterializedView
 from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
@@ -44,6 +45,10 @@ class URLCountsCTEQueryBuilder(QueryBuilderBase):
             )
             .select_from(Batch)
             .join(
+                BatchStrategy,
+                Batch.batch_strategy_id == BatchStrategy.id,
+            )
+            .join(
                 BatchURLStatusMaterializedView,
                 BatchURLStatusMaterializedView.batch_id == Batch.id,
             )
@@ -73,7 +78,7 @@ class URLCountsCTEQueryBuilder(QueryBuilderBase):
     def apply_collector_type_filter(self, query: Select):
         if self.collector_type is None:
             return query
-        return query.where(Batch.strategy == self.collector_type.value)
+        return query.where(BatchStrategy.name == self.collector_type.value)
 
     def apply_status_filter(self, query: Select):
         if self.status is None:

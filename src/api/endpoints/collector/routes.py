@@ -13,6 +13,7 @@ from src.core.core import AsyncCore
 from src.security.manager import get_admin_access_info
 from src.security.dtos.access_info import AccessInfo
 from src.collectors.impl.ckan.dtos.input import CKANInputDTO
+from src.collectors.impl.internet_archive.dtos.input import InternetArchiveInputDTO
 from src.collectors.impl.muckrock.collectors.all_foia.dto import MuckrockAllFOIARequestsCollectorInputDTO
 from src.collectors.impl.muckrock.collectors.county.dto import MuckrockCountySearchCollectorInputDTO
 from src.collectors.impl.muckrock.collectors.simple.dto import MuckrockSimpleSearchCollectorInputDTO
@@ -124,6 +125,21 @@ async def start_muckrock_all_foia_collector(
     """
     return await core.initiate_collector(
         collector_type=CollectorType.MUCKROCK_ALL_SEARCH,
+        dto=dto,
+        user_id=access_info.user_id
+    )
+
+@collector_router.post("/internet-archive")
+async def start_internet_archive_collector(
+        dto: InternetArchiveInputDTO,
+        core: AsyncCore = Depends(get_async_core),
+        access_info: AccessInfo = Depends(get_admin_access_info),
+) -> CollectorStartInfo:
+    """
+    Start the Internet Archive crawler collector
+    """
+    return await core.initiate_collector(
+        collector_type=CollectorType.INTERNET_ARCHIVE,
         dto=dto,
         user_id=access_info.user_id
     )

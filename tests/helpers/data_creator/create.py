@@ -5,7 +5,7 @@ from src.core.enums import BatchStatus, RecordType
 from src.db import County, Locality, USState
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.dtos.url.mapping_.simple import SimpleURLMapping
-from src.db.models.impl.batch.pydantic.insert import BatchInsertModel
+from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.pydantic import FlagURLValidatedPydantic
 from src.db.models.impl.link.batch_url.pydantic import LinkBatchURLPydantic
@@ -14,7 +14,7 @@ from src.db.models.impl.url.core.pydantic.insert import URLInsertModel
 from src.db.models.impl.url.data_source.pydantic import URLDataSourcePydantic
 from src.db.models.impl.url.record_type.pydantic import URLRecordTypePydantic
 from tests.helpers.counter import next_int
-from tests.helpers.data_creator.generate import generate_batch, generate_urls, generate_validated_flags, \
+from tests.helpers.data_creator.generate import generate_urls, generate_validated_flags, \
     generate_url_data_sources, generate_batch_url_links
 from tests.helpers.data_creator.models.creation_info.county import CountyCreationInfo
 from tests.helpers.data_creator.models.creation_info.locality import LocalityCreationInfo
@@ -27,8 +27,15 @@ async def create_batch(
     strategy: CollectorType = CollectorType.EXAMPLE,
     date_generated: datetime = datetime.now(),
 ) -> int:
-    batch: BatchInsertModel = generate_batch(status=status, strategy=strategy, date_generated=date_generated)
-    return (await adb_client.bulk_insert([batch], return_ids=True))[0]
+    return await adb_client.insert_batch(
+        BatchInfo(
+            strategy=strategy.value,
+            status=status,
+            parameters={},
+            user_id=1,
+            date_generated=date_generated,
+        )
+    )
 
 async def create_urls(
     adb_client: AsyncDatabaseClient,

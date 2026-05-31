@@ -3,6 +3,7 @@ from sqlalchemy.orm import selectinload
 
 from src.collectors.enums import CollectorType
 from src.core.tasks.url.operators.misc_metadata.tdo import URLMiscellaneousMetadataTDO, URLHTMLMetadataInfo
+from src.db.models.impl.batch.sqlalchemy import Batch
 from src.db.models.impl.url.html.content.enums import HTMLContentType
 from src.db.models.impl.url.core.sqlalchemy import URL
 from src.db.queries.base.builder import QueryBuilderBase
@@ -16,7 +17,7 @@ class GetPendingURLsMissingMiscellaneousDataQueryBuilder(QueryBuilderBase):
         query = StatementComposer.pending_urls_missing_miscellaneous_metadata_query()
         query = (
             query.options(
-                selectinload(URL.batch),
+                selectinload(URL.batch).selectinload(Batch.batch_strategy),
                 selectinload(URL.html_content)
             ).limit(100).order_by(URL.id)
         )
@@ -28,7 +29,7 @@ class GetPendingURLsMissingMiscellaneousDataQueryBuilder(QueryBuilderBase):
             tdo = URLMiscellaneousMetadataTDO(
                 url_id=result.id,
                 collector_metadata=result.collector_metadata or {},
-                collector_type=CollectorType(result.batch.strategy),
+                collector_type=CollectorType(result.batch.batch_strategy.name),
             )
             html_info = URLHTMLMetadataInfo()
             for html_content in result.html_content:

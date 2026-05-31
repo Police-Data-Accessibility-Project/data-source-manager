@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +7,7 @@ from src.api.endpoints.collector.dtos.manual_batch.response import ManualBatchRe
 from src.collectors.enums import CollectorType
 from src.core.enums import BatchStatus
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.link.batch_url.sqlalchemy import LinkBatchURL
 from src.db.models.impl.url.core.enums import URLSource
 from src.db.models.impl.url.core.sqlalchemy import URL
@@ -29,8 +31,14 @@ class UploadManualBatchQueryBuilder(QueryBuilderBase):
 
 
     async def run(self, session: AsyncSession) -> ManualBatchResponseDTO:
+        strategy_id: int | None = await session.scalar(
+            select(BatchStrategy.id).where(BatchStrategy.name == CollectorType.MANUAL.value)
+        )
+        if strategy_id is None:
+            raise ValueError(f"Unknown batch strategy: {CollectorType.MANUAL.value}")
+
         batch = Batch(
-            strategy=CollectorType.MANUAL.value,
+            batch_strategy_id=strategy_id,
             status=BatchStatus.READY_TO_LABEL.value,
             parameters={
                 "name": self.dto.name

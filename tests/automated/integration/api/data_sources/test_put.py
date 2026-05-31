@@ -39,7 +39,6 @@ async def test_put(
             agency_supplied=False,
             agency_originated=True,
             agency_aggregation=AgencyAggregationEnum.LOCALITY,
-            agency_described_not_in_database="Modified Agency Not In DB",
             update_method=UpdateMethodEnum.OVERWRITE,
             readme_url="https://modified-readme.com",
             originating_entity="Modified Originating Entity",
@@ -78,7 +77,6 @@ async def test_put(
     assert optional_metadata.agency_supplied == False
     assert optional_metadata.agency_originated == True
     assert optional_metadata.agency_aggregation == AgencyAggregationEnum.LOCALITY
-    assert optional_metadata.agency_described_not_in_database == "Modified Agency Not In DB"
     assert optional_metadata.update_method == UpdateMethodEnum.OVERWRITE
     assert optional_metadata.readme_url == "https://modified-readme.com"
     assert optional_metadata.originating_entity == "Modified Originating Entity"

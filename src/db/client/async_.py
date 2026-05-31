@@ -60,6 +60,7 @@ from src.db.models.impl.annotation.url_type.auto.pydantic.input import AutoRelev
 from src.db.models.impl.backlog_snapshot import BacklogSnapshot
 from src.db.models.impl.batch.pydantic.info import BatchInfo
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.impl.duplicate.pydantic.info import DuplicateInfo
 from src.db.models.impl.flag.url_validated.enums import URLType
 from src.db.models.impl.flag.url_validated.sqlalchemy import FlagURLValidated
@@ -632,8 +633,14 @@ class AsyncDatabaseClient:
         batch_info: BatchInfo
     ) -> int:
         """Insert a new batch into the database and return its ID."""
+        batch_strategy_id: int | None = await session.scalar(
+            select(BatchStrategy.id).where(BatchStrategy.name == batch_info.strategy)
+        )
+        if batch_strategy_id is None:
+            raise ValueError(f"Unknown batch strategy: {batch_info.strategy}")
+
         batch = Batch(
-            strategy=batch_info.strategy,
+            batch_strategy_id=batch_strategy_id,
             user_id=batch_info.user_id,
             status=batch_info.status.value,
             parameters=batch_info.parameters,
@@ -907,4 +914,10 @@ class AsyncDatabaseClient:
         )
         await self.execute(
             text("REFRESH MATERIALIZED VIEW mat_view__html_duplicate_url")
+        )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW CONCURRENTLY url_annotation_count_view")
+        )
+        await self.execute(
+            text("REFRESH MATERIALIZED VIEW CONCURRENTLY url_annotation_flags")
         )

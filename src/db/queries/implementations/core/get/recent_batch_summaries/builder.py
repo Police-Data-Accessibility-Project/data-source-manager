@@ -6,6 +6,7 @@ from src.api.endpoints.batch.dtos.get.summaries.counts import BatchSummaryURLCou
 from src.api.endpoints.batch.dtos.get.summaries.summary import BatchSummary
 from src.collectors.enums import CollectorType
 from src.db.models.impl.batch.sqlalchemy import Batch
+from src.db.models.impl.batch.strategy.sqlalchemy import BatchStrategy
 from src.db.models.materialized_views.batch_url_status.core import BatchURLStatusMaterializedView
 from src.db.models.materialized_views.batch_url_status.enums import BatchURLStatusViewEnum
 from src.db.queries.base.builder import QueryBuilderBase
@@ -38,7 +39,7 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
         query = (
             Select(
                 *builder.get_all(),
-                Batch.strategy,
+                BatchStrategy.name.label("strategy"),
                 Batch.status,
                 BatchURLStatusMaterializedView.batch_url_status,
                 Batch.parameters,
@@ -48,6 +49,9 @@ class GetRecentBatchSummariesQueryBuilder(QueryBuilderBase):
             ).join(
                 builder.query,
                 builder.get(count_labels.batch_id) == Batch.id,
+            ).join(
+                BatchStrategy,
+                Batch.batch_strategy_id == BatchStrategy.id,
             ).outerjoin(
                 BatchURLStatusMaterializedView,
                 BatchURLStatusMaterializedView.batch_id == Batch.id,

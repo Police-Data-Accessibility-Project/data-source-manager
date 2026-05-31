@@ -5,6 +5,7 @@ from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.core import 
 from src.db.client.async_ import AsyncDatabaseClient
 from src.db.models.impl.url.data_source.sqlalchemy import DSAppLinkDataSource
 from src.external.pdap.client import PDAPClient
+from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest, AddDataSourcesInnerRequest
 from src.external.pdap.impl.sync.shared.models.add.response import DSAppSyncAddResponseModel, \
@@ -69,7 +70,6 @@ async def test_add(
     assert content.detail_level is None
     assert content.agency_supplied is None
     assert content.agency_originated is None
-    assert content.agency_described_not_in_database is None
     assert content.update_method is None
     assert content.readme_url is None
     assert content.originating_entity is None
@@ -78,6 +78,8 @@ async def test_add(
     assert content.access_notes is None
     assert content.access_types == []
     assert content.data_portal_type_other is None
+    assert content.url_status == DataSourcesURLStatus.BROKEN
+    assert content.internet_archives_url is None
 
     assert content.agency_ids == [test_agency_id]
 

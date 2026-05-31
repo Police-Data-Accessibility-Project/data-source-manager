@@ -6,16 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.tasks.scheduled.impl.sync_to_ds.constants import PER_REQUEST_ENTITY_LIMIT
 from src.core.tasks.scheduled.impl.sync_to_ds.impl.data_sources.add.queries.cte import \
     DSAppLinkSyncDataSourceAddPrerequisitesCTEContainer
-from src.core.tasks.scheduled.impl.sync_to_ds.shared.convert import convert_sm_url_status_to_ds_url_status
+from src.core.tasks.scheduled.impl.sync_to_ds.shared.convert import convert_sm_url_health_to_ds_url_status
 from src.db.models.impl.link.url_agency.sqlalchemy import LinkURLAgency
 from src.db.models.impl.url.core.sqlalchemy import URL
-from src.db.models.impl.url.internet_archives.probe.sqlalchemy import URLInternetArchivesProbeMetadata
 from src.db.models.impl.url.optional_ds_metadata.sqlalchemy import URLOptionalDataSourceMetadata
 from src.db.models.impl.url.record_type.sqlalchemy import URLRecordType
-from src.db.models.impl.url.web_metadata.sqlalchemy import URLWebMetadata
-from src.db.models.materialized_views.url_status.sqlalchemy import URLStatusMaterializedView
+from src.db.models.materialized_views.url_health.sqlalchemy import URLHealthMaterializedView
 from src.db.queries.base.builder import QueryBuilderBase
-from src.external.pdap.enums import DataSourcesURLStatus
 from src.external.pdap.impl.sync.data_sources._shared.content import DataSourceSyncContentModel
 from src.external.pdap.impl.sync.data_sources.add.request import AddDataSourcesOuterRequest, AddDataSourcesInnerRequest
 
@@ -42,7 +39,6 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 # Required
                 URL.full_url,
                 URL.name,
-                URLWebMetadata.status_code,
                 URLRecordType.record_type,
                 agency_id_cte.c.agency_ids,
                 # Optional
@@ -61,7 +57,9 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 URLOptionalDataSourceMetadata.scraper_url,
                 URLOptionalDataSourceMetadata.access_notes,
                 URLOptionalDataSourceMetadata.access_types,
-                URLInternetArchivesProbeMetadata.archive_url,
+                URLHealthMaterializedView.health,
+                URLHealthMaterializedView.has_archive,
+                URLHealthMaterializedView.archive_url,
             )
             .select_from(
                 cte.cte
@@ -75,12 +73,8 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                 URL.id == URLOptionalDataSourceMetadata.url_id,
             )
             .outerjoin(
-                URLWebMetadata,
-                URL.id == URLWebMetadata.url_id
-            )
-            .outerjoin(
-                URLInternetArchivesProbeMetadata,
-                URL.id == URLInternetArchivesProbeMetadata.url_id,
+                URLHealthMaterializedView,
+                URL.id == URLHealthMaterializedView.url_id,
             )
             .join(
                 URLRecordType,
@@ -124,11 +118,11 @@ class DSAppSyncDataSourcesAddGetQueryBuilder(QueryBuilderBase):
                         scraper_url=mapping[URLOptionalDataSourceMetadata.scraper_url],
                         access_notes=mapping[URLOptionalDataSourceMetadata.access_notes],
                         access_types=mapping[URLOptionalDataSourceMetadata.access_types] or [],
-                        # TODO: Change to convert web metadata result to URL Status
-                        url_status=convert_sm_url_status_to_ds_url_status(
-                            mapping[URLWebMetadata.status_code],
+                        url_status=convert_sm_url_health_to_ds_url_status(
+                            health=mapping[URLHealthMaterializedView.health],
+                            has_archive=mapping[URLHealthMaterializedView.has_archive] or False,
                         ),
-                        internet_archives_url=mapping[URLInternetArchivesProbeMetadata.archive_url] or None,
+                        internet_archives_url=mapping[URLHealthMaterializedView.archive_url] or None,
                     )
                 )
             )

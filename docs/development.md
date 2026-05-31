@@ -35,14 +35,14 @@ At minimum, you need the database connection variables:
 
 ```dotenv
 POSTGRES_USER=test_source_collector_user
-POSTGRES_PASSWORD=HanviliciousHamiltonHilltops
+POSTGRES_PASSWORD=<see local_database/docker-compose.yml>
 POSTGRES_DB=source_collector_test_db
 POSTGRES_HOST=127.0.0.1
 POSTGRES_PORT=5432
 DEV=true
 ```
 
-These match the defaults in `local_database/docker-compose.yml`.
+The password and other defaults are defined in `local_database/docker-compose.yml`.
 
 ### API Keys
 
